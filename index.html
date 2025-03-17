@@ -16,11 +16,92 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   </head>
   <body>
-    <h1>New trips</h1>
-    <div id="newtrips"></div>
-    <h1>Most Voted Places</h1>
-    <h1>About this website</h1>
+    <h1>¿A donde vamos?</h1>
+    
+    <h2>What is Adondevamos.io? </h2>
+    <p>Adondevamos.io is a website to share your trip info and itinerary with friend, vote where yo wanted to go and share to others!</p>
 
+    <h2>New trips</h2>
+    <div class="container">
+      <div class="col">
+      <div class="card-group">
+        <div class="card">
+          <img src="Resources\Default\default.png" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">{trips.newList[n].name}</h5>
+            <p class="card-text">{trips.newList[n].description}</p>
+            <h5 class="card-title">Place List</h5>
+            <p class="card-text">{trips.newList[n].initerary[n].PlaceName}</p>
+            <p class="card-text"><small class="text-body-secondary">Last updated {trips.newList[n].Info.LastUpdatedDate} ago</small></p>
+          </div>
+        </div>
+        <div class="card">
+          <img src="Resources\Default\default.png" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">{trips.newList[n].name}</h5>
+            <p class="card-text">{trips.newList[n].description}</p>
+            <h5 class="card-title">Place List</h5>
+            <p class="card-text">{trips.newList[n].initerary[n].PlaceName}</p>
+            <p class="card-text"><small class="text-body-secondary">Last updated {trips.newList[n].Info.LastUpdatedDate} ago</small></p>
+          </div>
+        </div>
+        <div class="card">
+          <img src="Resources\Default\default.png" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">{trips.newList[n].name}</h5>
+            <p class="card-text">{trips.newList[n].description}</p>
+            <h5 class="card-title">Place List</h5>
+            <p class="card-text">{trips.newList[n].initerary[n].PlaceName}</p>
+            <p class="card-text"><small class="text-body-secondary">Last updated {trips.newList[n].Info.LastUpdatedDate} ago</small></p>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+    <h1>Most Voted Places</h1>
+      <div class="container">
+        <div class="col">
+        <div class="card-group">
+          <div class="card">
+            <img src="Resources\Default\default.png" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">{places.mostVotedList[n].name}</h5>
+              <p class="card-text">{places.mostVotedList[n].description}</p>
+              <h5 class="card-title">Ubication</h5>
+              <p class="card-text"><small class="text-body-secondary">{places.mostVotedList[n].Info.ubication}</small></p>
+            </div>
+          </div>
+          <div class="card">
+            <img src="Resources\Default\default.png" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">{places.mostVotedList[n].name}</h5>
+              <p class="card-text">{places.mostVotedList[n].description}</p>
+              <h5 class="card-title">Ubication</h5>
+              <p class="card-text"><small class="text-body-secondary">{places.mostVotedList[n].Info.ubication}</small></p>
+            </div>
+          </div>
+          <div class="card">
+            <img src="Resources\Default\default.png" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">{places.mostVotedList[n].name}</h5>
+              <p class="card-text">{places.mostVotedList[n].description}</p>
+              <h5 class="card-title">Ubication</h5>
+              <p class="card-text"><small class="text-body-secondary">{places.mostVotedList[n].Info.ubication}</small></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <h1>About this website</h1>
+    <p>This is a message to let people knows about this website and creator.</p>
+    <div class="container">
+      <div class="col">
+        <img src="Resources\Default\default.png" class="card-img-top" alt="...">
+      </div>
+    </div>
+    
+    
     <div id="root"></div>
 
     <script type="text/babel">
