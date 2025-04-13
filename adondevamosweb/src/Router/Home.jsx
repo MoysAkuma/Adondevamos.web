@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 
 import  NewTrips  from "../Component/NewTrips";
+import  MostVotedPlaces  from "../Component/MostVotedPlaces";
 
 function Home() {
     const [loading, setLoading] = useState(true);
@@ -14,7 +15,8 @@ function Home() {
 
         <h2>New trips</h2>
          <NewTrips />
-
+        <h2>Most voted places </h2>
+          <MostVotedPlaces/>
       </div>
     );
   };
