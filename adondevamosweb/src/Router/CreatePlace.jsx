@@ -1,7 +1,69 @@
 import { useState } from 'react';
 import axios from 'axios';
+import 
+    {
+        TextField, 
+        Button,
+        useMediaQuery,
+        useTheme,
+        Container,
+        Typography,
+        Box,
+        MenuItem,
+        FormGroup,
+        FormControlLabel,
+        Checkbox 
+    } from '@mui/material';
 
 function CreatePlace() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  //catalogues
+  const [catCountries, setCatCountries] = useState([
+      {
+          value:1,
+          label:"MEXICO"
+      }
+  ]);
+  const [catStates, setCatStates] = useState([
+      {
+          value:1,
+          label:"SINALOA"
+      }
+  ]);
+
+  const [catCities, setCatCities] = useState([
+      {
+          value:1,
+          label:"Culiacan"
+      },
+      {
+          value:2,
+          label:"Los mochis"
+      }
+  ]);
+
+  const [catFacilities, setCatFacilities] = useState([
+    {
+        value:true,
+        label:"Wi-fi",
+        code:"wifi"
+    },
+    {
+        value:false,
+        label:"Bathroom",
+        code:"bath"
+    }
+]);
+// State to track checked options
+const [checkedFacilities, setCheckedFacilities] = useState({});
+
+const facilitiesChange = (event) => {
+  setCheckedFacilities({
+    ...checkedFacilities,
+      [event.target.name]: event.target.checked,
+  });
+};
   // placeinfo
   const [formCreatePlace, setformCreatePlace] = useState({
     name: '',
@@ -19,12 +81,12 @@ function CreatePlace() {
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  // Handle form field changes
+  //update request
   const handleChange = (e) => {
-    const { name, countryID, stateID, cityID, description, address, facilities, isInt } = e.target;
-    setFormData(prev => ({
+    const { name, value } = e.target;
+    setformCreatePlace(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: value
     }));
   };
 
@@ -110,119 +172,134 @@ function CreatePlace() {
   };
 
   return (
-    <div className="place-form-container">
-      <h2>Create Place</h2>
-      
-      {submitSuccess && (
-        <div className="alert alert-success">
-          Place created successfully!
-        </div>
-      )}
-      
-      {submitError && (
-        <div className="alert alert-error">
-          Error: {submitError}
-        </div>
-      )}
+    <Container maxWidth="sm" sx={{ py: 4 }}>
+      <Typography variant="h6" component="h6" gutterBottom align="center">
+          Create Place
+      </Typography>
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 2,
+        width: '100%'
+      }}
+      >
+        <Typography variant="h6" component="h6" gutterBottom align="center">
+          Place Info
+        </Typography>
 
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="name">Place Name*</label>
-          <input
-            type="text"
+        <TextField
             id="name"
             name="name"
+            label="Name"
+            placeholder="Name of place"
+            variant="outlined"
+            onChange={handleChange}
+            size={isMobile ? 'small' : 'medium'}
             value={formCreatePlace.name}
-            onChange={handleChange}
+            fullWidth
             required
-            placeholder="Enter product name"
-          />
-        </div>
+        />
 
-        <div className="form-group">
-          <label htmlFor="country">Country</label>
-          <select
-            id="country"
-            name="country"
-            value={formCreatePlace.country}
-            onChange={handleChange}
-          >
-            <option value="1">Mexico</option>
-            <option value="2">Japan</option>
-            <option value="3">USA</option>
-            <option value="4">Canada</option>
-            <option value="5">Peru</option>
-          </select>
-        </div>
+        <TextField
+          fullWidth
+          name="description"
+          id="description"
+          label="Description"
+          placeholder="About this place"
+          onChange={handleChange}
+          value={formCreatePlace.description}
+        />
 
-        <div className="form-group">
-          <label htmlFor="state">State</label>
-          <select
-            id="state"
-            name="state"
-            value={formCreatePlace.state}
-            onChange={handleChange}
-          >
-            <option value="1">Sinaloa</option>
-            <option value="2">Jalisco</option>
-            <option value="3">California</option>
-          </select>
-        </div>
+        <TextField
+          fullWidth
+          name="address"
+          id="address"
+          label="Address"
+          onChange={handleChange}
+          value={formCreatePlace.address}
+        />
 
-        <div className="form-group">
-          <label htmlFor="city">City</label>
-          <select
-            id="city"
-            name="city"
-            value={formCreatePlace.city}
-            onChange={handleChange}
-          >
-            <option value="1">Cancun</option>
-            <option value="2">Culiacan</option>
-            <option value="3">Osaka</option>
-            <option value="4">Tokio</option>
-            <option value="5">Hiroshima</option>
-            <option value="6">Otro</option>
-          </select>
-        </div>
+        <Typography variant="h6" component="h6" gutterBottom align="center">
+            Ubication
+        </Typography>
 
-        <div className="form-group">
-          <label htmlFor="description">Description</label>
-          <textarea
-            id="description"
-            name="description"
-            value={formCreatePlace.description}
-            onChange={handleChange}
-            rows="4"
-            placeholder="Enter place description"
-          />
-        </div>
+        <TextField
+                id="countryID"
+                name="countryID"
+                select
+                label="Country"
+                defaultValue="1"
+                helperText="Please select your Country"
+                value={formCreatePlace.countryID}
+                onChange={handleChange}
+                >
+                {catCountries.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                    </MenuItem>
+                ))}
+        </TextField>
 
-        <div className="form-group checkbox-group">
-          <input
-            type="checkbox"
-            id="isInt"
-            name="isInternational"
-            checked={formData.isInternational}
-            onChange={handleChange}
-          />
-          <label htmlFor="inStock">Is international?</label>
-        </div>
+        <TextField
+                id="stateID"
+                name="stateID"
+                select
+                label="State"
+                defaultValue="1"
+                helperText="Please select your state"
+                value={formCreatePlace.stateID}
+                onChange={handleChange}
+                >
+                {catStates.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                    </MenuItem>
+                ))}
+        </TextField>
 
-        <div className="form-group checkbox-group">
-          
-          <label htmlFor="facilityID">Faciliti list</label>
-        </div>
-
-        <button 
+        <TextField
+                id="cityID"
+                name="cityID"
+                select
+                label="City"
+                defaultValue="1"
+                helperText="Please select your city"
+                value={formCreatePlace.cityID}
+                onChange={handleChange}
+                >
+                {catCities.map((option) => (
+                    <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                    </MenuItem>
+                ))}
+        </TextField>
+        <Typography variant="h6" component="h6" gutterBottom align="center">
+            Facilities
+        </Typography>
+        <FormGroup>
+          {
+            catFacilities.map((opt)=>(
+              <FormControlLabel
+                key={opt.code}
+                label={opt.label}
+                control={
+                  <Checkbox name={opt.code} value={opt.value} checked={checkedFacilities[opt.code] || false} onChange={facilitiesChange} />
+              } />
+            ))
+          }
+        </FormGroup>
+        <Button 
           type="submit" 
           disabled={isSubmitting}
-          className="submit-button"
-        >
-          {isSubmitting ? 'Creating...' : 'Create Place'}
-        </button>
-      </form>
-    </div>
+          variant="contained"
+          >
+          Create Place
+        </Button>
+      </Box>
+    </Container>
   );
 };
 

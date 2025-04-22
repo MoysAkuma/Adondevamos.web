@@ -22,7 +22,7 @@ function ConfirmEmail(){
         };
         confirmEmail();
       }, []);
-    if (loading) return <div>Loading most voted places...</div>;
+    if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
     return (<p>Confirm Email</p>);
 }

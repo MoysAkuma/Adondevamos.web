@@ -11,7 +11,7 @@ function MostVotedPlaces(){
           const url ="http://localhost:3000/MostVotedPlaces";
           try {
             const resp = await axios.get(url);
-            setArrMostVotedPlaces(resp.Info);
+            setMostVotedPlaces(resp.Info);
             console.log(resp);
           } catch (error) {
             console.log(error);
@@ -30,4 +30,4 @@ function MostVotedPlaces(){
         </>
     );
 }
-export default NewTrips;
+export default MostVotedPlaces;
