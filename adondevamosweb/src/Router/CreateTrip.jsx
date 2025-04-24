@@ -12,8 +12,11 @@ import
         MenuItem,
         FormGroup,
         FormControlLabel,
-        Checkbox 
+        Checkbox
+        
     } from '@mui/material';
+import PlaceSearch from '../Component/PlaceSearch';
+import Memberlist from '../Component/Memberlist'
 
 function CreateTrip(){
     const theme = useTheme();
@@ -63,7 +66,7 @@ function CreateTrip(){
     //update request
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setForm(prev => ({
+        setFormTrip(prev => ({
         ...prev,
         [name]: value
         }));
@@ -121,7 +124,7 @@ function CreateTrip(){
       
 
       // API call to create product
-      const response = await axios.post('http://localhost/CreatePlace', {
+      const response = await axios.post('http://localhost/CreateTrip', {
         name: formTrip.name.trim(),
         countryID: formTrip.countryID,
         stateID: formTrip.stateID,
@@ -167,7 +170,7 @@ function CreateTrip(){
 
     return (
         <Container maxWidth="sm" sx={{ py: 4 }}>
-            <Typography variant="h6" component="h6" gutterBottom align="center">
+            <Typography variant="h6"  gutterBottom align="center">
                 Create Trip
             </Typography>
             <Box
@@ -180,8 +183,8 @@ function CreateTrip(){
             width: '100%'
             }}
             >
-                <Typography variant="h6" component="h6" gutterBottom align="center">
-                Trip Info
+                <Typography variant="subtitle2" gutterBottom align="center">
+                About your trip
                 </Typography>
 
                 <TextField
@@ -196,18 +199,114 @@ function CreateTrip(){
                     fullWidth
                     required
                 />
+
+                <TextField
+                  type="date"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  id="initalDate"
+                  name="initalDate"
+                  label="Initial Date"
+                  placeholder="Initial Date of this trip"
+                  variant="outlined"
+                  onChange={handleChange}
+                  size={isMobile ? 'small' : 'medium'}
+                  value={formTrip.initalDate}
+                  fullWidth
+                  required
+                />
+
+                <TextField
+                  type="date"
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  id="finalDate"
+                  name="finalDate"
+                  label="Final Date"
+                  placeholder="Initial Date of this trip"
+                  variant="outlined"
+                  onChange={handleChange}
+                  size={isMobile ? 'small' : 'medium'}
+                  value={formTrip.finalDate}
+                  fullWidth
+                  required
+                />
                 
-                <Typography variant="h6" component="h6" gutterBottom align="center">
+                <Typography variant="subtitle2"  gutterBottom align="center">
                 Ubication
                 </Typography>
+                
+                <TextField
+                  id="countryID"
+                  name="countryID"
+                  select
+                  label="Country"
+                  defaultValue="1"
+                  helperText="Please select your Country"
+                  value={formTrip.countryID}
+                  onChange={handleChange}
+                >
+                  {catCountries.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                      </MenuItem>
+                  ))}
+                </TextField>
 
-                <Typography variant="h6" component="h6" gutterBottom align="center">
+                <TextField
+                  id="stateID"
+                  name="stateID"
+                  select
+                  label="State"
+                  defaultValue="1"
+                  helperText="Please select your state"
+                  value={formTrip.stateID}
+                  onChange={handleChange}
+                >
+                  {catStates.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                      {option.label}
+                      </MenuItem>
+                  ))}
+                </TextField>
+
+                <TextField
+                  id="cityID"
+                  name="cityID"
+                  select
+                  label="City"
+                  defaultValue="1"
+                  helperText="Please select your city"
+                  value={formTrip.cityID}
+                  onChange={handleChange}
+                >
+                  {catCities.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                        </MenuItem>
+                    ))}
+                </TextField>
+                <Typography variant="subtitle2"  gutterBottom align="center">
                 Itinerary
                 </Typography>
-
-                <Typography variant="h6" component="h6" gutterBottom align="center">
+                
+                <PlaceSearch/>
+                
+                <Typography variant="subtitle2"  gutterBottom align="center">
                 Members
                 </Typography>
+                
+                <Memberlist />
+                
+                <Button 
+                  type="submit" 
+                  disabled={isSubmitting}
+                  variant="contained"
+                  >
+                  Create Trip
+                </Button>
             </Box>
         </Container>
     );

@@ -1,10 +1,8 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import  Home  from "./Router/Home";
-import { 
-  CreateUser
-  , CreatePlace
-  , CreateTrip
-} from "./Router";
+import CreateUser from "./Router/CreateUser";
+import CreatePlace from "./Router/CreatePlace";
+import CreateTrip from "./Router/CreateTrip";
 
 export default function App() {
   return (
