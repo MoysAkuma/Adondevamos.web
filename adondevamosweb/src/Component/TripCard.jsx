@@ -12,32 +12,27 @@ function TripCard ({
 {
     return(
         <Card sx={{ maxWidth: 345 }}>
-        <CardMedia
-          sx={{ height: 140 }}
-          image="{{logo}}"
-          title="trip image"
-        />
-        <CardContent>
-          <Typography gutterBottom variant="h5" component="div">
-            {tripinfo.TripName}
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          {tripinfo.Description}
-          </Typography>
-          <Typography gutterBottom variant="h5" component="div">
-            Place List
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            <ul >
-              {tripinfo.Itinerary.map((item, index) => (
-                <li key={item.PlaceID}>{item.Name}</li>
-              ))}
-            </ul>
-          </Typography>
-        </CardContent>
-        <CardActions>
-          <Button size="small">View</Button>
-        </CardActions>
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="div">
+              {tripinfo.TripName}
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            {tripinfo.Description}
+            </Typography>
+            <Typography gutterBottom variant="h5" component="div">
+              Place List
+            </Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              <ul >
+                {tripinfo.Itinerary.map((item, index) => (
+                  <li key={item.PlaceID}>{item.Name}</li>
+                ))}
+              </ul>
+            </Typography>
+          </CardContent>
+          <CardActions>
+            <Button size="small">View</Button>
+          </CardActions>
       </Card>
     );
 }

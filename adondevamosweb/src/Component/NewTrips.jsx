@@ -16,54 +16,35 @@ import
         Checkbox
         
     } from '@mui/material';
-import PlaceCard from "./PlaceCard";
-import { Description } from "@mui/icons-material";
 
 function NewTrips(){
-    const [arrNewTrips, setArrNewTrips] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-
-    useEffect(() => {
-        const getnewTrips = async () => {
-          const url ="http://localhost:3000/NewTrips";
-          try {
-            const resp = await axios.get(url);
-            setArrNewTrips(resp.Info);
-            console.log(resp);
-          } catch (error) {
-            console.log(error);
-          } finally {
-            setLoading(false);
-          }
-        };
-      
-        //getnewTrips();
-      }, []);
-      setArrNewTrips([
-        {
+    const [arrNewTrips, setArrNewTrips] = useState([]);
+    const setNewTrips = async (e) => {
+    setArrNewTrips([
+      {
           Name : "Test trip 1",
           id: 1,
           Description : "Description test"
-        },
-        {
+      },
+      {
           Name : "Test trip 2",
           id: 2,
           Description : "Description test"
-        },
+      },
         {
           Name : "Test trip 3",
           id: 3,
           Description : "Description test"
         }
-      ]);
-    if (loading) return <div>Loading new trips...</div>;
-    if (error) return <div>Error: {error}</div>;
+    ]);
+    console.log(arrNewTrips);
+  }
     return (
       <div>
       <Typography variant="h6" component="h6" gutterBottom align="center">
         New Trips!
       </Typography>
+      <Button onClick={setNewTrips}>click</Button>
       <Box
         sx={{
         display: 'flex',
@@ -72,9 +53,13 @@ function NewTrips(){
         width: '100%'
       }}
       >
-        <PlaceCard  />
-        <PlaceCard />
-        <PlaceCard />
+        {
+            arrNewTrips.length > 0 ? arrNewTrips.map(
+                (x)=>(
+                    <TripCard tripinfo={x}/>
+                  )
+            ) : <p>No new trips to show</p>
+        }
         </Box>
         </div>
     );
