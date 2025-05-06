@@ -19,6 +19,7 @@ import
 
     } from '@mui/material';
 import {BeachAccessIcon, Add} from '@mui/icons-material';
+import SearchResultList from "./SearchResultList";
 function PlaceSearch(){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -105,7 +106,7 @@ function PlaceSearch(){
 
     return (
     <Container maxWidth="sm" sx={{ py: 4 }}>
-        <Typography variant="subtitle1" gutterBottom align="center">
+        <Typography variant="subtitle2" gutterBottom align="center">
             Search Places
         </Typography>
         <Box
@@ -173,24 +174,7 @@ function PlaceSearch(){
             gap: 2,
             width: '100%'
         }}>
-            <Typography variant="subtitle1" gutterBottom align="center">
-                Found Places
-            </Typography>
-            <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-                {
-                    foundPlaces.length > 0 ? foundPlaces.map(
-                        (x)=>(
-                            <ListItem key={x.id}>
-                                <ListItemText 
-                                    primary={x.name} 
-                                    secondary={x.description} />
-                                <IconButton edge="end" aria-label="add">
-                                    <Add />
-                                </IconButton> 
-                            </ListItem>
-                    )): <p>Select filters</p>
-                }
-            </List>
+            <SearchResultList name={"places"} results={foundPlaces}/>
         </Box>
     </Container>
     );

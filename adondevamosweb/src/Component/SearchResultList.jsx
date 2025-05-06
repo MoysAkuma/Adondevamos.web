@@ -12,32 +12,24 @@ import
         FormGroup,
         FormControlLabel,
         Checkbox,
-        InputAdornment,
-        IconButton,
         List,
         ListItem,
-        ListItemText
-        
-} from '@mui/material';
+        ListItemText,
+        IconButton
 
-import { Add, Delete } from '@mui/icons-material';
+    } from '@mui/material';
+import {BeachAccessIcon, Add} from '@mui/icons-material';
 
-
-function Memberlist({ members}){
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
+function SearchResultList({name, results}){
     return (
-        <Container maxWidth="sm" sx={{ py: 4 }}>
-            <Box sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-            width: '100%'
-        }}>
+    <Container>
+        <Box>    
+            <Typography variant="subtitle1" gutterBottom align="center">
+                Found {name}
+            </Typography>
             <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
                 {
-                    members.length > 0 ? members.map(
+                    results.length > 0 ? results.map(
                         (x)=>(
                             <ListItem key={x.id}>
                                 <ListItemText 
@@ -45,17 +37,12 @@ function Memberlist({ members}){
                                     secondary={x.description} />
                                 <IconButton edge="end" aria-label="add">
                                     <Add />
-                                    <Delete />
                                 </IconButton> 
                             </ListItem>
-                    )): <ListItem> 
-                        <ListItemText primary="No members added yet" ></ListItemText>
-                    </ListItem>
+                    )): <p>Select filters</p>
                 }
             </List>
         </Box>
-        </Container>
-    );
+    </Container>);
 }
-
-export default Memberlist;
+export default SearchResultList;

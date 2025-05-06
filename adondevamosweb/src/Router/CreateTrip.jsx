@@ -17,6 +17,7 @@ import
     } from '@mui/material';
 import PlaceSearch from '../Component/PlaceSearch';
 import Memberlist from '../Component/Memberlist'
+import MemberSearch from '../Component/MemberSearch';
 
 function CreateTrip(){
     const theme = useTheme();
@@ -170,7 +171,7 @@ function CreateTrip(){
 
     return (
         <Container maxWidth="sm" sx={{ py: 4 }}>
-            <Typography variant="h6"  gutterBottom align="center">
+            <Typography variant="h5"  gutterBottom align="center">
                 Create Trip
             </Typography>
             <Box
@@ -298,7 +299,9 @@ function CreateTrip(){
                 Members
                 </Typography>
                 
-                <Memberlist />
+                <Memberlist members={formTrip.memberlist} />
+                
+                <MemberSearch />
                 
                 <Button 
                   type="submit" 
