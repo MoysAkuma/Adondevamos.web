@@ -4,6 +4,7 @@ import CreateUser from "./Router/CreateUser";
 import CreatePlace from "./Router/CreatePlace";
 import CreateTrip from "./Router/CreateTrip";
 import Login from "./Router/Login"
+import ManageSite from "./Router/ManageSite";
 export default function App() {
   return (
     <BrowserRouter>
@@ -13,6 +14,7 @@ export default function App() {
         <Route path="/CreateUser" element={<CreateUser/>}/>
         <Route path="/CreatePlace" element={<CreatePlace/>}/>
         <Route path="/CreateTrip" element={<CreateTrip/>}/>
+        <Route path="/ManageSite" element={<ManageSite/>}/>
       </Routes>
     </BrowserRouter>
   );

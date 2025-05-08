@@ -171,9 +171,6 @@ function CreateTrip(){
 
     return (
         <Container maxWidth="sm" sx={{ py: 4 }}>
-            <Typography variant="h5"  gutterBottom align="center">
-                Create Trip
-            </Typography>
             <Box
             component="form"
             onSubmit={handleSubmit}
@@ -184,6 +181,9 @@ function CreateTrip(){
             width: '100%'
             }}
             >
+                <Typography variant="h5"  gutterBottom align="center">
+                  Create Trip
+                </Typography>
                 <Typography variant="subtitle2" gutterBottom align="center">
                 About your trip
                 </Typography>

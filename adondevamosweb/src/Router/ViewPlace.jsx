@@ -1,5 +1,20 @@
 import { useState, useEffect } from "react";
+import 
+    {
+        TextField, 
+        Button,
+        useMediaQuery,
+        useTheme,
+        Container,
+        Typography,
+        Box,
+        MenuItem,
+        FormGroup,
+        FormControlLabel,
+        Checkbox 
+    } from '@mui/material';
 
-export const ViewPlace = () => {
+function ViewPlace(){
     return (<p>View Place</p>);
 }
+export default ViewPlace;
