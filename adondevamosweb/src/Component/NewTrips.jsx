@@ -18,27 +18,25 @@ import
     } from '@mui/material';
 
 function NewTrips(){
-    const [arrNewTrips, setArrNewTrips] = useState([]);
+    const [NewTripsResp, setNewTripsResp] = useState([]);
     const setNewTrips = async (e) => {
-    setArrNewTrips([
-      {
-          Name : "Test trip 1",
-          id: 1,
-          Description : "Description test"
-      },
-      {
-          Name : "Test trip 2",
-          id: 2,
-          Description : "Description test"
-      },
-        {
-          Name : "Test trip 3",
-          id: 3,
-          Description : "Description test"
-        }
-    ]);
-    console.log(arrNewTrips);
-  }
+      setNewTripsResp(
+        [
+          {
+            Name : "Test trip 1",
+            id: 1,
+            Description : "Description test",
+            Itinerary:[
+              {
+                id:1,
+                Name:"Place Name 1"
+              }
+            ],
+            
+          }
+        ]
+      );
+    }
     return (
       <div>
       <Typography variant="h6" component="h6" gutterBottom align="center">
@@ -47,16 +45,15 @@ function NewTrips(){
       <Button onClick={setNewTrips}>click</Button>
       <Box
         sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
+        display: 'grid',
+        gap: 3,
         width: '100%'
       }}
       >
         {
-            arrNewTrips.length > 0 ? arrNewTrips.map(
+            NewTripsResp.length > 0 ? NewTripsResp.map(
                 (x)=>(
-                    <TripCard tripinfo={x}/>
+                    <TripCard key={x.id} tripinfo={x}/>
                   )
             ) : <p>No new trips to show</p>
         }

@@ -1,6 +1,21 @@
 import React, { useState, useEffect } from "react";
 import PlaceCard from "./PlaceCard";
 import axios from 'axios';
+import 
+    {
+        TextField, 
+        Button,
+        useMediaQuery,
+        useTheme,
+        Container,
+        Typography,
+        Box,
+        MenuItem,
+        FormGroup,
+        FormControlLabel,
+        Checkbox
+        
+    } from '@mui/material';
 
 function MostVotedPlaces(){
     const [arrMostVotedPlaces, setMostVotedPlaces] = useState(null);
@@ -21,13 +36,33 @@ function MostVotedPlaces(){
         };
         getMostVotedPlaces();
       }, []);
-    if (loading) return <div>Loading most voted places...</div>;
-    if (error) return <div>Error: {error}</div>;
+
+      const setMostVotedPlacescat = async (e) => {
+        setMostVotedPlaces(
+          [
+            {
+              Name : "Test trip 1",
+              id: 1,
+              Description : "Description test",
+              Itinerary:[
+                {
+                  id:1,
+                  Name:"Place Name 1"
+                }
+              ],
+              
+            }
+          ]
+        );
+      }
     return (
-        <>
-            <p>Most voted places by users</p>
+      <div>
+        <Typography variant="h5" component="h5" gutterBottom align="center">
+          Most voted places by users
+        </Typography>
+        <Button onClick={setMostVotedPlacescat}>click</Button>
             
-        </>
+        </div>
     );
 }
 export default MostVotedPlaces;

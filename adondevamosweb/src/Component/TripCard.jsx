@@ -11,27 +11,27 @@ function TripCard ({
 }) 
 {
     return(
-        <Card sx={{ maxWidth: 345 }}>
+        <Card>
           <CardContent>
             <Typography gutterBottom variant="h5" component="div">
-              {tripinfo.TripName}
+              {tripinfo.Name}
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             {tripinfo.Description}
             </Typography>
-            <Typography gutterBottom variant="h5" component="div">
+            <Typography gutterBottom variant="body2" component="div">
               Place List
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
               <ul >
                 {tripinfo.Itinerary.map((item, index) => (
-                  <li key={item.PlaceID}>{item.Name}</li>
+                  <li key={item.id}>{item.Name}</li>
                 ))}
               </ul>
             </Typography>
           </CardContent>
           <CardActions>
-            <Button size="small">View</Button>
+            <Button size="small">View Trip</Button>
           </CardActions>
       </Card>
     );
