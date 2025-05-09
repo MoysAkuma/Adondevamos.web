@@ -5,6 +5,9 @@ import CreatePlace from "./Router/CreatePlace";
 import CreateTrip from "./Router/CreateTrip";
 import Login from "./Router/Login"
 import ManageSite from "./Router/ManageSite";
+import ViewUser from "./Router/ViewUser";
+import ViewPlace from "./Router/ViewPlace";
+import ViewTrip from "./Router/ViewTrip"
 export default function App() {
   return (
     <BrowserRouter>
@@ -15,6 +18,9 @@ export default function App() {
         <Route path="/CreatePlace" element={<CreatePlace/>}/>
         <Route path="/CreateTrip" element={<CreateTrip/>}/>
         <Route path="/ManageSite" element={<ManageSite/>}/>
+        <Route path="/ViewUser" element={<ViewUser/>}/>
+        <Route path="/ViewPlace" element={<ViewPlace/>}/>
+        <Route path="/ViewTrip" element={<ViewTrip/>}/>
       </Routes>
     </BrowserRouter>
   );
