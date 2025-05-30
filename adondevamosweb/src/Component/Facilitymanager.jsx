@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 import 
     {
         TextField, 
@@ -20,22 +21,25 @@ import
         ButtonGroup
         
 } from '@mui/material';
+
 import { Add, Delete, Visibility, VisibilityOff } from '@mui/icons-material';
 
 function Facilitymanager(){
+    const [loading, setLoading] = useState(true);
     //catalogues
-    const [catFacilities, setCatFacilities] = useState([
-        {
-            id : 1,
-            name : "WC",
-            value : false
-        },
-        {
-            id : 2,
-            name : "Wi-FI",
-            value : true
-        }
-    ]);
+    const [catFacilities, setCatFacilities] = useState([]);
+    const [URLSERVICE, setURLSERVICE] = useState('http://localhost:3001/Facilities');
+    useEffect(()=> {
+        axios.get(URLSERVICE)
+        .then(resp => {
+            setCatFacilities(resp.data.info);
+            setLoading(false);
+        })
+        .catch(error => console.error("Error getting catalogue of facilities"));
+    },[]);
+
+    
+
     return (<>
     <Box
         sx={{
@@ -45,22 +49,24 @@ function Facilitymanager(){
                 }}
     >
         <Typography variant="body1" component="body1" gutterBottom align="center">
-            Facility manager 
+            Facilities 
         </Typography>
         <ButtonGroup variant="outlined" aria-label="Basic button group">
             <Button>Add</Button>
+            <Button>Delete</Button>
         </ButtonGroup>
         <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
             {
-                catFacilities.length > 0 ? catFacilities.map(
+                !loading && catFacilities.length > 0 ? catFacilities.map(
                     (x)=>(
                         <ListItem key={x.id}>
                             <ListItemText 
                                 primary={x.name} 
-                                secondary={x.description} />
+                                secondary={x.code} />
                             <IconButton edge="end" aria-label="add">
                                 <Delete />
-                                { x.value ? <Visibility  /> : <VisibilityOff/>}
+
+                                { x.hide ? <Visibility  /> : <VisibilityOff/>}
                             </IconButton>
                             
                         </ListItem>

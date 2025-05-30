@@ -24,6 +24,7 @@ function ViewTrip(){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [tripMock, setTripMock] = useState({
+        id:1,
         name: 'Nihon Trip 2024',
         description: 'A two weeks trip i made to reach my dream to see japan',
         itinerary:[

@@ -1,3 +1,4 @@
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import  Home  from "./Router/Home";
 import CreateUser from "./Router/CreateUser";
@@ -8,9 +9,12 @@ import ManageSite from "./Router/ManageSite";
 import ViewUser from "./Router/ViewUser";
 import ViewPlace from "./Router/ViewPlace";
 import ViewTrip from "./Router/ViewTrip"
+import NavBar from './Component/NavBar';
+
 export default function App() {
   return (
     <BrowserRouter>
+      <NavBar/>
       <Routes>
         <Route exact path="/" element={<Home />} />
         <Route path="/login" element={<Login/>}/>
