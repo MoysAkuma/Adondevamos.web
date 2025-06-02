@@ -1,5 +1,5 @@
 import React from "react";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import 
     {
@@ -15,27 +15,29 @@ import
         FormControlLabel,
         Checkbox 
     } from '@mui/material';
+import config from '../../Resources/config';
 
 
 function FormFacility({id}){
+    //Init variables
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     
-    const [ModuleName, setModuleName] = useState("Create facility");
+    const [isEdit, setisEdit] = useState("Create facility");
     
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
     const [submitSuccess,setSubmitSuccess] = useState(false);
 
+    const [URLgetFacility,setURLFacility] = useState(`${config.api.baseUrl}${config.api.endpoints.Facility}`);
+
     const [formFacility,setFormFacility] = useState({
         name: '',
+        code:'',
         enabled:true,
         hide:false
     });
-    if (id != null){
-        setModuleName("Edit Facility");
-    }
     
     //update request
     const handleChange = (e) => {
@@ -51,8 +53,40 @@ function FormFacility({id}){
         setIsSubmitting(true);
         setSubmitError('');
         setSubmitSuccess(false);
+        try {
+        // Validate for field Name
+        if (!formFacility.name.trim()) {
+            throw new Error('Name of facility is required');
+        }
+        console.log(formFacility);
+        axios.post(URLgetFacility, formFacility )
+        .then(resp => {
+            //Stop loading form
+            setLoading(false);
+            //empty form
+            setFormFacility({
+                name: '',
+                code:'',
+                enabled:true,
+                hide:false
+            });
+            //call to show new facilities
+            console.log(resp.data.info);
+        })
+        .catch(error => console.error("Error creating a facility"));
+        
+        } catch (error) {
+            setSubmitError(error.response?.data?.message || error.message);
+            console.error('Error creating place:', error);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
+    
 
+    useEffect(()=> {
+            
+    },[]);
     return (
     <Box
         component="form"
@@ -64,8 +98,8 @@ function FormFacility({id}){
         width: '100%'
       }}
       >
-        <Typography variant="h6" component="h6" gutterBottom align="center">
-          {ModuleName}
+        <Typography variant="body1" component="body1" gutterBottom align="center">
+          { isEdit ? "Create facility":"Edit facility"}
         </Typography>
         <TextField
             id="name"
@@ -75,12 +109,27 @@ function FormFacility({id}){
             variant="outlined"
             onChange={handleChange}
             size={isMobile ? 'small' : 'medium'}
-            value={formCreatePlace.name}
+            value={formFacility.name}
             fullWidth
             required
         />
-        <Checkbox onChange={handleChange}>Show</Checkbox>
-        <Checkbox onChange={handleChange}>Enabled</Checkbox>
+        <FormGroup>
+            <FormControlLabel  
+                control={
+                <Checkbox 
+                onChange={handleChange}
+                id="show"
+                name="enabled" 
+                  />} 
+            label="Show it to all?" />
+        </FormGroup>
+
+        <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            variant="contained"
+        > { (isEdit) ? "Create Facility" : "Save Changes" } 
+        </Button>
       </Box>
     );
 }

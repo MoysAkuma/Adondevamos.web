@@ -18,24 +18,59 @@ import
         List,
         ListItem,
         ListItemText,
-        ButtonGroup
-        
+        ButtonGroup,
+        Slide
 } from '@mui/material';
 
 import { Add, Delete, Visibility, VisibilityOff } from '@mui/icons-material';
 
+import FormFacility from './ManagmentSite/FormFacility';
+import config from '../Resources/config';
+
 function Facilitymanager(){
     const [loading, setLoading] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState('');
+    const [submitSuccess,setSubmitSuccess] = useState(false);
+
+    const [showFacilityForm, setShowFacilityForm] = useState(false);
     //catalogues
     const [catFacilities, setCatFacilities] = useState([]);
-    const [URLSERVICE, setURLSERVICE] = useState('http://localhost:3001/Facilities');
-    useEffect(()=> {
+    const [URLSERVICE, setURLSERVICE] = useState(`${config.api.baseUrl}${config.api.endpoints.Facilities}`);
+    const [URLFacility, setURLFacility] = useState(`${config.api.baseUrl}${config.api.endpoints.Facility}`);
+
+    const toggleShowFacilities = ( e ) => {
+        setShowFacilityForm(true);
+    };
+
+    const deleteFacility = async( item ) =>{
+        try {
+        const urldelete = URLFacility + '/' + item;
+        axios.delete(urldelete)
+        .then(resp => {
+            //Stop loading form
+            setLoading(false);
+        })
+        .catch(error => console.error("Error deleting a facility"));
+        
+        } catch (error) {
+            setSubmitError(error.response?.data?.message || error.message);
+            console.error('Error deleting of facility:', error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+    //getFacilities
+    const getFacilities = async( ) =>{
         axios.get(URLSERVICE)
         .then(resp => {
             setCatFacilities(resp.data.info);
             setLoading(false);
         })
         .catch(error => console.error("Error getting catalogue of facilities"));
+    };
+    useEffect(()=> {
+        getFacilities();
     },[]);
 
     
@@ -48,13 +83,15 @@ function Facilitymanager(){
                     width: '100%'
                 }}
     >
-        <Typography variant="body1" component="body1" gutterBottom align="center">
+        <Typography variant="h6" component="h6" gutterBottom align="center">
             Facilities 
         </Typography>
         <ButtonGroup variant="outlined" aria-label="Basic button group">
-            <Button>Add</Button>
-            <Button>Delete</Button>
+            <Button onClick={toggleShowFacilities} >Add</Button>
+            <Button>Delete All</Button>
         </ButtonGroup>
+        
+        <FormFacility id={null} />
         
         <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
             {
@@ -65,8 +102,9 @@ function Facilitymanager(){
                                 primary={x.name} 
                                 secondary={x.code} />
                             <IconButton edge="end" aria-label="add">
-                                <Delete />
-
+                                <Delete onClick={() => deleteFacility(x.id)} />
+                            </IconButton>
+                            <IconButton edge="end">
                                 { x.hide ? <Visibility  /> : <VisibilityOff/>}
                             </IconButton>
                             
