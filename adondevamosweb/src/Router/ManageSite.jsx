@@ -14,8 +14,9 @@ import
         Checkbox 
     } from '@mui/material';
 
-import Facilitymanager from "../Component/Facilitymanager";
-import AdminManagement from '../Component/AdminManagement';
+import Facilitymanager from "../Component/ManagmentSite/Facilitymanager";
+import CountryManager from '../Component/ManagmentSite/CountryManager';
+
 
  function ManageSite(){
     const theme = useTheme();
@@ -26,8 +27,7 @@ import AdminManagement from '../Component/AdminManagement';
             
         <Facilitymanager />
 
-        <AdminManagement />
-
+        <CountryManager />
             
         </Container>)
 }

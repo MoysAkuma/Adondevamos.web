@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
+import FormCountry from './FormCountry';
 import 
     {
         TextField, 
@@ -21,31 +22,28 @@ import
         ButtonGroup,
         Slide
 } from '@mui/material';
-
 import { Add, Delete, Visibility, VisibilityOff } from '@mui/icons-material';
 
-import FormFacility from './ManagmentSite/FormFacility';
-import config from '../Resources/config';
+import config from '../../Resources/config';
 
-function Facilitymanager(){
+function CountryManager(){
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
     const [submitSuccess,setSubmitSuccess] = useState(false);
+    const [showCountries, setShowCountries] = useState(false);
+    const [catCountries, setCatCountries] = useState([]);
+    const [URLCountry, setURLCountry] = useState(`${config.api.baseUrl}${config.api.endpoints.Country}`);
 
-    const [showFacilityForm, setShowFacilityForm] = useState(false);
-    //catalogues
-    const [catFacilities, setCatFacilities] = useState([]);
-    const [URLSERVICE, setURLSERVICE] = useState(`${config.api.baseUrl}${config.api.endpoints.Facilities}`);
-    const [URLFacility, setURLFacility] = useState(`${config.api.baseUrl}${config.api.endpoints.Facility}`);
-
-    const toggleShowFacilities = ( e ) => {
-        setShowFacilityForm(true);
+    const toggleShowCountries = ( e ) => {
+        setShowCountries(true);
     };
 
-    const deleteFacility = async( item ) =>{
+    const deleteCountry = async( item ) =>{
         try {
-        const urldelete = URLFacility + '/' + item;
+        const urldelete = URLCountry + '/' + item;
         axios.delete(urldelete)
         .then(resp => {
             //Stop loading form
@@ -60,23 +58,10 @@ function Facilitymanager(){
             setIsSubmitting(false);
         }
     };
-    //getFacilities
-    const getFacilities = async( ) =>{
-        axios.get(URLSERVICE)
-        .then(resp => {
-            setCatFacilities(resp.data.info);
-            setLoading(false);
-        })
-        .catch(error => console.error("Error getting catalogue of facilities"));
-    };
-    useEffect(()=> {
-        getFacilities();
-    },[]);
 
-    
-
-    return (<>
-    <Box
+    return (
+        <>
+        <Box
         sx={{
                     display: 'grid',
                     gap: 2,
@@ -84,25 +69,24 @@ function Facilitymanager(){
                 }}
     >
         <Typography variant="h6" component="h6" gutterBottom align="center">
-            Facilities 
+            Countries 
         </Typography>
         <ButtonGroup variant="outlined" aria-label="Basic button group">
-            <Button onClick={toggleShowFacilities} >Add</Button>
-            <Button>Delete All</Button>
+            <Button onClick={toggleShowCountries} >Add</Button>
         </ButtonGroup>
         
-        <FormFacility id={null} />
+        <FormCountry id={null} />
         
         <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
             {
-                !loading && catFacilities.length > 0 ? catFacilities.map(
+                !loading && catCountries.length > 0 ? catCountries.map(
                     (x)=>(
                         <ListItem key={x.id}>
                             <ListItemText 
                                 primary={x.name} 
                                 secondary={x.code} />
                             <IconButton edge="end" aria-label="add">
-                                <Delete onClick={() => deleteFacility(x.id)} />
+                                <Delete onClick={() => deleteCountry(x.id)} />
                             </IconButton>
                             <IconButton edge="end">
                                 { x.hide ? <Visibility  /> : <VisibilityOff/>}
@@ -110,12 +94,13 @@ function Facilitymanager(){
                             
                         </ListItem>
                 )): <ListItem> 
-                    <ListItemText primary="No facilities added" ></ListItemText>
+                    <ListItemText primary="No countries added" ></ListItemText>
                 </ListItem>
             }
         </List>
     </Box>
-    </>);
+        </>
+    )
 }
 
-export default Facilitymanager;
+export default CountryManager;

@@ -23,13 +23,16 @@ function FormFacility({id}){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     
-    const [isEdit, setisEdit] = useState("Create facility");
+    const [isEdit, setisEdit] = useState(false);
     
     const [loading, setLoading] = useState(true);
+    
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitError, setSubmitError] = useState('');
+    
     const [submitSuccess,setSubmitSuccess] = useState(false);
-
+    
+    const [submitError, setSubmitError] = useState('');
+    
     const [URLgetFacility,setURLFacility] = useState(`${config.api.baseUrl}${config.api.endpoints.Facility}`);
 
     const [formFacility,setFormFacility] = useState({
@@ -99,7 +102,7 @@ function FormFacility({id}){
       }}
       >
         <Typography variant="body1" component="body1" gutterBottom align="center">
-          { isEdit ? "Create facility":"Edit facility"}
+          { isEdit ? "Edit facility" : "Create facility"}
         </Typography>
         <TextField
             id="name"
@@ -128,7 +131,7 @@ function FormFacility({id}){
             type="submit" 
             disabled={isSubmitting}
             variant="contained"
-        > { (isEdit) ? "Create Facility" : "Save Changes" } 
+        > { (isEdit) ? "Save Changes" : "Create Facility" } 
         </Button>
       </Box>
     );
