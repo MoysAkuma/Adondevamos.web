@@ -7,8 +7,8 @@ const config = {
         Facilities:"/Facilities",
         Country: '/Country',
         Countries: '/Countries',
-        State: '/States',
-        States: '/Countries',
+        State: '/State',
+        States: '/States',
         City: '/City',
         Cities: '/Cities',
       }

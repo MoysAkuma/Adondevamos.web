@@ -16,6 +16,8 @@ import
 
 import Facilitymanager from "../Component/ManagmentSite/Facilitymanager";
 import CountryManager from '../Component/ManagmentSite/CountryManager';
+import StatesManager from '../Component/ManagmentSite/StatesManager';
+import CitiesManager from '../Component/ManagmentSite/CitiesManager';
 
 
  function ManageSite(){
@@ -25,9 +27,15 @@ import CountryManager from '../Component/ManagmentSite/CountryManager';
     return (
         <Container maxWidth="sm" sx={{ py: 8 }}>
             
-        <Facilitymanager />
+            <CitiesManager />
+            
+            <Facilitymanager />
 
-        <CountryManager />
+            <CountryManager />
+
+            <StatesManager />
+
+            
             
         </Container>)
 }

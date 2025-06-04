@@ -149,7 +149,7 @@ function FormStates(){
                     type="submit" 
                     disabled={isSubmitting}
                     variant="contained"
-                > { (isEdit) ? "Save Changes" : "Create Country" } 
+                > { (isEdit) ? "Save Changes" : "Create State" } 
                 </Button>
               </Box>
     </>);

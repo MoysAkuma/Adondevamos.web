@@ -53,6 +53,43 @@ function FormCities(){
         }));
     };
 
+    const handleSubmit = async (e) =>{
+        e.preventDefault();
+        setIsSubmitting(true);
+        setSubmitError('');
+        setSubmitSuccess(false);
+        try {
+        // Validate for field Name
+        if (!formCities.name.trim()) {
+            throw new Error('Name of city is required');
+        }
+        console.log(formCities);
+        axios.post(URLCountry, formCities )
+        .then(resp => {
+            //Stop loading form
+            setLoading(false);
+            //empty form
+            setFormCities({
+                name: '',
+                countryid : null,
+                stateid:null,
+                enabled:true,
+                hide:false
+            });
+            //call to show new facilities
+            console.log(resp.data.info);
+        })
+        .catch(error => console.error("Error creating a cities"));
+        
+        } catch (error) {
+            setSubmitError(error.response?.data?.message || error.message);
+            console.error('Error creating city:', error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+
     return (<>
     <Box
                 component="form"

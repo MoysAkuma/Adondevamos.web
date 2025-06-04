@@ -38,8 +38,7 @@ function FormCountry({id}){
     const [formCountry,setFormCountry] = useState({
         name: '',
         originalname:'',
-        acronyn:'',
-        enabled:true,
+        acronym:'',
         hide:false
     });
 
@@ -62,8 +61,8 @@ function FormCountry({id}){
         if (!formCountry.name.trim()) {
             throw new Error('Name of country is required');
         }
-        if (!formCountry.acronyn.trim()) {
-            throw new Error('Acronyn is required');
+        if (!formCountry.acronym.trim()) {
+            throw new Error('Acronym is required');
         }
         console.log(formCountry);
         axios.post(URLCountry, formCountry )
@@ -74,7 +73,7 @@ function FormCountry({id}){
             setFormCountry({
                 name: '',
                 originalname:'',
-                acronyn:'',
+                acronym:'',
                 enabled:true,
                 hide:false
             });
@@ -129,10 +128,9 @@ function FormCountry({id}){
                 size={isMobile ? 'small' : 'medium'}
                 value={formCountry.originalname}
                 fullWidth
-                required
             />
 
-            <TextField
+            <TextField 
                 id="acronym"
                 name="acronym"
                 label="Acronym"
@@ -140,9 +138,8 @@ function FormCountry({id}){
                 variant="outlined"
                 onChange={handleChange}
                 size={isMobile ? 'small' : 'medium'}
-                value={formCountry.acronyn}
+                value={formCountry.acronym}
                 fullWidth
-                required
             />
 
             <FormGroup>

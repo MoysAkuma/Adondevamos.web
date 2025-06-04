@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import FormCountry from './FormCountry';
 import 
@@ -36,21 +36,18 @@ function CountryManager(){
     const [showCountries, setShowCountries] = useState(false);
     const [catCountries, setCatCountries] = useState([]);
     const [URLCountry, setURLCountry] = useState(`${config.api.baseUrl}${config.api.endpoints.Country}`);
-
-    const toggleShowCountries = ( e ) => {
-        setShowCountries(true);
-    };
+    const [URLCountryService, setURLCountryService] = useState(`${config.api.baseUrl}${config.api.endpoints.Countries}`);
+    const [catFacilities, setCatFacilities] = useState([]);
 
     const deleteCountry = async( item ) =>{
         try {
-        const urldelete = URLCountry + '/' + item;
-        axios.delete(urldelete)
-        .then(resp => {
-            //Stop loading form
-            setLoading(false);
-        })
-        .catch(error => console.error("Error deleting a facility"));
-        
+            const urldelete = URLCountry + '/' + item;
+            axios.delete(urldelete)
+            .then(resp => {
+                //Stop loading form
+                setLoading(false);
+            })
+            .catch(error => console.error("Error deleting a facility"));
         } catch (error) {
             setSubmitError(error.response?.data?.message || error.message);
             console.error('Error deleting of facility:', error);
@@ -59,20 +56,34 @@ function CountryManager(){
         }
     };
 
+    //getCountries
+    const getCountries = async( ) =>{
+        axios.get(URLCountryService)
+        .then(resp => {
+            setCatCountries(resp.data.info);
+            setLoading(false);
+        })
+        .catch(error => console.error("Error getting catalogue of countries"));
+    };
+
+    useEffect(()=> {
+        getCountries();
+    },[]);
+
     return (
         <>
         <Box
-        sx={{
-                    display: 'grid',
-                    gap: 2,
-                    width: '100%'
-                }}
-    >
+            sx={{
+                display: 'grid',
+                gap: 2,
+                width: '100%'
+            }}
+        >
         <Typography variant="h6" component="h6" gutterBottom align="center">
             Countries 
         </Typography>
         <ButtonGroup variant="outlined" aria-label="Basic button group">
-            <Button onClick={toggleShowCountries} >Add</Button>
+            <Button >Add</Button>
         </ButtonGroup>
         
         <FormCountry id={null} />

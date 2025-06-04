@@ -1,8 +1,6 @@
-import React,{ useState, useEffect } from 'react';
-
+import React, {useState, useEffect} from "react";
 import axios from 'axios';
-
-import FormStates from './FormStates';
+import FormCities from "./FormCities";
 
 import 
     {
@@ -29,42 +27,25 @@ import
 import { Delete, Visibility, VisibilityOff } from '@mui/icons-material';
 
 import config from '../../Resources/config';
-
-function StatesManager(){
+function CitiesManager(){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
     const [submitSuccess,setSubmitSuccess] = useState(false);
-    const [showCountries, setShowCountries] = useState(false);
+    //Catalogues
     const [catStates, setCatStates] = useState([]);
     const [catCountries, setCatCountries] = useState([]);
-    
-    const [URLStates, setURLStates] = useState(`${config.api.baseUrl}${config.api.endpoints.State}`);
-    const [URLStatesSearch, setURLStatesSearch] = useState(`${config.api.baseUrl}${config.api.endpoints.States}`);
-    const [URLCountrySearch, setURLCountrySearch] = useState(`${config.api.baseUrl}${config.api.endpoints.Countries}`);
-    
-    const toggleShowStates = ( e ) => {
-        setShowCountries(true);
-    };
-    const deleteState = async( item ) =>{
-        try {
-            const urldelete = URLStates + '/' + item;
-            axios.delete(urldelete)
-            .then(resp => {
-                //Stop loading form
-                setLoading(false);
-            })
-            .catch(error => console.error("Error deleting a state"));
-        } catch (error) {
-            setSubmitError(error.response?.data?.message || error.message);
-            console.error('Error deleting of facility:', error);
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+    const [catCities, setCatCities] = useState([]);
 
+    //URLS
+        const [URLStates, setURLStates] = useState(`${config.api.baseUrl}${config.api.endpoints.State}`);
+        const [URLStatesSearch, setURLStatesSearch] = useState(`${config.api.baseUrl}${config.api.endpoints.States}`);
+        const [URLCountrySearch, setURLCountrySearch] = useState(`${config.api.baseUrl}${config.api.endpoints.Countries}`);
+        const [URLCities, setURLCities] = useState(`${config.api.baseUrl}${config.api.endpoints.Cities}`);
+    //deletestate
+    const deleteState = async( id ) =>{};
     //getStates
     const getStates = async( ) =>{
         axios.get(URLStatesSearch)
@@ -85,8 +66,9 @@ function StatesManager(){
         })
         .catch(error => console.error("Error getting catalogue of countries"));
     };
+
     useEffect(()=> {
-        getCountries();
+            getCountries();
     },[]);
     return (<Box
         sx={{
@@ -96,22 +78,22 @@ function StatesManager(){
             }}
         >
         <Typography variant="h6" component="h6" gutterBottom align="center">
-            States 
+            Cities 
         </Typography>
         <ButtonGroup variant="outlined" aria-label="Basic button group">
-            <Button onClick={toggleShowStates} >Add</Button>
+            <Button >Add</Button>
         </ButtonGroup>
         
-        <FormStates id={null} />
+        <FormCities id={null} />
         
         <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
             {
-                !loading && catStates.length > 0 ? catStates.map(
+                !loading && catCities.length > 0 ? catCities.map(
                     (x)=>(
                         <ListItem key={x.id}>
                             <ListItemText 
                                 primary={x.name} 
-                                secondary={ catCountries.filter( s => s.id = x.countryid )[0].name } />
+                                secondary={ catStates.filter( state => state.id = x.countryid )[0].name +', ' + catCountries.filter( s => s.id = x.stateid )[0].name } />
                             <IconButton edge="end" aria-label="add">
                                 <Delete onClick={() => deleteState(x.id)} />
                             </IconButton>
@@ -128,4 +110,4 @@ function StatesManager(){
     </Box>
     );
 }
-export default StatesManager;
+export default CitiesManager;
