@@ -17,6 +17,7 @@ import
     } from '@mui/material';
 
 import config from '../../Resources/config';
+import CountriesSelectList from "../Catalogues/CountriesSelectList";
 function FormStates(){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -31,16 +32,25 @@ function FormStates(){
     
     const [submitError, setSubmitError] = useState('');
     
-    const [URLStates,setURLStates] = useState(`${config.api.baseUrl}${config.api.endpoints.States}`);
+    const [URLsCatalogService, setURLsCatalogService] = useState(
+    {
+        Countries:`${config.api.baseUrl}${config.api.endpoints.Countries}`,
+        States:`${config.api.baseUrl}${config.api.endpoints.States}`,
+        Cities:`${config.api.baseUrl}${config.api.endpoints.Cities}`,
+        Country:`${config.api.baseUrl}${config.api.endpoints.Country}`,
+        State:`${config.api.baseUrl}${config.api.endpoints.State}`,
+    }
+    );
 
     const [formStates,setFormStates] = useState({
         name : '',
         originalname : '',
         acronyn : '',
         countryid : 0,
-        enabled : true,
         hide : false
     });
+
+    const [catCountries, setCatCountries] = useState([]);
 
     //update request
     const handleChange = (e) => {
@@ -56,6 +66,7 @@ function FormStates(){
         setIsSubmitting(true);
         setSubmitError('');
         setSubmitSuccess(false);
+        console.log(formStates);
         try {
         // Validate for field Name
         if (!formStates.name.trim()) {
@@ -64,8 +75,8 @@ function FormStates(){
         if (!formStates.countryid) {
             throw new Error('Select a country is required');
         }
-        console.log(formStates);
-        axios.post(URLStates, formStates )
+        
+        axios.post(URLsCatalogService.State, formStates )
         .then(resp => {
             //Stop loading form
             setLoading(false);
@@ -75,11 +86,8 @@ function FormStates(){
                 originalname : '',
                 acronyn : '',
                 countryid : 0,
-                enabled : true,
                 hide : false
             });
-            //call to show new facilities
-            console.log(resp.data.info);
         })
         .catch(error => console.error("Error creating a states"));
         
@@ -91,6 +99,19 @@ function FormStates(){
         }
     };
 
+    //getCountries
+    const getCountries = async( ) =>{
+        axios.get(URLsCatalogService.Countries)
+        .then(resp => {
+            setCatCountries(resp.data.info);
+            setLoading(false);
+        })
+        .catch(error => console.error("Error getting catalogue of countries"));
+    };
+
+    useEffect(()=> {
+        getCountries();
+    },[]);
     return (<>
     <Box
                 component="form"
@@ -131,6 +152,8 @@ function FormStates(){
                     fullWidth
                     required
                 />
+
+              <CountriesSelectList val={formStates.countryid} onChangecall={handleChange} catCountries={catCountries} />
     
                 
     

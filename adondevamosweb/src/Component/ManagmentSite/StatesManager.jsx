@@ -111,7 +111,7 @@ function StatesManager(){
                         <ListItem key={x.id}>
                             <ListItemText 
                                 primary={x.name} 
-                                secondary={ catCountries.filter( s => s.id = x.countryid )[0].name } />
+                                secondary={ catCountries?.filter(c => c.id == x.countryid)[0].name  } />
                             <IconButton edge="end" aria-label="add">
                                 <Delete onClick={() => deleteState(x.id)} />
                             </IconButton>

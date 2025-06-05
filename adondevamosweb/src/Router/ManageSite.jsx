@@ -27,15 +27,13 @@ import CitiesManager from '../Component/ManagmentSite/CitiesManager';
     return (
         <Container maxWidth="sm" sx={{ py: 8 }}>
             
-            <CitiesManager />
-            
             <Facilitymanager />
 
             <CountryManager />
 
             <StatesManager />
 
-            
+            <CitiesManager />
             
         </Container>)
 }

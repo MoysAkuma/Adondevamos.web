@@ -14,10 +14,18 @@ import
         MenuItem
     } from '@mui/material';
 import CountriesSelectList from "../Component/Catalogues/CountriesSelectList";
-
+import config from "../Resources/config";
 function CreateUser(){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const [loading, setLoading] = useState(true);
+    const [URLsCatalogService, setURLsCatalogService] = useState(
+        {
+            Countries:`${config.api.baseUrl}${config.api.endpoints.Countries}`,
+            States:`${config.api.baseUrl}${config.api.endpoints.States}`,
+            Cities:`${config.api.baseUrl}${config.api.endpoints.Cities}`
+        }
+        );
     //catalogues
     const [catCountries, setCatCountries] = useState([
         {
@@ -49,9 +57,9 @@ function CreateUser(){
         name: '',
         secondName:'',
         lastName:'',
-        countryID: '',
-        stateID: '',
-        cityID: '',
+        countryid: 1,
+        stateid: 0,
+        cityid: 0,
         description: '',
         email:'',
         tag:'',
@@ -69,7 +77,8 @@ function CreateUser(){
 
     
     const handleSelect = (event) => {
-        console.log(event.target.value);
+        handleChange(event);
+        console.log(formCreateUser);
     };
     
     // UI state
@@ -82,7 +91,6 @@ function CreateUser(){
         setIsSubmitting(true);
         setSubmitError('');
         setSubmitSuccess(false);
-        console.log(formCreateUser);
         try {
 
         // Validate for field Name
@@ -130,9 +138,9 @@ function CreateUser(){
             name: formCreateUser.name.trim(),
             secondName: formCreateUser.secondName.trim(),
             lastName: formCreateUser.lastName.trim(),
-            countryID: formCreateUser.countryID,
-            stateID: formCreateUser.stateID,
-            cityID: formCreateUser.cityID,
+            countryid: formCreateUser.countryID,
+            stateid: formCreateUser.stateID,
+            cityid: formCreateUser.cityID,
             description:formCreateUser.description,
             email:formCreateUser.email,
             tag: formCreateUser.tag,
@@ -170,9 +178,38 @@ function CreateUser(){
         }
     };
 
-    const getCatalogues = async () =>{
-        
-    }
+    //getCountries
+    const getCountries = async( ) =>{
+        axios.get(URLsCatalogService.Countries)
+        .then(resp => {
+            setCatCountries(resp.data.info);
+            handleChange({target:{stateid:0}});
+        })
+        .catch(error => console.error("Error getting catalogue of countries"));
+    };
+
+    //getStates
+    const getStates = async( item ) =>{
+        axios.get(URLsCatalogService.States + '/ByCountryID/' + item)
+        .then(resp => {
+            setCatStates(resp.data.info);
+            handleChange({target:{cityid:0}});
+        })
+        .catch(error => console.error("Error getting catalogue of countries"));
+    };
+
+    //getCities
+    const getCities = async( item ) =>{
+        axios.get(URLsCatalogService.Cities + '/ByState/' + item)
+        .then(resp => {
+            setCatCities(resp.data.info);
+        })
+        .catch(error => console.error("Error getting catalogue of countries"));
+    };
+
+    useEffect(()=> {
+        getCountries();
+    },[]);
 
     return (
         <Container maxWidth="sm" sx={{ py: 4 }}>
@@ -286,7 +323,10 @@ function CreateUser(){
                 </Typography>
 
                 
-                <CountriesSelectList value={formCreateUser.countryID} onChange={handleSelect} countrylist={catCountries}/>
+                <CountriesSelectList 
+                val={formCreateUser.countryID} 
+                onChangecall={handleSelect} 
+                catCountries={catCountries} />
 
                 <TextField
                         id="stateID"
