@@ -13,6 +13,7 @@ import
         Box,
         MenuItem
     } from '@mui/material';
+import CountriesSelectList from "../Component/Catalogues/CountriesSelectList";
 
 function CreateUser(){
     const theme = useTheme();
@@ -20,8 +21,8 @@ function CreateUser(){
     //catalogues
     const [catCountries, setCatCountries] = useState([
         {
-            value:1,
-            label:"MEXICO"
+            id:1,
+            name:"MEXICO"
         }
     ]);
     const [catStates, setCatStates] = useState([
@@ -41,6 +42,8 @@ function CreateUser(){
             label:"Los mochis"
         }
     ]);
+    
+
     // user info
     const [formCreateUser, setFormCreateUser] = useState({
         name: '',
@@ -62,7 +65,12 @@ function CreateUser(){
           ...prev,
           [name]: value
         }));
-      };
+    };
+
+    
+    const handleSelect = (event) => {
+        console.log(event.target.value);
+    };
     
     // UI state
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -161,6 +169,10 @@ function CreateUser(){
             setIsSubmitting(false);
         }
     };
+
+    const getCatalogues = async () =>{
+        
+    }
 
     return (
         <Container maxWidth="sm" sx={{ py: 4 }}>
@@ -273,22 +285,8 @@ function CreateUser(){
                     Ubication
                 </Typography>
 
-                <TextField
-                        id="countryID"
-                        name="countryID"
-                        select
-                        label="Country"
-                        defaultValue="1"
-                        helperText="Please select your Country"
-                        value={formCreateUser.countryID}
-                        onChange={handleChange}
-                        >
-                        {catCountries.map((option) => (
-                            <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                            </MenuItem>
-                        ))}
-                </TextField>
+                
+                <CountriesSelectList value={formCreateUser.countryID} onChange={handleSelect} countrylist={catCountries}/>
 
                 <TextField
                         id="stateID"
