@@ -1,0 +1,24 @@
+import React from "react";
+
+function CitiesSelect({ val, onChangecall, catCities}){
+    return (
+    <Select
+        id="cityid"
+        name="cityid"
+        label="city"
+        helperText="Please select your City"
+        value={val}
+        onChange={onChangecall}
+        >
+        {  
+            catCities?.map((option) => (
+            <MenuItem key={option.id} value={option.id}>
+            {option.name}
+            </MenuItem>
+        ))
+        }
+    </Select>
+    );
+}
+
+export default CitiesSelect;

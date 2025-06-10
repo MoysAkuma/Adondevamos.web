@@ -11,6 +11,7 @@ const config = {
         States: '/States',
         City: '/City',
         Cities: '/Cities',
+        User: '/User'
       }
     }
   },

@@ -23,7 +23,8 @@ function CreateUser(){
         {
             Countries:`${config.api.baseUrl}${config.api.endpoints.Countries}`,
             States:`${config.api.baseUrl}${config.api.endpoints.States}`,
-            Cities:`${config.api.baseUrl}${config.api.endpoints.Cities}`
+            Cities:`${config.api.baseUrl}${config.api.endpoints.Cities}`,
+            User:`${config.api.baseUrl}${config.api.endpoints.User}`,
         }
         );
     //catalogues
@@ -73,6 +74,15 @@ function CreateUser(){
           ...prev,
           [name]: value
         }));
+        console.log(name);
+        switch (name){
+            case 'countryid':
+                getStates(value);
+            case 'tag':
+                verifyTag(value);
+            default:
+                return null;
+        }
     };
 
     
@@ -119,17 +129,17 @@ function CreateUser(){
         }
 
         // Validate for field Country
-        if (!formCreateUser.countryID != null) {
+        if (!formCreateUser.countryid != null) {
             throw new Error('CountryID is required');
         }
 
         // Validate for field State
-        if (!formCreateUser.stateID != null) {
+        if (!formCreateUser.stateid != null) {
             throw new Error('StateID is required');
         }
 
         // Validate for field City
-        if (!formCreateUser.cityID != null) {
+        if (!formCreateUser.cityid != null) {
             throw new Error('cityID is required');
         }
 
@@ -138,9 +148,9 @@ function CreateUser(){
             name: formCreateUser.name.trim(),
             secondName: formCreateUser.secondName.trim(),
             lastName: formCreateUser.lastName.trim(),
-            countryid: formCreateUser.countryID,
-            stateid: formCreateUser.stateID,
-            cityid: formCreateUser.cityID,
+            countryid: formCreateUser.countryid,
+            stateid: formCreateUser.stateid,
+            cityid: formCreateUser.cityid,
             description:formCreateUser.description,
             email:formCreateUser.email,
             tag: formCreateUser.tag,
@@ -172,7 +182,7 @@ function CreateUser(){
         
         } catch (error) {
             setSubmitError(error.response?.data?.message || error.message);
-            console.error('Error creating place:', error);
+            console.error('Error creating user:', error);
         } finally {
             setIsSubmitting(false);
         }
@@ -183,7 +193,6 @@ function CreateUser(){
         axios.get(URLsCatalogService.Countries)
         .then(resp => {
             setCatCountries(resp.data.info);
-            handleChange({target:{stateid:0}});
         })
         .catch(error => console.error("Error getting catalogue of countries"));
     };
@@ -207,12 +216,22 @@ function CreateUser(){
         .catch(error => console.error("Error getting catalogue of countries"));
     };
 
+    //verifytag
+    const verifyTag = async( item ) =>{
+        console.log(URLsCatalogService.User + '/Verify/Tag/' + item);
+        axios.get(URLsCatalogService.User + '/Verify/Tag/' + item)
+        .then(resp => {
+            console.log(resp);
+        })
+        .catch(error => console.error("Error verification of tag"));
+    };
+
     useEffect(()=> {
         getCountries();
     },[]);
 
     return (
-        <Container maxWidth="sm" sx={{ py: 4 }}>
+        <Container maxWidth="sm" sx={{ py: 8 }}>
             <Typography variant="h5" component="h1" gutterBottom align="center">
                 Create User
             </Typography>

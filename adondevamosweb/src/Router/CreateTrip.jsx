@@ -170,16 +170,16 @@ function CreateTrip(){
   };
 
     return (
-        <Container maxWidth="sm" sx={{ py: 4 }}>
+        <Container maxWidth="sm" sx={{ py: 8 }}>
             <Box
-            component="form"
-            onSubmit={handleSubmit}
-            sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-            width: '100%'
-            }}
+              component="form"
+              onSubmit={handleSubmit}
+              sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              width: '100%'
+              }}
             >
                 <Typography variant="h5"  gutterBottom align="center">
                   Create Trip

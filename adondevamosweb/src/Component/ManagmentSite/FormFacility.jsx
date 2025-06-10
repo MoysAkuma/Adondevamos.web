@@ -57,25 +57,26 @@ function FormFacility({id}){
         setSubmitError('');
         setSubmitSuccess(false);
         try {
-        // Validate for field Name
-        if (!formFacility.name.trim()) {
-            throw new Error('Name of facility is required');
-        }
-        console.log(formFacility);
-        axios.post(URLgetFacility, formFacility )
-        .then(resp => {
-            //Stop loading form
-            setLoading(false);
-            //empty form
-            setFormFacility({
-                name: '',
-                code:'',
-                enabled:true,
-                hide:false
-            });
-            //call to show new facilities
-            console.log(resp.data.info);
-        })
+
+            // Validate for field Name
+            if (!formFacility.name.trim()) {
+                throw new Error('Name of facility is required');
+            }
+
+            axios.post(URLgetFacility, formFacility )
+            .then(resp => {
+                //Stop loading form
+                setLoading(false);
+                //empty form
+                setFormFacility({
+                    name: '',
+                    code:'',
+                    enabled:true,
+                    hide:false
+                });
+                //call to show new facilities
+                console.log(resp.data.info);
+            })
         .catch(error => console.error("Error creating a facility"));
         
         } catch (error) {

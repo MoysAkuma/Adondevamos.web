@@ -33,7 +33,7 @@ function ConfirmEmail(){
       }, []);
     if (loading) return <div>Loading...</div>;
     if (error) return <div>Error: {error}</div>;
-    return (<Container maxWidth="sm" sx={{ py: 4 }}>
+    return (<Container maxWidth="sm" sx={{ py: 8 }}>
       <Typography variant="h5"  gutterBottom align="center">
         Your email was confirmed!
       </Typography>

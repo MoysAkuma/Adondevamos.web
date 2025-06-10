@@ -172,7 +172,7 @@ const facilitiesChange = (event) => {
   };
 
   return (
-    <Container maxWidth="sm" sx={{ py: 4 }}>
+    <Container maxWidth="sm" sx={{ py: 8 }}>
       <Typography variant="h6" component="h6" gutterBottom align="center">
           Create Place
       </Typography>

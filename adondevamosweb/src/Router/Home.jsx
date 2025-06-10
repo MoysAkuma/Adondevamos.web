@@ -26,7 +26,7 @@ function Home() {
     
     return (
       <div className="App">
-        <Container maxWidth="sm" sx={{ py: 4 }}>
+        <Container maxWidth="sm" sx={{ py: 8 }}>
             <Typography variant="h3"  gutterBottom align="center">
               ¿A donde vamos?
             </Typography>

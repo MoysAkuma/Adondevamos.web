@@ -9,16 +9,16 @@ import
         Container,
         Typography,
         Box,
-        MenuItem
+        MenuItem,
+        Select
     } from '@mui/material';
 
 function CountriesSelectList({ val, onChangecall, catCountries}){
     
     return (
-    <TextField
+    <Select
         id="countryid"
         name="countryid"
-        select
         label="Country"
         helperText="Please select your Country"
         value={val}
@@ -31,7 +31,7 @@ function CountriesSelectList({ val, onChangecall, catCountries}){
             </MenuItem>
         ))
         }
-    </TextField>
+    </Select>
     );
 }
 
