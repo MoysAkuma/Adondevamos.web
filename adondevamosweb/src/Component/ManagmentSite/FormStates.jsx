@@ -18,7 +18,8 @@ import
 
 import config from '../../Resources/config';
 import CountriesSelectList from "../Catalogues/CountriesSelectList";
-function FormStates(){
+
+function FormStates({ id, callback}){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     
@@ -66,7 +67,6 @@ function FormStates(){
         setIsSubmitting(true);
         setSubmitError('');
         setSubmitSuccess(false);
-        console.log(formStates);
         try {
         // Validate for field Name
         if (!formStates.name.trim()) {
@@ -162,10 +162,11 @@ function FormStates(){
                         control={
                         <Checkbox 
                         onChange={handleChange}
-                        id="show"
-                        name="enabled" 
+                        checked={formStates.hide}
+                        id="hide"
+                        name="hide" 
                           />} 
-                    label="Show it to all?" />
+                    label="Hide" />
                 </FormGroup>
         
                 <Button 

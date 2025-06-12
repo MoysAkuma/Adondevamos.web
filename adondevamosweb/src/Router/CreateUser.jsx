@@ -13,7 +13,11 @@ import
         Box,
         MenuItem
     } from '@mui/material';
+
 import CountriesSelectList from "../Component/Catalogues/CountriesSelectList";
+import StateSelect from "../Component/Catalogues/StateSelect";
+import CitiesSelect from "../Component/Catalogues/CitiesSelect";
+
 import config from "../Resources/config";
 function CreateUser(){
     const theme = useTheme();
@@ -144,7 +148,7 @@ function CreateUser(){
         }
 
         // API call to create user
-        const response = await axios.post('http://localhost/CreateUser', {
+        const response = await axios.post(URLsCatalogService.User, {
             name: formCreateUser.name.trim(),
             secondName: formCreateUser.secondName.trim(),
             lastName: formCreateUser.lastName.trim(),
@@ -343,43 +347,21 @@ function CreateUser(){
 
                 
                 <CountriesSelectList 
-                val={formCreateUser.countryID} 
+                val={formCreateUser.countryid} 
                 onChangecall={handleSelect} 
                 catCountries={catCountries} />
 
-                <TextField
-                        id="stateID"
-                        name="stateID"
-                        select
-                        label="State"
-                        defaultValue="1"
-                        helperText="Please select your state"
-                        value={formCreateUser.stateID}
-                        onChange={handleChange}
-                        >
-                        {catStates.map((option) => (
-                            <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                            </MenuItem>
-                        ))}
-                </TextField>
+                <StateSelect 
+                val={formCreateUser.stateid}
+                onChangecall={handleSelect}
+                catStates={catStates}
+                />
 
-                <TextField
-                        id="cityID"
-                        name="cityID"
-                        select
-                        label="City"
-                        defaultValue="1"
-                        helperText="Please select your city"
-                        value={formCreateUser.cityID}
-                        onChange={handleChange}
-                        >
-                        {catCities.map((option) => (
-                            <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                            </MenuItem>
-                        ))}
-                </TextField>
+                <CitiesSelect 
+                val={formCreateUser.cityid}
+                onChangecall={handleSelect}
+                catCities={catCities}
+                />
 
                 <Button 
                     type="submit" 

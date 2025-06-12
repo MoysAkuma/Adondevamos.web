@@ -37,17 +37,16 @@ function StatesManager(){
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
     const [submitSuccess,setSubmitSuccess] = useState(false);
-    const [showCountries, setShowCountries] = useState(false);
     const [catStates, setCatStates] = useState([]);
     const [catCountries, setCatCountries] = useState([]);
+    const [showForm, setShowForm] = useState(false);
+    const [stateid, setStateID]= useState(null);
     
     const [URLStates, setURLStates] = useState(`${config.api.baseUrl}${config.api.endpoints.State}`);
     const [URLStatesSearch, setURLStatesSearch] = useState(`${config.api.baseUrl}${config.api.endpoints.States}`);
     const [URLCountrySearch, setURLCountrySearch] = useState(`${config.api.baseUrl}${config.api.endpoints.Countries}`);
     
-    const toggleShowStates = ( e ) => {
-        setShowCountries(true);
-    };
+    
     const deleteState = async( item ) =>{
         try {
             const urldelete = URLStates + '/' + item;
@@ -85,6 +84,14 @@ function StatesManager(){
         })
         .catch(error => console.error("Error getting catalogue of countries"));
     };
+
+    const showformToCreate = ( ) =>{
+        setShowForm(true);
+    };
+
+    const formSucess = () => {
+        getStates();
+    };
     useEffect(()=> {
         getCountries();
     },[]);
@@ -99,12 +106,12 @@ function StatesManager(){
             States 
         </Typography>
         <ButtonGroup variant="outlined" aria-label="Basic button group">
-            <Button onClick={toggleShowStates} >Add</Button>
+            <Button onClick={() => showformToCreate()} >Add</Button>
         </ButtonGroup>
         
-        <FormStates id={null} />
+        {showForm && (<FormStates id={stateid} callback={formSucess}/> )}
         
-        <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+        <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
             {
                 !loading && catStates.length > 0 ? catStates.map(
                     (x)=>(

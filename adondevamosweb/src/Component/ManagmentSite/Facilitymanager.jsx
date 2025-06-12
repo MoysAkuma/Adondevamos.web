@@ -27,12 +27,12 @@ import { Add, Delete, Visibility, VisibilityOff } from '@mui/icons-material';
 import FormFacility from './FormFacility';
 import config from '../../Resources/config';
 
-function Facilitymanager(){
+function Facilitymanager({ id, callback}){
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
     const [submitSuccess,setSubmitSuccess] = useState(false);
-
+    const [facilityid, setFacilityID] = useState(null);
     const [showFacilityForm, setShowFacilityForm] = useState(false);
     //catalogues
     const [catFacilities, setCatFacilities] = useState([]);
@@ -71,6 +71,12 @@ function Facilitymanager(){
         .catch(error => console.error("Error getting catalogue of facilities"));
     };
 
+    const formSuccess = ()=>{
+        getFacilities();
+        setFacilityID(null);
+        setShowFacilityForm(false);
+    };
+
     useEffect(()=> {
         getFacilities();
     },[]);
@@ -92,9 +98,9 @@ function Facilitymanager(){
             <Button onClick={toggleShowFacilities} >Add</Button>
         </ButtonGroup>
         
-        <FormFacility id={null} />
+        { showFacilityForm && (<FormFacility id={facilityid} callback={formSuccess} />) }
         
-        <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+        <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
             {
                 !loading && catFacilities.length > 0 ? catFacilities.map(
                     (x)=>(

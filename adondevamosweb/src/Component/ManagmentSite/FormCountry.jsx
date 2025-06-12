@@ -18,7 +18,7 @@ import
 
 import config from '../../Resources/config';
 
-function FormCountry({id}){
+function FormCountry({id, callback}){
     //Init variables
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -34,6 +34,8 @@ function FormCountry({id}){
     const [submitError, setSubmitError] = useState('');
     
     const [URLCountry,setURLCountry] = useState(`${config.api.baseUrl}${config.api.endpoints.Country}`);
+
+
 
     const [formCountry,setFormCountry] = useState({
         name: '',
@@ -64,23 +66,35 @@ function FormCountry({id}){
         if (!formCountry.acronym.trim()) {
             throw new Error('Acronym is required');
         }
-        console.log(formCountry);
-        axios.post(URLCountry, formCountry )
-        .then(resp => {
-            //Stop loading form
-            setLoading(false);
-            //empty form
-            setFormCountry({
-                name: '',
-                originalname:'',
-                acronym:'',
-                enabled:true,
-                hide:false
-            });
-            //call to show new facilities
-            console.log(resp.data.info);
-        })
-        .catch(error => console.error("Error creating a facility"));
+        if(isEdit){
+            axios.put(URLCountry + '/' + id, formCountry )
+            .then(resp => {
+                //Stop loading form
+                setLoading(false);
+                //empty form
+                setFormCountry(resp.data.info[0]);
+                callback();
+            })
+            .catch(error => console.error("Error creating a country"));
+        } else {
+            axios.post(URLCountry, formCountry )
+            .then(resp => {
+                //Stop loading form
+                setLoading(false);
+                //empty form
+                setFormCountry({
+                    name: '',
+                    originalname:'',
+                    acronym:'',
+                    enabled:true,
+                    hide:false
+                });
+                //call to show new facilities
+                callback();
+            })
+            .catch(error => console.error("Error creating a country"));
+        }
+        
         
         } catch (error) {
             setSubmitError(error.response?.data?.message || error.message);
@@ -89,6 +103,23 @@ function FormCountry({id}){
             setIsSubmitting(false);
         }
     };
+    
+
+     useEffect(() => {
+        if (id) {
+            setisEdit(true);
+            //getCountrydata
+            const getCountry = async() =>{
+                axios.get(URLCountry+ '/' +id)
+                .then(resp => {
+                    setFormCountry(resp.data.info[0]);
+                    setLoading(false);
+                })
+                .catch(error => console.error("Error getting country"));
+            };
+            getCountry();
+        }
+    },[id]);
 
     return (<>
     <Box
@@ -147,10 +178,11 @@ function FormCountry({id}){
                     control={
                     <Checkbox 
                     onChange={handleChange}
-                    id="show"
-                    name="enabled" 
-                      />} 
-                label="Show it to all?" />
+                    id="hide"
+                    name="hide"
+                    checked={formCountry.hide}
+                    />} 
+                label="Hide" />
             </FormGroup>
     
             <Button 

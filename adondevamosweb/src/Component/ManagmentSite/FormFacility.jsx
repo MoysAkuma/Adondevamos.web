@@ -18,7 +18,7 @@ import
 import config from '../../Resources/config';
 
 
-function FormFacility({id}){
+function FormFacility({id, callback}){
     //Init variables
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -74,8 +74,7 @@ function FormFacility({id}){
                     enabled:true,
                     hide:false
                 });
-                //call to show new facilities
-                console.log(resp.data.info);
+                callback();
             })
         .catch(error => console.error("Error creating a facility"));
         

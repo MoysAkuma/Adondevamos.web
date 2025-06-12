@@ -10,13 +10,13 @@ function StateSelect({ val, onChangecall, catStates}){
         <Select
             id="stateid"
             name="stateid"
-            label="state"
+            label="State"
             helperText="Please select your States"
             value={val}
             onChange={onChangecall}
             >
             {  
-                catStates?.map((option) => (
+                catStates.map((option) => (
                 <MenuItem key={option.id} value={option.id}>
                 {option.name}
                 </MenuItem>
