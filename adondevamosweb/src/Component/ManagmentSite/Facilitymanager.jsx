@@ -77,6 +77,25 @@ function Facilitymanager({ id, callback}){
         setShowFacilityForm(false);
     };
 
+    const toggleVisibilityFacility = async( item ) =>{
+        if(item.hide){
+            axios.patch(URLFacility + '/' +item.id + '/Show')
+            .then(resp => {
+                getFacilities();
+                setLoading(false);
+            })
+            .catch(error => console.error("Error getting catalogue of facilities"));
+        } else {
+            axios.patch(URLFacility + '/' +item.id + '/Hide')
+            .then(resp => {
+                getFacilities();
+                setLoading(false);
+            })
+            .catch(error => console.error("Error getting catalogue of facilities"));
+        }
+        
+    };
+
     useEffect(()=> {
         getFacilities();
     },[]);
@@ -112,7 +131,10 @@ function Facilitymanager({ id, callback}){
                                 <Delete onClick={() => deleteFacility(x.id)} />
                             </IconButton>
                             <IconButton edge="end">
-                                { x.hide ? <Visibility  /> : <VisibilityOff/>}
+                                { x.hide ? 
+                                    <Visibility onClick={()=> toggleVisibilityFacility(x)} /> 
+                                    : <VisibilityOff onClick={()=> toggleVisibilityFacility(x)}/>
+                                }
                             </IconButton>
                             
                         </ListItem>

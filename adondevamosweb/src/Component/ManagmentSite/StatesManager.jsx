@@ -40,6 +40,7 @@ function StatesManager(){
     const [catStates, setCatStates] = useState([]);
     const [catCountries, setCatCountries] = useState([]);
     const [showForm, setShowForm] = useState(false);
+    const [countryidfilter, setCountryIDFilter]= useState(null);
     const [stateid, setStateID]= useState(null);
     
     const [URLStates, setURLStates] = useState(`${config.api.baseUrl}${config.api.endpoints.State}`);
@@ -90,7 +91,14 @@ function StatesManager(){
     };
 
     const formSucess = () => {
+        console.log("Entro");
         getStates();
+        setShowForm(false);
+        setStateID(null);
+    };
+
+    const showFilters = () => {
+        
     };
     useEffect(()=> {
         getCountries();
@@ -107,6 +115,7 @@ function StatesManager(){
         </Typography>
         <ButtonGroup variant="outlined" aria-label="Basic button group">
             <Button onClick={() => showformToCreate()} >Add</Button>
+            <Button onClick={() => showFilters()} > Set Filters </Button>
         </ButtonGroup>
         
         {showForm && (<FormStates id={stateid} callback={formSucess}/> )}

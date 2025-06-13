@@ -18,7 +18,7 @@ import
 
 import config from '../../Resources/config';
 
-function FormCities(){
+function FormCities({id, callback}){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     
@@ -63,7 +63,6 @@ function FormCities(){
         if (!formCities.name.trim()) {
             throw new Error('Name of city is required');
         }
-        console.log(formCities);
         axios.post(URLCountry, formCities )
         .then(resp => {
             //Stop loading form
@@ -76,8 +75,8 @@ function FormCities(){
                 enabled:true,
                 hide:false
             });
-            //call to show new facilities
-            console.log(resp.data.info);
+            //callback
+            callback();
         })
         .catch(error => console.error("Error creating a cities"));
         

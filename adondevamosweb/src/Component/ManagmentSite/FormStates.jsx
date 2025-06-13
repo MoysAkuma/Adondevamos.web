@@ -88,6 +88,8 @@ function FormStates({ id, callback}){
                 countryid : 0,
                 hide : false
             });
+            //execute callback
+            callback();
         })
         .catch(error => console.error("Error creating a states"));
         
