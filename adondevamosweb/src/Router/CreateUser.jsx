@@ -70,6 +70,8 @@ function CreateUser(){
         tag:'',
         password:''
     });
+
+    const [tagistaken, setTagistaken] = useState(false);
     
     //update request
     const handleChange = (e) => {
@@ -78,21 +80,22 @@ function CreateUser(){
           ...prev,
           [name]: value
         }));
-        console.log(name);
         switch (name){
             case 'countryid':
                 getStates(value);
+            break
+            case 'stateid':
+                getCities(value);
+            break
             case 'tag':
                 verifyTag(value);
-            default:
-                return null;
+            break
         }
     };
 
     
     const handleSelect = (event) => {
         handleChange(event);
-        console.log(formCreateUser);
     };
     
     // UI state
@@ -222,10 +225,9 @@ function CreateUser(){
 
     //verifytag
     const verifyTag = async( item ) =>{
-        console.log(URLsCatalogService.User + '/Verify/Tag/' + item);
         axios.get(URLsCatalogService.User + '/Verify/Tag/' + item)
         .then(resp => {
-            console.log(resp);
+            setTagistaken(true);
         })
         .catch(error => console.error("Error verification of tag"));
     };
@@ -267,6 +269,9 @@ function CreateUser(){
                     fullWidth
                     required
                 />
+                {tagistaken && (<Typography variant="body1" component="body1" gutterBottom align="center">
+                    Tag is already taken
+                </Typography>)}
 
                 <TextField
                     id="email"
@@ -367,6 +372,7 @@ function CreateUser(){
                     type="submit" 
                     disabled={isSubmitting}
                     variant="contained"
+                    onClick={handleSubmit}
                 >
                     Create User
                 </Button>

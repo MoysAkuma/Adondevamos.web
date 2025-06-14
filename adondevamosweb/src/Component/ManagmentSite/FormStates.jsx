@@ -7,10 +7,8 @@ import
         Button,
         useMediaQuery,
         useTheme,
-        Container,
         Typography,
         Box,
-        MenuItem,
         FormGroup,
         FormControlLabel,
         Checkbox 
@@ -155,10 +153,11 @@ function FormStates({ id, callback}){
                     required
                 />
 
-              <CountriesSelectList val={formStates.countryid} onChangecall={handleChange} catCountries={catCountries} />
-    
-                
-    
+                <CountriesSelectList 
+                    val={formStates.countryid} 
+                    onChangecall={handleChange} 
+                    catCountries={catCountries} />
+
                 <FormGroup>
                     <FormControlLabel  
                         control={

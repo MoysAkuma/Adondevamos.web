@@ -17,6 +17,9 @@ import
     } from '@mui/material';
 
 import config from '../../Resources/config';
+import CountriesSelectList from "../Catalogues/CountriesSelectList";
+import StateSelect from "../Catalogues/StateSelect";
+import CitiesSelect from "../Catalogues/CitiesSelect";
 
 function FormCities({id, callback}){
     const theme = useTheme();
@@ -32,25 +35,48 @@ function FormCities({id, callback}){
     
     const [submitError, setSubmitError] = useState('');
     
-    const [URLCountry,setURLCountry] = useState(`${config.api.baseUrl}${config.api.endpoints.Country}`);
+    //URLS
+    const [URLsCatalogService, setURLsCatalogService] = useState(
+        {
+            Countries:`${config.api.baseUrl}${config.api.endpoints.Countries}`,
+            States:`${config.api.baseUrl}${config.api.endpoints.States}`,
+            Cities:`${config.api.baseUrl}${config.api.endpoints.Cities}`,
+            Country:`${config.api.baseUrl}${config.api.endpoints.Country}`,
+            State:`${config.api.baseUrl}${config.api.endpoints.State}`,
+            City:`${config.api.baseUrl}${config.api.endpoints.City}`
+        }
+    );
 
     const [formCities,setFormCities] = useState({
         name : '',
         originalname : '',
         acronyn : '',
-        countryid : 0,
-        statesid : 0,
+        countryid : null,
+        stateid : null,
         enabled : true,
         hide : false
     });
 
+    const [catCountries, setCatCountries] = useState([]);
+    const [catStates, setCatStates] = useState([]);
+
     //update request
     const handleChange = (e) => {
+        console.log(e.target);
         const { name, value } = e.target;
         setFormCities(prev => ({
         ...prev,
         [name]: value
         }));
+    };
+
+    //handle selectcountry
+    const handleSelectCountry = (e) => {
+        console.log(e);
+        if(e){
+            handleChange(e);
+            getStatesByCountry({id:e.target.value});
+        }
     };
 
     const handleSubmit = async (e) =>{
@@ -59,17 +85,29 @@ function FormCities({id, callback}){
         setSubmitError('');
         setSubmitSuccess(false);
         try {
+
         // Validate for field Name
         if (!formCities.name.trim()) {
             throw new Error('Name of city is required');
         }
-        axios.post(URLCountry, formCities )
+        
+        // Validate for field Country
+        if (!formCities.countryid ) {
+            throw new Error('Country is required');
+        }
+
+        // Validate for field State
+        if (!formCities.stateid ) {
+            throw new Error('State is required');
+        }
+        axios.post(URLsCatalogService.City, formCities )
         .then(resp => {
             //Stop loading form
             setLoading(false);
             //empty form
             setFormCities({
                 name: '',
+                originalname:'',
                 countryid : null,
                 stateid:null,
                 enabled:true,
@@ -78,7 +116,7 @@ function FormCities({id, callback}){
             //callback
             callback();
         })
-        .catch(error => console.error("Error creating a cities"));
+        .catch(error => console.error("Error creating a city"));
         
         } catch (error) {
             setSubmitError(error.response?.data?.message || error.message);
@@ -88,6 +126,29 @@ function FormCities({id, callback}){
         }
     };
 
+    //getCountries
+    const getCountries = async( ) =>{
+        axios.get(URLsCatalogService.Countries)
+        .then(resp => {
+            setCatCountries(resp.data.info);
+            setLoading(false);
+        })
+        .catch(error => console.error("Error getting catalogue of countries"));
+    };
+
+    //getStatesByCountry
+    const getStatesByCountry = async( item ) =>{
+        axios.get(URLsCatalogService.States + '/ByCountryID/' + item.id)
+        .then(resp => {
+            setCatStates(resp.data.info);
+            setLoading(false);
+        })
+        .catch(error => console.error("Error getting catalogue of states"));
+    };
+
+    useEffect(()=> {
+        getCountries();
+    },[]);
 
     return (<>
     <Box
@@ -129,9 +190,17 @@ function FormCities({id, callback}){
                     fullWidth
                     required
                 />
-    
+
+                <CountriesSelectList 
+                    val={formCities.countryid} 
+                    onChangecall={handleSelectCountry} 
+                    catCountries={catCountries} />
+
+                <StateSelect 
+                    val={formCities.stateid} 
+                    onChangecall={handleChange} 
+                    catStates={catStates} />
         
-    
                 <FormGroup>
                     <FormControlLabel  
                         control={
@@ -147,7 +216,7 @@ function FormCities({id, callback}){
                     type="submit" 
                     disabled={isSubmitting}
                     variant="contained"
-                > { (isEdit) ? "Save Changes" : "Create Country" } 
+                > { (isEdit) ? "Save Changes" : "Create City" } 
                 </Button>
               </Box>
     </>);

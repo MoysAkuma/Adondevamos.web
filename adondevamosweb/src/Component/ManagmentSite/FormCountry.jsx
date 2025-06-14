@@ -7,10 +7,8 @@ import
         Button,
         useMediaQuery,
         useTheme,
-        Container,
         Typography,
         Box,
-        MenuItem,
         FormGroup,
         FormControlLabel,
         Checkbox 

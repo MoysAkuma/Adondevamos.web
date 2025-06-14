@@ -1,4 +1,5 @@
 import React from "react";
+
 import 
     {
         MenuItem,
@@ -8,10 +9,9 @@ import
 function StateSelect({ val, onChangecall, catStates}){
     return (
         <Select
+            label="State"
             id="stateid"
             name="stateid"
-            label="State"
-            helperText="Please select your States"
             value={val}
             onChange={onChangecall}
             >

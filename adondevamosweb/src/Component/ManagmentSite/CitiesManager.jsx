@@ -3,52 +3,54 @@ import axios from 'axios';
 import FormCities from "./FormCities";
 
 import 
-    {
-        TextField, 
+    { 
         Button,
         useMediaQuery,
         useTheme,
-        Container,
         Typography,
         Box,
-        MenuItem,
-        FormGroup,
-        FormControlLabel,
-        Checkbox,
-        InputAdornment,
         IconButton,
         List,
         ListItem,
         ListItemText,
-        ButtonGroup,
-        Slide
+        ButtonGroup
 } from '@mui/material';
 
 import { Delete, Visibility, VisibilityOff } from '@mui/icons-material';
 
 import config from '../../Resources/config';
-function CitiesManager(){
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+function CitiesManager({id, callback}){
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
     const [submitSuccess,setSubmitSuccess] = useState(false);
+    const [showForm, setShowForm] = useState(false);
+    const [countryid, setCountryID] = useState(null);
+    const [stateid, setStateID] = useState(null);
+    const [isEdit, setisEdit] = useState(false);
     //Catalogues
     const [catStates, setCatStates] = useState([]);
     const [catCountries, setCatCountries] = useState([]);
     const [catCities, setCatCities] = useState([]);
 
     //URLS
-        const [URLStates, setURLStates] = useState(`${config.api.baseUrl}${config.api.endpoints.State}`);
-        const [URLStatesSearch, setURLStatesSearch] = useState(`${config.api.baseUrl}${config.api.endpoints.States}`);
-        const [URLCountrySearch, setURLCountrySearch] = useState(`${config.api.baseUrl}${config.api.endpoints.Countries}`);
-        const [URLCities, setURLCities] = useState(`${config.api.baseUrl}${config.api.endpoints.Cities}`);
+    const [URLsCatalogService, setURLsCatalogService] = useState(
+        {
+            Countries:`${config.api.baseUrl}${config.api.endpoints.Countries}`,
+            States:`${config.api.baseUrl}${config.api.endpoints.States}`,
+            Cities:`${config.api.baseUrl}${config.api.endpoints.Cities}`,
+            Country:`${config.api.baseUrl}${config.api.endpoints.Country}`,
+            State:`${config.api.baseUrl}${config.api.endpoints.State}`,
+            City:`${config.api.baseUrl}${config.api.endpoints.City}`
+        }
+    );
     //deletestate
     const deleteState = async( id ) =>{};
+
     //getStates
-    const getStates = async( ) =>{
-        axios.get(URLStatesSearch)
+    const getStates = async( id ) =>{
+        axios.get(URLsCatalogService.States + '/')
         .then(resp => {
             setCatStates(resp.data.info);
             setLoading(false);
@@ -56,20 +58,29 @@ function CitiesManager(){
         .catch(error => console.error("Error getting catalogue of states"));
     };
 
-    //getCountries
-    const getCountries = async( ) =>{
-        axios.get(URLCountrySearch)
+    //getCities
+    const getCities = async( ) =>{
+        axios.get(URLsCatalogService.Cities)
         .then(resp => {
-            setCatCountries(resp.data.info);
+            setCatCities(resp.data.info);
             setLoading(false);
-            getStates();
         })
         .catch(error => console.error("Error getting catalogue of countries"));
     };
 
+    const toggleFormVisibility = () => {
+        setShowForm( !showForm );
+    };
+
+    const formSuccess = () => {
+        getCities();
+        setShowForm(false);
+    };
+
     useEffect(()=> {
-            getCountries();
+        getCities();
     },[]);
+
     return (<Box
         sx={{
                 display: 'grid',
@@ -81,22 +92,19 @@ function CitiesManager(){
             Cities 
         </Typography>
         <ButtonGroup variant="outlined" aria-label="Basic button group">
-            <Button >Add</Button>
+            <Button onClick={toggleFormVisibility} > { showForm ? 'Hide':'Add' }</Button>
         </ButtonGroup>
         
-        <FormCities id={null} />
+        { showForm && (<FormCities id={stateid} callback={formSuccess} />)}
         
-        <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+        <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
             {
                 !loading && catCities.length > 0 ? catCities.map(
                     (x)=>(
                         <ListItem key={x.id}>
                             <ListItemText 
                                 primary={x.name} 
-                                secondary={ catStates.filter( state => state.id = x.countryid )[0].name +', ' + catCountries.filter( s => s.id = x.stateid )[0].name } />
-                            <IconButton edge="end" aria-label="add">
-                                <Delete onClick={() => deleteState(x.id)} />
-                            </IconButton>
+                            />
                             <IconButton edge="end">
                                 { x.hide ? <Visibility  /> : <VisibilityOff/>}
                             </IconButton>

@@ -40,9 +40,10 @@ export default function NavBar() {
         <nav className={`navbar-links ${isOpen ? 'open' : ''}`}>
           <ul>
             <li><a href="/" onClick={closeMenu}>Home</a></li>
-            <li><a href="/CreateTrip" onClick={closeMenu}>Trip</a></li>
-            <li><a href="/CreatePlace" onClick={closeMenu}>Place</a></li>
-            <li><a href="/ManageSite" onClick={closeMenu}>Admin</a></li>
+            <li><a href="/CreateTrip" onClick={closeMenu}>Trips</a></li>
+            <li><a href="/CreatePlace" onClick={closeMenu}>Places</a></li>
+            <li><a href="/CreateUser" onClick={closeMenu}>User</a></li>
+            <li><a href="/ManageSite" onClick={closeMenu}>Site Admin</a></li>
           </ul>
         </nav>
       </div>

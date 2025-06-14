@@ -91,7 +91,6 @@ function StatesManager(){
     };
 
     const formSucess = () => {
-        console.log("Entro");
         getStates();
         setShowForm(false);
         setStateID(null);
@@ -128,9 +127,6 @@ function StatesManager(){
                             <ListItemText 
                                 primary={x.name} 
                                 secondary={ catCountries?.filter(c => c.id == x.countryid)[0].name  } />
-                            <IconButton edge="end" aria-label="add">
-                                <Delete onClick={() => deleteState(x.id)} />
-                            </IconButton>
                             <IconButton edge="end">
                                 { x.hide ? <Visibility  /> : <VisibilityOff/>}
                             </IconButton>
