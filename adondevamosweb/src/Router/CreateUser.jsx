@@ -1,6 +1,7 @@
 import React, 
     { useState, 
-    useEffect } from "react";
+    useEffect,
+    useRef } from "react";
 import axios from 'axios';
 import 
     {
@@ -10,8 +11,7 @@ import
         useTheme,
         Container,
         Typography,
-        Box,
-        MenuItem
+        Box
     } from '@mui/material';
 
 import CountriesSelectList from "../Component/Catalogues/CountriesSelectList";
@@ -19,10 +19,9 @@ import StateSelect from "../Component/Catalogues/StateSelect";
 import CitiesSelect from "../Component/Catalogues/CitiesSelect";
 
 import config from "../Resources/config";
+
 function CreateUser(){
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    const [loading, setLoading] = useState(true);
+    //URLS
     const [URLsCatalogService, setURLsCatalogService] = useState(
         {
             Countries:`${config.api.baseUrl}${config.api.endpoints.Countries}`,
@@ -30,7 +29,24 @@ function CreateUser(){
             Cities:`${config.api.baseUrl}${config.api.endpoints.Cities}`,
             User:`${config.api.baseUrl}${config.api.endpoints.User}`,
         }
-        );
+    );
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const [loading, setLoading] = useState(true);
+    //tag
+    const [tagwasVerify, setTagWasVerify] = useState(false);
+    const [tagistaken, setTagistaken] = useState(false);
+    const tagRef = useRef(null);
+
+    //email
+    const [emailwasVerify, setEmailWasVerify] = useState(false);
+    const [emailIsUsed, setEmailIsUsed] = useState(false);
+    const emailRef = useRef(null);
+
+    //Password
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [passwordWasVerify, setPasswordWasVerify] = useState(false);
+
     //catalogues
     const [catCountries, setCatCountries] = useState([
         {
@@ -55,7 +71,6 @@ function CreateUser(){
             label:"Los mochis"
         }
     ]);
-    
 
     // user info
     const [formCreateUser, setFormCreateUser] = useState({
@@ -70,9 +85,7 @@ function CreateUser(){
         tag:'',
         password:''
     });
-
-    const [tagistaken, setTagistaken] = useState(false);
-    
+ 
     //update request
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -86,9 +99,6 @@ function CreateUser(){
             break
             case 'stateid':
                 getCities(value);
-            break
-            case 'tag':
-                verifyTag(value);
             break
         }
     };
@@ -225,11 +235,39 @@ function CreateUser(){
 
     //verifytag
     const verifyTag = async( item ) =>{
-        axios.get(URLsCatalogService.User + '/Verify/Tag/' + item)
+        if(item.length > 0){
+            setTagWasVerify(true);
+            axios.get(URLsCatalogService.User + '/Verify/Tag/' + item)
+            .then(resp => {
+                setTagistaken(false);
+            })
+            .catch(error => { 
+                if(error.status == 409){ 
+                    tagRef.current?.focus(); 
+                    setTagistaken(true)
+                } 
+            console.error("Error verification of tag")});    
+        }
+        
+    };
+
+    //verifyemail
+    const verifyEmail = async( item ) =>{
+        setEmailWasVerify(true);
+        axios.get(URLsCatalogService.User + '/Verify/Email/' + item)
         .then(resp => {
-            setTagistaken(true);
+            setEmailIsUsed(false);
         })
-        .catch(error => console.error("Error verification of tag"));
+        .catch(error => { 
+            if(error.status == 409){ 
+                emailRef.current?.focus(); 
+                setTagistaken(true)
+            } 
+            console.error("Error verification of tag")});
+    };
+
+    const handleConfirmPassword =() => {
+        setPasswordWasVerify( (formCreateUser.password == confirmPassword) );
     };
 
     useEffect(()=> {
@@ -245,6 +283,7 @@ function CreateUser(){
             <Box
                 component="form"
                 onSubmit={handleSubmit}
+                autoComplete="off"
                 sx={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -254,7 +293,7 @@ function CreateUser(){
             >
                 
                 <Typography variant="h6" component="h1" gutterBottom align="center">
-                    Contact Info
+                    Unique as You
                 </Typography>
                 <TextField
                     id="tag"
@@ -266,12 +305,16 @@ function CreateUser(){
                     onChange={handleChange}
                     size={isMobile ? 'small' : 'medium'}
                     value={formCreateUser.tag}
+                    onBlur={() =>  verifyTag(formCreateUser.tag)}
+                    ref={tagRef}
                     fullWidth
                     required
                 />
-                {tagistaken && (<Typography variant="body1" component="body1" gutterBottom align="center">
-                    Tag is already taken
-                </Typography>)}
+                {
+                    tagwasVerify ? (<Typography variant="body1" component="body1" gutterBottom align="center">
+                    { tagistaken ? "Tag is already taken" : "Tag is available" }
+                    </Typography>) : <></>
+                }
 
                 <TextField
                     id="email"
@@ -281,13 +324,27 @@ function CreateUser(){
                     variant="outlined"
                     helperText="Your email must be unique"
                     onChange={handleChange}
+                    onBlur={() => verifyEmail(formCreateUser.email)}
                     size={isMobile ? 'small' : 'medium'}
                     value={formCreateUser.email}
+                    ref={emailRef}
                     fullWidth
                     required
                 />
+                {
+                    emailwasVerify ? (<Typography variant="body1" component="body1" gutterBottom align="center">
+                    { emailIsUsed ? "Email is already registed" : "Email is available" }
+                    </Typography>) : <></>
+                }
+                <Typography variant="h6" component="h1" gutterBottom align="center">
+                    Security
+                </Typography>
+                <Typography variant="body1" component="body1" gutterBottom align="center">
+                    <b>Note:</b> 
+                </Typography>
 
                 <TextField
+                    type="password"
                     id="password"
                     name="password"
                     label="Password"
@@ -300,13 +357,37 @@ function CreateUser(){
                     required
                 />
 
+                <TextField
+                    type="password"
+                    id="confirmpassword"
+                    name="confirmpassword"
+                    label="Confirm your Password"
+                    placeholder="Type again your password"
+                    variant="outlined"
+                    onChange={handleChange}
+                    size={isMobile ? 'small' : 'medium'}
+                    value={confirmPassword}
+                    onBlur={handleConfirmPassword}
+                    fullWidth
+                    required
+                />
+                {
+                    passwordWasVerify ? (
+                    <Typography variant="body1" component="body1" gutterBottom align="center">
+                    Password is confirmed
+                    </Typography>) : 
+                    <Typography variant="body1" component="body1" gutterBottom align="center"> 
+                        Please, insert the same password
+                    </Typography>
+                }
+
                 <Typography variant="h6" component="h1" gutterBottom align="center">
                     Name
                 </Typography>
                 <TextField
                     id="name"
                     name="name"
-                    label="User Name"
+                    label="Name"
                     placeholder="First Name"
                     onChange={handleChange}
                     size={isMobile ? 'small' : 'medium'}
