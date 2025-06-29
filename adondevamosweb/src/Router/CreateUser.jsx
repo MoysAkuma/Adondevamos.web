@@ -140,6 +140,10 @@ function CreateUser(){
             throw new Error('password is required');
         }
 
+        if (!formCreateUser.password.trim() != confirmPassword) {
+            throw new Error('confirm password required');
+        }
+
         // Validate for field Email
         if (!formCreateUser.email.trim()) {
             throw new Error('email is required');
@@ -184,7 +188,8 @@ function CreateUser(){
         console.log('User created:', response.data);
         
         // Reset form after successful submission
-        setFormCreateUser({
+        setFormCreateUser(
+            {
             name: '',
             secondName:'',
             lastName:'',
@@ -195,7 +200,8 @@ function CreateUser(){
             email:'',
             tag:'',
             password:''
-        });
+            }
+        );
         
         } catch (error) {
             setSubmitError(error.response?.data?.message || error.message);
@@ -242,10 +248,7 @@ function CreateUser(){
                 setTagistaken(false);
             })
             .catch(error => { 
-                if(error.status == 409){ 
-                    tagRef.current?.focus(); 
-                    setTagistaken(true)
-                } 
+                setTagistaken( (error.status == 409 ));
             console.error("Error verification of tag")});    
         }
         
@@ -259,11 +262,9 @@ function CreateUser(){
             setEmailIsUsed(false);
         })
         .catch(error => { 
-            if(error.status == 409){ 
-                emailRef.current?.focus(); 
-                setTagistaken(true)
-            } 
-            console.error("Error verification of tag")});
+            setTagistaken((error.status == 409));
+            console.error("Error verification of tag")}
+        );
     };
 
     const handleConfirmPassword =() => {
@@ -339,9 +340,6 @@ function CreateUser(){
                 <Typography variant="h6" component="h1" gutterBottom align="center">
                     Security
                 </Typography>
-                <Typography variant="body1" component="body1" gutterBottom align="center">
-                    <b>Note:</b> 
-                </Typography>
 
                 <TextField
                     type="password"
@@ -376,13 +374,11 @@ function CreateUser(){
                     <Typography variant="body1" component="body1" gutterBottom align="center">
                     Password is confirmed
                     </Typography>) : 
-                    <Typography variant="body1" component="body1" gutterBottom align="center"> 
-                        Please, insert the same password
-                    </Typography>
+                    <></>
                 }
 
                 <Typography variant="h6" component="h1" gutterBottom align="center">
-                    Name
+                    Your name
                 </Typography>
                 <TextField
                     id="name"

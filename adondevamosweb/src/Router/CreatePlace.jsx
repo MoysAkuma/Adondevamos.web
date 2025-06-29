@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import 
     {
@@ -9,15 +9,31 @@ import
         Container,
         Typography,
         Box,
-        MenuItem,
         FormGroup,
         FormControlLabel,
         Checkbox 
-    } from '@mui/material';
+} from '@mui/material';
+
+import CountriesSelectList from "../Component/Catalogues/CountriesSelectList";
+import StateSelect from "../Component/Catalogues/StateSelect";
+import CitiesSelect from "../Component/Catalogues/CitiesSelect";
+
+import config from "../Resources/config";
 
 function CreatePlace() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [loading, setLoading] = useState(true);
+  //URLS
+  const [URLsCatalogService, setURLsCatalogService] = useState(
+      {
+          Countries:`${config.api.baseUrl}${config.api.endpoints.Countries}`,
+          States:`${config.api.baseUrl}${config.api.endpoints.States}`,
+          Cities:`${config.api.baseUrl}${config.api.endpoints.Cities}`,
+          User:`${config.api.baseUrl}${config.api.endpoints.User}`,
+          Facilities:`${config.api.baseUrl}${config.api.endpoints.Facilities}`
+      }
+  );
   //catalogues
   const [catCountries, setCatCountries] = useState([
       {
@@ -45,16 +61,17 @@ function CreatePlace() {
 
   const [catFacilities, setCatFacilities] = useState([
     {
-        value:true,
-        label:"Wi-fi",
-        code:"wifi"
+        name:"Wi-fi",
+        id:1,
+        hide:false
     },
     {
-        value:false,
-        label:"Bathroom",
-        code:"bath"
+        name:"Restroom",
+        id:2,
+        hide:false
     }
 ]);
+
 // State to track checked options
 const [checkedFacilities, setCheckedFacilities] = useState({});
 
@@ -67,13 +84,13 @@ const facilitiesChange = (event) => {
   // placeinfo
   const [formCreatePlace, setformCreatePlace] = useState({
     name: '',
-    countryID: '',
-    stateID: '',
-    cityID: '',
+    countryid: '',
+    stateid: '',
+    cityid: '',
     description: '',
     address:'',
     facilities:[],
-    isInternational: false
+    isinternational: false
   });
 
   // UI state
@@ -91,7 +108,7 @@ const facilitiesChange = (event) => {
   };
 
   // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {debugger
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitError('');
@@ -102,65 +119,69 @@ const facilitiesChange = (event) => {
       if (!formCreatePlace.name.trim()) {
         throw new Error('Place name is required');
       }
+
       // Validate for field Description
       if (!formCreatePlace.description.trim()) {
         throw new Error('Place description is required');
       }
+
       // Validate for field Address
       if (!formCreatePlace.address.trim()) {
         throw new Error('Place address is required');
       }
+
       // Validate for field Country
-      if (!formCreatePlace.countryID != null) {
+      if (!formCreatePlace.countryid) {
         throw new Error('CountryID is required');
       }
 
       // Validate for field State
-      if (!formCreatePlace.stateID != null) {
+      if (!formCreatePlace.stateid) {
         throw new Error('StateID is required');
       }
 
       // Validate for field City
-      if (!formCreatePlace.cityID != null) {
+      if (!formCreatePlace.cityid) {
         throw new Error('cityID is required');
       }
-      // Validate for field City
-      if (!formCreatePlace.itinerary != null) {
-        throw new Error('select at least one place is required');
+
+      //Validate for facilities of place
+      if(!checkedFacilities.length == 0 ){
+        throw new Error('select at least a facility is required');
       }
       
-
       // API call to create product
-      const response = await axios.post('http://localhost/CreatePlace', {
+      /*const response = await axios.post('http://localhost/CreatePlace', {
         name: formCreatePlace.name.trim(),
-        countryID: formCreatePlace.countryID,
-        stateID: formCreatePlace.stateID,
-        cityID: formCreatePlace.cityID,
+        countryID: formCreatePlace.countryid,
+        stateID: formCreatePlace.stateid,
+        cityID: formCreatePlace.cityid,
         description: formCreatePlace.description,
         address:formCreatePlace.address,
         facilities:formCreatePlace.facilities,
-        isInternational: formCreatePlace.isInternational
-      }, {
+        isInternational: formCreatePlace.isinternational
+      }, 
+      {
         headers: {
           'Content-Type': 'application/json',
           // 'Authorization': 'Bearer your-token-here' // Add if needed
         }
       });
-
+      */
       // Handle success
       setSubmitSuccess(true);
-      console.log('Place created:', response.data);
+      //console.log('Place created:', response.data);
       
       // Reset form after successful submission
       setformCreatePlace({
         name: '',
-        countryID: '',
-        stateID: '',
-        cityID: '',
+        countryid: '',
+        stateid: '',
+        cityid: '',
         description: '',
         address:'',
         facilities:[],
-        isInternational: false
+        isinternational: false
       });
       
     } catch (error) {
@@ -170,7 +191,73 @@ const facilitiesChange = (event) => {
       setIsSubmitting(false);
     }
   };
+  //Handle select controller
+  const handleSelect = (event) => {
+        const { name, value } = event.target;
+        handleChange(event);
+        switch(name){
+            case "countryid":
+              getStates(value);
+              setformCreatePlace(prev => ({
+                  ...prev,
+                  stateid: null
+                }));
+             break;
+            case "stateid":
+              getCities(value);
+              setformCreatePlace(prev => ({
+                  ...prev,
+                  cityid: null
+                }));
+            break;
+            case "cityid":
+              
+            break;
+        }
+  };
+    
+  //getCountries
+    const getCountries = async( ) =>{
+        axios.get(URLsCatalogService.Countries)
+        .then(resp => {
+            setCatCountries(resp.data.info);
+        })
+        .catch(error => console.error("Error getting catalogue of countries"));
+    };
 
+    //getStates
+    const getStates = async( item ) =>{
+        axios.get(URLsCatalogService.States + '/ByCountryID/' + item)
+        .then(resp => {
+            setCatStates(resp.data.info);
+            handleChange({target:{cityid:0}});
+        })
+        .catch(error => console.error("Error getting catalogue of countries"));
+    };
+
+    //getCities
+    const getCities = async( item ) =>{
+        axios.get(URLsCatalogService.Cities + '/ByState/' + item)
+        .then(resp => {
+            setCatCities(resp.data.info);
+        })
+        .catch(error => console.error("Error getting catalogue of countries"));
+    };
+
+    //getFacilities
+    const getFacilities = async( ) =>{
+        axios.get(URLsCatalogService.Facilities)
+        .then(resp => {
+            setCatFacilities(resp.data.info);
+            setLoading(false);
+        })
+        .catch(error => console.error("Error getting catalogue of facilities"));
+    };
+    
+    useEffect(()=> {
+      getCountries();
+      getFacilities();
+    },[]);
   return (
     <Container maxWidth="sm" sx={{ py: 8 }}>
       <Typography variant="h6" component="h6" gutterBottom align="center">
@@ -226,69 +313,48 @@ const facilitiesChange = (event) => {
             Ubication
         </Typography>
 
-        <TextField
-                id="countryID"
-                name="countryID"
-                select
-                label="Country"
-                defaultValue="1"
-                helperText="Please select your Country"
-                value={formCreatePlace.countryID}
-                onChange={handleChange}
-                >
-                {catCountries.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                    </MenuItem>
-                ))}
-        </TextField>
+        <CountriesSelectList 
+                val={formCreatePlace.countryid} 
+                onChangecall={handleSelect} 
+                catCountries={catCountries} />
 
-        <TextField
-                id="stateID"
-                name="stateID"
-                select
-                label="State"
-                defaultValue="1"
-                helperText="Please select your state"
-                value={formCreatePlace.stateID}
-                onChange={handleChange}
-                >
-                {catStates.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                    </MenuItem>
-                ))}
-        </TextField>
-
-        <TextField
-                id="cityID"
-                name="cityID"
-                select
-                label="City"
-                defaultValue="1"
-                helperText="Please select your city"
-                value={formCreatePlace.cityID}
-                onChange={handleChange}
-                >
-                {catCities.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                    {option.label}
-                    </MenuItem>
-                ))}
-        </TextField>
+                {
+                  formCreatePlace.countryid && (  
+                    <StateSelect 
+                    val={formCreatePlace.stateid}
+                    onChangecall={handleSelect}
+                    catStates={catStates}
+                    /> )  
+                }
+                {
+                  formCreatePlace.stateid && (
+                    <CitiesSelect 
+                    val={formCreatePlace.cityid}
+                    onChangecall={handleSelect}
+                    catCities={catCities}
+                    />
+                  )
+                }
+                
         <Typography variant="h6" component="h6" gutterBottom align="center">
             Facilities
         </Typography>
         <FormGroup>
           {
-            catFacilities.map((opt)=>(
+            catFacilities?.map((opt)=>(
               <FormControlLabel
-                key={opt.code}
-                label={opt.label}
+                key={opt.id}
+                label={opt.name}
                 control={
-                  <Checkbox name={opt.code} value={opt.value} checked={checkedFacilities[opt.code] || false} onChange={facilitiesChange} />
-              } />
-            ))
+                  <Checkbox 
+                    name={opt.name}  
+                    checked={checkedFacilities[opt.name] || false} 
+                    onChange={facilitiesChange} 
+                  />
+                } 
+              />
+            )
+          )
           }
         </FormGroup>
         <Button 
