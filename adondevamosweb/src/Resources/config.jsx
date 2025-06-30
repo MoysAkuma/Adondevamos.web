@@ -3,15 +3,13 @@ const config = {
     api: {
       baseUrl: 'http://localhost:3001',
       endpoints: {
-        Facility: '/Facility',
         Facilities:"/Facilities",
-        Country: '/Country',
         Countries: '/Countries',
-        State: '/State',
         States: '/States',
-        City: '/City',
         Cities: '/Cities',
-        User: '/User'
+        User: '/User',
+        Places: '/Places',
+        Trips: '/Trips'
       }
     }
   },

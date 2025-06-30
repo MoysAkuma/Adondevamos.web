@@ -30,7 +30,7 @@ function CreatePlace() {
           Countries:`${config.api.baseUrl}${config.api.endpoints.Countries}`,
           States:`${config.api.baseUrl}${config.api.endpoints.States}`,
           Cities:`${config.api.baseUrl}${config.api.endpoints.Cities}`,
-          User:`${config.api.baseUrl}${config.api.endpoints.User}`,
+          Users:`${config.api.baseUrl}${config.api.endpoints.Users}`,
           Facilities:`${config.api.baseUrl}${config.api.endpoints.Facilities}`
       }
   );
@@ -73,7 +73,8 @@ function CreatePlace() {
 ]);
 
 // State to track checked options
-const [checkedFacilities, setCheckedFacilities] = useState({});
+const [checkedFacilities, 
+  setCheckedFacilities] = useState([]);
 
 const facilitiesChange = (event) => {
   setCheckedFacilities({
@@ -82,16 +83,18 @@ const facilitiesChange = (event) => {
   });
 };
   // placeinfo
-  const [formCreatePlace, setformCreatePlace] = useState({
-    name: '',
-    countryid: '',
-    stateid: '',
-    cityid: '',
-    description: '',
-    address:'',
-    facilities:[],
-    isinternational: false
-  });
+  const [formCreatePlace, setformCreatePlace] = useState(
+    {
+      name: '',
+      countryid: '',
+      stateid: '',
+      cityid: '',
+      description: '',
+      address:'',
+      facilities:[],
+      isinternational: false
+    }
+  );
 
   // UI state
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -108,7 +111,8 @@ const facilitiesChange = (event) => {
   };
 
   // Handle form submission
-  const handleSubmit = async (e) => {debugger
+  const handleSubmit = async (e) => {
+    saveSelectedFacilities(0);
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitError('');
@@ -146,19 +150,18 @@ const facilitiesChange = (event) => {
       }
 
       //Validate for facilities of place
-      if(!checkedFacilities.length == 0 ){
+      if(checkedFacilities.length == 0 ){
         throw new Error('select at least a facility is required');
       }
       
       // API call to create product
-      /*const response = await axios.post('http://localhost/CreatePlace', {
+      const response = await axios.post('http://localhost/CreatePlace', {
         name: formCreatePlace.name.trim(),
-        countryID: formCreatePlace.countryid,
-        stateID: formCreatePlace.stateid,
-        cityID: formCreatePlace.cityid,
+        countryid: formCreatePlace.countryid,
+        stateid: formCreatePlace.stateid,
+        cityid: formCreatePlace.cityid,
         description: formCreatePlace.description,
         address:formCreatePlace.address,
-        facilities:formCreatePlace.facilities,
         isInternational: formCreatePlace.isinternational
       }, 
       {
@@ -167,22 +170,28 @@ const facilitiesChange = (event) => {
           // 'Authorization': 'Bearer your-token-here' // Add if needed
         }
       });
-      */
-      // Handle success
-      setSubmitSuccess(true);
-      //console.log('Place created:', response.data);
+
+      switch(response.status) {
+        case 200, 201:
+          // Handle success
+          setSubmitSuccess(true);
+          // Reset form after successful submission
+          setformCreatePlace({
+            name: '',
+            countryid: null,
+            stateid: null,
+            cityid: null,
+            description: '',
+            address:'',
+            isinternational: false
+          });
+          saveSelectedFacilities(response.data.info);
+        break;
+          case 409:
+            throw new Error('A place was created with same info');
+          break;
+      }
       
-      // Reset form after successful submission
-      setformCreatePlace({
-        name: '',
-        countryid: '',
-        stateid: '',
-        cityid: '',
-        description: '',
-        address:'',
-        facilities:[],
-        isinternational: false
-      });
       
     } catch (error) {
       setSubmitError(error.response?.data?.message || error.message);
@@ -191,6 +200,7 @@ const facilitiesChange = (event) => {
       setIsSubmitting(false);
     }
   };
+
   //Handle select controller
   const handleSelect = (event) => {
         const { name, value } = event.target;
@@ -209,9 +219,6 @@ const facilitiesChange = (event) => {
                   ...prev,
                   cityid: null
                 }));
-            break;
-            case "cityid":
-              
             break;
         }
   };
@@ -252,6 +259,18 @@ const facilitiesChange = (event) => {
             setLoading(false);
         })
         .catch(error => console.error("Error getting catalogue of facilities"));
+    };
+
+    //saveplace api call    
+    const saveSelectedFacilities = async(item) =>{
+      const selectedFacilities = checkedFacilities.reduce((acc, item) => ({ ...acc, ...item }), {});
+      console.log(selectedFacilities);
+      /*axios.post(URLsCatalogService.Places + '/Facilities')
+      .then(resp => {
+          setLoading(false);
+      })
+      .catch(
+        error => console.error("Error getting catalogue of facilities"));*/
     };
     
     useEffect(()=> {
@@ -314,31 +333,34 @@ const facilitiesChange = (event) => {
         </Typography>
 
         <CountriesSelectList 
-                val={formCreatePlace.countryid} 
-                onChangecall={handleSelect} 
-                catCountries={catCountries} />
+          val={formCreatePlace.countryid} 
+          onChangecall={handleSelect} 
+          catCountries={catCountries} 
+        />
 
-                {
-                  formCreatePlace.countryid && (  
-                    <StateSelect 
-                    val={formCreatePlace.stateid}
-                    onChangecall={handleSelect}
-                    catStates={catStates}
-                    /> )  
-                }
-                {
-                  formCreatePlace.stateid && (
-                    <CitiesSelect 
-                    val={formCreatePlace.cityid}
-                    onChangecall={handleSelect}
-                    catCities={catCities}
-                    />
-                  )
-                }
+        {
+          formCreatePlace.countryid ? (  
+            <StateSelect 
+            val={formCreatePlace.stateid}
+            onChangecall={handleSelect}
+            catStates={catStates}
+            /> )   : <>Please, select a country.<br/></>
+        }
+
+        {
+          formCreatePlace.stateid ? (
+            <CitiesSelect 
+            val={formCreatePlace.cityid}
+            onChangecall={handleSelect}
+            catCities={catCities}
+            />
+          ) : <>Please, select a state.<br/></>
+        }
                 
         <Typography variant="h6" component="h6" gutterBottom align="center">
             Facilities
         </Typography>
+
         <FormGroup>
           {
             catFacilities?.map((opt)=>(
