@@ -31,31 +31,32 @@ function CreatePlace() {
           States:`${config.api.baseUrl}${config.api.endpoints.States}`,
           Cities:`${config.api.baseUrl}${config.api.endpoints.Cities}`,
           Users:`${config.api.baseUrl}${config.api.endpoints.Users}`,
-          Facilities:`${config.api.baseUrl}${config.api.endpoints.Facilities}`
+          Facilities:`${config.api.baseUrl}${config.api.endpoints.Facilities}`,
+          Places:`${config.api.baseUrl}${config.api.endpoints.Places}`
       }
   );
   //catalogues
   const [catCountries, setCatCountries] = useState([
       {
-          value:1,
-          label:"MEXICO"
+          id:1,
+          name:"MEXICO"
       }
   ]);
   const [catStates, setCatStates] = useState([
       {
-          value:1,
-          label:"SINALOA"
+          id:1,
+          name:"SINALOA"
       }
   ]);
 
   const [catCities, setCatCities] = useState([
       {
-          value:1,
-          label:"Culiacan"
+          id:1,
+          name:"Culiacan"
       },
       {
-          value:2,
-          label:"Los mochis"
+          id:2,
+          name:"Los mochis"
       }
   ]);
 
@@ -74,7 +75,7 @@ function CreatePlace() {
 
 // State to track checked options
 const [checkedFacilities, 
-  setCheckedFacilities] = useState([]);
+  setCheckedFacilities] = useState({});
 
 const facilitiesChange = (event) => {
   setCheckedFacilities({
@@ -91,7 +92,6 @@ const facilitiesChange = (event) => {
       cityid: '',
       description: '',
       address:'',
-      facilities:[],
       isinternational: false
     }
   );
@@ -111,7 +111,7 @@ const facilitiesChange = (event) => {
   };
 
   // Handle form submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => { 
     saveSelectedFacilities(0);
     e.preventDefault();
     setIsSubmitting(true);
@@ -150,12 +150,14 @@ const facilitiesChange = (event) => {
       }
 
       //Validate for facilities of place
-      if(checkedFacilities.length == 0 ){
+      if(Object.keys(checkedFacilities || {}).length === 0){
         throw new Error('select at least a facility is required');
       }
       
       // API call to create product
-      const response = await axios.post('http://localhost/CreatePlace', {
+      const response = await axios.post(
+        URLsCatalogService.Places, 
+      {
         name: formCreatePlace.name.trim(),
         countryid: formCreatePlace.countryid,
         stateid: formCreatePlace.stateid,
@@ -170,7 +172,8 @@ const facilitiesChange = (event) => {
           // 'Authorization': 'Bearer your-token-here' // Add if needed
         }
       });
-
+      console.log(response);
+      debugger
       switch(response.status) {
         case 200, 201:
           // Handle success
@@ -187,9 +190,8 @@ const facilitiesChange = (event) => {
           });
           saveSelectedFacilities(response.data.info);
         break;
-          case 409:
-            throw new Error('A place was created with same info');
-          break;
+        case 409:  throw new Error('A place was created with same info'); break;
+        case 404: throw new Error('No endpoint'); break;
       }
       
       
@@ -262,16 +264,23 @@ const facilitiesChange = (event) => {
     };
 
     //saveplace api call    
-    const saveSelectedFacilities = async(item) =>{
-      const selectedFacilities = checkedFacilities.reduce((acc, item) => ({ ...acc, ...item }), {});
-      console.log(selectedFacilities);
-      /*axios.post(URLsCatalogService.Places + '/Facilities')
+    const saveSelectedFacilities = async(item) =>{ debugger
+      const formSaveFacilities = {  
+        facilitylist: checkedFacilities
+      };
+      const url = URLsCatalogService.Places 
+        + '/'+ 
+        item[0].id + 
+        '/Facilities';
+
+      axios.post(url, formSaveFacilities)
       .then(resp => {
           setLoading(false);
       })
       .catch(
-        error => console.error("Error getting catalogue of facilities"));*/
+        error => console.error("Error getting catalogue of facilities"));
     };
+
     
     useEffect(()=> {
       getCountries();
