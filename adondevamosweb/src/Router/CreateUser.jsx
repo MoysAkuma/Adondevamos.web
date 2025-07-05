@@ -21,6 +21,9 @@ import CitiesSelect from "../Component/Catalogues/CitiesSelect";
 import config from "../Resources/config";
 
 function CreateUser(){
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const [loading, setLoading] = useState(true);
     //URLS
     const [URLsCatalogService, setURLsCatalogService] = useState(
         {
@@ -30,9 +33,6 @@ function CreateUser(){
             User:`${config.api.baseUrl}${config.api.endpoints.User}`,
         }
     );
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    const [loading, setLoading] = useState(true);
     //tag
     const [tagwasVerify, setTagWasVerify] = useState(false);
     const [tagistaken, setTagistaken] = useState(false);
@@ -50,25 +50,26 @@ function CreateUser(){
     //catalogues
     const [catCountries, setCatCountries] = useState([
         {
-            id:1,
+            id : 1,
             name:"MEXICO"
         }
     ]);
+
     const [catStates, setCatStates] = useState([
         {
-            value:1,
-            label:"SINALOA"
+            id : 1,
+            name : "SINALOA"
         }
     ]);
 
     const [catCities, setCatCities] = useState([
         {
-            value:1,
-            label:"Culiacan"
+            id : 1,
+            name : "Culiacan"
         },
         {
-            value:2,
-            label:"Los mochis"
+            id : 2,
+            name : "Los mochis"
         }
     ]);
 

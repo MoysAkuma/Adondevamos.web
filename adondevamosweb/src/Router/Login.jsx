@@ -38,10 +38,7 @@ function Login(){
     const [submitSuccess, setSubmitSuccess] = useState(false);
 
     return (
-        <Container maxWidth="sm" sx={{ py: 4 }}>
-            <Typography variant="h5"  gutterBottom align="center">
-                Adondevamos.io
-            </Typography>
+        <Container maxWidth="sm" sx={{ py: 8 }}>
             <Typography variant="h6"  gutterBottom align="center">
                 Log In
             </Typography>
@@ -51,8 +48,9 @@ function Login(){
                 sx={{
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 2,
+                gap: 3,
                 width: '100%'
+
             }}>
                 <TextField
                     id="email"
@@ -83,6 +81,8 @@ function Login(){
                     type="submit" 
                     disabled={isSubmitting}
                     variant="contained"
+                    size="small"
+                    
                     >
                     Log In
                 </Button>

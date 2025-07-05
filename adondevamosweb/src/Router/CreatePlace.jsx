@@ -269,7 +269,7 @@ const facilitiesChange = (event) => {
         facilitylist: checkedFacilities
       };
       const url = URLsCatalogService.Places 
-        + '/'+ 
+        + '/' + 
         item[0].id + 
         '/Facilities';
 

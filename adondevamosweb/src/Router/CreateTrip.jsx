@@ -18,34 +18,52 @@ import
 import PlaceSearch from '../Component/PlaceSearch';
 import Memberlist from '../Component/Memberlist'
 import MemberSearch from '../Component/MemberSearch';
+import CountriesSelectList from "../Component/Catalogues/CountriesSelectList";
+import StateSelect from "../Component/Catalogues/StateSelect";
+import CitiesSelect from "../Component/Catalogues/CitiesSelect";
+
+import config from "../Resources/config";
 
 function CreateTrip(){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    
+    //URLS
+    const [URLsCatalogService, setURLsCatalogService] = useState(
+        {
+            Countries:`${config.api.baseUrl}${config.api.endpoints.Countries}`,
+            States:`${config.api.baseUrl}${config.api.endpoints.States}`,
+            Cities:`${config.api.baseUrl}${config.api.endpoints.Cities}`,
+            User:`${config.api.baseUrl}${config.api.endpoints.User}`,
+        }
+    );
+
     //catalogues
     const [catCountries, setCatCountries] = useState([
         {
-            value:1,
-            label:"MEXICO"
+            id : 1,
+            name : "MEXICO"
         }
     ]);
+
     const [catStates, setCatStates] = useState([
         {
-            value:1,
-            label:"SINALOA"
+            id : 1,
+            name : "SINALOA"
         }
     ]);
 
     const [catCities, setCatCities] = useState([
         {
-            value:1,
-            label:"Culiacan"
+            id : 1,
+            name : "Culiacan"
         },
         {
-            value:2,
-            label:"Los mochis"
+            id : 2,
+            name : "Los mochis"
         }
     ]);
+
     // trip info
     const [formTrip, setFormTrip] = useState({
         name: '',
@@ -54,9 +72,9 @@ function CreateTrip(){
         initialDate:"",
         finalDate:"",
         isInternational:false,
-        countryID: '',
-        stateID: '',
-        cityID: '',
+        countryid: '',
+        stateid: '',
+        cityid: '',
         memberlist:[]
     });
     // UI state
@@ -90,18 +108,18 @@ function CreateTrip(){
         throw new Error('Trip description is required');
       }
       // Validate for field Country
-      if (!formTrip.countryID != null) {
-        throw new Error('CountryID is required');
+      if (!formTrip.countryid != null) {
+        throw new Error('countryid is required');
       }
 
       // Validate for field State
-      if (!formTrip.stateID != null) {
-        throw new Error('StateID is required');
+      if (!formTrip.stateid != null) {
+        throw new Error('stateid is required');
       }
 
       // Validate for field City
-      if (!formTrip.cityID != null) {
-        throw new Error('cityID is required');
+      if (!formTrip.cityid != null) {
+        throw new Error('cityid is required');
       }
       // Validate for field itinerary
       if (!formTrip.itinerary != null) {
@@ -127,9 +145,9 @@ function CreateTrip(){
       // API call to create product
       const response = await axios.post('http://localhost/CreateTrip', {
         name: formTrip.name.trim(),
-        countryID: formTrip.countryID,
-        stateID: formTrip.stateID,
-        cityID: formTrip.cityID,
+        countryid: formTrip.countryid,
+        stateid: formTrip.stateid,
+        cityid: formTrip.cityid,
         description: formTrip.description,
         isInternational: formTrip.isInternational,
         itinerary:formTrip.itinerary,
@@ -155,9 +173,9 @@ function CreateTrip(){
         initialDate:"",
         finalDate:"",
         isInternational:false,
-        countryID: '',
-        stateID: '',
-        cityID: '',
+        countryid: '',
+        stateid: '',
+        cityid: '',
         memberlist:[]
       });
       
@@ -168,6 +186,34 @@ function CreateTrip(){
       setIsSubmitting(false);
     }
   };
+
+  //getCountries
+    const getCountries = async( ) =>{
+        axios.get(URLsCatalogService.Countries)
+        .then(resp => {
+            setCatCountries(resp.data.info);
+        })
+        .catch(error => console.error("Error getting catalogue of countries"));
+    };
+
+    //getStates
+    const getStates = async( item ) =>{
+        axios.get(URLsCatalogService.States + '/Bycountryid/' + item)
+        .then(resp => {
+            setCatStates(resp.data.info);
+            handleChange({target:{cityid:0}});
+        })
+        .catch(error => console.error("Error getting catalogue of countries"));
+    };
+
+    //getCities
+    const getCities = async( item ) =>{
+        axios.get(URLsCatalogService.Cities + '/ByState/' + item)
+        .then(resp => {
+            setCatCities(resp.data.info);
+        })
+        .catch(error => console.error("Error getting catalogue of countries"));
+    };
 
     return (
         <Container maxWidth="sm" sx={{ py: 8 }}>
@@ -240,13 +286,13 @@ function CreateTrip(){
                 </Typography>
                 
                 <TextField
-                  id="countryID"
-                  name="countryID"
+                  id="countryid"
+                  name="countryid"
                   select
                   label="Country"
                   defaultValue="1"
                   helperText="Please select your Country"
-                  value={formTrip.countryID}
+                  value={formTrip.countryid}
                   onChange={handleChange}
                 >
                   {catCountries.map((option) => (
@@ -257,13 +303,13 @@ function CreateTrip(){
                 </TextField>
 
                 <TextField
-                  id="stateID"
-                  name="stateID"
+                  id="stateid"
+                  name="stateid"
                   select
                   label="State"
                   defaultValue="1"
                   helperText="Please select your state"
-                  value={formTrip.stateID}
+                  value={formTrip.stateid}
                   onChange={handleChange}
                 >
                   {catStates.map((option) => (
@@ -274,13 +320,13 @@ function CreateTrip(){
                 </TextField>
 
                 <TextField
-                  id="cityID"
-                  name="cityID"
+                  id="cityid"
+                  name="cityid"
                   select
                   label="City"
                   defaultValue="1"
                   helperText="Please select your city"
-                  value={formTrip.cityID}
+                  value={formTrip.cityid}
                   onChange={handleChange}
                 >
                   {catCities.map((option) => (
