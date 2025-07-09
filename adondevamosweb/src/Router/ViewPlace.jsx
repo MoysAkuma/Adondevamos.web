@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useParams } from 'react-router-dom';
 import 
     {
         TextField, 
@@ -20,6 +21,8 @@ import
 function ViewPlace(){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    //Get 
+    const { PlaceID } = useParams();
     //mock
     const [placemock, setPlacemock] = useState(
         {
@@ -42,41 +45,41 @@ function ViewPlace(){
     //catalogues
     const [catCountries, setCatCountries] = useState([
         {
-            value:1,
-            label:"MEXICO"
+            id : 1,
+            name : "MEXICO"
         }
     ]);
     const [catStates, setCatStates] = useState([
         {
-            value:1,
-            label:"SINALOA"
+            id : 1,
+            name : "SINALOA"
         }
     ]);
 
     const [catCities, setCatCities] = useState([
         {
-            value:1,
-            label:"Culiacan"
+            id:1,
+            name:"Culiacan"
         },
         {
-            value:2,
-            label:"Los mochis"
+            id:2,
+            name:"Los mochis"
         }
     ]);
 
     const [catFacilities, setCatFacilities] = useState([
         {
-            value:true,
-            label:"Wi-fi",
+            id:true,
+            name:"Wi-fi",
             code:"wifi"
         },
         {
-            value:false,
-            label:"Bathroom",
-            code:"bath"
+            value : false,
+            name : "Bathroom",
+            code : "bath"
         }
     ]);
-    return (<Container maxWidth="sm" sx={{ py: 4 }}>
+    return (<Container maxWidth="sm" sx={{ py: 8 }}>
         <Box
             sx={{
             display: 'flex',
@@ -118,15 +121,15 @@ function ViewPlace(){
             <Typography gutterBottom variant="body1" component="div" align="center">
             
             {
-                catCities.filter(x=>x.value == placemock.cityID)[0].label 
+                catCities.filter(x=>x.value == placemock.cityID)[0].name 
             }
             , 
             {
-                catStates.filter(x=>x.value == placemock.stateID)[0].label 
+                catStates.filter(x=>x.value == placemock.stateID)[0].name 
             }
             , 
             {
-                catCountries.filter(x=>x.value == placemock.countryID)[0].label 
+                catCountries.filter(x=>x.value == placemock.countryID)[0].name 
             } 
             </Typography>
 

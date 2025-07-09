@@ -22,9 +22,9 @@ export default function App() {
         <Route path="/CreatePlace" element={<CreatePlace/>}/>
         <Route path="/CreateTrip" element={<CreateTrip/>}/>
         <Route path="/ManageSite" element={<ManageSite/>}/>
-        <Route path="/ViewUser" element={<ViewUser/>}/>
-        <Route path="/ViewPlace" element={<ViewPlace/>}/>
-        <Route path="/ViewTrip" element={<ViewTrip/>}/>
+        <Route path="/ViewUser/:UserID" element={<ViewUser/>}/>
+        <Route path="/ViewPlace/:PlaceID" element={<ViewPlace/>}/>
+        <Route path="/ViewTrip/:Trip" element={<ViewTrip/>}/>
       </Routes>
     </BrowserRouter>
   );
