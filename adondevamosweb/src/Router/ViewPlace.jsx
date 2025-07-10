@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
+import axios from 'axios';
 import 
     {
         TextField, 
@@ -18,19 +19,36 @@ import
         ListItemText
     } from '@mui/material';
 
+import config from "../Resources/config";
+
 function ViewPlace(){
+    //Get id
+    const { PlaceID } = useParams();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    //Get 
-    const { PlaceID } = useParams();
+
+    const [ubication, setUbication] = useState({
+        CountryName : "",
+        StateName : "",
+        CityName : ""
+    });
+    
+
+    //URLS
+    const [URLsCatalogService, setURLsCatalogService] = useState(
+        {
+            Places:`${config.api.baseUrl}${config.api.endpoints.Places}`
+        }
+    );
+
     //mock
     const [placemock, setPlacemock] = useState(
         {
             id : 1,
             name: 'Place Name',
-            countryID: 1,
-            stateID: 1,
-            cityID: 1,
+            countryid: 1,
+            stateid: 1,
+            cityid: 1,
             description: 'Description',
             address:'Address Text',
             facilities:[
@@ -39,9 +57,22 @@ function ViewPlace(){
                     name:"WC"
                 }
             ],
-            isInternational: false
+            isinternational: false
         }
     );
+
+    const [placeinfo, setPlaceinfo] = useState(
+        {
+            name: 'Place Name',
+            countryid: 1,
+            stateid: 1,
+            cityid: 1,
+            description: 'Description',
+            address:'Address Text',
+            isinternational: false
+        }
+    );
+
     //catalogues
     const [catCountries, setCatCountries] = useState([
         {
@@ -79,6 +110,41 @@ function ViewPlace(){
             code : "bath"
         }
     ]);
+
+    //getPlaceInfo
+    const getPlaceInfo = async(  ) =>{
+        axios.get(URLsCatalogService.Places + '/' + PlaceID)
+        .then(resp => {
+            const data = resp.data.info[0];
+            setPlaceinfo(data);
+            getUbicationNames(data);
+        })
+        .catch(error => console.error("Error getting place id"));
+    };
+
+    //getUbicationName
+    const getUbicationNames = async( placeinfo ) =>{
+        axios.get(URLsCatalogService.Places + 
+            '/Ubications/' + placeinfo.countryid +
+            '/' + placeinfo.stateid +
+            '/' + placeinfo.cityid)
+        .then(resp => {
+            let find = resp.data.info;
+            setUbication( 
+            {
+                CountryName : find.CountryName,
+                StateName : find.StateName,
+                CityName : find.CityName
+            }
+            );
+        })
+        .catch(error => console.error("Error getting names of ubications"));
+    };
+    
+    useEffect(()=> {
+            getPlaceInfo();
+    },[]);
+
     return (<Container maxWidth="sm" sx={{ py: 8 }}>
         <Box
             sx={{
@@ -91,9 +157,12 @@ function ViewPlace(){
             <Typography variant="h5" component="h5" gutterBottom align="center">
                 Name
             </Typography>
+            {
+                PlaceID
+            }
             <Typography variant="body1" component="body1" gutterBottom align="center">
                 {
-                    placemock.name
+                    placeinfo.name
                 }
             </Typography>
 
@@ -102,7 +171,7 @@ function ViewPlace(){
             </Typography>
             <Typography variant="body1" component="body1"  align="center">
                 {
-                    placemock.description
+                    placeinfo.description
                 }
             </Typography>
 
@@ -111,47 +180,22 @@ function ViewPlace(){
             </Typography>
             <Typography variant="body1" component="body1"  align="center">
                 {
-                    placemock.address
+                    placeinfo.address
                 }
             </Typography>
 
             <Typography gutterBottom variant="h6" component="div" align="center">
-            Ubication
-            </Typography>
-            <Typography gutterBottom variant="body1" component="div" align="center">
-            
-            {
-                catCities.filter(x=>x.value == placemock.cityID)[0].name 
-            }
-            , 
-            {
-                catStates.filter(x=>x.value == placemock.stateID)[0].name 
-            }
-            , 
-            {
-                catCountries.filter(x=>x.value == placemock.countryID)[0].name 
-            } 
+                Ubication
             </Typography>
 
-            <Typography variant="h5" component="h5" gutterBottom align="center">
+            <Typography gutterBottom variant="body1" component="div" align="center">
+            { ubication.CityName }, { ubication.StateName }, { ubication.CountryName}
+            </Typography>
+            
+            <Typography gutterBottom variant="h6" component="div" align="center">
                 Facilities
             </Typography>
-            <Typography variant="body1" component="body1"  align="center">
-                {
-                    placemock.facilities.map((fac) => (
-                    <>
-                        <List>
-                            <ListItem>
-                                <ListItemText
-                                    primary={fac.name}
-                                >
-                                </ListItemText>
-                            </ListItem>
-                        </List>
-                    </>)
-                    )
-                }
-            </Typography>
+            
         </Box>
     </Container>);
 }

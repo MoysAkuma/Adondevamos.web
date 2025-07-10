@@ -23,6 +23,7 @@ import { X } from "@mui/icons-material";
 function ViewTrip(){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const { TripID } = useParams();
     const [tripMock, setTripMock] = useState({
         id:1,
         name: 'Nihon Trip 2024',

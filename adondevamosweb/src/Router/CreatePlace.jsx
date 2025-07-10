@@ -35,6 +35,7 @@ function CreatePlace() {
           Places:`${config.api.baseUrl}${config.api.endpoints.Places}`
       }
   );
+
   //catalogues
   const [catCountries, setCatCountries] = useState([
       {
@@ -78,10 +79,12 @@ const [checkedFacilities,
   setCheckedFacilities] = useState({});
 
 const facilitiesChange = (event) => {
+  console.log(event);
   setCheckedFacilities({
     ...checkedFacilities,
       [event.target.name]: event.target.checked,
   });
+  console.log(checkedFacilities);
 };
   // placeinfo
   const [formCreatePlace, setformCreatePlace] = useState(
@@ -379,7 +382,7 @@ const facilitiesChange = (event) => {
                 control={
                   <Checkbox 
                     name={opt.name}  
-                    checked={checkedFacilities[opt.name] || false} 
+                    checked={checkedFacilities[opt.id] || false} 
                     onChange={facilitiesChange} 
                   />
                 } 

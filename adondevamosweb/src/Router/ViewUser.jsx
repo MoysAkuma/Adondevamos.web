@@ -17,6 +17,7 @@ import
 function ViewUser(){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const { UserID } = useParams();
     const [UserMock, setUserMock] = useState({
         name: 'User name',
         secondName:'',
