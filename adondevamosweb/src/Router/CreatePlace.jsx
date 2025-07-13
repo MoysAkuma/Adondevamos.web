@@ -79,12 +79,10 @@ const [checkedFacilities,
   setCheckedFacilities] = useState({});
 
 const facilitiesChange = (event) => {
-  console.log(event);
   setCheckedFacilities({
     ...checkedFacilities,
       [event.target.name]: event.target.checked,
   });
-  console.log(checkedFacilities);
 };
   // placeinfo
   const [formCreatePlace, setformCreatePlace] = useState(
@@ -114,7 +112,7 @@ const facilitiesChange = (event) => {
   };
 
   // Handle form submission
-  const handleSubmit = async (e) => { 
+  const handleSubmit = async (e) => { debugger
     saveSelectedFacilities(0);
     e.preventDefault();
     setIsSubmitting(true);
@@ -175,8 +173,6 @@ const facilitiesChange = (event) => {
           // 'Authorization': 'Bearer your-token-here' // Add if needed
         }
       });
-      console.log(response);
-      debugger
       switch(response.status) {
         case 200, 201:
           // Handle success
@@ -267,15 +263,22 @@ const facilitiesChange = (event) => {
     };
 
     //saveplace api call    
-    const saveSelectedFacilities = async(item) =>{ debugger
+    const saveSelectedFacilities = async(item) =>{debugger
+
+      const checkedFacilitiesToSave = Object.keys(checkedFacilities).map(key => ({
+        facilityid: Number(key),
+        value: checkedFacilities[key]
+      }));
+
       const formSaveFacilities = {  
-        facilitylist: checkedFacilities
+        selectedFacilities: checkedFacilitiesToSave
       };
+
       const url = URLsCatalogService.Places 
         + '/' + 
         item[0].id + 
         '/Facilities';
-
+      
       axios.post(url, formSaveFacilities)
       .then(resp => {
           setLoading(false);
@@ -283,8 +286,11 @@ const facilitiesChange = (event) => {
       .catch(
         error => console.error("Error getting catalogue of facilities"));
     };
-
     
+    const test = async() =>{
+      saveSelectedFacilities({ id: 2 });
+    }
+
     useEffect(()=> {
       getCountries();
       getFacilities();
@@ -298,11 +304,11 @@ const facilitiesChange = (event) => {
         component="form"
         onSubmit={handleSubmit}
         sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-        width: '100%'
-      }}
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+          width: '100%'
+        }}
       >
         <Typography variant="h6" component="h6" gutterBottom align="center">
           Place Info
@@ -381,7 +387,7 @@ const facilitiesChange = (event) => {
                 label={opt.name}
                 control={
                   <Checkbox 
-                    name={opt.name}  
+                    name={opt.id}  
                     checked={checkedFacilities[opt.id] || false} 
                     onChange={facilitiesChange} 
                   />

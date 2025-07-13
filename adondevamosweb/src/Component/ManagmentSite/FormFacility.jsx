@@ -33,7 +33,7 @@ function FormFacility({id, callback}){
     
     const [submitError, setSubmitError] = useState('');
     
-    const [URLgetFacility,setURLFacility] = useState(`${config.api.baseUrl}${config.api.endpoints.Facility}`);
+    const [URLFacilities, setURLFacilities] = useState(`${config.api.baseUrl}${config.api.endpoints.Facilities}`);
 
     const [formFacility,setFormFacility] = useState({
         name: '',
@@ -46,8 +46,8 @@ function FormFacility({id, callback}){
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormFacility(prev => ({
-        ...prev,
-        [name]: value
+            ...prev,
+            [name]: value
         }));
     };
 
@@ -62,20 +62,21 @@ function FormFacility({id, callback}){
             if (!formFacility.name.trim()) {
                 throw new Error('Name of facility is required');
             }
-
-            axios.post(URLgetFacility, formFacility )
-            .then(resp => {
-                //Stop loading form
-                setLoading(false);
-                //empty form
-                setFormFacility({
-                    name: '',
-                    code:'',
-                    enabled:true,
-                    hide:false
-                });
-                callback();
-            })
+            axios.post(URLFacilities, formFacility )
+            .then(
+                resp => {
+                    //Stop loading form
+                    setLoading(false);
+                    //empty form
+                    setFormFacility({
+                        name: '',
+                        code:'',
+                        enabled:true,
+                        hide:false
+                    });
+                    callback();
+            }
+        )
         .catch(error => console.error("Error creating a facility"));
         
         } catch (error) {
@@ -90,50 +91,53 @@ function FormFacility({id, callback}){
     useEffect(()=> {
             
     },[]);
-    return (
-    <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 2,
-        width: '100%'
-      }}
-      >
-        <Typography variant="body1" component="body1" gutterBottom align="center">
-          { isEdit ? "Edit facility" : "Create facility"}
-        </Typography>
-        <TextField
-            id="name"
-            name="name"
-            label="Name"
-            placeholder="Name of facility"
-            variant="outlined"
-            onChange={handleChange}
-            size={isMobile ? 'small' : 'medium'}
-            value={formFacility.name}
-            fullWidth
-            required
-        />
-        <FormGroup>
-            <FormControlLabel  
-                control={
-                <Checkbox 
-                onChange={handleChange}
-                id="show"
-                name="enabled" 
-                  />} 
-            label="Show it to all?" />
-        </FormGroup>
 
-        <Button 
-            type="submit" 
-            disabled={isSubmitting}
-            variant="contained"
-        > { (isEdit) ? "Save Changes" : "Create Facility" } 
-        </Button>
-      </Box>
+    return (
+        <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            width: '100%'
+        }}
+        >
+            <Typography variant="body1" component="body1" gutterBottom align="center">
+                { isEdit ? "Edit facility" : "Create facility"}
+            </Typography>
+
+            <TextField
+                id="name"
+                name="name"
+                label="Name"
+                placeholder="Name of facility"
+                variant="outlined"
+                onChange={handleChange}
+                size={isMobile ? 'small' : 'medium'}
+                value={formFacility.name}
+                fullWidth
+                required
+            />
+
+            <FormGroup>
+                <FormControlLabel  
+                    control={
+                    <Checkbox 
+                    onChange={handleChange}
+                    id="show"
+                    name="enabled" 
+                    />} 
+                label="Show it to all?" />
+            </FormGroup>
+
+            <Button 
+                type="submit" 
+                disabled={isSubmitting}
+                variant="contained"
+            > { (isEdit) ? "Save Changes" : "Create Facility" } 
+            </Button>
+        </Box>
     );
 }
 export default FormFacility;

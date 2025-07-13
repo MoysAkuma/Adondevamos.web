@@ -19,6 +19,8 @@ import
         ListItemText
     } from '@mui/material';
 
+import FacilitiList from "../Component/ViewControllers/FacilitiList";
+
 import config from "../Resources/config";
 
 function ViewPlace(){
@@ -37,7 +39,8 @@ function ViewPlace(){
     //URLS
     const [URLsCatalogService, setURLsCatalogService] = useState(
         {
-            Places:`${config.api.baseUrl}${config.api.endpoints.Places}`
+            Places:`${config.api.baseUrl}${config.api.endpoints.Places}`,
+            ViewPlaces:`${config.api.baseUrl}${config.api.site.View}${config.api.endpoints.Places}`
         }
     );
 
@@ -118,6 +121,7 @@ function ViewPlace(){
             const data = resp.data.info[0];
             setPlaceinfo(data);
             getUbicationNames(data);
+            getFacilities(data);
         })
         .catch(error => console.error("Error getting place id"));
     };
@@ -140,6 +144,26 @@ function ViewPlace(){
         })
         .catch(error => console.error("Error getting names of ubications"));
     };
+
+    //getFacilities
+    const getFacilities = async( placeinfo ) =>{
+        const urlCall = 
+            URLsCatalogService.ViewPlaces 
+            + '/'
+            + placeinfo.id 
+            + '/Facilities';
+        
+        axios.get(urlCall)
+        .then( resp => {
+            setCatFacilities(resp.data.info); 
+        })
+        .catch(
+            error => {
+                setCatFacilities([]);
+                console.error("Error getting facilitie list", error);
+            }
+        );
+    };
     
     useEffect(()=> {
             getPlaceInfo();
@@ -154,48 +178,54 @@ function ViewPlace(){
             width: '100%'
             }}
         >
-            <Typography variant="h5" component="h5" gutterBottom align="center">
+            <Typography variant="h4" component="h4" gutterBottom align="center">
+                {
+                    placeinfo.name
+                }
+            </Typography>
+            <Typography variant="h5" component="h5" gutterBottom align="left">
                 Name
             </Typography>
-            {
-                PlaceID
-            }
-            <Typography variant="body1" component="body1" gutterBottom align="center">
+
+            <Typography variant="body1" component="body1" gutterBottom align="right">
                 {
                     placeinfo.name
                 }
             </Typography>
 
-            <Typography variant="h5" component="h5" gutterBottom align="center">
+            <Typography variant="h5" component="h5" gutterBottom align="left">
                 Description
             </Typography>
-            <Typography variant="body1" component="body1"  align="center">
+            <Typography variant="body1" component="body1"  align="right">
                 {
                     placeinfo.description
                 }
             </Typography>
 
-            <Typography variant="h5" component="h5" gutterBottom align="center">
+            <Typography variant="h5" component="h5" gutterBottom align="left">
                 Address
             </Typography>
-            <Typography variant="body1" component="body1"  align="center">
+            <Typography variant="body1" component="body1"  align="right">
                 {
                     placeinfo.address
                 }
             </Typography>
 
-            <Typography gutterBottom variant="h6" component="div" align="center">
+            <Typography gutterBottom variant="h6" component="div" align="left">
                 Ubication
             </Typography>
 
-            <Typography gutterBottom variant="body1" component="div" align="center">
+            <Typography gutterBottom variant="body1" component="div" align="right">
             { ubication.CityName }, { ubication.StateName }, { ubication.CountryName}
             </Typography>
             
-            <Typography gutterBottom variant="h6" component="div" align="center">
+            <Typography gutterBottom variant="h6" component="div" align="left">
                 Facilities
             </Typography>
             
+            <Typography variant="body1" component="body1"  align="right">
+                <FacilitiList facilityList={catFacilities} />
+            </Typography>
         </Box>
     </Container>);
 }

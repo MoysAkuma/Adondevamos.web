@@ -37,7 +37,6 @@ function Facilitymanager({ id, callback}){
     //catalogues
     const [catFacilities, setCatFacilities] = useState([]);
     const [URLSERVICE, setURLSERVICE] = useState(`${config.api.baseUrl}${config.api.endpoints.Facilities}`);
-    const [URLFacility, setURLFacility] = useState(`${config.api.baseUrl}${config.api.endpoints.Facility}`);
 
     const toggleShowFacilities = ( e ) => {
         setShowFacilityForm(true);
@@ -45,7 +44,7 @@ function Facilitymanager({ id, callback}){
 
     const deleteFacility = async( item ) =>{
         try {
-        const urldelete = URLFacility + '/' + item;
+        const urldelete = URLSERVICE + '/' + item;
         axios.delete(urldelete)
         .then(resp => {
             //Stop loading form
@@ -79,14 +78,14 @@ function Facilitymanager({ id, callback}){
 
     const toggleVisibilityFacility = async( item ) =>{
         if(item.hide){
-            axios.patch(URLFacility + '/' +item.id + '/Show')
+            axios.patch(URLSERVICE + '/' +item.id + '/Show')
             .then(resp => {
                 getFacilities();
                 setLoading(false);
             })
             .catch(error => console.error("Error getting catalogue of facilities"));
         } else {
-            axios.patch(URLFacility + '/' +item.id + '/Hide')
+            axios.patch(URLSERVICE + '/' +item.id + '/Hide')
             .then(resp => {
                 getFacilities();
                 setLoading(false);
@@ -100,8 +99,6 @@ function Facilitymanager({ id, callback}){
         getFacilities();
     },[]);
 
-    
-
     return (<>
     <Box
         sx={{
@@ -113,6 +110,7 @@ function Facilitymanager({ id, callback}){
         <Typography variant="h6" component="h6" gutterBottom align="center">
             Facilities 
         </Typography>
+        
         <ButtonGroup variant="outlined" aria-label="Basic button group">
             <Button onClick={toggleShowFacilities} >Add</Button>
         </ButtonGroup>
