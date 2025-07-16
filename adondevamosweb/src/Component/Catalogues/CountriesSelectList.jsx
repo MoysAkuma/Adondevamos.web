@@ -14,13 +14,19 @@ function CountriesSelectList({ val, onChangecall, catCountries}){
             name="countryid"
             value={val}
             onChange={onChangecall}
+            fullWidth
             >
             {
-                catCountries.map((option) => (
-                <MenuItem key={option.id} value={option.id}>
-                {option.name}
-                </MenuItem>
-            ))
+                catCountries.map(
+                    (option) => (
+                        <MenuItem 
+                        key={option.id} 
+                        value={option.id}
+                        >
+                            {option.name}
+                        </MenuItem>
+                    )
+                )
             }
         </Select>
     );

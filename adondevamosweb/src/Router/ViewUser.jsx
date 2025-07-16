@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useParams } from 'react-router-dom';
+import axios from 'axios';
 import 
     {
         TextField, 
@@ -13,22 +15,36 @@ import
         FormControlLabel,
         Checkbox 
     } from '@mui/material';
+
+import config from "../Resources/config";
     
 function ViewUser(){
+    //Get id
+    const { UserID } = useParams();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    const { UserID } = useParams();
-    const [UserMock, setUserMock] = useState({
-        name: 'User name',
-        secondName:'',
-        lastName:'User Last Name',
-        countryID: 1,
-        stateID: 1,
-        cityID: 1,
-        description: 'Description text',
-        email:'user@mail.com',
-        tag:'user123'
+
+    const [UserInfo, setUserInfo] = useState({
+        name : "",
+        tag : "",
+        lastname : "",
+        secondname : "",
+        email : "",
+        description : "",
+        countryid : 0,
+        stateid: 0,
+        cityid : 0
     });
+
+    //URLS
+    const [URLsService, setURLsService] = useState(
+        {
+            Users : `${config.api.baseUrl}${config.api.endpoints.Users}`,
+            ViewUser:`${config.api.baseUrl}${config.api.site.View}${config.api.endpoints.Users}`,
+            Places:`${config.api.baseUrl}${config.api.endpoints.Places}`
+        }
+    );
+
     //catalogues
     const [catCountries, setCatCountries] = useState([
         {
@@ -66,26 +82,72 @@ function ViewUser(){
         code:"bath"
     }
     ]);
+
+    const [ubication, setUbication] = useState({
+        CountryName : "",
+        StateName : "",
+        CityName : ""
+    });
+
+    //getUbicationName
+    const getUbicationNames = async( placeinfo ) =>{
+        console.log(URLsService.Places + 
+            '/Ubications/' + placeinfo.countryid +
+            '/' + placeinfo.stateid +
+            '/' + placeinfo.cityid);
+
+        axios.get(URLsService.Places + 
+            '/Ubications/' + placeinfo.countryid +
+            '/' + placeinfo.stateid +
+            '/' + placeinfo.cityid)
+        .then(resp => {
+            let find = resp.data.info;
+            setUbication( 
+            {
+                CountryName : find.CountryName,
+                StateName : find.StateName,
+                CityName : find.CityName
+            }
+            );
+        })
+        .catch(error => console.error("Error getting names of ubications"));
+    };
+
+    //getUserInfo
+    const getUserInfo = async(  ) =>{
+        console.log(URLsService.Users);
+        axios.get(URLsService.Users + '/' + UserID)
+        .then(resp => {
+            const data = resp.data.info[0];
+            setUserInfo(data);
+            getUbicationNames(data);
+        })
+        .catch(error => console.error("Error getting place id"));
+    };
+
+    useEffect(()=> {
+            getUserInfo();
+    },[]);
     
-    return (<Container maxWidth="sm" sx={{ py: 4 }}>
+    return (<Container maxWidth="sm" sx={{ py: 8 }}>
         <Box
             sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-            width: '100%'
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+                width: '100%'
             }}
         >
-            <Typography gutterBottom variant="h5" component="div">
-            View User
+            <Typography gutterBottom variant="h5" component="div" align="center">
+                { UserInfo.name } { UserInfo.lastname } ( @{ UserInfo.tag } )
             </Typography>
             
-            <Typography gutterBottom variant="h6" component="div">
+            <Typography gutterBottom variant="h6" component="div" align="left">
                 Tag
             </Typography>
-            <Typography gutterBottom variant="body1" component="div">
+            <Typography gutterBottom variant="body1" component="div" align="right">
             @{
-                UserMock.tag
+                UserInfo.tag
             }
             </Typography>
 
@@ -93,72 +155,66 @@ function ViewUser(){
                 E-mail
             </Typography>
 
-            <Typography gutterBottom variant="body1" component="div">
+            <Typography gutterBottom variant="body1" component="div" align="right">
             {
-                UserMock.email
+                UserInfo.email
             }
             </Typography>
 
             <Typography gutterBottom variant="h6" component="div">
                 User Name
             </Typography>
-            <Typography gutterBottom variant="body1" component="div">
+            <Typography gutterBottom variant="body1" component="div" align="right">
             {
-                UserMock.name
+                UserInfo.name
             }
             </Typography>
 
             {
-                UserMock.secondName != "" ? (
+                UserInfo.secondname != "" ? 
+                (
                     <>
-                <Typography gutterBottom variant="h5" component="div">
-                User Name
-                </Typography>
-                <Typography gutterBottom variant="body1" component="div">
-                {
-                    UserMock.secondName
-                }
-                </Typography> </>
-                ): (
-                <Typography gutterBottom variant="subtitle1" component="div">
-                No second name added
-                </Typography>)
+                        <Typography gutterBottom variant="h5" component="div">
+                            User Second Name
+                        </Typography>
+                        <Typography gutterBottom variant="body1" component="div" align="right">
+                        {
+                            UserInfo.secondname
+                        }
+                        </Typography> 
+                    </>
+                ) : 
+                (
+                    <Typography gutterBottom variant="subtitle1" component="div" align="right">
+                        No second name added
+                    </Typography>
+                )
             }
             
             <Typography gutterBottom variant="h6" component="div">
-            Last Name
+                Last Name
             </Typography>
-            <Typography gutterBottom variant="body1" component="div">
+            <Typography gutterBottom variant="body1" component="div" align="right">
             {
-                UserMock.lastName
+                UserInfo.lastname
             }
             </Typography>
 
             <Typography gutterBottom variant="h6" component="div">
-            Description
+                Description
             </Typography>
-            <Typography gutterBottom variant="body1" component="div">
+            <Typography gutterBottom variant="body1" component="div" align="right">
             {
-                UserMock.description
+                UserInfo.description
             }
             </Typography>
 
             <Typography gutterBottom variant="h6" component="div">
             Ubication
             </Typography>
-            <Typography gutterBottom variant="body1" component="div">
-            
-            {
-                catCities.filter(x=>x.value == UserMock.cityID)[0].label 
-            }
-            ,
-            {
-                catStates.filter(x=>x.value == UserMock.stateID)[0].label 
-            }
-            ,
-            {
-                catCountries.filter(x=>x.value == UserMock.countryID)[0].label 
-            } 
+
+            <Typography gutterBottom variant="body1" component="div" align="right">
+                { ubication.CityName }, { ubication.StateName }, { ubication.CountryName}
             </Typography>
 
         </Box>

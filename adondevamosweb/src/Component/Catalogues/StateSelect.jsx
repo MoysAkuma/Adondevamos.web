@@ -14,13 +14,19 @@ function StateSelect({ val, onChangecall, catStates}){
             name="stateid"
             value={val}
             onChange={onChangecall}
+            fullWidth
             >
             {  
-                catStates.map((option) => (
-                <MenuItem key={option.id} value={option.id}>
-                {option.name}
-                </MenuItem>
-            ))
+                catStates.map(
+                    (option) => (
+                        <MenuItem 
+                            key={option.id} 
+                            value={option.id}
+                            >
+                            {option.name}
+                        </MenuItem>
+                    )
+                )
             }
         </Select>
     );

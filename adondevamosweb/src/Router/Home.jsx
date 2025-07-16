@@ -27,17 +27,22 @@ function Home() {
     return (
       <div className="App">
         <Container maxWidth="sm" sx={{ py: 8 }}>
-            <Typography variant="h3"  gutterBottom align="center">
+            <Typography variant="h3"  gutterBottom align="center" >
               ¿A donde vamos?
             </Typography>
+            
             <Typography variant="h5"  gutterBottom align="center">
               What is Adondevamos.io?
             </Typography>
+
             <Typography variant="body1" gutterBottom align="center">
               Adondevamos.io is a website to share your trip info and itinerary with friend, vote where yo wanted to go and share to others!
             </Typography>
+
             <NewTrips/>
+
             <MostVotedPlaces />
+            
           </Container>
           </div>
     );

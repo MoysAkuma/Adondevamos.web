@@ -10,7 +10,7 @@ const config = {
         Countries: '/Countries',
         States: '/States',
         Cities: '/Cities',
-        User: '/User',
+        Users: '/Users',
         Places: '/Places',
         Trips: '/Trips'
       }

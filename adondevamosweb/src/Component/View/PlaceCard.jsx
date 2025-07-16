@@ -10,6 +10,7 @@ function PlaceCard ({
   placeinfo
 }) 
 {
+
     return(
         <Card sx={{ maxWidth: 345 }}>
         <CardMedia
@@ -19,10 +20,10 @@ function PlaceCard ({
         />
         <CardContent>
           <Typography gutterBottom variant="h5" component="div">
-            {placeinfo.Name}
+            {placeinfo.name}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          {placeinfo.Description}
+          {placeinfo.description}
           </Typography>
         </CardContent>
         <CardActions>

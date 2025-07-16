@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+
 import 
     {
         TextField, 
@@ -19,7 +20,7 @@ import
         ListItemText
     } from '@mui/material';
 
-import FacilitiList from "../Component/ViewControllers/FacilitiList";
+import FacilitiList from "../Component/View/FacilitiList";
 
 import config from "../Resources/config";
 

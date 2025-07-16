@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import PlaceCard from "./PlaceCard";
+import PlaceCard from "./View/PlaceCard";
 import axios from 'axios';
 import 
     {

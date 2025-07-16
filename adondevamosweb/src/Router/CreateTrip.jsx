@@ -22,6 +22,7 @@ import CountriesSelectList from "../Component/Catalogues/CountriesSelectList";
 import StateSelect from "../Component/Catalogues/StateSelect";
 import CitiesSelect from "../Component/Catalogues/CitiesSelect";
 
+import TripsItineraty from '../Component/Trips/Itinerary';
 import config from "../Resources/config";
 
 function CreateTrip(){
@@ -66,16 +67,14 @@ function CreateTrip(){
 
     // trip info
     const [formTrip, setFormTrip] = useState({
-        name: '',
-        description: '',
-        itinerary:[],
-        initialDate:"",
-        finalDate:"",
-        isInternational:false,
-        countryid: '',
-        stateid: '',
-        cityid: '',
-        memberlist:[]
+        name : '',
+        description : '',
+        initialdate : '',
+        finaldate : '',
+        countryid : '',
+        stateid : '',
+        cityid : '',
+        
     });
     // UI state
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -215,6 +214,28 @@ function CreateTrip(){
         .catch(error => console.error("Error getting catalogue of countries"));
     };
 
+    //Handle select controller
+  const handleSelect = (event) => {
+        const { name, value } = event.target;
+        handleChange(event);
+        switch(name){
+            case "countryid":
+              getStates(value);
+              setFormTrip(prev => ({
+                  ...prev,
+                  stateid: 0
+                }));
+             break;
+            case "stateid":
+              getCities(value);
+              setFormTrip(prev => ({
+                  ...prev,
+                  cityid: 0
+                }));
+            break;
+        }
+  };
+
     return (
         <Container maxWidth="sm" sx={{ py: 8 }}>
             <Box
@@ -227,127 +248,112 @@ function CreateTrip(){
               width: '100%'
               }}
             >
-                <Typography variant="h5"  gutterBottom align="center">
+                <Typography variant="h5" align="center">
                   Create Trip
                 </Typography>
-                <Typography variant="subtitle2" gutterBottom align="center">
-                About your trip
+
+                <Typography variant="body1"  align="left">
+                  About your trip
                 </Typography>
 
-                <TextField
-                    id="name"
-                    name="name"
-                    label="Name"
-                    placeholder="Name of this trip"
+              
+                  <TextField
+                      id="name"
+                      name="name"
+                      label="Name"
+                      placeholder="Name of this trip"
+                      variant="outlined"
+                      onChange={handleChange}
+                      size={isMobile ? 'small' : 'medium'}
+                      value={formTrip.name}
+                      fullWidth
+                      required
+                  />
+
+                
+                  <TextField
+                    type="date"
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    id="initalDate"
+                    name="initalDate"
+                    label="Initial Date"
+                    placeholder="Initial Date of this trip"
                     variant="outlined"
                     onChange={handleChange}
                     size={isMobile ? 'small' : 'medium'}
-                    value={formTrip.name}
+                    value={formTrip.initialdate}
                     fullWidth
                     required
-                />
+                  />
 
-                <TextField
-                  type="date"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  id="initalDate"
-                  name="initalDate"
-                  label="Initial Date"
-                  placeholder="Initial Date of this trip"
-                  variant="outlined"
-                  onChange={handleChange}
-                  size={isMobile ? 'small' : 'medium'}
-                  value={formTrip.initalDate}
-                  fullWidth
-                  required
-                />
-
-                <TextField
-                  type="date"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  id="finalDate"
-                  name="finalDate"
-                  label="Final Date"
-                  placeholder="Initial Date of this trip"
-                  variant="outlined"
-                  onChange={handleChange}
-                  size={isMobile ? 'small' : 'medium'}
-                  value={formTrip.finalDate}
-                  fullWidth
-                  required
-                />
                 
-                <Typography variant="subtitle2"  gutterBottom align="center">
-                Ubication
+                  <TextField
+                    type="date"
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    id="finaldate"
+                    name="finaldate"
+                    label="Final Date"
+                    placeholder="Initial Date of this trip"
+                    variant="outlined"
+                    onChange={handleChange}
+                    size={isMobile ? 'small' : 'medium'}
+                    value={formTrip.finaldate}
+                    fullWidth
+                    required
+                  />
+                
+
+                <Typography variant="body1"  gutterBottom align="left">
+                  Ubication
                 </Typography>
                 
-                <TextField
-                  id="countryid"
-                  name="countryid"
-                  select
-                  label="Country"
-                  defaultValue="1"
-                  helperText="Please select your Country"
-                  value={formTrip.countryid}
-                  onChange={handleChange}
-                >
-                  {catCountries.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                      </MenuItem>
-                  ))}
-                </TextField>
+                
+                  <CountriesSelectList 
+                    val={formTrip.countryid} 
+                    onChangecall={handleSelect} 
+                    catCountries={catCountries} 
+                  />
+                
+                  {
+                    formTrip.countryid ? (  
 
-                <TextField
-                  id="stateid"
-                  name="stateid"
-                  select
-                  label="State"
-                  defaultValue="1"
-                  helperText="Please select your state"
-                  value={formTrip.stateid}
-                  onChange={handleChange}
-                >
-                  {catStates.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                      </MenuItem>
-                  ))}
-                </TextField>
+                      <StateSelect 
+                      val={formTrip.stateid}
+                      onChangecall={handleSelect}
+                      catStates={catStates}
+                      /> )   : <>Please, select a country.<br/></>
+                  }
+                
 
-                <TextField
-                  id="cityid"
-                  name="cityid"
-                  select
-                  label="City"
-                  defaultValue="1"
-                  helperText="Please select your city"
-                  value={formTrip.cityid}
-                  onChange={handleChange}
-                >
-                  {catCities.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                        {option.label}
-                        </MenuItem>
-                    ))}
-                </TextField>
-                <Typography variant="subtitle2"  gutterBottom align="center">
-                Itinerary
+                
+                  {
+                    formTrip.stateid ? (
+                      <CitiesSelect 
+                      val={formTrip.cityid}
+                      onChangecall={handleSelect}
+                      catCities={catCities}
+                      />
+                    ) : <>Please, select a state.<br/></>
+                  }
+               
+                
+                <Typography variant="body1"   align="left">
+                  Itinerary
                 </Typography>
                 
-                <PlaceSearch/>
+                <TripsItineraty />
                 
-                <Typography variant="subtitle2"  gutterBottom align="center">
-                Members
+                <Typography variant="subtitle2"  align="left">
+                  Members
                 </Typography>
                 
-                <Memberlist members={formTrip.memberlist} />
                 
-                <MemberSearch />
+                
+                
                 
                 <Button 
                   type="submit" 

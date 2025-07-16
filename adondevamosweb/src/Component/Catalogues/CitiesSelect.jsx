@@ -14,6 +14,7 @@ function CitiesSelect({ val, onChangecall, catCities}){
         helperText="Please select your City"
         value={val}
         onChange={onChangecall}
+        fullWidth
         >
         {  
             catCities?.map((option) => (
