@@ -9,7 +9,6 @@ import
 function CountriesSelectList({ val, onChangecall, catCountries}){
     return (
         <Select
-            label="Country"
             id="countryid"
             name="countryid"
             value={val}

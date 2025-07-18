@@ -10,7 +10,6 @@ function CitiesSelect({ val, onChangecall, catCities}){
     <Select
         id="cityid"
         name="cityid"
-        label="city"
         helperText="Please select your City"
         value={val}
         onChange={onChangecall}

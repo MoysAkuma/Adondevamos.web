@@ -8,8 +8,8 @@ import
 
 function StateSelect({ val, onChangecall, catStates}){
     return (
+        catStates.length > 0 ? (
         <Select
-            label="State"
             id="stateid"
             name="stateid"
             value={val}
@@ -28,7 +28,7 @@ function StateSelect({ val, onChangecall, catStates}){
                     )
                 )
             }
-        </Select>
+        </Select>) : (<></>)
     );
 }
 

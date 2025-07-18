@@ -31,7 +31,6 @@ function Facilitymanager({ id, callback}){
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
-    const [submitSuccess,setSubmitSuccess] = useState(false);
     const [facilityid, setFacilityID] = useState(null);
     const [showFacilityForm, setShowFacilityForm] = useState(false);
     //catalogues

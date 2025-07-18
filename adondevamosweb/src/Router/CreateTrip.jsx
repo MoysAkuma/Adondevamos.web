@@ -22,8 +22,9 @@ import CountriesSelectList from "../Component/Catalogues/CountriesSelectList";
 import StateSelect from "../Component/Catalogues/StateSelect";
 import CitiesSelect from "../Component/Catalogues/CitiesSelect";
 
-import TripsItineraty from '../Component/Trips/Itinerary';
+import SearchPlaces from '../Component/Trips/SearchPlaces';
 import config from "../Resources/config";
+import Itinerary from '../Component/Trips/Itinerary';
 
 function CreateTrip(){
     const theme = useTheme();
@@ -64,6 +65,8 @@ function CreateTrip(){
             name : "Los mochis"
         }
     ]);
+
+    const [itinerary, setItinerary] = useState([]);
 
     // trip info
     const [formTrip, setFormTrip] = useState({
@@ -236,16 +239,20 @@ function CreateTrip(){
         }
   };
 
+  const handlePlaceAdd = (item) => {
+        setItinerary([...itinerary, item]);
+  };
+
     return (
         <Container maxWidth="sm" sx={{ py: 8 }}>
             <Box
               component="form"
               onSubmit={handleSubmit}
               sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 2,
-              width: '100%'
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+                width: '100%'
               }}
             >
                 <Typography variant="h5" align="center">
@@ -311,7 +318,9 @@ function CreateTrip(){
                   Ubication
                 </Typography>
                 
-                
+                <Typography variant="subtitle1"  gutterBottom align="left">
+                  Country
+                </Typography>
                   <CountriesSelectList 
                     val={formTrip.countryid} 
                     onChangecall={handleSelect} 
@@ -319,25 +328,33 @@ function CreateTrip(){
                   />
                 
                   {
-                    formTrip.countryid ? (  
+                    formTrip.countryid ? ( <>
+                      <Typography variant="subtitle1"  gutterBottom align="left">
+                        Select a state as start point
+                      </Typography>  
 
                       <StateSelect 
-                      val={formTrip.stateid}
-                      onChangecall={handleSelect}
-                      catStates={catStates}
-                      /> )   : <>Please, select a country.<br/></>
+                        val={formTrip.stateid}
+                        onChangecall={handleSelect}
+                        catStates={catStates}
+                      /> 
+                    </>) : (<></>)
                   }
                 
 
                 
                   {
-                    formTrip.stateid ? (
+                    formTrip.stateid ? ( <>
+                      <Typography variant="subtitle1"  gutterBottom align="left">
+                        Select a city as start point
+                      </Typography>
+
                       <CitiesSelect 
-                      val={formTrip.cityid}
-                      onChangecall={handleSelect}
-                      catCities={catCities}
-                      />
-                    ) : <>Please, select a state.<br/></>
+                        val={formTrip.cityid}
+                        onChangecall={handleSelect}
+                        catCities={catCities}
+                      /> </>
+                    ) : ( <></> )
                   }
                
                 
@@ -345,16 +362,14 @@ function CreateTrip(){
                   Itinerary
                 </Typography>
                 
-                <TripsItineraty />
-                
+                <SearchPlaces callback={handlePlaceAdd} />
+
+                <Itinerary itinerary={itinerary} />
+
                 <Typography variant="subtitle2"  align="left">
                   Members
                 </Typography>
-                
-                
-                
-                
-                
+
                 <Button 
                   type="submit" 
                   disabled={isSubmitting}

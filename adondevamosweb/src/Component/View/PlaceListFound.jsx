@@ -9,10 +9,10 @@ import
         ListItemText
 } from '@mui/material';
 
-import {  CheckCircle } from '@mui/icons-material';
+import {  LocationCity, Add } from '@mui/icons-material';
 
 
-function PlaceList({ placeList }){
+function PlaceListFound({ placeList, callback }){
     const [dense, setDense] = useState(false);
 
     return ( 
@@ -23,12 +23,15 @@ function PlaceList({ placeList }){
                         (place) => (
                             <ListItem>
                                 <ListItemIcon>
-                                    <CheckCircle />
+                                    <LocationCity />
                                 </ListItemIcon>
                                 <ListItemText
                                     primary={place.name}
                                     
                                 />
+                                <ListItemIcon edge="end" aria-label="add">
+                                    <Add onClick={ () => callback(place.id)} />
+                                </ListItemIcon>
                             </ListItem>
                         ),
                     ) : 
@@ -42,4 +45,4 @@ function PlaceList({ placeList }){
     );
 }
 
-export default PlaceList;
+export default PlaceListFound;
