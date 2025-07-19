@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
 import axios from 'axios';
 
-import { Accordion, AccordionActions, AccordionSummary, AccordionDetails,Typography } from '@mui/material';
-import { ExpandMore, FlightLand, FlightTakeoff } from '@mui/icons-material';
-function Itinerary ({itinerary = [
+import { Typography, List, ListItem, ListItemText, IconButton, ListItemAvatar
+    , Avatar
+ } from '@mui/material';
+import { FlightLand, FlightTakeoff, Add, Delete, Edit, ArrowCircleUp, ArrowCircleDown, LocationCity } from '@mui/icons-material';
+function Itinerary ({
+    itinerary = [
     { 
         id : 0,
         name : "Place Name",
@@ -11,27 +14,58 @@ function Itinerary ({itinerary = [
         initialdate : "17/0/2025",
         finaldate : "17/0/2025"
     }
-    ] })
+    ],
+    callBackEdit = function(item){}, 
+    callBackDelete = function(item){}, 
+})
 {
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return new Intl.DateTimeFormat('en-US', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        }).format(date);
+    };
     return (<>
-
+        <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {
-            itinerary.map( (visit) => ( <> 
-            <Accordion>
-                <AccordionSummary
-                expandIcon={<ExpandMore />}
+            itinerary.map( (visit,index) => ( <> 
+                <ListItem
+                    key={visit.id}
+                    secondaryAction={
+                        <IconButton edge="end" aria-label="actions">
+                            <Edit 
+                                onClick={ () => callBackEdit(visit.id) } />
+                            <Delete 
+                                onClick={ () => callBackDelete(visit.id)} />
+                            {
+                                index != 0 ? 
+                                ( <ArrowCircleUp  />) : (<></>)
+                            }
+
+                            {
+                                (index != (itinerary.length - 1)) ? 
+                                ( <ArrowCircleDown  />) : (<></>)
+                            } 
+                            
+                        </IconButton>
+                    }
+                    disablePadding
                 >
-                    <Typography component="span" sx={{ width: '33%', flexShrink: 0 }} > { visit.name } </Typography> 
-                    <Typography component="span"sx={{ color: 'text.secondary' }} > <FlightLand /> { visit.initialdate } - <FlightTakeoff /> { visit.finaldate } </Typography>
-                </AccordionSummary>
-                <AccordionDetails>
-                    <Typography component="subtitle1"> { visit.description } </Typography> <br/>
-                    
-                    
-                </AccordionDetails>
-            </Accordion>
+                    <ListItemAvatar>
+                        <Avatar>
+                            <LocationCity />
+                        </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText 
+                        primary={ visit.name } 
+                        secondary={ "Start : " + formatDate(visit.initialdate) +", End : " + formatDate(visit.finaldate)  } 
+                    />
+                </ListItem>
             </>))
         }
+        </List>
     </>);
 }
 

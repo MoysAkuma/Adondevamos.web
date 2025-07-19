@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 
 import 
     {
+        IconButton,
         List,
         ListItem,
         ListItemAvatar,
@@ -12,7 +13,7 @@ import
 import {  LocationCity, Add } from '@mui/icons-material';
 
 
-function PlaceListFound({ placeList, callback }){
+function PlaceListFound({ placeList, callback, itinerary }){
     const [dense, setDense] = useState(false);
 
     return ( 
@@ -21,17 +22,30 @@ function PlaceListFound({ placeList, callback }){
                 placeList.length > 0 ? 
                     placeList?.map(
                         (place) => (
-                            <ListItem>
+                            <ListItem 
+                                key={place.id}
+                                secondaryAction={
+                                    <IconButton edge="end" 
+                                        aria-label='actions'
+                                    >
+                                    {   
+                                        (itinerary?.length == 0) ||
+                                        (itinerary?.filter(
+                                            addedplace =>
+                                                addedplace.id == place.id 
+                                        ).length == 0) ? 
+                                            (<><Add onClick={ () => callback(place.id)} /></>) : 
+                                            (<></>)    
+                                    }
+                                    </IconButton>
+                                }
+                            >
                                 <ListItemIcon>
                                     <LocationCity />
                                 </ListItemIcon>
                                 <ListItemText
                                     primary={place.name}
-                                    
                                 />
-                                <ListItemIcon edge="end" aria-label="add">
-                                    <Add onClick={ () => callback(place.id)} />
-                                </ListItemIcon>
                             </ListItem>
                         ),
                     ) : 

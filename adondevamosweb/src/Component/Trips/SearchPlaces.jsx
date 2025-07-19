@@ -6,18 +6,21 @@ import
         Button,
         useMediaQuery,
         useTheme,
-        Container,
+        InputAdornment,
         Typography,
         Box
     } from '@mui/material';
 
+import { FlightTakeoff, FlightLand } from '@mui/icons-material';
+
 import config from '../../Resources/config';
 import PlaceListFound from '../View/PlaceListFound';
 
-function SearchPlaces({ callback }){
+function SearchPlaces({ callback, itinerary }){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [loading, setLoading] = useState(false);
+
     //var param to search places with a given name
     const [placename, setPlaceName] = useState('');
 
@@ -48,19 +51,18 @@ function SearchPlaces({ callback }){
     const handleChange = (e) => {
         const { name, value } = e.target;
         setPlaceName(value);
-        if(value.length >= 3){
+        if( value.length >= 3 ) {
             searchPlaceList(value);
         }
-        console.log(value);
     };
 
     //handle change of place 
     const handleChangeplace = (e) => {
         switch(e.target.name){
-
             case "initialdate": 
                     setInitialDate(e.target.value);
                 break;
+
             case "finaldate": 
                     setFinalDate(e.target.value);
                     callresponse(e.target.value);
@@ -110,7 +112,7 @@ function SearchPlaces({ callback }){
     return (<>
         <Typography variant="body1"  gutterBottom align="left">
            { 
-                placename ? "Search Places to add to your itinerary" : "select dates of this visit"
+                !placename ? "Search Places to add to your itinerary" : "select dates of this visit"
            } 
         </Typography>
 
@@ -127,7 +129,7 @@ function SearchPlaces({ callback }){
         />
         {
             (loading && placename.length > 3) ? 
-                ( <PlaceListFound placeList={findedPlaces} callback={addPlace} />) : 
+                ( <PlaceListFound placeList={findedPlaces} callback={addPlace} itinerary={itinerary} />) : 
                 ( <></>)
         }
         {
@@ -137,9 +139,9 @@ function SearchPlaces({ callback }){
                         Selected Place
                     </Typography>
                     <Typography variant="b"  gutterBottom align="right">
-                        {
-                            selectedPlace ? (selectedPlace.name) : <></>
-                        }
+                    {
+                        selectedPlace ? (selectedPlace.name) : <></>
+                    }
                     </Typography>
                     <TextField
                         type="date"
@@ -156,6 +158,15 @@ function SearchPlaces({ callback }){
                         value={initialDate}
                         fullWidth
                         required
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <FlightLand />
+                                    </InputAdornment>
+                                    )
+                            }
+                        }}
                     />
 
                     <TextField
@@ -173,6 +184,15 @@ function SearchPlaces({ callback }){
                         value={finalDate}
                         fullWidth
                         required
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <FlightTakeoff />
+                                    </InputAdornment>
+                                )
+                            }
+                        }}
                     />
                 </>
             ) : <></>

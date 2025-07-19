@@ -9,8 +9,8 @@ import
         Container,
         Typography,
         Box,
-        MenuItem,
-        FormGroup,
+        Alert,
+        AlertTitle,
         FormControlLabel,
         Checkbox
         
@@ -67,6 +67,10 @@ function CreateTrip(){
     ]);
 
     const [itinerary, setItinerary] = useState([]);
+
+    const [errors, setErrors] = useState({
+      duplicatedplace : false
+    });
 
     // trip info
     const [formTrip, setFormTrip] = useState({
@@ -143,7 +147,6 @@ function CreateTrip(){
         throw new Error('set member list');
       }
       
-
       // API call to create product
       const response = await axios.post('http://localhost/CreateTrip', {
         name: formTrip.name.trim(),
@@ -171,7 +174,6 @@ function CreateTrip(){
       setFormTrip({
         name: '',
         description: '',
-        itinerary:[],
         initialDate:"",
         finalDate:"",
         isInternational:false,
@@ -240,8 +242,31 @@ function CreateTrip(){
   };
 
   const handlePlaceAdd = (item) => {
+
+    const foundInList = itinerary.filter( x => x.id == item.id );
+
+    if ( foundInList.length == 0 ){
         setItinerary([...itinerary, item]);
+    } else {
+        setErrors(prev => (
+          {
+            ...prev,
+            duplicatedplace : true
+          }
+        )
+      );
+    }
+        
   };
+
+  const handleRemove = (event) => {
+    //Item exist in list
+    const foundInList = itinerary.filter( x => x.id == event);
+
+    if ( foundInList.length == 1 ){
+        setItinerary(prev => prev.filter(item => item.id !== event ) );
+    } 
+  }
 
     return (
         <Container maxWidth="sm" sx={{ py: 8 }}>
@@ -263,7 +288,6 @@ function CreateTrip(){
                   About your trip
                 </Typography>
 
-              
                   <TextField
                       id="name"
                       name="name"
@@ -275,8 +299,8 @@ function CreateTrip(){
                       value={formTrip.name}
                       fullWidth
                       required
+                      
                   />
-
                 
                   <TextField
                     type="date"
@@ -294,7 +318,6 @@ function CreateTrip(){
                     fullWidth
                     required
                   />
-
                 
                   <TextField
                     type="date"
@@ -313,7 +336,6 @@ function CreateTrip(){
                     required
                   />
                 
-
                 <Typography variant="body1"  gutterBottom align="left">
                   Ubication
                 </Typography>
@@ -359,12 +381,32 @@ function CreateTrip(){
                
                 
                 <Typography variant="body1"   align="left">
-                  Itinerary
+                  Add places to itinerary
                 </Typography>
                 
-                <SearchPlaces callback={handlePlaceAdd} />
+                <SearchPlaces callback={handlePlaceAdd} itinerary={itinerary} />
+                {
+                  errors.duplicatedplace ? 
+                  (
+                  <>
+                    <Alert severity="warning">
+                      <AlertTitle>This place was already added </AlertTitle>
+                      Please, select another place
+                    </Alert>
+                  </>) : (<></>)
+                }
+                
 
-                <Itinerary itinerary={itinerary} />
+                {
+                  itinerary?.length > 0 ? (
+                  <>
+                    <Typography variant="body1"   align="left">
+                      Itinerary 
+                    </Typography>
+                    <Itinerary itinerary={itinerary} callBackDelete={handleRemove} />
+                  </>) : (<></>)
+                }  
+                
 
                 <Typography variant="subtitle2"  align="left">
                   Members

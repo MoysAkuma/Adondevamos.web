@@ -139,8 +139,6 @@ function CountryManager(){
                                 <IconButton edge="end" aria-label="add">
                                     <Edit onClick={() => editCountry(x.id)} />
                                 </IconButton>
-                                
-                                
                             </ListItem>
                     )): <ListItem> 
                         <ListItemText primary="No countries added" ></ListItemText>
