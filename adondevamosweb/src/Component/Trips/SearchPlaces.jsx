@@ -80,7 +80,7 @@ function SearchPlaces({ callback, itinerary }){
             }
         })
         .catch(error => { 
-            console.error("Error verification of tag")}
+            console.error("Error searching places")}
         );
     };
 
@@ -97,12 +97,14 @@ function SearchPlaces({ callback, itinerary }){
             initialdate : initialDate,
             finaldate : final
         };
-        
-        callback(resp);
-
+        //restart component
         setFinalDate("");
         setInitialDate("");
+        setPlaceName("");
+        setLoading(false);
         setSelectedPlace(null);
+        //Return response
+        callback(resp);
     }
 
     useEffect(()=> {
@@ -128,14 +130,23 @@ function SearchPlaces({ callback, itinerary }){
             fullWidth
         />
         {
-            (loading && placename.length > 3) ? 
-                ( <PlaceListFound placeList={findedPlaces} callback={addPlace} itinerary={itinerary} />) : 
+            (loading && placename.length >= 3 ) ? 
+                ( 
+                    <PlaceListFound 
+                        placeList={findedPlaces} 
+                        callback={addPlace} 
+                        itinerary={itinerary} 
+                    />) 
+                : 
                 ( <></>)
         }
         {
-            selectedPlace ? (
+            selectedPlace ? 
+            (
                 <>
-                    <Typography variant="p"  gutterBottom align="left">
+                    <Typography variant="p"  
+                        gutterBottom 
+                        align="left">
                         Selected Place
                     </Typography>
                     <Typography variant="b"  gutterBottom align="right">
@@ -172,7 +183,7 @@ function SearchPlaces({ callback, itinerary }){
                     <TextField
                         type="date"
                         InputLabelProps={{
-                        shrink: true,
+                            shrink: true,
                         }}
                         id="finaldate"
                         name="finaldate"
@@ -196,14 +207,7 @@ function SearchPlaces({ callback, itinerary }){
                     />
                 </>
             ) : <></>
-        }
-        
-
-        
-
-        
-
-
+        }        
     </> );
 }
 

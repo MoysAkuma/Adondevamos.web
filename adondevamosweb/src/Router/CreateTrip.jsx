@@ -17,7 +17,8 @@ import
     } from '@mui/material';
 import PlaceSearch from '../Component/PlaceSearch';
 import Memberlist from '../Component/Memberlist'
-import MemberSearch from '../Component/MemberSearch';
+import MemberSearch from '../Component/Trips/MemberSearch';
+
 import CountriesSelectList from "../Component/Catalogues/CountriesSelectList";
 import StateSelect from "../Component/Catalogues/StateSelect";
 import CitiesSelect from "../Component/Catalogues/CitiesSelect";
@@ -51,7 +52,7 @@ function CreateTrip(){
     const [catStates, setCatStates] = useState([
         {
             id : 1,
-            name : "SINALOA"
+            name : "Sinaloa"
         }
     ]);
 
@@ -268,6 +269,15 @@ function CreateTrip(){
     } 
   }
 
+  const editDatesItinerary = (event) => {
+    //Item exist in list
+    const foundInList = itinerary.filter( x => x.id == event);
+
+    if ( foundInList.length == 1 ){
+        
+    } 
+  }
+
     return (
         <Container maxWidth="sm" sx={{ py: 8 }}>
             <Box
@@ -384,7 +394,11 @@ function CreateTrip(){
                   Add places to itinerary
                 </Typography>
                 
-                <SearchPlaces callback={handlePlaceAdd} itinerary={itinerary} />
+                <SearchPlaces 
+                  callback={handlePlaceAdd} 
+                  itinerary={itinerary} 
+                />
+
                 {
                   errors.duplicatedplace ? 
                   (
@@ -396,14 +410,17 @@ function CreateTrip(){
                   </>) : (<></>)
                 }
                 
-
                 {
                   itinerary?.length > 0 ? (
                   <>
                     <Typography variant="body1"   align="left">
                       Itinerary 
                     </Typography>
-                    <Itinerary itinerary={itinerary} callBackDelete={handleRemove} />
+                    <Itinerary 
+                      itinerary={itinerary} 
+                      callBackDelete={handleRemove} 
+                      callBackEdit={editDatesItinerary}
+                      />
                   </>) : (<></>)
                 }  
                 
@@ -411,6 +428,12 @@ function CreateTrip(){
                 <Typography variant="subtitle2"  align="left">
                   Members
                 </Typography>
+                
+                <Typography variant="body1"   align="left">
+                  Add members
+                </Typography>
+
+                <MemberSearch />
 
                 <Button 
                   type="submit" 

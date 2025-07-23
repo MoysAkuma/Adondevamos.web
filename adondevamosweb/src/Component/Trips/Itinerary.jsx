@@ -4,7 +4,8 @@ import axios from 'axios';
 import { Typography, List, ListItem, ListItemText, IconButton, ListItemAvatar
     , Avatar
  } from '@mui/material';
-import { FlightLand, FlightTakeoff, Add, Delete, Edit, ArrowCircleUp, ArrowCircleDown, LocationCity } from '@mui/icons-material';
+import { FlightLand, FlightTakeoff, Add, Delete, Edit, ArrowCircleUp, 
+    ArrowCircleDown, LocationCity } from '@mui/icons-material';
 function Itinerary ({
     itinerary = [
     { 
@@ -15,7 +16,6 @@ function Itinerary ({
         finaldate : "17/0/2025"
     }
     ],
-    callBackEdit = function(item){}, 
     callBackDelete = function(item){}, 
 })
 {
@@ -27,6 +27,11 @@ function Itinerary ({
             year: 'numeric'
         }).format(date);
     };
+
+    const callBackEdite = (e) => {
+        
+    };
+
     return (<>
         <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {
@@ -35,8 +40,7 @@ function Itinerary ({
                     key={visit.id}
                     secondaryAction={
                         <IconButton edge="end" aria-label="actions">
-                            <Edit 
-                                onClick={ () => callBackEdit(visit.id) } />
+                            
                             <Delete 
                                 onClick={ () => callBackDelete(visit.id)} />
                             {
