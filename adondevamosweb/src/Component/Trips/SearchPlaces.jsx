@@ -60,13 +60,13 @@ function SearchPlaces({ callback, itinerary }){
     const handleChangeplace = (e) => {
         switch(e.target.name){
             case "initialdate": 
-                    setInitialDate(e.target.value);
-                break;
+                setInitialDate(e.target.value);
+            break;
 
             case "finaldate": 
-                    setFinalDate(e.target.value);
-                    callresponse(e.target.value);
-                break;
+                setFinalDate(e.target.value);
+                callresponse(e.target.value);
+            break;
         }
     };
 

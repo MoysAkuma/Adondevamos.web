@@ -67,21 +67,28 @@ function MemberSearch({ callback, memberlist }){
 
     const addUser = async( item ) =>{
         const user = foundedUsers.filter( (x) => ( x.id == item ) )[0];
-        setSelectedUser(user);
+        callresponse(user);
     };
 
-    const callresponse = async( final ) =>{
+    const callresponse = async( user ) =>{
+
         const resp = {
-            
+            id : user.id,
+            name : user.name,
+            email : user.email,
+            tag : user.tag,
+            roleid : 0
         };
         //restart component
-        
+        setSearchText("");
+        setLoading(false);
+        setSelectedUser(null);
         //Return response
         callback(resp);
     }
 
     return (<>
-        <Typography variant="body1"  gutterBottom align="left">
+        <Typography variant="span"  gutterBottom align="left">
            { 
                 !searchtext ? "Search Users to add to your itinerary" : ""
            } 
@@ -102,27 +109,12 @@ function MemberSearch({ callback, memberlist }){
             (loading && searchtext.length >= 3 ) ? 
                 ( 
                     <UserListFound 
-                        
+                        callback={addUser}
+                        memberList={memberlist}
+                        userList={foundedUsers}
                     />) 
                 : 
                 ( <></>)
-        }
-        {
-            selectedUser ? 
-            (
-                <>
-                    <Typography variant="p"  
-                        gutterBottom 
-                        align="left">
-                        Selected User
-                    </Typography>
-                    <Typography variant="b"  gutterBottom align="right">
-                    {
-                        selectedUser ? (selectedUser.name) : <></>
-                    }
-                    </Typography>
-                </>
-            ) : <></>
         }        
     </> );
 }

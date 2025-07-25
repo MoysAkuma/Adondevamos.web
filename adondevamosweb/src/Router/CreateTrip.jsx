@@ -15,17 +15,16 @@ import
         Checkbox
         
     } from '@mui/material';
-import PlaceSearch from '../Component/PlaceSearch';
-import Memberlist from '../Component/Memberlist'
-import MemberSearch from '../Component/Trips/MemberSearch';
 
 import CountriesSelectList from "../Component/Catalogues/CountriesSelectList";
 import StateSelect from "../Component/Catalogues/StateSelect";
 import CitiesSelect from "../Component/Catalogues/CitiesSelect";
 
+import MemberSearch from '../Component/Trips/MemberSearch';
 import SearchPlaces from '../Component/Trips/SearchPlaces';
-import config from "../Resources/config";
 import Itinerary from '../Component/Trips/Itinerary';
+import MemberList from '../Component/Trips/MemberList';
+import config from "../Resources/config";
 
 function CreateTrip(){
     const theme = useTheme();
@@ -69,8 +68,11 @@ function CreateTrip(){
 
     const [itinerary, setItinerary] = useState([]);
 
+    const [addedMemberList, setAddedMemberList] = useState([]);
+
     const [errors, setErrors] = useState({
-      duplicatedplace : false
+      duplicatedplace : false,
+      duplicateduser : false
     });
 
     // trip info
@@ -269,14 +271,34 @@ function CreateTrip(){
     } 
   }
 
-  const editDatesItinerary = (event) => {
+  const handleUserAdd = (item) => {
+
+    const foundInList = itinerary.filter( x => x.id == item );
+
+    if ( foundInList.length == 0 ){
+        setAddedMemberList([...addedMemberList, item]);
+    } else {
+        setErrors(prev => (
+          {
+            ...prev,
+            duplicateduser : true
+          }
+        )
+      );
+    }
+        
+  };
+
+  const handleRemoveUser = (event) => {
     //Item exist in list
-    const foundInList = itinerary.filter( x => x.id == event);
+    const foundInList = addedMemberList.filter( x => x.id == event);
 
     if ( foundInList.length == 1 ){
-        
+        setAddedMemberList(prev => prev.filter(item => item.id !== event ) );
     } 
   }
+
+
 
     return (
         <Container maxWidth="sm" sx={{ py: 8 }}>
@@ -419,7 +441,6 @@ function CreateTrip(){
                     <Itinerary 
                       itinerary={itinerary} 
                       callBackDelete={handleRemove} 
-                      callBackEdit={editDatesItinerary}
                       />
                   </>) : (<></>)
                 }  
@@ -429,11 +450,38 @@ function CreateTrip(){
                   Members
                 </Typography>
                 
-                <Typography variant="body1"   align="left">
+                <Typography variant="subtitle2"   align="left">
                   Add members
                 </Typography>
 
-                <MemberSearch />
+                <MemberSearch
+                  callback={handleUserAdd}
+                  memberlist={addedMemberList}
+                 />
+
+                {
+                  errors.duplicateduser ? 
+                  (
+                  <>
+                    <Alert severity="warning">
+                      <AlertTitle>This User was already added </AlertTitle>
+                      Please, select another user
+                    </Alert>
+                  </>) : (<></>)
+                }
+
+                {
+                  addedMemberList?.length > 0 ? (
+                  <>
+                    <Typography variant="body1"   align="left">
+                      Member list 
+                    </Typography>
+                    <MemberList 
+                      memberlist={addedMemberList} 
+                      callBackDelete={handleRemoveUser} 
+                      />
+                  </>) : (<></>)
+                }
 
                 <Button 
                   type="submit" 
