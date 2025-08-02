@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from 'axios';
 import 
     {
         TextField, 
@@ -8,34 +9,106 @@ import
         Container,
         Typography,
         Box,
-        MenuItem,
-        FormGroup,
-        FormControlLabel,
-        Checkbox
-        
+        InputAdornment,
+        IconButton,
+        Alert,
+        AlertTitle
     } from '@mui/material';
-    
+
+import {  Visibility, VisibilityOff, AccountCircle } from '@mui/icons-material';
+
+import config from '../Resources/config';
 function Login(){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    // UI state
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState('');
+    const [submitSuccess, setSubmitSuccess] = useState(false);
+    //showpassword
+    const [showPassword, setShowPassword] = useState(false);
+    //Urls
+    const [URLsCatalogService, setURLsCatalogService] = useState(
+        {
+            Login : `${config.api.baseUrl}/login`
+        }
+    );
+
+    //Form info
     const [formLogIn, setFormLogIn] = useState({
         email:'',
         password:''
     });
 
+    //errors
+    const [errors, setErrors] = useState({
+      login : false
+    });
+
     // Handle form submission
     const handleSubmit = async (e) => {
-
+        e.preventDefault();
+        setIsSubmitting(true);
+        setSubmitError('');
+        try {
+            //Validate email or tag
+            if (!formLogIn.email.trim()) {
+                throw new Error('User email or tag is required');
+            }
+            if (!formLogIn.password.trim()) {
+                throw new Error('Password is required');
+            }
+            //call backend to log in
+            const response = 
+                await axios.post(URLsCatalogService.Login, 
+                {
+                    id : formLogIn.email.trim(),
+                    password : formLogIn.password.trim()
+                }, 
+                {
+                    headers: {
+                    'Content-Type': 'application/json',
+                    // 'Authorization': 'Bearer your-token-here' // Add if needed
+                }
+            });
+            console.log(response);
+            
+            setSubmitSuccess(true);
+        }
+        catch(err){
+            switch(err.status){
+                case 409:
+                    console.log("loging failed");
+                    //show message of login failed
+                    setErrors(prev => ( {...prev, login : true} ));
+                break;
+            }
+        } 
+        finally {
+        setIsSubmitting(false);
+        }
     }
 
-    const handleChange = async (e) => {
+    //update request
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormLogIn(
+            prev => (
+            {
+                ...prev,
+                [name]: value
+            }
+            )
+        );
+  };
 
-    }
+  const handleClickShowPassword = (e) => {
+    setShowPassword(!showPassword);
+  };
 
-    // UI state
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitError, setSubmitError] = useState('');
-    const [submitSuccess, setSubmitSuccess] = useState(false);
+  const resetErrorList = () => {
+
+  };
 
     return (
         <Container maxWidth="sm" sx={{ py: 8 }}>
@@ -63,26 +136,69 @@ function Login(){
                     value={formLogIn.email}
                     fullWidth
                     required
+                    InputLabelProps={{
+                            shrink: true,
+                    }}
+                    slotProps={{
+                        input: {
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        edge="end"
+                                    >
+                                    { <AccountCircle /> }
+                                    </IconButton>
+                                </InputAdornment>
+                            )
+                        }
+                    }}
                 />
+
                 <TextField
-                    id="pass"
-                    name="pass"
+                    id="password"
+                    name="password"
                     label="Password"
-                    type="password"
-                    placeholder="Email or Tag"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Password"
                     variant="outlined"
                     onChange={handleChange}
                     size={isMobile ? 'small' : 'medium'}
-                    value={formLogIn.pass}
+                    value={formLogIn.password}
                     fullWidth
                     required
+                    slotProps={{
+                        input: {
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        aria-label={
+                                            showPassword ? 'hide the password' : 'display the password'
+                                        }
+                                        onClick={handleClickShowPassword}
+                                        edge="end"
+                                    >
+                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                            </InputAdornment>
+                            )
+                        }
+                    }}
                 />
+                {
+                    errors.login ? 
+                  (
+                  <>
+                    <Alert severity="error">
+                      <AlertTitle>Login failed! </AlertTitle>
+                      Credentials not valid
+                    </Alert>
+                  </>) : (<></>)
+                }
                 <Button 
                     type="submit" 
                     disabled={isSubmitting}
                     variant="contained"
                     size="small"
-                    
                     >
                     Log In
                 </Button>
