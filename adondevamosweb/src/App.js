@@ -10,22 +10,26 @@ import ViewUser from "./Router/ViewUser";
 import ViewPlace from "./Router/ViewPlace";
 import ViewTrip from "./Router/ViewTrip"
 import NavBar from './Component/NavBar';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from "./Component/ProtectedRoute";
 
 export default function App() {
   return (
     <BrowserRouter>
       <NavBar/>
-      <Routes>
-        <Route exact path="/" element={<Home />} />
-        <Route path="/login" element={<Login/>}/>
-        <Route path="/CreateUser" element={<CreateUser/>}/>
-        <Route path="/CreatePlace" element={<CreatePlace/>}/>
-        <Route path="/CreateTrip" element={<CreateTrip/>}/>
-        <Route path="/ManageSite" element={<ManageSite/>}/>
-        <Route path="/ViewUser/:UserID" element={<ViewUser/>}/>
-        <Route path="/ViewPlace/:PlaceID" element={<ViewPlace/>}/>
-        <Route path="/ViewTrip/:Trip" element={<ViewTrip/>}/>
-      </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route exact path="/" element={<ProtectedRoute> <Home /> </ProtectedRoute>} />
+            <Route path="/login" element={<Login/>}/>
+            <Route path="/CreateUser" element={<ProtectedRoute><CreateUser/></ProtectedRoute>}/>
+            <Route path="/CreatePlace" element={<ProtectedRoute><CreatePlace/></ProtectedRoute>}/>
+            <Route path="/CreateTrip" element={<CreateTrip/>}/>
+            <Route path="/ManageSite" element={<ManageSite/>}/>
+            <Route path="/ViewUser/:UserID" element={<ViewUser/>}/>
+            <Route path="/ViewPlace/:PlaceID" element={<ViewPlace/>}/>
+            <Route path="/ViewTrip/:Trip" element={<ViewTrip/>}/>
+          </Routes>
+        </AuthProvider>
     </BrowserRouter>
   );
 }

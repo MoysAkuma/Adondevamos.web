@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import 
     {
         TextField, 
@@ -16,6 +17,7 @@ import
     } from '@mui/material';
 
 import {  Visibility, VisibilityOff, AccountCircle } from '@mui/icons-material';
+import { useAuth }  from '../context/AuthContext'
 
 import config from '../Resources/config';
 function Login(){
@@ -27,6 +29,7 @@ function Login(){
     const [submitSuccess, setSubmitSuccess] = useState(false);
     //showpassword
     const [showPassword, setShowPassword] = useState(false);
+    const {login} = useAuth();
     //Urls
     const [URLsCatalogService, setURLsCatalogService] = useState(
         {
@@ -45,6 +48,9 @@ function Login(){
       login : false
     });
 
+    //navigate
+    const navigate = useNavigate();
+
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -60,19 +66,14 @@ function Login(){
             }
             //call backend to log in
             const response = 
-                await axios.post(URLsCatalogService.Login, 
-                {
-                    id : formLogIn.email.trim(),
-                    password : formLogIn.password.trim()
-                }, 
-                {
-                    headers: {
-                    'Content-Type': 'application/json',
-                    // 'Authorization': 'Bearer your-token-here' // Add if needed
-                }
-            });
+                await login(formLogIn.email.trim(), 
+                formLogIn.password.trim());
             console.log(response);
-            
+            if(response.success){
+                navigate("/");    
+            } else (
+                setErrors(prev => ( {...prev, login : true} ))
+            )
             setSubmitSuccess(true);
         }
         catch(err){
