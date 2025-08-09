@@ -18,31 +18,43 @@ import
     } from '@mui/material';
 
 function NewTrips(){
-    const [NewTripsResp, setNewTripsResp] = useState([]);
-    const setNewTrips = async (e) => {
-      setNewTripsResp(
-        [
-          {
-            Name : "Test trip 1",
-            id: 1,
-            Description : "Description test",
-            Itinerary:[
-              {
-                id:1,
-                Name:"Place Name 1"
-              }
-            ],
-            
-          }
-        ]
-      );
-    }
+    const [NewTripsResp, setNewTripsResp] = useState([ 
+      {
+          name : "Nihon Trip 2024",
+          id : 1,
+          description : "First time at japan, itinerary made by Luis hongo and site by MoysAkuma",
+          itinerary : [
+            {
+              id:1,
+              name:"Naritasan Shinsho-ji",
+              initialDate: "2024-02-04",
+              finalDate: "2024-02-04",
+            },
+            {
+              id:2,
+              name:"Hachiko Statue",
+              initialDate: "2024-02-05",
+              finalDate: "2024-02-05"
+            },
+            {
+              id:3,
+              name:"Sensō-ji",
+              initialDate: "2024-02-06",
+              finalDate: "2024-02-06"
+            }
+          ]
+      } 
+    ]);
+    
+    useEffect(() => {
+
+    });
+
     return (
-      <div>
-      <Typography variant="h6" component="h6" gutterBottom align="center">
+      <>
+      <Typography variant="h6" component="h6" gutterBottom align="left">
         New Trips!
       </Typography>
-      <Button onClick={setNewTrips}>click</Button>
       <Box
         sx={{
         display: 'grid',
@@ -55,10 +67,14 @@ function NewTrips(){
                 (x)=>(
                     <TripCard key={x.id} tripinfo={x}/>
                   )
-            ) : <p>No new trips to show</p>
+            ) : 
+            <Typography variant="span" component="span" gutterBottom align="right">
+              No trips added yet. Please create and user and help me!
+            </Typography>
+            
         }
         </Box>
-        </div>
+        </>
     );
 }
 export default NewTrips;

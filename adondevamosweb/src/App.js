@@ -19,12 +19,12 @@ export default function App() {
       <NavBar/>
         <AuthProvider>
           <Routes>
-            <Route exact path="/" element={<ProtectedRoute> <Home /> </ProtectedRoute>} />
+            <Route exact path="/" element={ <Home /> } />
             <Route path="/login" element={<Login/>}/>
-            <Route path="/CreateUser" element={<ProtectedRoute><CreateUser/></ProtectedRoute>}/>
+            <Route path="/CreateUser" element={<CreateUser/>}/>
             <Route path="/CreatePlace" element={<ProtectedRoute><CreatePlace/></ProtectedRoute>}/>
-            <Route path="/CreateTrip" element={<CreateTrip/>}/>
-            <Route path="/ManageSite" element={<ManageSite/>}/>
+            <Route path="/CreateTrip" element={<ProtectedRoute><CreateTrip/></ProtectedRoute>}/>
+            <Route path="/ManageSite" element={<ProtectedRoute><ManageSite/></ProtectedRoute>}/>
             <Route path="/ViewUser/:UserID" element={<ViewUser/>}/>
             <Route path="/ViewPlace/:PlaceID" element={<ViewPlace/>}/>
             <Route path="/ViewTrip/:Trip" element={<ViewTrip/>}/>

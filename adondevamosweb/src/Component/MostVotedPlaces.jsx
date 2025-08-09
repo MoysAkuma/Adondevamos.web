@@ -18,7 +18,26 @@ import
     } from '@mui/material';
 
 function MostVotedPlaces(){
-    const [arrMostVotedPlaces, setMostVotedPlaces] = useState(null);
+    const [arrMostVotedPlaces, setMostVotedPlaces] = useState([{
+              Name : "Nihon Trip 2024",
+              id : 1,
+              description : "First time at japan, itinerary made by Luis hongo and site by MoysAkuma",
+              itinerary : [
+                {
+                  id:1,
+                  name:"Naritasan Shinsho-ji",
+                  initialDate: "2024-02-04",
+                  finalDate: "2024-02-04",
+                },
+                {
+                  id:2,
+                  name:"Naritasan Shinsho-ji",
+                  initialDate: "2024-02-04",
+                  finalDate: "2024-02-04"
+                }
+              ],
+              
+            }]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     useEffect(() => {
@@ -40,18 +59,7 @@ function MostVotedPlaces(){
       const setMostVotedPlacescat = async (e) => {
         setMostVotedPlaces(
           [
-            {
-              Name : "Test trip 1",
-              id: 1,
-              Description : "Description test",
-              Itinerary:[
-                {
-                  id:1,
-                  Name:"Place Name 1"
-                }
-              ],
-              
-            }
+            
           ]
         );
       }

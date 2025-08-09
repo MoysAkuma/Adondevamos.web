@@ -36,7 +36,7 @@ function Home() {
             </Typography>
 
             <Typography variant="body1" gutterBottom align="center">
-              Adondevamos.io is a website to share your trip info and itinerary with friend, vote where yo wanted to go and share to others!
+              Is a website to create a list of places yo want to go on a trip and share with your friends.
             </Typography>
 
             <NewTrips/>

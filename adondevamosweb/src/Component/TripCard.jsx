@@ -14,18 +14,18 @@ function TripCard ({
         <Card>
           <CardContent>
             <Typography gutterBottom variant="h5" component="div">
-              {tripinfo.Name}
+              {tripinfo.name}
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-            {tripinfo.Description}
+            {tripinfo.description}
             </Typography>
             <Typography gutterBottom variant="body2" component="div">
-              Place List
+              Itinerary
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
               <ul >
-                {tripinfo.Itinerary.map((item, index) => (
-                  <li key={item.id}>{item.Name}</li>
+                {tripinfo.itinerary.map((item, index) => (
+                  <li key={item.id}>{item.name}</li>
                 ))}
               </ul>
             </Typography>
