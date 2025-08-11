@@ -23,27 +23,86 @@ function NewTrips(){
           name : "Nihon Trip 2024",
           id : 1,
           description : "First time at japan, itinerary made by Luis hongo and site by MoysAkuma",
+          initialdate: "2024-02-04",
+          finaldate: "2024-02-18",
+          owner:{ tag : "MoysAkuma", email:"moises141294@hotmail.com"},
           itinerary : [
             {
               id:1,
               name:"Naritasan Shinsho-ji",
-              initialDate: "2024-02-04",
-              finalDate: "2024-02-04",
+              initialdate: "2024-02-04",
+              finaldate: "2024-02-04",
             },
             {
               id:2,
               name:"Hachiko Statue",
               initialDate: "2024-02-05",
-              finalDate: "2024-02-05"
+              finaldate: "2024-02-05"
             },
             {
               id:3,
               name:"Sensō-ji",
               initialDate: "2024-02-06",
-              finalDate: "2024-02-06"
+              finaldate: "2024-02-06"
             }
           ]
-      } 
+      },
+      {
+          name : "Medio Maraton Mochis",
+          id : 2,
+          description : "Gastronomic trip with some friends at mochis",
+          initialdate: "2024-03-22",
+          finaldate: "2024-03-23",
+          owner:{ tag : "MoysAkuma", email:"moises141294@hotmail.com"},
+          itinerary : [
+            {
+              id:4,
+              name:"Tortas Don Lupito",
+              initialdate: "2025-03-22",
+              finaldate: "2025-03-22",
+            },
+            {
+              id:5,
+              name:"Los Nachos",
+              initialdate: "2025-03-22",
+              finaldate: "2025-03-22",
+            },
+            {
+              id:6,
+              name:"Papas locas de litro",
+              initialdate: "2025-03-22",
+              finaldate: "2025-03-22"
+            }
+          ]
+      } ,
+      {
+          name : "Visa and fisrt couple trip",
+          id : 3,
+          description : "First time at Guadalajara as couple, visa interview and gastronomic trip",
+          initialdate: "2024-04-29",
+          finaldate: "2024-05-07",
+          owner:{ tag : "MoysAkuma", email:"moises141294@hotmail.com"},
+          itinerary : [
+            {
+              id:7,
+              name:"Waffle House",
+              initialdate: "2024-04-29",
+              finaldate: "2024-04-29",
+            },
+            {
+              id:8,
+              name:"IRORI",
+              initialdate: "2024-04-29",
+              finaldate: "2024-04-29"
+            },
+            {
+              id:9,
+              name:"Zoologico of guadalajara",
+              initialdate: "2024-04-29",
+              finaldate: "2024-04-29"
+            }
+          ]
+      }  
     ]);
     
     useEffect(() => {
@@ -71,7 +130,6 @@ function NewTrips(){
             <Typography variant="span" component="span" gutterBottom align="right">
               No trips added yet. Please create and user and help me!
             </Typography>
-            
         }
         </Box>
         </>

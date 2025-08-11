@@ -18,57 +18,70 @@ import
     } from '@mui/material';
 
 function MostVotedPlaces(){
-    const [arrMostVotedPlaces, setMostVotedPlaces] = useState([{
-              Name : "Nihon Trip 2024",
-              id : 1,
-              description : "First time at japan, itinerary made by Luis hongo and site by MoysAkuma",
-              itinerary : [
-                {
-                  id:1,
-                  name:"Naritasan Shinsho-ji",
-                  initialDate: "2024-02-04",
-                  finalDate: "2024-02-04",
+    const [lstMostVotedPlaces, setLstMostVotedPlaces] = useState([
+              {
+                id:1,
+                name:"Naritasan Shinsho-ji",
+                description:"Shrine in japan",
+                statics:{
+                  Votes:{
+                    Total:5,
+                    Places:1
+                  }
                 },
-                {
-                  id:2,
-                  name:"Naritasan Shinsho-ji",
-                  initialDate: "2024-02-04",
-                  finalDate: "2024-02-04"
+                countryid : 2,
+                stateid : 1,
+                cityid: 2
+                
+            },
+            {
+              id:6,
+              name:"Tortas don lupito",
+              description:"Rural exotic food",
+              statics:{
+                Votes:{
+                  Total:4,
+                  Places:1
                 }
-              ],
-              
-            }]);
+              }
+            },
+            {
+              id:3,
+              name:"Sensō-ji",
+              statics:{
+                Votes:{
+                  Total:3,
+                  Places:1
+                }
+              }
+            }
+      ]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
     useEffect(() => {
-        const getMostVotedPlaces = async () => {
-          const url ="http://localhost:3000/MostVotedPlaces";
-          try {
-            const resp = await axios.get(url);
-            setMostVotedPlaces(resp.Info);
-            console.log(resp);
-          } catch (error) {
-            console.log(error);
-          } finally {
-            setLoading(false);
-          }
-        };
-        getMostVotedPlaces();
+        
       }, []);
 
-      const setMostVotedPlacescat = async (e) => {
-        setMostVotedPlaces(
-          [
-            
-          ]
-        );
-      }
+      
     return (
       <div>
         <Typography variant="h5" component="h5" gutterBottom align="center">
           Most voted places by users
         </Typography>
-        <Button onClick={setMostVotedPlacescat}>click</Button>
+        <Box
+          sx={{
+          display: 'grid',
+          gap: 3,
+          width: '100%'
+        }}
+        >
+          {
+            lstMostVotedPlaces.length > 0 ? 
+              lstMostVotedPlaces.map( (x) => (<PlaceCard placeinfo={x} />))  
+              : <p>No places added</p> 
+          }
+        </Box>
             
         </div>
     );

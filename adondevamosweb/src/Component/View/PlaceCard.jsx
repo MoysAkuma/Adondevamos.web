@@ -1,34 +1,56 @@
 import { useState, useEffect } from "react";
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ShareIcon from '@mui/icons-material/Share';
+import { Visibility } from "@mui/icons-material";
+import 
+    {
+        Avatar, 
+        Button,
+        Typography,
+        Card,
+        CardHeader,
+        CardActions,
+        CardContent,
+        CardMedia,
+        IconButton,
+        Badge
+    } from '@mui/material';
 function PlaceCard ({
   placeinfo
 }) 
 {
-
+  const [logo, setLogo] = useState("/UnderConstruction.png");
     return(
-        <Card sx={{ maxWidth: 345 }}>
+        <Card>
+          <CardHeader
+            action={
+              <IconButton aria-label="view">
+                <Visibility />
+              </IconButton>
+            }
+              title={placeinfo.name}
+              subheader={placeinfo.description}
+            />
         <CardMedia
           sx={{ height: 140 }}
-          image="{{logo}}"
+          image={logo}
           title="place image"
         />
         <CardContent>
-          <Typography gutterBottom variant="h5" component="div">
-            {placeinfo.name}
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          {placeinfo.description}
-          </Typography>
+          
         </CardContent>
-        <CardActions>
-          <Button size="small">View</Button>
-        </CardActions>
+        <CardActions disableSpacing>
+            <IconButton aria-label="add to favorites">
+              <Badge 
+              color="secondary" 
+              badgeContent={placeinfo.statics.Votes.Total} max={999}>
+                <FavoriteIcon />
+              </Badge>
+            </IconButton>
+            <IconButton aria-label="share">
+              <ShareIcon />
+            </IconButton>
+          </CardActions>
       </Card>
     );
 }

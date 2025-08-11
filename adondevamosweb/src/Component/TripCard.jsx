@@ -1,21 +1,62 @@
 import { useState, useEffect } from "react";
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
+
+import 
+    {
+        Avatar, 
+        Button,
+        Typography,
+        Card,
+        CardHeader,
+        CardActions,
+        CardContent,
+        CardMedia,
+        IconButton
+    } from '@mui/material';
+
+import { Visibility } from "@mui/icons-material";
+
+import { red } from '@mui/material/colors';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ShareIcon from '@mui/icons-material/Share';
+import { styled } from '@mui/material/styles';
+
 
 function TripCard ({
   tripinfo
 }) 
 {
+    const [expanded, setExpanded] = useState(false);
+
+    const handleExpandClick = () => {
+      setExpanded(!expanded);
+    };
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return new Intl.DateTimeFormat('en-US', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        }).format(date);
+    };
     return(
         <Card>
+          <CardHeader
+          avatar={
+            <Avatar sx={{ bgcolor: "#000" }} aria-label="creator">
+              {
+                tripinfo.owner.tag[0]
+              }
+            </Avatar>
+          }
+          action={
+            <IconButton aria-label="view">
+              <Visibility />
+            </IconButton>
+          }
+            title={tripinfo.name}
+            subheader={"S: " + formatDate(tripinfo.initialdate) + ", E: " + formatDate(tripinfo.finaldate)}
+            />
           <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
-              {tripinfo.name}
-            </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
             {tripinfo.description}
             </Typography>
@@ -30,8 +71,13 @@ function TripCard ({
               </ul>
             </Typography>
           </CardContent>
-          <CardActions>
-            <Button size="small">View Trip</Button>
+          <CardActions disableSpacing>
+            <IconButton aria-label="add to favorites">
+              <FavoriteIcon />
+            </IconButton>
+            <IconButton aria-label="share">
+              <ShareIcon />
+            </IconButton>
           </CardActions>
       </Card>
     );
