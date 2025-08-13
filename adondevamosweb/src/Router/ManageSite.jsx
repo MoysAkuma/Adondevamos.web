@@ -18,9 +18,10 @@ import Facilitymanager from "../Component/ManagmentSite/Facilitymanager";
 import CountryManager from '../Component/ManagmentSite/CountryManager';
 import StatesManager from '../Component/ManagmentSite/StatesManager';
 import CitiesManager from '../Component/ManagmentSite/CitiesManager';
-
+import { useAuth } from '../context/AuthContext';
 
  function ManageSite(){
+    const auth = useAuth();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 

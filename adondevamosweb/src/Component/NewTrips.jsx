@@ -3,18 +3,8 @@ import TripCard from "./TripCard";
 import axios from 'axios';
 import 
     {
-        TextField, 
-        Button,
-        useMediaQuery,
-        useTheme,
-        Container,
         Typography,
-        Box,
-        MenuItem,
-        FormGroup,
-        FormControlLabel,
-        Checkbox
-        
+        Box
     } from '@mui/material';
 
 function NewTrips(){
@@ -45,7 +35,12 @@ function NewTrips(){
               initialDate: "2024-02-06",
               finaldate: "2024-02-06"
             }
-          ]
+          ],
+          statics:{
+          Votes:{
+            Total:99
+          }
+        }
       },
       {
           name : "Medio Maraton Mochis",
@@ -73,7 +68,12 @@ function NewTrips(){
               initialdate: "2025-03-22",
               finaldate: "2025-03-22"
             }
-          ]
+          ],
+          statics:{
+          Votes:{
+            Total:0
+          }
+        }
       } ,
       {
           name : "Visa and fisrt couple trip",
@@ -101,7 +101,12 @@ function NewTrips(){
               initialdate: "2024-04-29",
               finaldate: "2024-04-29"
             }
-          ]
+          ],
+          statics:{
+          Votes:{
+            Total:0
+          }
+        }
       }  
     ]);
     
@@ -113,6 +118,9 @@ function NewTrips(){
       <>
       <Typography variant="h6" component="h6" gutterBottom align="left">
         New Trips!
+      </Typography>
+      <Typography variant="body1" component="body1" gutterBottom align="right">
+          Trips created by users like you
       </Typography>
       <Box
         sx={{
@@ -127,7 +135,7 @@ function NewTrips(){
                     <TripCard key={x.id} tripinfo={x}/>
                   )
             ) : 
-            <Typography variant="span" component="span" gutterBottom align="right">
+            <Typography variant="span" component="span" gutterBottom align="left">
               No trips added yet. Please create and user and help me!
             </Typography>
         }

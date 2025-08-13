@@ -3,58 +3,58 @@ import PlaceCard from "./View/PlaceCard";
 import axios from 'axios';
 import 
     {
-        TextField, 
-        Button,
-        useMediaQuery,
-        useTheme,
-        Container,
         Typography,
-        Box,
-        MenuItem,
-        FormGroup,
-        FormControlLabel,
-        Checkbox
-        
+        Box
     } from '@mui/material';
 
 function MostVotedPlaces(){
     const [lstMostVotedPlaces, setLstMostVotedPlaces] = useState([
-              {
-                id:1,
-                name:"Naritasan Shinsho-ji",
-                description:"Shrine in japan",
-                statics:{
-                  Votes:{
-                    Total:5,
-                    Places:1
-                  }
-                },
-                countryid : 2,
-                stateid : 1,
-                cityid: 2
-                
-            },
-            {
-              id:6,
-              name:"Tortas don lupito",
-              description:"Rural exotic food",
-              statics:{
-                Votes:{
-                  Total:4,
-                  Places:1
-                }
-              }
-            },
-            {
-              id:3,
-              name:"Sensō-ji",
-              statics:{
-                Votes:{
-                  Total:3,
-                  Places:1
-                }
-              }
+        {
+          id:1,
+          name:"Naritasan Shinsho-ji",
+          description:"Shrine in japan",
+          statics:{
+            Votes:{
+              Total:5
             }
+          },
+          countryid : 2,
+          stateid : 1,
+          cityid: 2,
+          location:"Narita, Narita, Japan",
+          facilities:"Wc, Wi-Fi"
+      },
+      {
+        id:6,
+        name:"Tortas don lupito",
+        description:"Rural exotic food",
+        statics:{
+          Votes:{
+            Total:4
+          }
+        }
+        ,
+          countryid : 1,
+          stateid : 1,
+          cityid: 2,
+          location:"Los Mochis, Sinaloa, Mexico",
+          facilities:"Wc"
+      },
+      {
+        id:3,
+        name:"Sensō-ji",
+        statics:{
+          Votes:{
+            Total:3
+          }
+        }
+        ,
+          countryid : 2,
+          stateid : 1,
+          cityid: 2,
+          location:"Tokio, Tokio, Japan",
+          facilities:"Wc, Wi-Fi"
+      }
       ]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -66,7 +66,7 @@ function MostVotedPlaces(){
       
     return (
       <div>
-        <Typography variant="h5" component="h5" gutterBottom align="center">
+        <Typography variant="h6" component="h6" gutterBottom align="left">
           Most voted places by users
         </Typography>
         <Box

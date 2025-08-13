@@ -2,7 +2,11 @@
 import { useState, useEffect } from 'react';
 import '../Css/navbar.css';
 
+import { useAuth } from '../context/AuthContext';
+
 export default function NavBar() {
+  //evaluate session
+  const auth = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -10,7 +14,7 @@ export default function NavBar() {
   const closeMenu = () => setIsOpen(false);
 
   // Track scroll for navbar styling
-  useEffect(() => {
+  useEffect(() => { 
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
@@ -40,10 +44,18 @@ export default function NavBar() {
         <nav className={`navbar-links ${isOpen ? 'open' : ''}`}>
           <ul>
             <li><a href="/" onClick={closeMenu}>Home</a></li>
-            <li><a href="/CreateTrip" onClick={closeMenu}>Trips</a></li>
-            <li><a href="/CreatePlace" onClick={closeMenu}>Places</a></li>
-            <li><a href="/CreateUser" onClick={closeMenu}>User</a></li>
-            <li><a href="/ManageSite" onClick={closeMenu}>Site Admin</a></li>
+          {
+            (auth) ? 
+              (<>
+                <li><a href="/CreateTrip" onClick={closeMenu}>Trips</a></li>
+                <li><a href="/CreatePlace" onClick={closeMenu}>Places</a></li>                
+                <li><a href="/ManageSite" onClick={closeMenu}>Site Admin</a></li>
+              </>
+              ) : 
+              (<>
+                <li><a href="/login" onClick={closeMenu}>Login</a></li>
+              </>)
+          }
           </ul>
         </nav>
       </div>

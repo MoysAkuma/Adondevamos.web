@@ -68,7 +68,6 @@ function Login(){
             const response = 
                 await login(formLogIn.email.trim(), 
                 formLogIn.password.trim());
-            console.log(response);
             if(response.success){
                 navigate("/");    
             } else (
