@@ -119,7 +119,7 @@ function NewTrips(){
       <Typography variant="h6" component="h6" gutterBottom align="left">
         New Trips!
       </Typography>
-      <Typography variant="body1" component="body1" gutterBottom align="right">
+      <Typography variant="span" component="span" gutterBottom align="right">
           Trips created by users like you
       </Typography>
       <Box

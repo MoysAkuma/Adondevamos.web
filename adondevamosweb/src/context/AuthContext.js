@@ -1,36 +1,27 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import config from "../Resources/config";
-const AuthContext = createContext();
+const AuthContext = createContext({user: null,
+  login: () => {},
+  logout: () => {},
+  checkAuthStatus: () => false,});
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-    //URLS
-    const [URLs, setURLs] = useState(
-        {
-            Site:`${config.api.baseUrl}`
-        }
-    );
+  //URLS
+  const [URLs, setURLs] = useState(
+      {
+          Site:`${config.api.baseUrl}`
+      }
+  );
 
   useEffect(() => {
     checkAuthStatus();
   }, []);
 
-const checkAuthStatus = async () => {
-    try {
-      const response = await axios.get(URLs.Site+ '/check-auth', {
-        withCredentials: true
-      });
-      console.log(response);
-      if (response.data.isAuthenticated) {
-        setUser(response.data.user);
-      }
-    } catch (error) {
-      console.error('Auth check failed:', error);
-    } finally {
-      setLoading(false);
-    }
+  const checkAuthStatus = () => {
+    return user !== null;
   };
 
   const login = async (username, password) => {
@@ -60,10 +51,19 @@ const checkAuthStatus = async () => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider 
+      value={{ 
+        user, 
+        loading, 
+        login, 
+        logout, 
+        checkAuthStatus }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () =>{ 
+  const context = useContext(AuthContext); 
+  return context; 
+}

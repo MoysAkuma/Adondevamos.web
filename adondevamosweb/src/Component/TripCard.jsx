@@ -39,7 +39,6 @@ function TripCard ({
     };
 
     const gotoViewTrip = (trip) => {
-      console.log(trip);
       navigate('/ViewTrip/'+trip.id);
     };
 
@@ -69,13 +68,13 @@ function TripCard ({
           action={
             <IconButton aria-label="view">
               <Visibility 
-                onClick={(x) => gotoViewTrip(tripinfo)} 
+                onClick={ (x) => gotoViewTrip(tripinfo) } 
                 sx={{color: grey[500]}}
               />
             </IconButton>
           }
             title={tripinfo.name}
-            subheader={"S: " + formatDate(tripinfo.initialdate) + ", E: " + formatDate(tripinfo.finaldate)}
+            subheader={ formatDate(tripinfo.initialdate) + " to " + formatDate(tripinfo.finaldate)}
             />
           <CardContent>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>

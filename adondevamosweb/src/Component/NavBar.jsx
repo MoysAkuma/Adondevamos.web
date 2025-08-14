@@ -6,15 +6,21 @@ import { useAuth } from '../context/AuthContext';
 
 export default function NavBar() {
   //evaluate session
-  const auth = useAuth();
+  const { user, checkAuthStatus } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isAuth, setIsAuth] = useState(false);
 
   // Close menu when clicking on a link
   const closeMenu = () => setIsOpen(false);
 
+  const handleLogout = () => {
+      closeMenu();
+  }
+
   // Track scroll for navbar styling
   useEffect(() => { 
+    
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
@@ -45,11 +51,12 @@ export default function NavBar() {
           <ul>
             <li><a href="/" onClick={closeMenu}>Home</a></li>
           {
-            (auth) ? 
+            checkAuthStatus() ? 
               (<>
                 <li><a href="/CreateTrip" onClick={closeMenu}>Trips</a></li>
                 <li><a href="/CreatePlace" onClick={closeMenu}>Places</a></li>                
                 <li><a href="/ManageSite" onClick={closeMenu}>Site Admin</a></li>
+                <li><a href='' onClick={handleLogout} >Logout</a> </li>
               </>
               ) : 
               (<>
