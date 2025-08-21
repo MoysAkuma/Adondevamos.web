@@ -69,7 +69,7 @@ function Login(){
                 await login(formLogIn.email.trim(), 
                 formLogIn.password.trim());
             if(response.success){
-                navigate("/");    
+                navigate("/");
             } else (
                 setErrors(prev => ( {...prev, login : true} ))
             )
@@ -123,7 +123,6 @@ function Login(){
                 flexDirection: 'column',
                 gap: 3,
                 width: '100%'
-
             }}>
                 <TextField
                     id="email"
@@ -186,13 +185,13 @@ function Login(){
                 />
                 {
                     errors.login ? 
-                  (
-                  <>
-                    <Alert severity="error">
-                      <AlertTitle>Login failed! </AlertTitle>
-                      Credentials not valid
-                    </Alert>
-                  </>) : (<></>)
+                    (<>
+                        <Alert severity="error">
+                        <AlertTitle>Login failed! </AlertTitle>
+                        Credentials not valid
+                        </Alert>
+                    </>
+                    ) : (<></>)
                 }
                 <Button 
                     type="submit" 

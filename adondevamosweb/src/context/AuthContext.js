@@ -17,7 +17,10 @@ export const AuthProvider = ({ children }) => {
   );
 
   useEffect(() => {
-    checkAuthStatus();
+    const isSession = localStorage.getItem('userid');
+    if(isSession){
+      checkAuthStatus();
+    }
   }, []);
 
   const checkAuthStatus = () => {
@@ -27,14 +30,18 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     try {
       const response = await axios.post(
-        URLs.Site+ '/login',
+        URLs.Site + '/login',
         { 
             id: username, 
             password : password 
         },
         { withCredentials: true }
       );
+      localStorage.setItem('userid', response.data.id );
+      localStorage.setItem('tag', response.data.tag );
+      localStorage.setItem('role', response.data.role );
       setUser(response.data);
+      console.log(response);
       return { success: true };
     } catch (error) {
       return { success: false, message: error.response?.data?.message || 'Login failed' };
@@ -45,6 +52,9 @@ export const AuthProvider = ({ children }) => {
     try {
       await axios.post(URLs.Site+'/logout', {}, { withCredentials: true });
       setUser(null);
+      localStorage.removeItem('userid');
+      localStorage.removeItem('tag');
+      localStorage.removeItem('role');
     } catch (error) {
       console.error('Logout failed:', error);
     }

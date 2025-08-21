@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import TripCard from "./TripCard";
+import TripCard from "./View/TripCard";
 import axios from 'axios';
 import 
     {
@@ -26,13 +26,13 @@ function NewTrips(){
             {
               id:2,
               name:"Hachiko Statue",
-              initialDate: "2024-02-05",
+              initialdate: "2024-02-05",
               finaldate: "2024-02-05"
             },
             {
               id:3,
               name:"Sensō-ji",
-              initialDate: "2024-02-06",
+              initialdate: "2024-02-06",
               finaldate: "2024-02-06"
             }
           ],

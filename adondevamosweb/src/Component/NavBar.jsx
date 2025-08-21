@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import '../Css/navbar.css';
 
-import { useAuth } from '../context/AuthContext';
+import { useAuth, logout } from '../context/AuthContext';
 
 export default function NavBar() {
   //evaluate session
@@ -10,17 +10,32 @@ export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isAuth, setIsAuth] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const {logout} = useAuth();
 
   // Close menu when clicking on a link
   const closeMenu = () => setIsOpen(false);
 
   const handleLogout = () => {
+    console.log("enro");
       closeMenu();
+      logout();
   }
 
   // Track scroll for navbar styling
   useEffect(() => { 
-    
+    const userid = localStorage.getItem('userid');
+    if ( userid ) {
+      setIsAuth(true);
+    }
+
+    const role = localStorage.getItem('role');
+    if ( role ) {
+      if(role.match("Admin")){
+        setIsAdmin(true);
+      }
+      
+    }
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
@@ -51,15 +66,22 @@ export default function NavBar() {
           <ul>
             <li><a href="/" onClick={closeMenu}>Home</a></li>
           {
-            checkAuthStatus() ? 
+            isAuth 
+            ? (
+                isAdmin ? 
+                (<>
+                  <li><a href="/CreateTrip" onClick={closeMenu}>Trips</a></li>
+                  <li><a href="/CreatePlace" onClick={closeMenu}>Places</a></li>                
+                  <li><a href="/ManageSite" onClick={closeMenu}>Admin</a></li>
+                  <li><a href='' onClick={handleLogout} >Logout</a> </li>
+                </>) : 
+                (<>
+                  <li><a href='' onClick={handleLogout} >Logout</a> </li>
+                </>)
+              ) 
+               : 
               (<>
-                <li><a href="/CreateTrip" onClick={closeMenu}>Trips</a></li>
-                <li><a href="/CreatePlace" onClick={closeMenu}>Places</a></li>                
-                <li><a href="/ManageSite" onClick={closeMenu}>Site Admin</a></li>
-                <li><a href='' onClick={handleLogout} >Logout</a> </li>
-              </>
-              ) : 
-              (<>
+                <li><a href="/CreateUser" onClick={closeMenu}>Create an account</a></li>
                 <li><a href="/login" onClick={closeMenu}>Login</a></li>
               </>)
           }

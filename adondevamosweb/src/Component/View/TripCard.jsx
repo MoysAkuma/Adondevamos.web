@@ -77,12 +77,12 @@ function TripCard ({
             subheader={ formatDate(tripinfo.initialdate) + " to " + formatDate(tripinfo.finaldate)}
             />
           <CardContent>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>
               {
                 tripinfo.description
               }
             </Typography>
-            <Typography gutterBottom variant="body2" component="div">
+            <Typography gutterBottom variant="subtitle2" component="subtitle2">
               Itinerary
             </Typography>
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -90,7 +90,7 @@ function TripCard ({
                 {
                   tripinfo.itinerary.map(
                     (item, index) => (
-                      <ListItem>
+                      <ListItem key={item.id}> 
                         <ListItemIcon>
                           <Place 
                           fontSize="small"  

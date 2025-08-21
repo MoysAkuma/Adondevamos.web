@@ -4,41 +4,29 @@ import axios from 'axios';
 import { Typography, List, ListItem, ListItemText, IconButton, ListItemAvatar
     , Avatar
  } from '@mui/material';
-import { FlightLand, FlightTakeoff, Add, Delete, Edit, ArrowCircleUp, 
+import { Chat, FlightTakeoff, Add, Delete, Edit, ArrowCircleUp, 
     ArrowCircleDown, AccountCircle } from '@mui/icons-material';
-function MemberList ({
+function ViewMemberList ({
     memberlist = [
     { 
         id : 1,
         name : "Moises Moran",
         email : "moises141294@hotmail.com",
         tag : "MoysAkuma",
-        role : "Admin"
+        role : "Creator"
     }
-    ],
-    callBackDelete = function(item){}, 
+    ]
 })
 {
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return new Intl.DateTimeFormat('en-US', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric'
-        }).format(date);
-    };
-
     return (<>
-        <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+        <List sx={{ width: '80%', bgcolor: 'background.paper' }}>
         {
             memberlist.map( (user,index) => (<> 
                 <ListItem
                     key={user.id}
                     secondaryAction={
                         <IconButton edge="end" aria-label="actions">
-                            
-                            <Delete 
-                                onClick={ () => callBackDelete(user.id)} />
+                            <Chat />
                             {
                                 index != 0 ? 
                                 ( <ArrowCircleUp  />) : (<></>)
@@ -60,7 +48,14 @@ function MemberList ({
                     </ListItemAvatar>
                     <ListItemText 
                         primary={ "@" + user.tag } 
-                        secondary={ user.email  } 
+                        secondary={ <> 
+                            <Typography 
+                                component="span" variant="body2" 
+                                sx={{ color: 'text.primary', display: 'inline' }} >
+                                {
+                                    user.email
+                                }    
+                            </Typography> </>   } 
                     />
                 </ListItem>
             </>))
@@ -69,4 +64,4 @@ function MemberList ({
     </>);
 }
 
-export default MemberList;
+export default ViewMemberList;
