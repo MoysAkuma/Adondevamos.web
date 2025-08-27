@@ -10,6 +10,7 @@ import ViewUser from "./Router/ViewUser";
 import ViewPlace from "./Router/ViewPlace";
 import ViewTrip from "./Router/ViewTrip"
 import NavBar from './Component/NavBar';
+import Logout from './Router/Logout';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from "./Component/ProtectedRoute";
 
@@ -21,9 +22,12 @@ export default function App() {
           <Routes>
             <Route exact path="/" element={ <Home /> } />
             <Route path="/login" element={<Login/>}/>
+            <Route path="/Logout" element={<Logout/>} />
             <Route path="/CreateUser" element={<CreateUser/>}/>
-            <Route path="/CreatePlace" element={<ProtectedRoute><CreatePlace/></ProtectedRoute>}/>
-            <Route path="/CreateTrip" element={<ProtectedRoute><CreateTrip/></ProtectedRoute>}/>
+            <Route path="/CreatePlace" element={<ProtectedRoute> 
+              <CreatePlace/> 
+            </ProtectedRoute>} />
+            <Route path="/CreateTrip" element={<ProtectedRoute> <CreateTrip /> </ProtectedRoute>}/>
             <Route path="/ManageSite" element={<ProtectedRoute><ManageSite/></ProtectedRoute>}/>
             <Route path="/ViewUser/:UserID" element={<ViewUser/>}/>
             <Route path="/ViewPlace/:PlaceID" element={<ViewPlace/>}/>

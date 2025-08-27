@@ -30,7 +30,7 @@ function CreateUser(){
             Countries:`${config.api.baseUrl}${config.api.endpoints.Countries}`,
             States:`${config.api.baseUrl}${config.api.endpoints.States}`,
             Cities:`${config.api.baseUrl}${config.api.endpoints.Cities}`,
-            User:`${config.api.baseUrl}${config.api.endpoints.User}`,
+            Users:`${config.api.baseUrl}${config.api.endpoints.Users}`,
         }
     );
     //tag
@@ -103,6 +103,10 @@ function CreateUser(){
             break
         }
     };
+    const handleChangeConfirmPassword = (e) => {
+        const { name, value } = e.target;
+        setConfirmPassword(value);
+    }
 
     
     const handleSelect = (event) => {
@@ -114,7 +118,7 @@ function CreateUser(){
     const [submitError, setSubmitError] = useState('');
     const [submitSuccess, setSubmitSuccess] = useState(false);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {debugger
         e.preventDefault();
         setIsSubmitting(true);
         setSubmitError('');
@@ -141,7 +145,7 @@ function CreateUser(){
             throw new Error('password is required');
         }
 
-        if (!formCreateUser.password.trim() != confirmPassword) {
+        if (formCreateUser.password.trim() != confirmPassword) {
             throw new Error('confirm password required');
         }
 
@@ -151,22 +155,22 @@ function CreateUser(){
         }
 
         // Validate for field Country
-        if (!formCreateUser.countryid != null) {
+        if (!formCreateUser.countryid) {
             throw new Error('CountryID is required');
         }
 
         // Validate for field State
-        if (!formCreateUser.stateid != null) {
+        if (!formCreateUser.stateid) {
             throw new Error('StateID is required');
         }
 
         // Validate for field City
-        if (!formCreateUser.cityid != null) {
+        if (!formCreateUser.cityid) {
             throw new Error('cityID is required');
         }
 
         // API call to create user
-        const response = await axios.post(URLsCatalogService.User, {
+        const response = await axios.post(URLsCatalogService.Users, {
             name: formCreateUser.name.trim(),
             secondName: formCreateUser.secondName.trim(),
             lastName: formCreateUser.lastName.trim(),
@@ -363,10 +367,10 @@ function CreateUser(){
                     label="Confirm your Password"
                     placeholder="Type again your password"
                     variant="outlined"
-                    onChange={handleChange}
                     size={isMobile ? 'small' : 'medium'}
                     value={confirmPassword}
                     onBlur={handleConfirmPassword}
+                    onChange={handleChangeConfirmPassword}
                     fullWidth
                     required
                 />

@@ -1,7 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import config from "../Resources/config";
-
 const AuthContext = createContext({user: null,
   login: () => {},
   calllogout: () => { },
@@ -9,8 +8,7 @@ const AuthContext = createContext({user: null,
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
-
+  const [loading, setLoading] = useState(true);
   //URLS
   const [URLs, setURLs] = useState(
       {
@@ -20,31 +18,17 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const isSession = localStorage.getItem('userid');
-    if ( isSession ) {
+    if(isSession){
       checkAuthStatus();
     }
   }, []);
 
-  const checkAuthStatus = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(
-        URLs.Site + '/check-auth',
-        { withCredentials: true }
-      );
-      if( response.data.isAuthenticated ){
-        return { success: true };
-      }
-      
-    } catch (error) {
-      return { success: false, message: error.response?.data?.message || 'User was logged' };
-    }
-    setLoading(false);
+  const checkAuthStatus = () => {
+    return user !== null;
   };
 
   const login = async (username, password) => {
     try {
-      setLoading(true);
       const response = await axios.post(
         URLs.Site + '/login',
         { 
@@ -53,24 +37,18 @@ export const AuthProvider = ({ children }) => {
         },
         { withCredentials: true }
       );
-
-      if(response.status == 200){
-        localStorage.setItem('userid', response.data.id );
-        localStorage.setItem('tag', response.data.tag );
-        localStorage.setItem('role', response.data.role );
-      }
-
-      console.log(response);
+      localStorage.setItem('userid', response.data.id );
+      localStorage.setItem('tag', response.data.tag );
+      localStorage.setItem('role', response.data.role );
       setUser(response.data);
       return { success: true };
     } catch (error) {
       return { success: false, message: error.response?.data?.message || 'Login failed' };
     }
-    setLoading(false);
   };
 
   const logout = async () => {
-    setLoading(true);
+    console.log("entro");
     try {
       setUser(null);
       localStorage.removeItem('userid');
@@ -85,7 +63,6 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error('Logout failed:', error);
     }
-    setLoading(false);
   };
 
   return (
@@ -103,8 +80,5 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () =>{ 
   const context = useContext(AuthContext); 
-  if(context === undefined) {
-    throw new Error("Shit");
-  }
   return context; 
 }

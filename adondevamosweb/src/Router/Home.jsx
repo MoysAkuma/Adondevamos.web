@@ -2,18 +2,10 @@ import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import 
     {
-        TextField, 
-        Button,
         useMediaQuery,
         useTheme,
         Container,
-        Typography,
-        Box,
-        MenuItem,
-        FormGroup,
-        FormControlLabel,
-        Checkbox
-        
+        Typography
     } from '@mui/material';
 import  NewTrips  from "../Component/NewTrips";
 import  MostVotedPlaces  from "../Component/MostVotedPlaces";

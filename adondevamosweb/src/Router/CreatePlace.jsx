@@ -265,7 +265,8 @@ const facilitiesChange = (event) => {
     //saveplace api call    
     const saveSelectedFacilities = async(item) =>{debugger
 
-      const checkedFacilitiesToSave = Object.keys(checkedFacilities).map(key => ({
+      const checkedFacilitiesToSave = 
+      Object.keys(checkedFacilities).map(key => ({
         facilityid: Number(key),
         value: checkedFacilities[key]
       }));

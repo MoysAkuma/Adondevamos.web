@@ -1,19 +1,15 @@
 import React from 'react';
+import {Alert} from '@mui/material'
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return children;
+    const { user, loading } = useAuth();
+    const hasSession = localStorage.getItem('userid');    
+    if (!hasSession) {
+      return <Navigate to="/login" replace />;
+    }
+    return (children);
 };
 
 export default ProtectedRoute;

@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import '../Css/navbar.css';
 
-import { useAuth, logout } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext';
 
 export default function NavBar() {
   //evaluate session
@@ -17,9 +17,8 @@ export default function NavBar() {
   const closeMenu = () => setIsOpen(false);
 
   const handleLogout = () => {
-    console.log("enro");
-      closeMenu();
-      logout();
+    logout();
+    closeMenu();
   }
 
   // Track scroll for navbar styling
@@ -70,13 +69,13 @@ export default function NavBar() {
             ? (
                 isAdmin ? 
                 (<>
-                  <li><a href="/CreateTrip" onClick={closeMenu}>Trips</a></li>
-                  <li><a href="/CreatePlace" onClick={closeMenu}>Places</a></li>                
+                  <li><a href="/CreatePlace" onClick={closeMenu}>Add Places</a></li>                
                   <li><a href="/ManageSite" onClick={closeMenu}>Admin</a></li>
-                  <li><a href='' onClick={handleLogout} >Logout</a> </li>
+                  <li><a href="/Logout" onClick={handleLogout} >Logout</a> </li>
                 </>) : 
                 (<>
-                  <li><a href='' onClick={handleLogout} >Logout</a> </li>
+                  <li><a href="/CreateTrip" onClick={closeMenu}>Add Trip</a></li>
+                  <li><a href="/Logout"  onClick={handleLogout} >Logout</a> </li>
                 </>)
               ) 
                : 
