@@ -71,6 +71,7 @@ export default function NavBar() {
                 (<>
                   <li><a href="/CreatePlace" onClick={closeMenu}>Add Places</a></li>                
                   <li><a href="/ManageSite" onClick={closeMenu}>Admin</a></li>
+                  <li><a href="/CreateTrip" onClick={closeMenu}>Add Trip</a></li>
                   <li><a href="/Logout" onClick={handleLogout} >Logout</a> </li>
                 </>) : 
                 (<>
