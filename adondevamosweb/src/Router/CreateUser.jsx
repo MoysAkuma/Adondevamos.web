@@ -190,7 +190,6 @@ function CreateUser(){
 
         // Handle success
         setSubmitSuccess(true);
-        console.log('User created:', response.data);
         
         // Reset form after successful submission
         setFormCreateUser(

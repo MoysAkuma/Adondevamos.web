@@ -119,10 +119,8 @@ function ViewPlace(){
     const getPlaceInfo = async(  ) =>{
         axios.get(URLsCatalogService.Places + '/' + PlaceID)
         .then(resp => {
-            const data = resp.data.info[0];
+            const data = resp.data.info;
             setPlaceinfo(data);
-            getUbicationNames(data);
-            getFacilities(data);
         })
         .catch(error => console.error("Error getting place id"));
     };
@@ -184,15 +182,6 @@ function ViewPlace(){
                     placeinfo.name
                 }
             </Typography>
-            <Typography variant="h5" component="h5" gutterBottom align="left">
-                Name
-            </Typography>
-
-            <Typography variant="body1" component="body1" gutterBottom align="right">
-                {
-                    placeinfo.name
-                }
-            </Typography>
 
             <Typography variant="h5" component="h5" gutterBottom align="left">
                 Description
@@ -217,7 +206,7 @@ function ViewPlace(){
             </Typography>
 
             <Typography gutterBottom variant="body1" component="div" align="right">
-            { ubication.CityName }, { ubication.StateName }, { ubication.CountryName}
+            { placeinfo.state }, { placeinfo.state }, { placeinfo.country}
             </Typography>
             
             <Typography gutterBottom variant="h6" component="div" align="left">

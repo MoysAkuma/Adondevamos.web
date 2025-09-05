@@ -29,7 +29,7 @@ function NewTrips(){
     };
     useEffect(() => {
       getNewTrips();
-    });
+    }, []);
 
     return (
       <>

@@ -158,10 +158,8 @@ function CreateTrip(){
         cityid: formTrip.cityid,
         description: formTrip.description,
         isInternational: formTrip.isInternational,
-        itinerary:formTrip.itinerary,
         initialDate:formTrip.initialDate,
         finalDate:formTrip.finalDate,
-        memberlist:formTrip.memberlist
       }, {
         headers: {
           'Content-Type': 'application/json',
@@ -172,6 +170,7 @@ function CreateTrip(){
       // Handle success
       setSubmitSuccess(true);
       console.log('Trip created:', response.data);
+
       
       // Reset form after successful submission
       setFormTrip({
@@ -222,6 +221,22 @@ function CreateTrip(){
         .catch(error => console.error("Error getting catalogue of countries"));
     };
 
+    //saveMemberlist
+    const saveMemberlist = async( item,  ) =>{
+        axios.get(URLsCatalogService.Cities + '/ByState/' + item)
+        .then(resp => {
+            setCatCities(resp.data.info);
+        })
+        .catch(error => console.error("Error getting catalogue of countries"));
+    };
+    //save itinerary
+    const saveItinerary = async( item ) =>{
+        axios.get(URLsCatalogService.Cities + '/ByState/' + item)
+        .then(resp => {
+            setCatCities(resp.data.info);
+        })
+        .catch(error => console.error("Error getting catalogue of countries"));
+    };
     //Handle select controller
   const handleSelect = (event) => {
         const { name, value } = event.target;

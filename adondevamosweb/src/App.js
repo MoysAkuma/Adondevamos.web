@@ -31,7 +31,7 @@ export default function App() {
             <Route path="/ManageSite" element={<ProtectedRoute><ManageSite/></ProtectedRoute>}/>
             <Route path="/ViewUser/:UserID" element={<ViewUser/>}/>
             <Route path="/ViewPlace/:PlaceID" element={<ViewPlace/>}/>
-            <Route path="/ViewTrip/:Trip" element={<ViewTrip/>}/>
+            <Route path="/ViewTrip/:tripId" element={<ViewTrip/>}/>
           </Routes>
         </AuthProvider>
     </BrowserRouter>
