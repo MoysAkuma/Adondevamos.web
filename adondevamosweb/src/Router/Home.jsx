@@ -32,8 +32,6 @@ function Home() {
             </Typography>
 
             <NewTrips/>
-
-            <MostVotedPlaces />
             
           </Container>
           </div>

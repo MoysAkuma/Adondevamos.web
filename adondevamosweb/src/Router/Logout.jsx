@@ -20,6 +20,9 @@ function Logout(){
     const {calllogout} = useAuth();
 
     const callLogout = async () => {
+        localStorage.removeItem('userid');
+        localStorage.removeItem('tag');
+        localStorage.removeItem('role');
         const response = 
             await calllogout();
         if(response.success){

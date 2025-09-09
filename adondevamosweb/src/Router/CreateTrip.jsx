@@ -33,10 +33,11 @@ function CreateTrip(){
     //URLS
     const [URLsCatalogService, setURLsCatalogService] = useState(
         {
-            Countries:`${config.api.baseUrl}${config.api.endpoints.Countries}`,
-            States:`${config.api.baseUrl}${config.api.endpoints.States}`,
-            Cities:`${config.api.baseUrl}${config.api.endpoints.Cities}`,
-            User:`${config.api.baseUrl}${config.api.endpoints.User}`,
+            Countries :`${config.api.baseUrl}${config.api.endpoints.Countries}`,
+            States :`${config.api.baseUrl}${config.api.endpoints.States}`,
+            Cities :`${config.api.baseUrl}${config.api.endpoints.Cities}`,
+            User : `${config.api.baseUrl}${config.api.endpoints.User}`,
+            Trips : `${config.api.baseUrl}${config.api.endpoints.Trips}`
         }
     );
 
@@ -150,35 +151,42 @@ function CreateTrip(){
         throw new Error('set member list');
       }
       
-      // API call to create product
-      const response = await axios.post('http://localhost/CreateTrip', {
-        name: formTrip.name.trim(),
-        countryid: formTrip.countryid,
-        stateid: formTrip.stateid,
-        cityid: formTrip.cityid,
-        description: formTrip.description,
-        isInternational: formTrip.isInternational,
-        initialDate:formTrip.initialDate,
-        finalDate:formTrip.finalDate,
+      // API call to create trip
+      const response = await axios.post(URLsCatalogService.Trips, {
+        name : formTrip.name.trim(),
+        countryid : formTrip.countryid,
+        stateid : formTrip.stateid,
+        cityid : formTrip.cityid,
+        description : formTrip.description,
+        isInternational : formTrip.isinternational,
+        initialDate : formTrip.initialdate,
+        finalDate : formTrip.finaldate,
       }, {
         headers: {
           'Content-Type': 'application/json',
           // 'Authorization': 'Bearer your-token-here' // Add if needed
         }
       });
-
+      if(response.status == 200){
+        //Save member list
+        if(addedMemberList.length > 0 ){
+          saveMemberlist(response.data.info);
+        }
+        //Save itinerary
+        if(itinerary.length > 0 ){
+          saveItinerary(response.data.info);
+        }
+      } 
       // Handle success
       setSubmitSuccess(true);
-      console.log('Trip created:', response.data);
-
-      
+    
       // Reset form after successful submission
       setFormTrip({
         name: '',
         description: '',
         initialDate:"",
         finalDate:"",
-        isInternational:false,
+        isinternational:false,
         countryid: '',
         stateid: '',
         cityid: '',
@@ -222,16 +230,37 @@ function CreateTrip(){
     };
 
     //saveMemberlist
-    const saveMemberlist = async( item,  ) =>{
-        axios.get(URLsCatalogService.Cities + '/ByState/' + item)
+    const saveMemberlist = async( item ) =>{
+        const id = item.id;
+        const lst = addedMemberList.map(member => ({
+          userid : member.id,
+          roleid : member.role,
+          hide : false
+        }));
+        const rq = {
+          "MemberList" : lst
+        };
+        axios.post(
+          URLsCatalogService.Trips +'/' + id+ '/Members', rq)
         .then(resp => {
             setCatCities(resp.data.info);
         })
         .catch(error => console.error("Error getting catalogue of countries"));
     };
+
     //save itinerary
     const saveItinerary = async( item ) =>{
-        axios.get(URLsCatalogService.Cities + '/ByState/' + item)
+        const id = item.id;
+        const lst = itinerary.map(place => ({
+          "placeid" : place.id ,
+          "initialdate" : place.initialdate,
+          "finaldate" : place.finaldate,
+          "hide" : false
+        }));
+        const rq = {
+          "Itinerary" : lst
+        };
+        axios.post(URLsCatalogService.Trips+'/' + id + '/Itinerary', rq )
         .then(resp => {
             setCatCities(resp.data.info);
         })
@@ -313,8 +342,6 @@ function CreateTrip(){
     } 
   }
 
-
-
     return (
         <Container maxWidth="sm" sx={{ py: 8 }}>
             <Box
@@ -345,8 +372,7 @@ function CreateTrip(){
                       size={isMobile ? 'small' : 'medium'}
                       value={formTrip.name}
                       fullWidth
-                      required
-                      
+                      required                      
                   />
                 
                   <TextField

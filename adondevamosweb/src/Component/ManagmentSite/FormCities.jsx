@@ -62,17 +62,15 @@ function FormCities({id, callback}){
 
     //update request
     const handleChange = (e) => {
-        console.log(e.target);
         const { name, value } = e.target;
         setFormCities(prev => ({
-        ...prev,
-        [name]: value
+            ...prev,
+            [name]: value
         }));
     };
 
     //handle selectcountry
     const handleSelectCountry = (e) => {
-        console.log(e);
         if(e){
             handleChange(e);
             getStatesByCountry({id:e.target.value});

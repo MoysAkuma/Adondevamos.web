@@ -5,10 +5,13 @@ import config from "../Resources/config";
 const AuthContext = createContext({user: null,
   login: () => {},
   calllogout: () => { },
-  checkAuthStatus: () => false,});
+  checkAuthStatus: () => false});
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [usertag, setUserTag] = useState(null);
+  const [isLogged, setIsLogged] = useState(false);
+  const [role, setRole] = useState(false);
   const [loading, setLoading] = useState(false);
 
   //URLS
@@ -33,6 +36,9 @@ export const AuthProvider = ({ children }) => {
         { withCredentials: true }
       );
       if( response.data.isAuthenticated ){
+        setIsLogged(true);
+        setRole(localStorage.getItem('role'));
+        setUserTag(localStorage.getItem('tag'));
         return { success: true };
       }
       
@@ -54,14 +60,18 @@ export const AuthProvider = ({ children }) => {
         { withCredentials: true }
       );
 
-      if(response.status == 200){
+      if( response.status == 200 ) {
+        setIsLogged(true);
+        //Save user id
+        setUser(response.data.id);
         localStorage.setItem('userid', response.data.id );
+        //Save user tag
+        setUserTag(response.data.tag);
         localStorage.setItem('tag', response.data.tag );
+        //Save role
+        setRole(response.data.role);
         localStorage.setItem('role', response.data.role );
       }
-
-      console.log(response);
-      setUser(response.data);
       return { success: true };
     } catch (error) {
       return { success: false, message: error.response?.data?.message || 'Login failed' };
@@ -71,16 +81,21 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     setLoading(true);
+    console.log("Logout initiated");
     try {
       setUser(null);
-      localStorage.removeItem('userid');
-      localStorage.removeItem('tag');
-      localStorage.removeItem('role');
       const response = await axios.post(URLs.Site 
         +'/logout', 
-        {}, 
+        {
+
+        }, 
         { withCredentials: true });
-      console.log(response);
+        localStorage.removeItem('userid');
+        localStorage.removeItem('tag');
+        localStorage.removeItem('role');
+        setIsLogged(false);
+        setRole(null);
+        setUserTag(null);
       return { success: true };
     } catch (error) {
       console.error('Logout failed:', error);
@@ -93,8 +108,10 @@ export const AuthProvider = ({ children }) => {
       value={{ 
         user, 
         loading, 
+        isLogged,
+        role,
         login, 
-        calllogout:logout, 
+        logout, 
         checkAuthStatus }}>
       {children}
     </AuthContext.Provider>

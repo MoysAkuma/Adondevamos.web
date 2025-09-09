@@ -22,7 +22,6 @@ function NewTrips(){
     const getNewTrips = async( item ) =>{
         axios.get( URLsCatalogService.Trips + '/View/News' )
         .then(resp => {
-            console.log(resp.data.info);
             setNewTripsList(resp.data.info);
         })
         .catch(error => console.error("Error getting last created trips"));

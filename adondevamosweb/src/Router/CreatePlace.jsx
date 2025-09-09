@@ -93,7 +93,7 @@ const facilitiesChange = (event) => {
       cityid: '',
       description: '',
       address:'',
-      isinternational: false
+      ispublic: false
     }
   );
 
@@ -113,7 +113,6 @@ const facilitiesChange = (event) => {
 
   // Handle form submission
   const handleSubmit = async (e) => { debugger
-    saveSelectedFacilities(0);
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitError('');
@@ -165,7 +164,7 @@ const facilitiesChange = (event) => {
         cityid: formCreatePlace.cityid,
         description: formCreatePlace.description,
         address:formCreatePlace.address,
-        isInternational: formCreatePlace.isinternational
+        ispublic: formCreatePlace.ispublic
       }, 
       {
         headers: {
@@ -185,9 +184,10 @@ const facilitiesChange = (event) => {
             cityid: null,
             description: '',
             address:'',
-            isinternational: false
+            ispublic: false
           });
           saveSelectedFacilities(response.data.info);
+          
         break;
         case 409:  throw new Error('A place was created with same info'); break;
         case 404: throw new Error('No endpoint'); break;
@@ -272,7 +272,7 @@ const facilitiesChange = (event) => {
       }));
 
       const formSaveFacilities = {  
-        selectedFacilities: checkedFacilitiesToSave
+        Facilities: checkedFacilitiesToSave
       };
 
       const url = URLsCatalogService.Places 
@@ -287,10 +287,6 @@ const facilitiesChange = (event) => {
       .catch(
         error => console.error("Error getting catalogue of facilities"));
     };
-    
-    const test = async() =>{
-      saveSelectedFacilities({ id: 2 });
-    }
 
     useEffect(()=> {
       getCountries();
@@ -348,7 +344,7 @@ const facilitiesChange = (event) => {
         />
 
         <Typography variant="h6" component="h6" gutterBottom align="center">
-            Ubication
+          Ubication
         </Typography>
 
         <CountriesSelectList 
@@ -397,6 +393,7 @@ const facilitiesChange = (event) => {
             )
           )
           }
+
         </FormGroup>
         <Button 
           type="submit" 

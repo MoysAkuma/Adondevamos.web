@@ -17,8 +17,8 @@ import ProtectedRoute from "./Component/ProtectedRoute";
 export default function App() {
   return (
     <BrowserRouter>
-      <NavBar/>
         <AuthProvider>
+          <NavBar/>
           <Routes>
             <Route exact path="/" element={ <Home /> } />
             <Route path="/login" element={<Login/>}/>

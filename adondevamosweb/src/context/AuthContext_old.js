@@ -48,7 +48,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    console.log("entro");
     try {
       setUser(null);
       localStorage.removeItem('userid');
@@ -58,7 +57,6 @@ export const AuthProvider = ({ children }) => {
         +'/logout', 
         {}, 
         { withCredentials: true });
-      console.log(response);
       return { success: true };
     } catch (error) {
       console.error('Logout failed:', error);
