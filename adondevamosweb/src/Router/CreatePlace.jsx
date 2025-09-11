@@ -11,7 +11,9 @@ import
         Box,
         FormGroup,
         FormControlLabel,
-        Checkbox 
+        Checkbox,
+        Snackbar,
+        Alert
 } from '@mui/material';
 
 import CountriesSelectList from "../Component/Catalogues/CountriesSelectList";
@@ -74,6 +76,16 @@ function CreatePlace() {
     }
 ]);
 
+const [errors, setErrors] = useState({
+      place : false,
+      facilities : false
+});
+
+const [responseSuceess, setResponseSuccess] = useState({
+      place : false,
+      facilities : false
+});
+
 // State to track checked options
 const [checkedFacilities, 
   setCheckedFacilities] = useState({});
@@ -112,7 +124,7 @@ const facilitiesChange = (event) => {
   };
 
   // Handle form submission
-  const handleSubmit = async (e) => { debugger
+  const handleSubmit = async (e) => { 
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitError('');
@@ -186,6 +198,7 @@ const facilitiesChange = (event) => {
             address:'',
             ispublic: false
           });
+
           saveSelectedFacilities(response.data.info);
           
         break;
@@ -196,7 +209,6 @@ const facilitiesChange = (event) => {
       
     } catch (error) {
       setSubmitError(error.response?.data?.message || error.message);
-      console.error('Error creating place:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -222,6 +234,19 @@ const facilitiesChange = (event) => {
                 }));
             break;
         }
+  };
+
+  const handleCloseAlert = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    
+    setErrors(prev => (
+      {
+        place : false,
+        facilities : false
+      }
+    ));
   };
     
   //getCountries
@@ -263,7 +288,7 @@ const facilitiesChange = (event) => {
     };
 
     //saveplace api call    
-    const saveSelectedFacilities = async(item) =>{debugger
+    const saveSelectedFacilities = async(item) =>{
 
       const checkedFacilitiesToSave = 
       Object.keys(checkedFacilities).map(key => ({
@@ -283,10 +308,14 @@ const facilitiesChange = (event) => {
       axios.post(url, formSaveFacilities)
       .then(resp => {
           setLoading(false);
+          //Clean checked facilities
+          setCheckedFacilities({});
+
       })
       .catch(
         error => console.error("Error getting catalogue of facilities"));
     };
+    
 
     useEffect(()=> {
       getCountries();
@@ -294,7 +323,8 @@ const facilitiesChange = (event) => {
     },[]);
   return (
     <Container maxWidth="sm" sx={{ py: 8 }}>
-      <Typography variant="h6" component="h6" gutterBottom align="center">
+      <Typography variant="h6" component="h6" 
+      gutterBottom align="center">
           Create Place
       </Typography>
       <Box
@@ -307,7 +337,8 @@ const facilitiesChange = (event) => {
           width: '100%'
         }}
       >
-        <Typography variant="h6" component="h6" gutterBottom align="center">
+        <Typography variant="h6" component="h6" 
+        gutterBottom align="center">
           Place Info
         </Typography>
 
@@ -395,6 +426,30 @@ const facilitiesChange = (event) => {
           }
 
         </FormGroup>
+        <Snackbar open={responseSuceess.place} 
+        autoHideDuration={6000} 
+        onClose={handleCloseAlert}>
+          <Alert
+            onClose={handleCloseAlert}
+            severity="success"
+            variant="filled"
+            sx={{ width: '100%' }}
+          >
+            A new trip was added!. Plase, wait until we create the rest
+          </Alert>
+        </Snackbar>
+        <Snackbar open={responseSuceess.place} 
+        autoHideDuration={6000} 
+        onClose={handleCloseAlert}>
+          <Alert
+            onClose={handleCloseAlert}
+            severity="success"
+            variant="filled"
+            sx={{ width: '100%' }}
+          >
+            A new trip was added!. Plase, wait until we create the rest
+          </Alert>
+        </Snackbar>
         <Button 
           type="submit" 
           disabled={isSubmitting}
