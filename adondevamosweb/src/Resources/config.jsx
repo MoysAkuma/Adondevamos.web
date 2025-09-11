@@ -1,7 +1,7 @@
 const config = {
   development: {
     api: {
-      baseUrl: process.env.APIBASEHOST || 'http://localhost:3001',
+      baseUrl: process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001',
       site:{
         View : '/View'
       },
@@ -18,7 +18,7 @@ const config = {
   },
   production: {
     api: {
-      baseUrl: process.env.APIBASEHOST,
+      baseUrl: process.env.REACT_APP_API_BASE_URL,
       site:{
         View : '/View'
       },
@@ -35,4 +35,4 @@ const config = {
   }
 };
 
-export default config[process.env.NODE_ENV || 'development'];
+export default config[process.env.REACT_APP_ENV || 'development'];
