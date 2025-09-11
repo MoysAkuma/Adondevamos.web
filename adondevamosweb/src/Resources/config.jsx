@@ -18,10 +18,18 @@ const config = {
   },
   production: {
     api: {
-      baseUrl: 'https://api.yourdomain.com/v1',
+      baseUrl: process.env.APIBASEHOST,
+      site:{
+        View : '/View'
+      },
       endpoints: {
-        users: '/users',
-        products: '/products'
+        Facilities:"/Facilities",
+        Countries: '/Countries',
+        States: '/States',
+        Cities: '/Cities',
+        Users: '/Users',
+        Places: '/Places',
+        Trips: '/Trips'
       }
     }
   }
