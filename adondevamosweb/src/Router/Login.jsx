@@ -113,6 +113,9 @@ function Login(){
     return (
         <Container maxWidth="sm" sx={{ py: 8 }}>
             <Typography variant="h6"  gutterBottom align="center">
+                Adonde vamos
+            </Typography>
+            <Typography variant="h6"  gutterBottom align="center">
                 Log In
             </Typography>
             <Box
@@ -196,8 +199,9 @@ function Login(){
                 <Button 
                     type="submit" 
                     disabled={isSubmitting}
-                    variant="contained"
+                    variant="text"
                     size="small"
+                    
                     >
                     Log In
                 </Button>

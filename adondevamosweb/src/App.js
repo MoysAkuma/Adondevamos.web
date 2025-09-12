@@ -10,20 +10,20 @@ import ViewUser from "./Router/ViewUser";
 import ViewPlace from "./Router/ViewPlace";
 import ViewTrip from "./Router/ViewTrip"
 import NavBar from './Component/NavBar';
-import Logout from './Router/Logout';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from "./Component/ProtectedRoute";
+import { Navigate } from 'react-router-dom';
 
 export default function App() {
+  const { isLogged,  } = useAuth();
   return (
     <BrowserRouter>
         <AuthProvider>
           <NavBar/>
           <Routes>
             <Route exact path="/" element={ <Home /> } />
-            <Route path="/login" element={<Login/>}/>
-            <Route path="/Logout" element={<Logout/>} />
-            <Route path="/CreateUser" element={<CreateUser/>}/>
+            <Route path="/Login" element={ isLogged ? <Navigate to={"/ViewUser/" + localStorage.getItem('userid') } replace /> : <Login/>}/>
+            <Route path="/CreateUser" element={ <CreateUser/>}/>
             <Route path="/CreatePlace" element={<ProtectedRoute> 
               <CreatePlace/> 
             </ProtectedRoute>} />
@@ -32,6 +32,7 @@ export default function App() {
             <Route path="/ViewUser/:UserID" element={<ViewUser/>}/>
             <Route path="/ViewPlace/:PlaceID" element={<ViewPlace/>}/>
             <Route path="/ViewTrip/:tripId" element={<ViewTrip/>}/>
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AuthProvider>
     </BrowserRouter>

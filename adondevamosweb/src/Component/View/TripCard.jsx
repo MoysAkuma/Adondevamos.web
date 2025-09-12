@@ -58,6 +58,7 @@ function TripCard ({
     return(
         <Card>
           <CardHeader
+          sx={{ bgcolor: "#dddddcff" }}
           avatar={
             <Avatar sx={{ bgcolor: "#6934BF" }} aria-label="creator">
               {
@@ -76,7 +77,9 @@ function TripCard ({
             title={tripinfo.name}
             subheader={ formatDate(tripinfo.initialdate) + " to " + formatDate(tripinfo.finaldate)}
             />
-          <CardContent>
+          <CardContent
+          sx={{ bgcolor: "#e0e0daff" }}
+          >
             <Typography component="p" sx={{ color: 'text.secondary' }}>
               {
                 tripinfo.description
@@ -107,7 +110,7 @@ function TripCard ({
                           <Visibility 
                             fontSize="small" 
                             onClick={(x) => gotoViewPlace(item)} 
-                            sx={{color: common.white}}
+                            sx={{color: common.black}}
                           />
                         </IconButton>
                       </ListItem>
