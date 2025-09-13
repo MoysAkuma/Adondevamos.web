@@ -14,27 +14,32 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from "./Component/ProtectedRoute";
 import { Navigate } from 'react-router-dom';
 
+function AppContent() {
+  
+  return (
+    <>
+      <NavBar/>
+        <Routes>
+          <Route exact path="/" element={ <Home /> } />
+          <Route path="/Login" element={ <Login/>}/>
+          <Route path="/CreateUser" element={ <CreateUser/>}/>
+          <Route path="/CreatePlace" element={<ProtectedRoute><CreatePlace/></ProtectedRoute>} />
+          <Route path="/CreateTrip" element={<ProtectedRoute><CreateTrip /></ProtectedRoute>}/>
+          <Route path="/ManageSite" element={<ProtectedRoute><ManageSite/></ProtectedRoute>}/>
+          <Route path="/ViewUser/:UserID" element={<ViewUser/>}/>
+          <Route path="/ViewPlace/:PlaceID" element={<ViewPlace/>}/>
+          <Route path="/ViewTrip/:tripId" element={<ViewTrip/>}/>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+    </> );
+}
+
 export default function App() {
-  const { isLogged,  } = useAuth();
   return (
     <BrowserRouter>
-        <AuthProvider>
-          <NavBar/>
-          <Routes>
-            <Route exact path="/" element={ <Home /> } />
-            <Route path="/Login" element={ isLogged ? <Navigate to={"/ViewUser/" + localStorage.getItem('userid') } replace /> : <Login/>}/>
-            <Route path="/CreateUser" element={ <CreateUser/>}/>
-            <Route path="/CreatePlace" element={<ProtectedRoute> 
-              <CreatePlace/> 
-            </ProtectedRoute>} />
-            <Route path="/CreateTrip" element={<ProtectedRoute> <CreateTrip /> </ProtectedRoute>}/>
-            <Route path="/ManageSite" element={<ProtectedRoute><ManageSite/></ProtectedRoute>}/>
-            <Route path="/ViewUser/:UserID" element={<ViewUser/>}/>
-            <Route path="/ViewPlace/:PlaceID" element={<ViewPlace/>}/>
-            <Route path="/ViewTrip/:tripId" element={<ViewTrip/>}/>
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </AuthProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </BrowserRouter>
   );
 }

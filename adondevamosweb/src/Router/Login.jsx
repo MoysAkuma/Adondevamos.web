@@ -113,7 +113,7 @@ function Login(){
     return (
         <Container maxWidth="sm" sx={{ py: 8 }}>
             <Typography variant="h6"  gutterBottom align="center">
-                Adonde vamos
+                A donde vamos
             </Typography>
             <Typography variant="h6"  gutterBottom align="center">
                 Log In
