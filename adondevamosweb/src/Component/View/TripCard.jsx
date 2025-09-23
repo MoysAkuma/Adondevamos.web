@@ -18,13 +18,12 @@ import
         ListItemText
     } from '@mui/material';
 
-import { Visibility, FlightLand, FlightTakeoff, Place } from "@mui/icons-material";
+import { Visibility, FlightLand, FlightTakeoff, Place, Edit } from "@mui/icons-material";
 
 import { red,grey, common } from '@mui/material/colors';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import { styled } from '@mui/material/styles';
-
 
 function TripCard ({
   tripinfo
@@ -42,9 +41,16 @@ function TripCard ({
       navigate('/ViewTrip/'+trip.id);
     };
 
+    const gotoEditTrip = (trip) => {
+      navigate('/EditTrip/'+trip.id);
+    };
+    
     const gotoViewPlace = (place) => {
       navigate('/ViewPlace/'+place.id);
     };
+
+    
+
 
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -54,6 +60,31 @@ function TripCard ({
             year: 'numeric'
         }).format(date);
     };
+
+    const generateOptions = (creatorid) => {
+      console.log(creatorid);
+     const isOwner = (creatorid == localStorage.getItem('userid'));
+     
+      return (<>
+          <IconButton aria-label="view">
+            <Visibility 
+              onClick={ (x) => gotoViewTrip(tripinfo) } 
+              sx={{color: grey[500]}}
+            />
+          </IconButton>
+          {    
+            (isOwner) ? (
+            <IconButton aria-label="view">
+              <Edit 
+                onClick={ (x) => gotoEditTrip(tripinfo) } 
+                sx={{color: grey[500]}}
+                />
+            </IconButton>
+          ) : (<></>)
+          }
+        </>
+        )
+    }
 
     return(
         <Card>
@@ -66,14 +97,7 @@ function TripCard ({
               }
             </Avatar>
           }
-          action={
-            <IconButton aria-label="view">
-              <Visibility 
-                onClick={ (x) => gotoViewTrip(tripinfo) } 
-                sx={{color: grey[500]}}
-              />
-            </IconButton>
-          }
+          action={generateOptions(tripinfo.owner.id)}
             title={tripinfo.name}
             subheader={ formatDate(tripinfo.initialdate) + " to " + formatDate(tripinfo.finaldate)}
             />
@@ -85,10 +109,11 @@ function TripCard ({
                 tripinfo.description
               }
             </Typography>
+
             <Typography gutterBottom component="p" >
               Itinerary
             </Typography>
-            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            <Typography variant="div" sx={{ color: 'text.secondary' }}>
               <List>
                 {
                   tripinfo.itinerary.map(
@@ -121,7 +146,7 @@ function TripCard ({
             </Typography>
           </CardContent>
           <CardActions disableSpacing>
-            <IconButton aria-label="add to favorites">
+            <IconButton aria-label="vote">
               <Badge 
               color="secondary" 
               badgeContent={tripinfo.statics.Votes.Total} max={999}>
