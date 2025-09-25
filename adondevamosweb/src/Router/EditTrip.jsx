@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import 
     {
@@ -25,10 +25,15 @@ import SearchPlaces from '../Component/Trips/SearchPlaces';
 import Itinerary from '../Component/Trips/Itinerary';
 import MemberList from '../Component/Trips/MemberList';
 import config from "../Resources/config";
+import { useParams } from 'react-router-dom';
 
-function CreateTrip(){
+function EditTrip(){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const [isUser, setIsUser] = useState(false);
+
+    //Trip id
+    const { TripId } = useParams();
     
     //URLS
     const [URLsCatalogService, setURLsCatalogService] = useState(
@@ -73,7 +78,8 @@ function CreateTrip(){
 
     const [errors, setErrors] = useState({
       duplicatedplace : false,
-      duplicateduser : false
+      duplicateduser : false,
+      tripinfo : false
     });
 
     // trip info
@@ -81,7 +87,11 @@ function CreateTrip(){
         name : '',
         description : '',
         initialdate : '',
-        finaldate : ''      
+        finaldate : '',
+        countryid : '',
+        stateid : '',
+        cityid : '',
+        
     });
     // UI state
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -113,7 +123,20 @@ function CreateTrip(){
       if (!formTrip.description.trim()) {
         throw new Error('Trip description is required');
       }
-      
+      // Validate for field Country
+      if (!formTrip.countryid != null) {
+        throw new Error('countryid is required');
+      }
+
+      // Validate for field State
+      if (!formTrip.stateid != null) {
+        throw new Error('stateid is required');
+      }
+
+      // Validate for field City
+      if (!formTrip.cityid != null) {
+        throw new Error('cityid is required');
+      }
       // Validate for field itinerary
       if (!formTrip.itinerary != null) {
         throw new Error('select at least one place is required');
@@ -135,8 +158,11 @@ function CreateTrip(){
       }
       
       // API call to create trip
-      const response = await axios.post(URLsCatalogService.Trips, {
+      const response = await axios.put(URLsCatalogService.Trips + "/" + TripId, {
         name : formTrip.name.trim(),
+        countryid : formTrip.countryid,
+        stateid : formTrip.stateid,
+        cityid : formTrip.cityid,
         description : formTrip.description,
         isInternational : formTrip.isinternational,
         initialDate : formTrip.initialdate,
@@ -162,12 +188,12 @@ function CreateTrip(){
     
       // Reset form after successful submission
       setFormTrip({
-        name : '',
-        description : '',
-        initialDate : "",
-        finalDate : "",
-        isinternational : false,
-        memberlist : []
+        name: '',
+        description: '',
+        initialDate:"",
+        finalDate:"",
+        isinternational:false,
+        memberlist:[]
       });
       
     } catch (error) {
@@ -189,7 +215,7 @@ function CreateTrip(){
 
     //saveMemberlist
     const saveMemberlist = async( item ) =>{
-        const id = item.id;
+        const id = TripId;
         const lst = addedMemberList.map(member => ({
           userid : member.id,
           roleid : member.role,
@@ -208,7 +234,7 @@ function CreateTrip(){
 
     //save itinerary
     const saveItinerary = async( item ) =>{
-        const id = item.id;
+        const id = TripId;
         const lst = itinerary.map(place => ({
           "placeid" : place.id ,
           "initialdate" : place.initialdate,
@@ -279,6 +305,37 @@ function CreateTrip(){
     } 
   }
 
+  useEffect(()=> {
+      const fetchTrip = async () => {
+          if(!TripId) return;
+          try{
+          
+            axios.get(URLsCatalogService.Trips + '/' + TripId)
+            .then(resp => {
+                setFormTrip( resp.data.info );
+
+                setAddedMemberList(resp.data.info.memberlist);
+                setItinerary(resp.data.info.itinerary);
+                console.log( resp.data.info );
+            })
+            .catch(error => console.error("Error getting trip info"));
+        } catch (err) {
+          setErrors(prev => (
+              {
+                ...prev,
+                tripinfo : true
+              }
+            )
+          );
+
+        } finally {
+          
+        } 
+      }
+      fetchTrip();
+      setIsUser( localStorage.getItem('userid') != null );
+  },[TripId]);
+
     return (
         <Container maxWidth="sm" sx={{ py: 8 }}>
             <Box
@@ -292,9 +349,9 @@ function CreateTrip(){
               }}
             >
                 <Typography variant="h5" align="center">
-                  Create Trip
+                  Edit Trip 
                 </Typography>
-
+                
                 <Typography variant="body1"  align="left">
                   About your trip
                 </Typography>
@@ -344,7 +401,7 @@ function CreateTrip(){
                     value={formTrip.finaldate}
                     fullWidth
                     required
-                  />      
+                  />
                 <Typography variant="body1"   align="left">
                   Add places to itinerary
                 </Typography>
@@ -419,13 +476,13 @@ function CreateTrip(){
                 <Button 
                   type="submit" 
                   disabled={isSubmitting}
-                  variant="contained"
+                  variant="text"
                   >
-                  Create Trip
+                  Save info
                 </Button>
             </Box>
         </Container>
     );
 }
 
-export default CreateTrip;
+export default EditTrip;

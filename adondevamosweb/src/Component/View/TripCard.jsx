@@ -62,7 +62,6 @@ function TripCard ({
     };
 
     const generateOptions = (creatorid) => {
-      console.log(creatorid);
      const isOwner = (creatorid == localStorage.getItem('userid'));
      
       return (<>

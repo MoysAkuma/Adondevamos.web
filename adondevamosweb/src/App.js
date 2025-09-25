@@ -12,6 +12,7 @@ import ViewUser from "./Router/ViewUser";
 import CreateTrip from "./Router/CreateTrip";
 import ViewTrip from "./Router/ViewTrip"
 import MainTrips from "./Router/MainTrips";
+import EditTrip from "./Router/EditTrip";
 //Places
 import CreatePlace from "./Router/CreatePlace";
 import ViewPlace from "./Router/ViewPlace";
@@ -29,7 +30,8 @@ function AppContent() {
           <Route exact path="/" element={ <Home /> } />
           <Route path="/Login" element={ <Login/>}/>
           <Route path="/Trips" element={ <MainTrips/>}/>
-          <Route path="/Place" element={ <CreateUser/>}/>
+          <Route path="/EditTrip/:TripId" element={<ProtectedRoute><EditTrip /></ProtectedRoute>}/>
+          <Route path="/CreateAccount" element={ <CreateUser/>}/>
           <Route path="/CreatePlace" element={<ProtectedRoute><CreatePlace/></ProtectedRoute>} />
           <Route path="/CreateTrip" element={<ProtectedRoute><CreateTrip /></ProtectedRoute>}/>
           <Route path="/ManageSite" element={<ProtectedRoute><ManageSite/></ProtectedRoute>}/>
