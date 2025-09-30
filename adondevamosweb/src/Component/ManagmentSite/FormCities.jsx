@@ -42,8 +42,7 @@ function FormCities({id, callback}){
             States:`${config.api.baseUrl}${config.api.endpoints.States}`,
             Cities:`${config.api.baseUrl}${config.api.endpoints.Cities}`,
             Country:`${config.api.baseUrl}${config.api.endpoints.Country}`,
-            State:`${config.api.baseUrl}${config.api.endpoints.State}`,
-            City:`${config.api.baseUrl}${config.api.endpoints.City}`
+            State:`${config.api.baseUrl}${config.api.endpoints.State}`
         }
     );
 
@@ -77,7 +76,7 @@ function FormCities({id, callback}){
         }
     };
 
-    const handleSubmit = async (e) =>{
+    const handleSubmit = async (e) =>{debugger
         e.preventDefault();
         setIsSubmitting(true);
         setSubmitError('');
@@ -98,7 +97,7 @@ function FormCities({id, callback}){
         if (!formCities.stateid ) {
             throw new Error('State is required');
         }
-        axios.post(URLsCatalogService.City, formCities )
+        axios.post(URLsCatalogService.Cities, formCities )
         .then(resp => {
             //Stop loading form
             setLoading(false);

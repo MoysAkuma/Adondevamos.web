@@ -8,14 +8,18 @@ import ManageSite from "./Router/ManageSite";
 //Import of users
 import CreateUser from "./Router/CreateUser";
 import ViewUser from "./Router/ViewUser";
+
 //Trips
 import CreateTrip from "./Router/CreateTrip";
 import ViewTrip from "./Router/ViewTrip"
 import MainTrips from "./Router/MainTrips";
 import EditTrip from "./Router/EditTrip";
+
 //Places
+import MainPlaces from "./Component/Places/MainPlaces";
 import CreatePlace from "./Router/CreatePlace";
 import ViewPlace from "./Router/ViewPlace";
+
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from "./Component/ProtectedRoute";
@@ -30,6 +34,7 @@ function AppContent() {
           <Route exact path="/" element={ <Home /> } />
           <Route path="/Login" element={ <Login/>}/>
           <Route path="/Trips" element={ <MainTrips/>}/>
+          <Route path="/Places" element={ <MainPlaces/>}/>
           <Route path="/EditTrip/:TripId" element={<ProtectedRoute><EditTrip /></ProtectedRoute>}/>
           <Route path="/CreateAccount" element={ <CreateUser/>}/>
           <Route path="/CreatePlace" element={<ProtectedRoute><CreatePlace/></ProtectedRoute>} />
