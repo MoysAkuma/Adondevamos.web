@@ -1,24 +1,24 @@
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import NavBar from './Component/NavBar';
-import  Home  from "./Router/Home";
-import Login from "./Router/Login"
-import ManageSite from "./Router/ManageSite";
+import  Home  from "./Pages/Home";
+import Login from "./Pages/Login"
+import ManageSite from "./Pages/ManageSite";
 
 //Import of users
-import CreateUser from "./Router/CreateUser";
-import ViewUser from "./Router/ViewUser";
+import CreateUser from "./Pages/CreateUser";
+import ViewUser from "./Pages/ViewUser";
 
 //Trips
-import CreateTrip from "./Router/CreateTrip";
-import ViewTrip from "./Router/ViewTrip"
-import MainTrips from "./Router/MainTrips";
-import EditTrip from "./Router/EditTrip";
+import CreateTrip from "./Pages/CreateTrip";
+import ViewTrip from "./Pages/ViewTrip"
+import MainTrips from "./Pages/MainTrips";
+import EditTrip from "./Pages/EditTrip";
 
 //Places
 import MainPlaces from "./Component/Places/MainPlaces";
-import CreatePlace from "./Router/CreatePlace";
-import ViewPlace from "./Router/ViewPlace";
+import CreatePlace from "./Pages/CreatePlace";
+import ViewPlace from "./Pages/ViewPlace";
 
 
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -52,7 +52,13 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppContent />
+        <div style={{ minHeight: '100vh', 
+          display: 'flex', 
+          flexDirection: 'column',
+          backgroundColor: '#f5f5f5' }}>
+          <AppContent />
+        </div>
+        <p>Site made by <b>@MoysAkuma</b> </p>
       </AuthProvider>
     </BrowserRouter>
   );

@@ -7,7 +7,7 @@ import
         Container,
         Typography
     } from '@mui/material';
-import  NewTrips  from "../Component/NewTrips";
+import  NewTrips  from "../Component/Trips/NewTrips";
 import  MostVotedPlaces  from "../Component/MostVotedPlaces";
 
 

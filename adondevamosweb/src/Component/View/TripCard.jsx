@@ -88,7 +88,7 @@ function TripCard ({
     return(
         <Card>
           <CardHeader
-          sx={{ bgcolor: "#dddddcff" }}
+          sx={{ bgcolor: "#184029" }}
           avatar={
             <Avatar sx={{ bgcolor: "#6934BF" }} aria-label="creator">
               {
@@ -101,7 +101,7 @@ function TripCard ({
             subheader={ formatDate(tripinfo.initialdate) + " to " + formatDate(tripinfo.finaldate)}
             />
           <CardContent
-          sx={{ bgcolor: "#e0e0daff" }}
+          sx={{ bgcolor: "#F9E1D4" }}
           >
             <Typography component="p" sx={{ color: 'text.secondary' }}>
               {
@@ -144,7 +144,7 @@ function TripCard ({
             </List>
             </Typography>
           </CardContent>
-          <CardActions disableSpacing>
+          <CardActions disableSpacing sx={{ bgcolor: "#C9C1F8" }}>
             <IconButton aria-label="vote">
               <Badge 
               color="secondary" 

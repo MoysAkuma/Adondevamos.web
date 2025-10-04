@@ -110,6 +110,7 @@ export const AuthProvider = ({ children }) => {
         loading, 
         isLogged,
         role,
+        usertag,
         login, 
         logout, 
         checkAuthStatus }}>

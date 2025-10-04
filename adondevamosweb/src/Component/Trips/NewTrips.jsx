@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import TripCard from "./View/TripCard";
+import TripCard from "../View/TripCard";
 import axios from 'axios';
-import config from "../Resources/config";
+import config from "../../Resources/config";
 import 
     {
         Typography,

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import NewTrips from "../Component/NewTrips";
+import NewTrips from "../Component/Trips/NewTrips";
 import 
     {
         Stack, 
