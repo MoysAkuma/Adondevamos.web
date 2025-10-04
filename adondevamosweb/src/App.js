@@ -20,7 +20,7 @@ import MainPlaces from "./Component/Places/MainPlaces";
 import CreatePlace from "./Pages/CreatePlace";
 import ViewPlace from "./Pages/ViewPlace";
 
-
+import Search from "./Pages/Search";
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from "./Component/ProtectedRoute";
 import { Navigate } from 'react-router-dom';
@@ -40,6 +40,7 @@ function AppContent() {
           <Route path="/CreatePlace" element={<ProtectedRoute><CreatePlace/></ProtectedRoute>} />
           <Route path="/CreateTrip" element={<ProtectedRoute><CreateTrip /></ProtectedRoute>}/>
           <Route path="/ManageSite" element={<ProtectedRoute><ManageSite/></ProtectedRoute>}/>
+          <Route path="/Search/:opt" element={<Search/>}/>
           <Route path="/ViewUser/:UserID" element={<ViewUser/>}/>
           <Route path="/ViewPlace/:PlaceID" element={<ViewPlace/>}/>
           <Route path="/ViewTrip/:tripId" element={<ViewTrip/>}/>

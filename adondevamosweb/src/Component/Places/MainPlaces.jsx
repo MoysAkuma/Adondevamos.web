@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { Container, Box, Typography, Button, ButtonGroup, List, ListItem, ListItemText } from "@mui/material";
 import { Flight, LocationCity, Search } from '@mui/icons-material';
+import PlaceCard from "../View/PlaceCard";
 
 const GenerateUserSection = () => { 
         if( localStorage.getItem('role') === 'Admin' ){
@@ -12,7 +13,7 @@ const GenerateUserSection = () => {
                     <Button variant="text" 
                         startIcon={ <Search/> }
                         size="small"
-                        href="/SearchPlace" >
+                        href="/Search/Places" >
                         Search Places
                     </Button>
                     <Button variant="text" 
@@ -28,7 +29,7 @@ const GenerateUserSection = () => {
                 <>
                     <Button variant="text" 
                     endIcon={ <LocationCity/> }
-                    href="/SearchPlace" >
+                    href="/Search/Places" >
                         Search Places
                     </Button>
                 </>);
@@ -54,16 +55,6 @@ export default function MainPlaces() {
     return (
         <>
         <Container maxWidth="sm"  sx={{ py: 8 }}>
-        <Box
-            sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-            width: '100%'
-            }}
-        >
-            
-        </Box>
             <Typography variant="h5" align="center">
                 Places
             </Typography>
@@ -76,6 +67,13 @@ export default function MainPlaces() {
             <Typography variant="h6" align="left">
                 What can i see in a Place in AdondeVamos?
             </Typography>
+            <PlaceCard placeinfo={{
+                name: "Place Name",
+                location: "Place Location",
+                description: "Place Description",
+                facilities: "Wc, Parking, Wifi",
+                statics: {Votes: {Total: 10}}
+            }} />
             <List sx={{ width: '80%', alignContent:'center' , bgcolor: 'background.paper' }}>
                 <ListItemText 
                     primary="Address" 

@@ -11,7 +11,9 @@ import
         Box
     } from '@mui/material';
 
-import { FlightTakeoff, FlightLand } from '@mui/icons-material';
+import { FlightTakeoff, 
+    FlightLand } 
+    from '@mui/icons-material';
 
 import config from '../../Resources/config';
 import PlaceListFound from '../View/PlaceListFound';
