@@ -26,7 +26,7 @@ export default function NavBar() {
     <header className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
       <div className="navbar-container">
         <div className="navbar-brand">
-          <a href="/">A donde vamos</a>
+          <a href="/">AdondeVamos</a>
         </div>
         
         {/* Mobile menu button */}
@@ -44,24 +44,23 @@ export default function NavBar() {
         <nav className={`navbar-links ${isOpen ? 'open' : ''}`}>
           <ul>
             <li><a href="/" onClick={closeMenu}>Home</a></li>
+            <li><a href="/Trips" onClick={closeMenu}>Trips</a></li>
+            <li><a href="/Places" onClick={closeMenu}>Places</a></li>
           {
             isLogged 
             ? (
                 role === "Admin" ? 
                 (<>
-                  <li><a href="/CreatePlace" onClick={closeMenu}>Add Places</a></li>                
                   <li><a href="/ManageSite" onClick={closeMenu}>Admin</a></li>
-                  <li><a href="/CreateTrip" onClick={closeMenu}>Add Trip</a></li>
                   <li><button onClick={ () =>logout()}>Logout</button></li>
                 </>) : 
                 (<>
-                  <li><a href="/CreateTrip" onClick={closeMenu}>Add Trip</a></li>
                   <li><button onClick={ () =>logout()}>Logout</button></li>
                 </>)
               ) 
                : 
               (<>
-                <li><a href="/CreateUser" onClick={closeMenu}>Create an account</a></li>
+                <li><a href="/CreateAccount" onClick={closeMenu}>Create an account</a></li>
                 <li><a href="/Login" onClick={closeMenu}>Login</a> </li>
               </>)
           }

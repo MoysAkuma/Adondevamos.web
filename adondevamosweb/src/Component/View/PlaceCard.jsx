@@ -21,11 +21,12 @@ function PlaceCard ({
   placeinfo
 }) 
 {
-  const [logo, setLogo] = useState("/UnderConstruction.png");
+  const [logo, setLogo] = useState("/PlaceHolder.jpg");
 
   const navigate = useNavigate();
 
   const gotoViewPlace = (place) => {
+      if (place.id == undefined) return;
       navigate('/ViewPlace/'+place.id);
   };
 

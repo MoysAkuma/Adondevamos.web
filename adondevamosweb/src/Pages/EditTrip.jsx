@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import 
     {
@@ -25,10 +25,15 @@ import SearchPlaces from '../Component/Trips/SearchPlaces';
 import Itinerary from '../Component/Trips/Itinerary';
 import MemberList from '../Component/Trips/MemberList';
 import config from "../Resources/config";
+import { useParams } from 'react-router-dom';
 
-function CreateTrip(){
+function EditTrip(){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const [isUser, setIsUser] = useState(false);
+
+    //Trip id
+    const { TripId } = useParams();
     
     //URLS
     const [URLsCatalogService, setURLsCatalogService] = useState(
@@ -73,7 +78,8 @@ function CreateTrip(){
 
     const [errors, setErrors] = useState({
       duplicatedplace : false,
-      duplicateduser : false
+      duplicateduser : false,
+      tripinfo : false
     });
 
     // trip info
@@ -152,7 +158,7 @@ function CreateTrip(){
       }
       
       // API call to create trip
-      const response = await axios.post(URLsCatalogService.Trips, {
+      const response = await axios.put(URLsCatalogService.Trips + "/" + TripId, {
         name : formTrip.name.trim(),
         countryid : formTrip.countryid,
         stateid : formTrip.stateid,
@@ -187,9 +193,6 @@ function CreateTrip(){
         initialDate:"",
         finalDate:"",
         isinternational:false,
-        countryid: '',
-        stateid: '',
-        cityid: '',
         memberlist:[]
       });
       
@@ -210,28 +213,9 @@ function CreateTrip(){
         .catch(error => console.error("Error getting catalogue of countries"));
     };
 
-    //getStates
-    const getStates = async( item ) =>{
-        axios.get(URLsCatalogService.States + '/Bycountryid/' + item)
-        .then(resp => {
-            setCatStates(resp.data.info);
-            handleChange({target:{cityid:0}});
-        })
-        .catch(error => console.error("Error getting catalogue of countries"));
-    };
-
-    //getCities
-    const getCities = async( item ) =>{
-        axios.get(URLsCatalogService.Cities + '/ByState/' + item)
-        .then(resp => {
-            setCatCities(resp.data.info);
-        })
-        .catch(error => console.error("Error getting catalogue of countries"));
-    };
-
     //saveMemberlist
     const saveMemberlist = async( item ) =>{
-        const id = item.id;
+        const id = TripId;
         const lst = addedMemberList.map(member => ({
           userid : member.id,
           roleid : member.role,
@@ -250,7 +234,7 @@ function CreateTrip(){
 
     //save itinerary
     const saveItinerary = async( item ) =>{
-        const id = item.id;
+        const id = TripId;
         const lst = itinerary.map(place => ({
           "placeid" : place.id ,
           "initialdate" : place.initialdate,
@@ -266,27 +250,6 @@ function CreateTrip(){
         })
         .catch(error => console.error("Error getting catalogue of countries"));
     };
-    //Handle select controller
-  const handleSelect = (event) => {
-        const { name, value } = event.target;
-        handleChange(event);
-        switch(name){
-            case "countryid":
-              getStates(value);
-              setFormTrip(prev => ({
-                  ...prev,
-                  stateid: 0
-                }));
-             break;
-            case "stateid":
-              getCities(value);
-              setFormTrip(prev => ({
-                  ...prev,
-                  cityid: 0
-                }));
-            break;
-        }
-  };
 
   const handlePlaceAdd = (item) => {
 
@@ -342,6 +305,37 @@ function CreateTrip(){
     } 
   }
 
+  useEffect(()=> {
+      const fetchTrip = async () => {
+          if(!TripId) return;
+          try{
+          
+            axios.get(URLsCatalogService.Trips + '/' + TripId)
+            .then(resp => {
+                setFormTrip( resp.data.info );
+
+                setAddedMemberList(resp.data.info.memberlist);
+                setItinerary(resp.data.info.itinerary);
+                console.log( resp.data.info );
+            })
+            .catch(error => console.error("Error getting trip info"));
+        } catch (err) {
+          setErrors(prev => (
+              {
+                ...prev,
+                tripinfo : true
+              }
+            )
+          );
+
+        } finally {
+          
+        } 
+      }
+      fetchTrip();
+      setIsUser( localStorage.getItem('userid') != null );
+  },[TripId]);
+
     return (
         <Container maxWidth="sm" sx={{ py: 8 }}>
             <Box
@@ -355,9 +349,9 @@ function CreateTrip(){
               }}
             >
                 <Typography variant="h5" align="center">
-                  Create Trip
+                  Edit Trip 
                 </Typography>
-
+                
                 <Typography variant="body1"  align="left">
                   About your trip
                 </Typography>
@@ -408,51 +402,6 @@ function CreateTrip(){
                     fullWidth
                     required
                   />
-                
-                <Typography variant="body1"  gutterBottom align="left">
-                  Ubication
-                </Typography>
-                
-                <Typography variant="subtitle1"  gutterBottom align="left">
-                  Country
-                </Typography>
-                  <CountriesSelectList 
-                    val={formTrip.countryid} 
-                    onChangecall={handleSelect} 
-                    catCountries={catCountries} 
-                  />
-                
-                  {
-                    formTrip.countryid ? ( <>
-                      <Typography variant="subtitle1"  gutterBottom align="left">
-                        Select a state as start point
-                      </Typography>  
-
-                      <StateSelect 
-                        val={formTrip.stateid}
-                        onChangecall={handleSelect}
-                        catStates={catStates}
-                      /> 
-                    </>) : (<></>)
-                  }
-                
-
-                
-                  {
-                    formTrip.stateid ? ( <>
-                      <Typography variant="subtitle1"  gutterBottom align="left">
-                        Select a city as start point
-                      </Typography>
-
-                      <CitiesSelect 
-                        val={formTrip.cityid}
-                        onChangecall={handleSelect}
-                        catCities={catCities}
-                      /> </>
-                    ) : ( <></> )
-                  }
-               
-                
                 <Typography variant="body1"   align="left">
                   Add places to itinerary
                 </Typography>
@@ -527,13 +476,13 @@ function CreateTrip(){
                 <Button 
                   type="submit" 
                   disabled={isSubmitting}
-                  variant="contained"
+                  variant="text"
                   >
-                  Create Trip
+                  Save info
                 </Button>
             </Box>
         </Container>
     );
 }
 
-export default CreateTrip;
+export default EditTrip;

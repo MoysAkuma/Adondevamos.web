@@ -45,11 +45,9 @@ function ViewTrip(){
         const fetchTrip = async () => {
             if(!tripId) return;
          try{
-            console.log(tripId);
             axios.get(URLsCatalogService.Trips + '/' + tripId)
             .then(resp => {
                 setTripInfo( resp.data.info );
-                console.log( resp.data.info );
             })
             .catch(error => console.error("Error getting trip info"));
          } catch (err) {
