@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axios.get(
         URLs.Site + '/check-auth',
-        { withCredentials: true }
+        { withCredentials: true, credentials: 'include' }
       );
       if( response.data.isAuthenticated ){
         setIsLogged(true);
@@ -57,7 +57,7 @@ export const AuthProvider = ({ children }) => {
             id: username, 
             password : password 
         },
-        { withCredentials: true }
+        { withCredentials: true, credentials: 'include' }
       );
 
       if( response.status == 200 ) {
@@ -89,7 +89,7 @@ export const AuthProvider = ({ children }) => {
         {
 
         }, 
-        { withCredentials: true });
+        { withCredentials: true, credentials: 'include' });
         localStorage.removeItem('userid');
         localStorage.removeItem('tag');
         localStorage.removeItem('role');
