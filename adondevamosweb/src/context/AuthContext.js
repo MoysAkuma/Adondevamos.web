@@ -23,9 +23,22 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const isSession = localStorage.getItem('userid');
-    if ( isSession ) {
+    if (isSession) {
       checkAuthStatus();
+    } else {
+      setIsLogged(false);
+      setRole(null);
+      setUserTag(null);
+      setUser(null);
     }
+    // Listen for session changes in other tabs
+    const handleStorage = (e) => {
+      if (["userid", "role", "tag"].includes(e.key)) {
+        checkAuthStatus();
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
   const checkAuthStatus = async () => {
@@ -33,7 +46,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axios.get(
         URLs.Site + '/check-auth',
-        { withCredentials: true, credentials: 'include' }
+        { withCredentials: true }
       );
       if( response.data.isAuthenticated ){
         setIsLogged(true);
@@ -57,7 +70,7 @@ export const AuthProvider = ({ children }) => {
             id: username, 
             password : password 
         },
-        { withCredentials: true, credentials: 'include' }
+        { withCredentials: true }
       );
 
       if( response.status == 200 ) {
@@ -71,6 +84,8 @@ export const AuthProvider = ({ children }) => {
         //Save role
         setRole(response.data.role);
         localStorage.setItem('role', response.data.role );
+        // Re-check session from backend to sync state
+        await checkAuthStatus();
       }
       return { success: true };
     } catch (error) {
@@ -86,16 +101,16 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       const response = await axios.post(URLs.Site 
         +'/logout', 
-        {
-
-        }, 
-        { withCredentials: true, credentials: 'include' });
-        localStorage.removeItem('userid');
-        localStorage.removeItem('tag');
-        localStorage.removeItem('role');
-        setIsLogged(false);
-        setRole(null);
-        setUserTag(null);
+        {}, 
+        { withCredentials: true });
+      localStorage.removeItem('userid');
+      localStorage.removeItem('tag');
+      localStorage.removeItem('role');
+      setIsLogged(false);
+      setRole(null);
+      setUserTag(null);
+      // Re-check session from backend to sync state
+      await checkAuthStatus();
       return { success: true };
     } catch (error) {
       console.error('Logout failed:', error);
