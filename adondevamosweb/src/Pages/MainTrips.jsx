@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import NewTrips from "../Component/Trips/NewTrips";
 import 
     {
         Stack, 
@@ -32,38 +31,11 @@ import TripCard from "../Component/View/TripCard";
             }}
         >
             <Typography variant="h5" align="center">
-                Main Page of trips
+                Trips
             </Typography>
-            <Typography variant="h6" align="left">
-                What is a Trip in AdondeVamos?
-            </Typography>
-            <Typography variant="body1" align="right">
-                A trip is a list of places you want to visit with your friend
-            </Typography>
-            <TripCard
-                tripinfo={{
-                    name: "Trip Name",
-                    description: "Trip Description",
-                    owner:{ tag: "UserTag" },
-                    statics:{ Votes: { Total:0 } },
-                    initialdate: "2024-01-01",
-                    finaldate: "2024-01-10",
-                    id: 0,
-                    itinerary: [
-                        { id: 0, name: "Place 1", location: "Location 1" },
-                        { id: 1, name: "Place 2", location: "Location 2" },
-                    ],
-                }}
-            />
             {
                 isUser ? (
                     <>
-                        <Typography variant="caption" align="left">
-                            You can create a trip by clicking the button "Create a new trip" below. 
-                        </Typography>
-                        <Typography variant="caption" align="right">
-                            Or you can search for trips created by other users by clicking the button "Search for trips".
-                        </Typography>
                         <ButtonGroup variant="text" aria-label="text button group" fullWidth sx={{ mt: 2, mb: 2 }}>
                             <Button variant="text" 
                                 startIcon={ <Flight/> }
@@ -93,9 +65,28 @@ import TripCard from "../Component/View/TripCard";
                     </>
                 )
             }
+            <Typography variant="h6" align="left">
+                What is a Trip in AdondeVamos?
+            </Typography>
+            <Typography variant="body1" align="right">
+                A trip is a list of places you want to visit with your friends.
+            </Typography>
+
+            <TripCard
+                tripinfo={{
+                    name: "Trip Name Example",
+                    description: "Trip Description Example",
+                    owner:{ tag: "User_Tag" },
+                    statics:{ Votes: { Total:0 } },
+                    initialdate: null,
+                    finaldate: null,
+                    id: 0,
+                    itinerary: [
+                        { id: 0, name: "Place Name Example", location: "Location 1" }
+                    ],
+                }}
+            />
             
-            
-            <NewTrips/>
 
         </Box>
     </Container>);

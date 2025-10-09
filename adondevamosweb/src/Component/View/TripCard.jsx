@@ -38,14 +38,17 @@ function TripCard ({
     };
 
     const gotoViewTrip = (trip) => {
+      if( !trip.id ) return;
       navigate('/ViewTrip/'+trip.id);
     };
 
     const gotoEditTrip = (trip) => {
+      if( !trip.id ) return; 
       navigate('/EditTrip/'+trip.id);
     };
     
     const gotoViewPlace = (place) => {
+      if( !place.id ) return;
       navigate('/ViewPlace/'+place.id);
     };
 
@@ -84,22 +87,26 @@ function TripCard ({
         </>
         )
     }
-
+    const generateSubHeader = (initialdate, finaldate) => {
+      if( !initialdate || !finaldate ) return "dates of your trip";
+      return formatDate(initialdate) + " to " + formatDate(finaldate);
+    }
     return(
         <Card>
           <CardHeader
-          sx={{ bgcolor: "#184029" }}
-          avatar={
-            <Avatar sx={{ bgcolor: "#6934BF" }} aria-label="creator">
-              {
-                tripinfo.owner.tag[0]
-              }
-            </Avatar>
-          }
-          action={generateOptions(tripinfo.owner.id)}
+            sx={{ bgcolor: "#184029", 
+                  '& .MuiCardHeader-title': { color: '#ffffffff' },
+                  '& .MuiCardHeader-subheader': { color: '#d0d0d0ff' }
+            }}
+            avatar={
+              <Avatar sx={{ bgcolor: "#6934BF" }} aria-label="creator">
+                {tripinfo.owner.tag[0]}
+              </Avatar>
+            }
+            action={generateOptions(tripinfo.owner.id)}
             title={tripinfo.name}
-            subheader={ formatDate(tripinfo.initialdate) + " to " + formatDate(tripinfo.finaldate)}
-            />
+            subheader={generateSubHeader(tripinfo.initialdate, tripinfo.finaldate)}
+          />
           <CardContent
           sx={{ bgcolor: "#F9E1D4" }}
           >
