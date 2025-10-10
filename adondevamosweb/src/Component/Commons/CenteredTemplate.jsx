@@ -1,0 +1,27 @@
+import React from 'react';
+import { Box, Container } from '@mui/material';
+
+const CenteredTemplate = ({ children }) => (
+  <Box
+    sx={{
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundImage: 'url(/Background.JPEG)',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+    }}
+  >
+    <Container maxWidth="sm" sx={{ py: 9, backgroundColor: 'white', borderRadius: 3, boxShadow: 3 }}>
+      {children}
+    </Container>
+    <Box sx={{ mt: 1, mb: 2, textAlign: 'center', color: 'grey.700' }}>
+      Site made by <b>@MoysAkuma</b>
+    </Box>
+  </Box>
+);
+
+export default CenteredTemplate;

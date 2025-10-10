@@ -9,7 +9,7 @@ import
     } from '@mui/material';
 import  NewTrips  from "../Component/Trips/NewTrips";
 import  MostVotedPlaces  from "../Component/MostVotedPlaces";
-
+import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 
 function Home() {
     const theme = useTheme();
@@ -17,8 +17,7 @@ function Home() {
     const [loading, setLoading] = useState(true);
     
     return (
-      <div className="App">
-        <Container maxWidth="sm" sx={{ py: 8 }}>
+          <CenteredTemplate>
             <Typography variant="h3"  gutterBottom align="center" >
               ¿A donde vamos?
             </Typography>
@@ -32,9 +31,7 @@ function Home() {
             </Typography>
 
             <NewTrips/>
-            
-          </Container>
-          </div>
+          </CenteredTemplate>
     );
   };
   export default Home;

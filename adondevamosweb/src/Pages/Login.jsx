@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import 
     {
         TextField, 
@@ -17,6 +17,7 @@ import
     } from '@mui/material';
 
 import {  Visibility, VisibilityOff, AccountCircle } from '@mui/icons-material';
+import LoginIcon  from '@mui/icons-material/Login';
 import { useAuth }  from '../context/AuthContext'
 
 import config from '../Resources/config';
@@ -111,101 +112,128 @@ function Login(){
   };
 
     return (
-        <Container maxWidth="sm" sx={{ py: 8 }}>
-            <Typography variant="h6"  gutterBottom align="center">
-                A donde vamos
-            </Typography>
-            <Typography variant="h6"  gutterBottom align="center">
-                Log In
-            </Typography>
-            <Box
-                component="form"
-                onSubmit={handleSubmit}
-                sx={{
+        <Box
+            sx={{
+                minHeight: '100vh',
                 display: 'flex',
-                flexDirection: 'column',
-                gap: 3,
-                width: '100%'
-            }}>
-                <TextField
-                    id="email"
-                    name="email"
-                    label="Email"
-                    placeholder="Email or Tag"
-                    variant="outlined"
-                    onChange={handleChange}
-                    size={isMobile ? 'small' : 'medium'}
-                    value={formLogIn.email}
-                    fullWidth
-                    required
-                    InputLabelProps={{
-                            shrink: true,
-                    }}
-                    slotProps={{
-                        input: {
-                            endAdornment: (
-                                <InputAdornment position="end">
-                                    <IconButton
-                                        edge="end"
-                                    >
-                                    { <AccountCircle /> }
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#f5f5f5'
+            }}
+        >
+            <Container maxWidth="sm" sx={{ py: 8, boxShadow: 3, borderRadius: 2, backgroundColor: 'white' }}>
+                <Typography variant="h6"  gutterBottom align="center">
+                    A donde vamos
+                </Typography>
+                
+                <Box
+                    component="form"
+                    onSubmit={handleSubmit}
+                    sx={
+                        {
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 3,
+                            width: '100%',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                        }
+                    }
+                >
+                    <Typography 
+                        variant="h6"  
+                        gutterBottom 
+                        align="center">
+                        Log In
+                    </Typography>
+                    
+                    <TextField
+                        id="email"
+                        name="email"
+                        label="Email"
+                        placeholder="Email or Tag"
+                        variant="standard"
+                        onChange={handleChange}
+                        size={ isMobile ? 'small' : 'medium' }
+                        value={formLogIn.email}
+                        fullWidth
+                        required
+                        InputLabelProps={{
+                                shrink: true,
+                        }}
+                        slotProps={{
+                            input: {
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            edge="end"
+                                        >
+                                        { <AccountCircle /> }
+                                        </IconButton>
+                                    </InputAdornment>
+                                )
+                            }
+                        }}
+                    />
+
+                    <TextField
+                        id="password"
+                        name="password"
+                        label="Password"
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="Password"
+                        variant="standard"
+                        onChange={handleChange}
+                        size={isMobile ? 'small' : 'medium'}
+                        value={formLogIn.password}
+                        fullWidth
+                        required
+                        slotProps={{
+                            input: {
+                                endAdornment: (
+                                    <InputAdornment position="end">
+                                        <IconButton
+                                            aria-label={
+                                                showPassword ? 'hide the password' : 'display the password'
+                                            }
+                                            onClick={handleClickShowPassword}
+                                            edge="end"
+                                        >
+                                        {showPassword ? <VisibilityOff /> : <Visibility />}
                                     </IconButton>
                                 </InputAdornment>
-                            )
-                        }
-                    }}
-                />
-
-                <TextField
-                    id="password"
-                    name="password"
-                    label="Password"
-                    type={showPassword ? 'text' : 'password'}
-                    placeholder="Password"
-                    variant="outlined"
-                    onChange={handleChange}
-                    size={isMobile ? 'small' : 'medium'}
-                    value={formLogIn.password}
-                    fullWidth
-                    required
-                    slotProps={{
-                        input: {
-                            endAdornment: (
-                                <InputAdornment position="end">
-                                    <IconButton
-                                        aria-label={
-                                            showPassword ? 'hide the password' : 'display the password'
-                                        }
-                                        onClick={handleClickShowPassword}
-                                        edge="end"
-                                    >
-                                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                                </IconButton>
-                            </InputAdornment>
-                            )
-                        }
-                    }}
-                />
-                {
-                    errors.login ? 
-                    (<>
-                        <Alert severity="error">
-                        <AlertTitle>Login failed! </AlertTitle>
-                        Credentials not valid
-                        </Alert>
-                    </>
-                    ) : (<></>)
-                }
-                <Button 
-                    type="submit" 
-                    disabled={isSubmitting}
-                    variant="text"
-                    size="small"
-                    
-                    >
-                    Log In
-                </Button>
-            </Box>      
-        </Container>);
+                                )
+                            }
+                        }}
+                    />
+                    {
+                        errors.login ? 
+                        (<>
+                            <Alert severity="error">
+                            <AlertTitle>Login failed! </AlertTitle>
+                            Credentials not valid
+                            </Alert>
+                        </>
+                        ) : (<></>)
+                    }
+                    <Button 
+                        type="submit" 
+                        disabled={isSubmitting}
+                        variant="text"
+                        size="small"
+                        startIcon={ <LoginIcon/> }
+                        >
+                        Log In
+                    </Button>
+                    <Typography variant="body2" align="center">
+                        Recover password <Link to="/RecoverPassword">here</Link>
+                    </Typography>
+                    <Typography variant="body2" align="center">
+                        Don't have an account? <Link to="/CreateAccount">Create one</Link>
+                    </Typography>
+                </Box>
+            </Container>
+        </Box>
+    );
 }
 export default Login;

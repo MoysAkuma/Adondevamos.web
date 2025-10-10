@@ -9,7 +9,7 @@ import
         Typography,
         Box,ButtonGroup
     } from '@mui/material';
-import { Flight, Search } from '@mui/icons-material';
+import { Flight, Search, Person } from '@mui/icons-material';
 import TripCard from "../Component/View/TripCard";
 
  const MainTrips = () => {
@@ -20,7 +20,10 @@ import TripCard from "../Component/View/TripCard";
     },[]);
 
     return (
-    <Container maxWidth="sm" sx={{ py: 8 }}>
+    <Container maxWidth="md" sx={{ py: 8, backgroundColor: '#f5f5f5', borderRadius: 2 }}>
+        <Typography variant="h4" align="center" gutterBottom>
+            Trips
+        </Typography>
         <Box
             component=""
             sx={{
@@ -30,13 +33,10 @@ import TripCard from "../Component/View/TripCard";
             width: '100%'
             }}
         >
-            <Typography variant="h5" align="center">
-                Trips
-            </Typography>
             {
                 isUser ? (
                     <>
-                        <ButtonGroup variant="text" aria-label="text button group" fullWidth sx={{ mt: 2, mb: 2 }}>
+                        <ButtonGroup variant="contained" color="primary" fullWidth sx={{ mt: 2, mb: 4 }}>
                             <Button variant="text" 
                                 startIcon={ <Flight/> }
                                 href="/CreateTrip" >
@@ -52,10 +52,13 @@ import TripCard from "../Component/View/TripCard";
                     </>
                 ) : 
                 (   <>
-                        <Typography variant="body1" align="right">
-                            You need to create an account and login, then you can create a trip and share with your friends.
-                        </Typography>
-                        <ButtonGroup variant="text" aria-label="text button group" fullWidth sx={{ mt: 2, mb: 2 }}>
+                        <ButtonGroup variant="contained" color="primary" fullWidth sx={{ mt: 2, mb: 4 }}>
+                            <Button 
+                                variant="text" 
+                                startIcon={ <Person/> }
+                                href="/login" >
+                                    Login or Create account
+                            </Button>
                             <Button variant="text" 
                                 endIcon={ <Search/> }
                                 href="/SearchTrip" >
@@ -72,20 +75,22 @@ import TripCard from "../Component/View/TripCard";
                 A trip is a list of places you want to visit with your friends.
             </Typography>
 
-            <TripCard
-                tripinfo={{
-                    name: "Trip Name Example",
-                    description: "Trip Description Example",
-                    owner:{ tag: "User_Tag" },
-                    statics:{ Votes: { Total:0 } },
-                    initialdate: null,
-                    finaldate: null,
-                    id: 0,
-                    itinerary: [
-                        { id: 0, name: "Place Name Example", location: "Location 1" }
-                    ],
-                }}
-            />
+            <Box sx={{ p: 3, backgroundColor: 'white', borderRadius: 2, boxShadow: 2 }}>
+                <TripCard
+                    tripinfo={{
+                        name: "Trip Name Example",
+                        description: "Trip Description Example",
+                        owner:{ tag: "User_Tag" },
+                        statics:{ Votes: { Total:0 } },
+                        initialdate: null,
+                        finaldate: null,
+                        id: 0,
+                        itinerary: [
+                            { id: 0, name: "Place Name Example", location: "Location 1" }
+                        ],
+                    }}
+                />
+            </Box>
             
 
         </Box>

@@ -15,7 +15,8 @@ import
         List,
         ListItem,
         ListItemIcon,
-        ListItemText
+        ListItemText,
+        Tooltip
     } from '@mui/material';
 
 import { Visibility, FlightLand, FlightTakeoff, Place, Edit } from "@mui/icons-material";
@@ -69,18 +70,22 @@ function TripCard ({
      
       return (<>
           <IconButton aria-label="view">
+            <Tooltip title="View Trip">
             <Visibility 
               onClick={ (x) => gotoViewTrip(tripinfo) } 
               sx={{color: grey[500]}}
             />
+            </Tooltip>
           </IconButton>
           {    
             (isOwner) ? (
             <IconButton aria-label="view">
-              <Edit 
-                onClick={ (x) => gotoEditTrip(tripinfo) } 
-                sx={{color: grey[500]}}
-                />
+              <Tooltip title="Edit Trip">
+                <Edit 
+                  onClick={ (x) => gotoEditTrip(tripinfo) } 
+                  sx={{color: grey[500]}}
+                  />
+                </Tooltip>
             </IconButton>
           ) : (<></>)
           }
@@ -88,7 +93,7 @@ function TripCard ({
         )
     }
     const generateSubHeader = (initialdate, finaldate) => {
-      if( !initialdate || !finaldate ) return "dates of your trip";
+      if( !initialdate || !finaldate ) return "Initial and final dates";
       return formatDate(initialdate) + " to " + formatDate(finaldate);
     }
     return(
