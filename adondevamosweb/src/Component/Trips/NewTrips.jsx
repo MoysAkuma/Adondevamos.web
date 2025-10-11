@@ -5,7 +5,8 @@ import config from "../../Resources/config";
 import 
     {
         Typography,
-        Box
+        Box,
+        Grid
     } from '@mui/material';
 
 function NewTrips(){
@@ -38,29 +39,26 @@ function NewTrips(){
       <Typography variant="span" component="span" gutterBottom align="right">
         Trips created by users like you
       </Typography>
-      <Box
-        sx={{
-        display: 'grid',
-        gap: 3,
-        width: '100%'
-      }}
-      >
+      <Grid container spacing={3}>
         {
             NewTripsList.length > 0 ? NewTripsList.map(
                 (x)=>(
-                    <TripCard 
-                      key={x.id} 
-                      tripinfo={x}
-                    />
+                    <Grid item xs={12} sm={6} md={4} lg={3} key={x.id || x.name}>
+                      <TripCard 
+                        tripinfo={x}
+                      />
+                    </Grid>
                   )
             ) : 
-            <Typography variant="span" 
-              component="span" 
-              gutterBottom align="left">
-              No trips added yet. Please create and user and help me!
-            </Typography>
+            <Grid item xs={12}>
+              <Typography variant="span" 
+                component="span" 
+                gutterBottom align="left">
+                No trips added yet. Please create and user and help me!
+              </Typography>
+            </Grid>
         }
-        </Box>
+        </Grid>
         </>
     );
 }

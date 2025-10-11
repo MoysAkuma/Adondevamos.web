@@ -18,7 +18,7 @@ const CenteredTemplate = ({ children }) => (
     <Container maxWidth="sm" sx={{ py: 9, backgroundColor: 'white', borderRadius: 3, boxShadow: 3 }}>
       {children}
     </Container>
-    <Box sx={{ mt: 1, mb: 2, textAlign: 'center', color: 'grey.700' }}>
+    <Box sx={{ mt: 1, mb: 2, textAlign: 'center', color: 'white' }}>
       Site made by <b>@MoysAkuma</b>
     </Box>
   </Box>

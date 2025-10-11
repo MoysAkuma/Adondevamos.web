@@ -2,15 +2,17 @@ import { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import 
-    {
-        Stack, 
-        Button,
-        Container,
-        Typography,
-        Box,ButtonGroup
-    } from '@mui/material';
+{
+    Stack, 
+    Button,
+    Container,
+    Typography,
+    Box,ButtonGroup
+} from '@mui/material';
 import { Flight, Search, Person } from '@mui/icons-material';
 import TripCard from "../Component/View/TripCard";
+import NewTrips from "../Component/Trips/NewTrips";
+import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 
  const MainTrips = () => {
     const [isUser, setIsUser] = useState(false);
@@ -20,19 +22,20 @@ import TripCard from "../Component/View/TripCard";
     },[]);
 
     return (
-    <Container maxWidth="md" sx={{ py: 8, backgroundColor: '#f5f5f5', borderRadius: 2 }}>
-        <Typography variant="h4" align="center" gutterBottom>
-            Trips
-        </Typography>
-        <Box
-            component=""
-            sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-            width: '100%'
-            }}
-        >
+        <CenteredTemplate>
+        <>
+            <Typography variant="h4" align="center" gutterBottom>
+                Trips
+            </Typography>
+            <Box
+                component=""
+                sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+                width: '100%'
+                }}
+            >
             {
                 isUser ? (
                     <>
@@ -92,8 +95,11 @@ import TripCard from "../Component/View/TripCard";
                 />
             </Box>
             
+            <NewTrips />
 
-        </Box>
-    </Container>);
+            </Box>
+        </>
+        </CenteredTemplate>
+    );
  }
  export default MainTrips;

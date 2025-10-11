@@ -84,7 +84,8 @@ export default function TripFilters( { searchMethod } ) {
                         None 
                     </span>
                 )}
-                <Edit size="x-small"
+                <Edit 
+                    fontSize="small"
                     style={{ cursor: 'pointer', marginLeft: '5px' }} 
                     onClick={ changeShowInput(field)}
                 />

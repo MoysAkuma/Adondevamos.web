@@ -15,6 +15,7 @@ import
         Checkbox
         
     } from '@mui/material';
+import CenteredTemplate from '../Component/Commons/CenteredTemplate';
 
 import CountriesSelectList from "../Component/Catalogues/CountriesSelectList";
 import StateSelect from "../Component/Catalogues/StateSelect";
@@ -25,8 +26,10 @@ import SearchPlaces from '../Component/Trips/SearchPlaces';
 import Itinerary from '../Component/Trips/Itinerary';
 import MemberList from '../Component/Trips/MemberList';
 import config from "../Resources/config";
+import { useAuth } from '../context/AuthContext';
 
-function CreateTrip(){
+function CreateTrip() {
+    const auth = useAuth();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     
@@ -120,12 +123,12 @@ function CreateTrip(){
       }
 
       // Validate for field initialDate
-      if (!formTrip.initialDate != null) {
+      if (!formTrip.initialdate != null) {
         throw new Error('set initial date');
       }
 
       // Validate for field finalDate
-      if (!formTrip.finalDate != null) {
+      if (!formTrip.finaldate != null) {
         throw new Error('set final date');
       }
 
@@ -149,7 +152,7 @@ function CreateTrip(){
       });
       if(response.status == 200){
         //Save member list
-        if(addedMemberList.length > 0 ){
+        if  ( addedMemberList.length > 0 ){
           saveMemberlist(response.data.info);
         }
         //Save itinerary
@@ -161,14 +164,16 @@ function CreateTrip(){
       setSubmitSuccess(true);
     
       // Reset form after successful submission
-      setFormTrip({
-        name : '',
-        description : '',
-        initialDate : "",
-        finalDate : "",
-        isinternational : false,
-        memberlist : []
-      });
+      setFormTrip(
+        {
+          name : '',
+          description : '',
+          initialdate : "",
+          finaldate : "",
+          isinternational : false,
+          memberlist : []
+        }
+      );
       
     } catch (error) {
       setSubmitError(error.response?.data?.message || error.message);
@@ -280,7 +285,7 @@ function CreateTrip(){
   }
 
     return (
-        <Container maxWidth="sm" sx={{ py: 8 }}>
+        <CenteredTemplate>
             <Box
               component="form"
               onSubmit={handleSubmit}
@@ -304,7 +309,7 @@ function CreateTrip(){
                       name="name"
                       label="Name"
                       placeholder="Name of this trip"
-                      variant="outlined"
+                      variant="standard"
                       onChange={handleChange}
                       size={isMobile ? 'small' : 'medium'}
                       value={formTrip.name}
@@ -317,11 +322,11 @@ function CreateTrip(){
                     InputLabelProps={{
                       shrink: true,
                     }}
-                    id="initalDate"
-                    name="initalDate"
+                    id="initialdate"
+                    name="initialdate"
                     label="Initial Date"
                     placeholder="Initial Date of this trip"
-                    variant="outlined"
+                    variant="standard"
                     onChange={handleChange}
                     size={isMobile ? 'small' : 'medium'}
                     value={formTrip.initialdate}
@@ -338,7 +343,7 @@ function CreateTrip(){
                     name="finaldate"
                     label="Final Date"
                     placeholder="Initial Date of this trip"
-                    variant="outlined"
+                    variant="standard"
                     onChange={handleChange}
                     size={isMobile ? 'small' : 'medium'}
                     value={formTrip.finaldate}
@@ -362,7 +367,8 @@ function CreateTrip(){
                       <AlertTitle>This place was already added </AlertTitle>
                       Please, select another place
                     </Alert>
-                  </>) : (<></>)
+                  </>) : 
+                  (<></>)
                 }
                 
                 {
@@ -424,7 +430,7 @@ function CreateTrip(){
                   Create Trip
                 </Button>
             </Box>
-        </Container>
+        </CenteredTemplate>
     );
 }
 

@@ -18,8 +18,8 @@ import
         ListItemText,
         Tooltip
     } from '@mui/material';
-
-import { Visibility, FlightLand, FlightTakeoff, Place, Edit } from "@mui/icons-material";
+import { ExpandMore, Visibility, FlightLand, FlightTakeoff, Place, Edit } 
+from "@mui/icons-material";
 
 import { red,grey, common } from '@mui/material/colors';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -111,6 +111,11 @@ function TripCard ({
             action={generateOptions(tripinfo.owner.id)}
             title={tripinfo.name}
             subheader={generateSubHeader(tripinfo.initialdate, tripinfo.finaldate)}
+          />
+          <CardMedia
+            component="img"
+            image="/PlaceHolder_2.jpg"
+            height="194"
           />
           <CardContent
           sx={{ bgcolor: "#F9E1D4" }}

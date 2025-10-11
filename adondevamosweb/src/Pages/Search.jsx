@@ -7,7 +7,7 @@ import axios from 'axios';
 import config from "../Resources/config";
 import NewTrips from "../Component/Trips/NewTrips";
 import TripFilters from "../Component/Trips/TripFilters";
-
+import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 
 
 export default function Search() {
@@ -20,7 +20,9 @@ export default function Search() {
                 <TripFilters 
                     searchMethod={searchTripsByFilters} 
                 />
-                <NewTrips /> 
+                {
+                  (searchResults.length !== 0) && controlViewResult(opt)
+                }
             </>;
         }
     }
@@ -37,28 +39,26 @@ export default function Search() {
             {
                 filters : filters
             }
-            
         ).then( (response) => {
-            console.log( response.data.info);
-            setSearchResults(response.data.info);
+            setSearchResults( response.data.info );
         }).catch( (error) => {
             console.error("There was an error searching trips by filters!", error);
         });    
     }
 
     return (
-        <Container maxWidth="sm"  sx={{ py: 8 }}>
-            <Typography variant="h5" align="center">
-                Search Page {opt}
-            </Typography>
-            {controlViewOption(opt)}
-            {
-                controlViewResult(opt)
-            }
-            <img 
+        <CenteredTemplate>
+            <>
+                <Typography variant="h5" align="center">
+                    Search Page {opt}
+                </Typography>
+                {controlViewOption(opt)}
+                
+                <img 
                 src="/UnderConstruction.png" 
                 alt="UnderConstruction" 
                 style={{ width: '100%', height: 'auto', marginTop: '20px' }} />
-        </Container>
+            </>
+        </CenteredTemplate>
     );
 }

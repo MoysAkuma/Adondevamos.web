@@ -63,7 +63,6 @@ export default function App() {
           flexGrow: 1}}>
           <AppContent />
         </div>
-        
       </AuthProvider>
     </BrowserRouter>
   );
