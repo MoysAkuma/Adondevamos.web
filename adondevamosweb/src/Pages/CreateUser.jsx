@@ -454,7 +454,7 @@ function CreateUser(){
                 <Button 
                     type="submit" 
                     disabled={isSubmitting}
-                    variant="contained"
+                    variant="text"
                     onClick={handleSubmit}
                 >
                     Create User

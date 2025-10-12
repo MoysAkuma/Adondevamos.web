@@ -44,7 +44,6 @@ export default function Create() {
     return (
         <CenteredTemplate>
             <>
-                
                 <img 
                 src="/UnderConstruction.png" 
                 alt="UnderConstruction" 

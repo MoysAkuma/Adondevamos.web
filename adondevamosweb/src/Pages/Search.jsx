@@ -8,6 +8,7 @@ import config from "../Resources/config";
 import NewTrips from "../Component/Trips/NewTrips";
 import TripFilters from "../Component/Trips/TripFilters";
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
+import TripsResultSearch from "../Component/Trips/TripsResultSearch";
 
 
 export default function Search() {
@@ -30,7 +31,7 @@ export default function Search() {
     const controlViewResult = (opt) => {
         if (searchResults.length === 0 ) return <></>;
         if (opt === "Trips") {
-            return searchResults.map((trip) => (<p key={trip.id || trip.name}>{trip.name}</p>));
+            return <TripsResultSearch results={searchResults} />;
         }
     }
     const searchTripsByFilters = async (filters) => {
@@ -53,11 +54,6 @@ export default function Search() {
                     Search Page {opt}
                 </Typography>
                 {controlViewOption(opt)}
-                
-                <img 
-                src="/UnderConstruction.png" 
-                alt="UnderConstruction" 
-                style={{ width: '100%', height: 'auto', marginTop: '20px' }} />
             </>
         </CenteredTemplate>
     );

@@ -27,6 +27,7 @@ import Itinerary from '../Component/Trips/Itinerary';
 import MemberList from '../Component/Trips/MemberList';
 import config from "../Resources/config";
 import { useAuth } from '../context/AuthContext';
+import FormTrips from '../Component/Trips/FormTrips';
 
 function CreateTrip() {
     const auth = useAuth();
@@ -304,52 +305,9 @@ function CreateTrip() {
                   About your trip
                 </Typography>
 
-                  <TextField
-                      id="name"
-                      name="name"
-                      label="Name"
-                      placeholder="Name of this trip"
-                      variant="standard"
-                      onChange={handleChange}
-                      size={isMobile ? 'small' : 'medium'}
-                      value={formTrip.name}
-                      fullWidth
-                      required                      
-                  />
-                
-                  <TextField
-                    type="date"
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    id="initialdate"
-                    name="initialdate"
-                    label="Initial Date"
-                    placeholder="Initial Date of this trip"
-                    variant="standard"
-                    onChange={handleChange}
-                    size={isMobile ? 'small' : 'medium'}
-                    value={formTrip.initialdate}
-                    fullWidth
-                    required
-                  />
-                
-                  <TextField
-                    type="date"
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    id="finaldate"
-                    name="finaldate"
-                    label="Final Date"
-                    placeholder="Initial Date of this trip"
-                    variant="standard"
-                    onChange={handleChange}
-                    size={isMobile ? 'small' : 'medium'}
-                    value={formTrip.finaldate}
-                    fullWidth
-                    required
-                  />      
+                <FormTrips formTrip={formTrip} 
+                handleChange={handleChange} />
+
                 <Typography variant="body1"   align="left">
                   Add places to itinerary
                 </Typography>
