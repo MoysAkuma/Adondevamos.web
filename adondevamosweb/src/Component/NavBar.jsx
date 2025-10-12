@@ -60,7 +60,6 @@ export default function NavBar() {
               ) 
                : 
               (<>
-                <li><a href="/CreateAccount" onClick={closeMenu}>Create an account</a></li>
                 <li><a href="/Login" onClick={closeMenu}>Login</a> </li>
               </>)
           }

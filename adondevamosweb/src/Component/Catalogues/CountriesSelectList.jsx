@@ -14,6 +14,8 @@ function CountriesSelectList({ val, onChangecall, catCountries}){
             value={val}
             onChange={onChangecall}
             fullWidth
+            size="small"
+            variant="standard"
             >
             {
                 catCountries.map(

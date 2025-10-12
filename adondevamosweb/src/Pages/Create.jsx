@@ -5,24 +5,19 @@ import { Container, Box, Typography } from "@mui/material";
 import axios from 'axios';
 
 import config from "../Resources/config";
-import NewTrips from "../Component/Trips/NewTrips";
-import TripFilters from "../Component/Trips/TripFilters";
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 
 
-export default function Search() {
+export default function Create() {
     //Module to show the search page
     const { opt } = useParams();
     const [searchResults, setSearchResults] = useState([]);
     const controlViewOption = (opt) => {
         if (opt === "Trips") {
             return <>
-                <TripFilters 
-                    searchMethod={searchTripsByFilters} 
-                />
-                {
-                  (searchResults.length !== 0) && controlViewResult(opt)
-                }
+                <Typography variant="h5" align="center">
+                    Trip Creation Page
+                </Typography>
             </>;
         }
     }
@@ -49,10 +44,6 @@ export default function Search() {
     return (
         <CenteredTemplate>
             <>
-                <Typography variant="h5" align="center">
-                    Search Page {opt}
-                </Typography>
-                {controlViewOption(opt)}
                 
                 <img 
                 src="/UnderConstruction.png" 

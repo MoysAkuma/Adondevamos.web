@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import TripCard from "../View/TripCard";
+import TripCard from "./TripCard";
 import axios from 'axios';
 import config from "../../Resources/config";
 import 
     {
         Typography,
-        Box
+        Box,
+        Stack,
+        Divider
     } from '@mui/material';
 
 function NewTrips(){
@@ -38,29 +40,29 @@ function NewTrips(){
       <Typography variant="span" component="span" gutterBottom align="right">
         Trips created by users like you
       </Typography>
-      <Box
-        sx={{
-        display: 'grid',
-        gap: 3,
-        width: '100%'
-      }}
-      >
+      <Stack spacing={2} sx={{ overflowX: 'auto', padding: 1, marginTop: 1 }}>
         {
             NewTripsList.length > 0 ? NewTripsList.map(
                 (x)=>(
-                    <TripCard 
-                      key={x.id} 
-                      tripinfo={x}
-                    />
+                    <>
+                      <TripCard 
+                        tripinfo={x}
+                        key={x.id || x.name}
+                      />
+                      <Divider />
+                    </>
+                    
                   )
             ) : 
-            <Typography variant="span" 
-              component="span" 
-              gutterBottom align="left">
-              No trips added yet. Please create and user and help me!
-            </Typography>
+            
+              <Typography variant="span" 
+                component="span" 
+                gutterBottom align="left">
+                No trips added yet. Please create and user and help me!
+              </Typography>
+            
         }
-        </Box>
+        </Stack>
         </>
     );
 }

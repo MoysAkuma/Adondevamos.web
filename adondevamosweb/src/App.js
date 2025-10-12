@@ -56,10 +56,13 @@ export default function App() {
         <div style={{ minHeight: '100vh', 
           display: 'flex', 
           flexDirection: 'column',
-          backgroundColor: '#f5f5f5' }}>
+          backgroundImage: 'url(/Background.JPEG)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          flexGrow: 1}}>
           <AppContent />
         </div>
-        <p>Site made by <b>@MoysAkuma</b> </p>
       </AuthProvider>
     </BrowserRouter>
   );
