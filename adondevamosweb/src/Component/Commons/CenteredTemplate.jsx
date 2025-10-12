@@ -15,7 +15,22 @@ const CenteredTemplate = ({ children }) => (
       backgroundRepeat: 'no-repeat',
     }}
   >
+    
     <Container maxWidth="sm" sx={{ py: 9, backgroundColor: 'white', borderRadius: 3, boxShadow: 3 }}>
+      <img 
+        src="/Logo.png" 
+        width="120" 
+        height="120" 
+        alt="Logo" 
+        style={
+          { 
+            marginBottom: '8px', 
+            display: 'block', 
+            marginLeft: 'auto', 
+            marginRight: 'auto' 
+          }
+        } 
+      />
       {children}
     </Container>
     <Box sx={{ mt: 1, mb: 2, textAlign: 'center', color: 'white' }}>
