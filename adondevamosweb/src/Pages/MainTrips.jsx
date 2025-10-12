@@ -48,16 +48,19 @@ import CenteredTemplate from "../Component/Commons/CenteredTemplate";
                                     Create a new trip
                             </Button>
                         
-                        <Button variant="text" 
-                            endIcon={ <Search/> }
-                            href="/Search/Trips" >
-                                Search for trips
-                        </Button>
+                            <Button variant="text" 
+                                endIcon={ <Search/> }
+                                href="/Search/Trips" >
+                                    Search for trips
+                            </Button>
                         </ButtonGroup>
                     </>
                 ) : 
                 (   <>
-                        <ButtonGroup variant="contained" color="primary" fullWidth sx={{ mt: 2, mb: 4 }}>
+                        <ButtonGroup 
+                            variant="contained" 
+                            color="primary" 
+                            fullWidth sx={{ mt: 2, mb: 4 }}>
                             <Button 
                                 variant="text" 
                                 startIcon={ <Person/> }
@@ -83,7 +86,8 @@ import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 
             <Box sx={{ p: 3, backgroundColor: 'white', borderRadius: 2, boxShadow: 2 }}>
                 <TripCard
-                    tripinfo={{
+                    tripinfo={
+                        {
                         name : "Trip Name Example",
                         description : "Trip Description Example",
                         owner : { tag: "User_Tag" },
@@ -104,7 +108,7 @@ import CenteredTemplate from "../Component/Commons/CenteredTemplate";
                 />
             </Box>
             
-            <NewTrips />
+                <NewTrips />
 
             </Box>
         </>

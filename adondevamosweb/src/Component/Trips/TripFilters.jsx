@@ -13,7 +13,6 @@ import { TextField,
     Button,
     ButtonGroup
  } from "@mui/material";
-import Search from "../../Pages/Search";
 
 export default function TripFilters( { searchMethod } ) {
     const formatDate = (dateString) => {
@@ -150,6 +149,7 @@ export default function TripFilters( { searchMethod } ) {
                 membertrips: false
             }
         );
+
         setSelectedFilters({
             name: null,
             initialdate: null,
@@ -176,13 +176,19 @@ export default function TripFilters( { searchMethod } ) {
                 style={{ marginTop: '10px' }} 
                 variant="outlined"  
                 startIcon={ <SearchIcon /> }
-                onClick={ (e) => { e.preventDefault(); searchMethod(filters); } }>Apply Filters
+                onClick={ 
+                    (e) => { 
+                        e.preventDefault(); 
+                        searchMethod(filters); 
+                    } }>
+                        Apply Filters
             </Button>
             <Button 
             style={{ marginTop: '10px' }} 
             variant="outlined"  
             startIcon={ <Delete /> }
-            onClick={ (e) => { e.preventDefault(); clearFilters(); } }>Clear Filters
+            onClick={ (e) => { e.preventDefault(); clearFilters(); } }>
+                Clear Filters
             </Button>
         </ButtonGroup>
         
