@@ -10,7 +10,7 @@ import
     Box,ButtonGroup
 } from '@mui/material';
 import { Flight, Search, Person } from '@mui/icons-material';
-import TripCard from "../Component/View/TripCard";
+import TripCard from "../Component/Trips/TripCard";
 import NewTrips from "../Component/Trips/NewTrips";
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 
@@ -39,7 +39,9 @@ import CenteredTemplate from "../Component/Commons/CenteredTemplate";
             {
                 isUser ? (
                     <>
-                        <ButtonGroup variant="contained" color="primary" fullWidth sx={{ mt: 2, mb: 4 }}>
+                        <ButtonGroup variant="contained" 
+                        color="primary" 
+                        fullWidth sx={{ mt: 2, mb: 4 }}>
                             <Button variant="text" 
                                 startIcon={ <Flight/> }
                                 href="/CreateTrip" >
@@ -64,7 +66,7 @@ import CenteredTemplate from "../Component/Commons/CenteredTemplate";
                             </Button>
                             <Button variant="text" 
                                 endIcon={ <Search/> }
-                                href="/SearchTrip" >
+                                href="/Search/Trip" >
                                     Search for trips
                             </Button>
                         </ButtonGroup>

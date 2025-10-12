@@ -15,6 +15,7 @@ function StateSelect({ val, onChangecall, catStates}){
             value={val}
             onChange={onChangecall}
             fullWidth
+            variant="standard"
             >
             {  
                 catStates.map(

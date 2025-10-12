@@ -425,7 +425,7 @@ function CreateTrip() {
                 <Button 
                   type="submit" 
                   disabled={isSubmitting}
-                  variant="contained"
+                  variant="text"
                   >
                   Create Trip
                 </Button>

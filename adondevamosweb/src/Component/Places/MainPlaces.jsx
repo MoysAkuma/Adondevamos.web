@@ -3,8 +3,9 @@ import { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { Container, Box, Typography, Button, ButtonGroup, List, ListItem, ListItemText } from "@mui/material";
-import { Flight, LocationCity, Search } from '@mui/icons-material';
-import PlaceCard from "../View/PlaceCard";
+import { Flight, LocationCity, Search, Person } from '@mui/icons-material';
+import PlaceCard from "./PlaceCard";
+import CenteredTemplate from "../Commons/CenteredTemplate";
 
 const GenerateUserSection = () => { 
         if( localStorage.getItem('role') === 'Admin' ){
@@ -35,9 +36,21 @@ const GenerateUserSection = () => {
                 </>);
             } else {
                 return (
-                    <Typography variant="body1" align="right">
-                        You need to be logged in to create a place. Please log in or create an account.
-                    </Typography>
+                    <>
+                        <Button 
+                        variant="text" 
+                        startIcon={ <Person/> }
+                        href="/login" >
+                            Login or Create account
+                        </Button>
+                        <Button variant="text" 
+                            endIcon={ <Search/> }
+                            size="small"
+                            href="/Search/Places" >
+                            Search Places
+                        </Button>
+
+                    </>
                 );
             }
     }
@@ -53,11 +66,20 @@ export default function MainPlaces() {
     },[]);
 
     return (
+        <CenteredTemplate>
         <>
-        <Container maxWidth="sm"  sx={{ py: 8 }}>
-            <Typography variant="h5" align="center">
+            <Typography variant="h5" 
+            align="center">
                 Places
             </Typography>
+            <ButtonGroup variant="contained" 
+            color="primary"
+            aria-label="text button group" 
+            fullWidth sx={{ mt: 2, mb: 4 }}>
+            {
+                UserSection
+            }
+            </ButtonGroup>
             <Typography variant="h6" align="left">
                 What is a Place in AdondeVamos?
             </Typography>
@@ -72,7 +94,8 @@ export default function MainPlaces() {
                 location: "Place Location",
                 description: "Place Description",
                 facilities: "Wc, Parking, Wifi",
-                statics: {Votes: {Total: 10}}
+                statics: {Votes: {Total: '0'}},
+                id: 0
             }} />
             <List sx={{ width: '80%', alignContent:'center' , bgcolor: 'background.paper' }}>
                 <ListItemText 
@@ -88,13 +111,10 @@ export default function MainPlaces() {
                     secondary="Facilities that the place offers" 
                 />
             </List>
-            <ButtonGroup variant="text" aria-label="text button group" fullWidth sx={{ mt: 2, mb: 2 }}>
-            {
-                UserSection
-            }
-            </ButtonGroup>
             
-        </Container>
+
+        
         </>
+        </CenteredTemplate>
     );
 }

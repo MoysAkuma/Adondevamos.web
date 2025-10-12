@@ -20,6 +20,8 @@ import CitiesSelect from "../Component/Catalogues/CitiesSelect";
 
 import config from "../Resources/config";
 
+import CenteredTemplate from "../Component/Commons/CenteredTemplate";
+
 function CreateUser(){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -280,7 +282,7 @@ function CreateUser(){
     },[]);
 
     return (
-        <Container maxWidth="sm" sx={{ py: 8 }}>
+        <CenteredTemplate>
             <Typography variant="h5" component="h1" gutterBottom align="center">
                 Create User
             </Typography>
@@ -459,7 +461,7 @@ function CreateUser(){
                 </Button>
 
             </Box>
-        </Container>
+        </CenteredTemplate>
     );
 }
 

@@ -22,6 +22,8 @@ import CitiesSelect from "../Component/Catalogues/CitiesSelect";
 
 import config from "../Resources/config";
 
+import CenteredTemplate from '../Component/Commons/CenteredTemplate';
+
 function CreatePlace() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -191,9 +193,9 @@ const facilitiesChange = (event) => {
           // Reset form after successful submission
           setformCreatePlace({
             name: '',
-            countryid: null,
-            stateid: null,
-            cityid: null,
+            countryid: "",
+            stateid: "",
+            cityid: "",
             description: '',
             address:'',
             ispublic: false
@@ -322,7 +324,7 @@ const facilitiesChange = (event) => {
       getFacilities();
     },[]);
   return (
-    <Container maxWidth="sm" sx={{ py: 8 }}>
+    <CenteredTemplate>
       <Typography variant="h6" component="h6" 
       gutterBottom align="center">
           Create Place
@@ -338,7 +340,7 @@ const facilitiesChange = (event) => {
         }}
       >
         <Typography variant="h6" component="h6" 
-        gutterBottom align="center">
+        gutterBottom align="left">
           Place Info
         </Typography>
 
@@ -347,7 +349,7 @@ const facilitiesChange = (event) => {
             name="name"
             label="Name"
             placeholder="Name of place"
-            variant="outlined"
+            variant="standard"
             onChange={handleChange}
             size={isMobile ? 'small' : 'medium'}
             value={formCreatePlace.name}
@@ -360,23 +362,27 @@ const facilitiesChange = (event) => {
           name="description"
           id="description"
           label="Description"
+          variant="standard"
           placeholder="About this place"
+          align="left"
           onChange={handleChange}
           value={formCreatePlace.description}
         />
+
+        <Typography variant="h6" component="h6" gutterBottom align="left">
+          Ubication
+        </Typography>
 
         <TextField
           fullWidth
           name="address"
           id="address"
           label="Address"
+          variant="standard"
+          placeholder="Address of place"
           onChange={handleChange}
           value={formCreatePlace.address}
         />
-
-        <Typography variant="h6" component="h6" gutterBottom align="center">
-          Ubication
-        </Typography>
 
         <CountriesSelectList 
           val={formCreatePlace.countryid} 
@@ -403,7 +409,8 @@ const facilitiesChange = (event) => {
           ) : <>Please, select a state.<br/></>
         }
                 
-        <Typography variant="h6" component="h6" gutterBottom align="center">
+        <Typography variant="h6" component="h6" 
+        gutterBottom align="left">
             Facilities
         </Typography>
 
@@ -453,12 +460,12 @@ const facilitiesChange = (event) => {
         <Button 
           type="submit" 
           disabled={isSubmitting}
-          variant="contained"
+          variant="text"
           >
           Create Place
         </Button>
       </Box>
-    </Container>
+    </CenteredTemplate>
   );
 };
 

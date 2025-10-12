@@ -14,6 +14,7 @@ function CitiesSelect({ val, onChangecall, catCities}){
         value={val}
         onChange={onChangecall}
         fullWidth
+        variant="standard"
         >
         {  
             catCities?.map((option) => (

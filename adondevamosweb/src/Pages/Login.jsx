@@ -21,6 +21,7 @@ import LoginIcon  from '@mui/icons-material/Login';
 import { useAuth }  from '../context/AuthContext'
 
 import config from '../Resources/config';
+import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 function Login(){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -112,16 +113,8 @@ function Login(){
   };
 
     return (
-        <Box
-            sx={{
-                minHeight: '100vh',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: '#f5f5f5'
-            }}
-        >
-            <Container maxWidth="sm" sx={{ py: 8, boxShadow: 3, borderRadius: 2, backgroundColor: 'white' }}>
+        <CenteredTemplate>
+            <>
                 <Typography variant="h6"  gutterBottom align="center">
                     A donde vamos
                 </Typography>
@@ -232,8 +225,8 @@ function Login(){
                         Don't have an account? <Link to="/CreateAccount">Create one</Link>
                     </Typography>
                 </Box>
-            </Container>
-        </Box>
+            </>
+        </CenteredTemplate>
     );
 }
 export default Login;

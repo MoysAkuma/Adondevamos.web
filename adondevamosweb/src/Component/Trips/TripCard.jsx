@@ -1,38 +1,63 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { Navigate, useNavigate } from 'react-router-dom';
 import 
-    {
-        Avatar, 
-        Button,
-        Typography,
-        Card,
-        CardHeader,
-        CardActions,
-        CardContent,
-        CardMedia,
-        IconButton,
-        Badge,
-        List,
-        ListItem,
-        ListItemIcon,
-        ListItemText,
-        Tooltip
-    } from '@mui/material';
-import { ExpandMore, Visibility, FlightLand, FlightTakeoff, Place, Edit } 
+  {
+    Avatar,
+    Typography,
+    Card,
+    CardHeader,
+    CardActions,
+    CardContent,
+    CardMedia,
+    IconButton,
+    Badge,
+    Collapse,
+    Tooltip
+  } from '@mui/material';
+import { ExpandMore, Visibility, FlightLand, 
+  FlightTakeoff, Place, Edit } 
 from "@mui/icons-material";
 
 import { red,grey, common } from '@mui/material/colors';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { styled } from '@mui/material/styles';
+import Itinerary from "./Itinerary";
 
 function TripCard ({
   tripinfo
 }) 
 {
+  const ExpandMore = styled((props) => {
+    const { expand, ...other } = props;
+      return <IconButton {...other} />;
+    })(({ theme }) => ({
+      marginLeft: 'auto',
+      transition: theme.transitions.create('transform', {
+      duration: theme.transitions.duration.shortest,
+    }),
+    variants: [
+      {
+        props: ({ expand }) => !expand,
+        style: {
+          transform: 'rotate(0deg)',
+        },
+      },
+      {
+        props: ({ expand }) => !!expand,
+        style: {
+          transform: 'rotate(180deg)',
+        },
+      },
+    ],
+  }));
     const navigate = useNavigate();
 
     const [expanded, setExpanded] = useState(false);
+
+    const[placeHolderImage, setPlaceHolderImage] = useState("/PlaceHolder.jpg");
 
     const handleExpandClick = () => {
       setExpanded(!expanded);
@@ -53,9 +78,7 @@ function TripCard ({
       navigate('/ViewPlace/'+place.id);
     };
 
-    
-
-
+  
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         return new Intl.DateTimeFormat('en-US', {
@@ -92,10 +115,21 @@ function TripCard ({
         </>
         )
     }
+
     const generateSubHeader = (initialdate, finaldate) => {
       if( !initialdate || !finaldate ) return "Initial and final dates";
       return formatDate(initialdate) + " to " + formatDate(finaldate);
     }
+    useEffect( ()=>{
+      switch( tripinfo.countryid){
+        case 1: //Mexico
+          setPlaceHolderImage("/PlaceHolder_MX.jpg");
+          break;
+        case 2: //Japan
+          setPlaceHolderImage("/PlaceHolder_JP.jpg");
+          break;
+      }
+    }, [tripinfo]);
     return(
         <Card>
           <CardHeader
@@ -114,8 +148,12 @@ function TripCard ({
           />
           <CardMedia
             component="img"
-            image="/PlaceHolder_2.jpg"
-            height="194"
+            image={placeHolderImage}
+            height="140"
+            alt="Trip image"
+            onClick={ (x) => gotoViewTrip(tripinfo) }
+            sx={{ cursor: 'pointer' }} 
+            object-fit="cover"
           />
           <CardContent
           sx={{ bgcolor: "#F9E1D4" }}
@@ -126,53 +164,51 @@ function TripCard ({
               }
             </Typography>
 
-            <Typography gutterBottom component="p" >
-              Itinerary
-            </Typography>
-            <Typography variant="div" sx={{ color: 'text.secondary' }}>
-              <List>
-                {
-                  tripinfo.itinerary.map(
-                    (item) => (
-                      <ListItem key={item.id}> 
-                        <ListItemIcon>
-                          <Place 
-                          fontSize="small"  
-                          sx={{color: red[500]}}
-                          />
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={item.name}
-                        />
-                        <IconButton 
-                          edge="end" 
-                          aria-label='actions'
-                        >
-                          <Visibility 
-                            fontSize="small" 
-                            onClick={(x) => gotoViewPlace(item)} 
-                            sx={{color: common.black}}
-                          />
-                        </IconButton>
-                      </ListItem>
-                    )
-                  )
-                }
-            </List>
-            </Typography>
+            
           </CardContent>
-          <CardActions disableSpacing sx={{ bgcolor: "#C9C1F8" }}>
+          <CardActions disableSpacing 
+          sx={{ bgcolor: "#C9C1F8" }}>
+            <Tooltip title="Vote Trip not implemented yet">
             <IconButton aria-label="vote">
-              <Badge 
-              color="secondary" 
-              badgeContent={tripinfo.statics.Votes.Total} max={999}>
-                <FavoriteIcon />
-              </Badge>
-            </IconButton>
-            <IconButton aria-label="share">
-              <ShareIcon />
-            </IconButton>
+                <Badge 
+                color="secondary" 
+                badgeContent={tripinfo.statics.Votes.Total} max={999}>
+                  <FavoriteIcon />
+                </Badge>
+              </IconButton>
+            </Tooltip>
+              <IconButton aria-label="share">
+                <ShareIcon />
+              </IconButton>
+              <ExpandMore
+                expand={expanded}
+                onClick={handleExpandClick}
+                aria-expanded={expanded}
+                aria-label="show more"
+                sx={{ marginLeft: 'auto' }}
+              >
+                { expanded ? <ExpandLessIcon /> : <ExpandMoreIcon /> }
+              </ExpandMore>
           </CardActions>
+           <Collapse in={expanded} timeout="auto" unmountOnExit>
+              <CardContent sx={{ bgcolor: "#edeba6ff" }}>
+                <Typography gutterBottom component="p" >
+                  Itinerary
+                </Typography>
+                {
+                  (tripinfo.itinerary.length == 0) ?
+                  <Typography component="p" sx={{ color: 'text.secondary' }}>
+                    No places added yet.
+                  </Typography>
+                  : 
+                  <>
+                    <Itinerary 
+                      tripinfo={tripinfo} 
+                    />
+                  </>
+                }
+              </CardContent>
+            </Collapse>
       </Card>
     );
 }

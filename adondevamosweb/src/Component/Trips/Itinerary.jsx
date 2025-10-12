@@ -4,22 +4,34 @@ import axios from 'axios';
 import { Typography, List, ListItem, ListItemText, IconButton, ListItemAvatar
     , Avatar
  } from '@mui/material';
-import { FlightLand, FlightTakeoff, Add, Delete, Edit, ArrowCircleUp, 
-    ArrowCircleDown, LocationCity } from '@mui/icons-material';
+import { 
+    FlightLand, 
+    FlightTakeoff, 
+    Add, 
+    Delete, 
+    Edit, 
+    ArrowCircleUp, 
+    ArrowCircleDown, 
+    LocationCity 
+} from '@mui/icons-material';
 function Itinerary ({
-    itinerary = [
-    { 
-        id : 0,
-        name : "Place Name",
-        description : "Place description",
-        initialdate : "17/0/2025",
-        finaldate : "17/0/2025"
-    }
-    ],
-    callBackDelete = function(item){}, 
+    tripinfo = {
+        itinerary : [
+        { 
+            id : 0,
+            name : "Place Name",
+            description : "Place description",
+            initialdate : "2024-03-23",
+            finaldate : "2025-02-17"
+        }
+        ]
+    },
+    callBackDelete = function(item){}
 })
 {
     const formatDate = (dateString) => {
+        console.log(dateString);
+        if( !dateString ) return "";
         const date = new Date(dateString);
         return new Intl.DateTimeFormat('en-US', {
             day: '2-digit',
@@ -32,31 +44,40 @@ function Itinerary ({
         
     };
 
+    const generateOptions = ( visit, index) => {
+        const isOwner = (tripinfo.owner.id == localStorage.getItem('userid'));
+        if( !isOwner ) return (<></>);
+        return (<>
+            <IconButton edge="end" aria-label="actions">
+                <Delete 
+                    onClick={ () => callBackDelete(visit.id) } 
+                />
+                
+                {
+                    index != 0 ? 
+                    ( <ArrowCircleUp  />) : (<></>)
+                }
+
+                {
+                    (index != (tripinfo.itinerary.length - 1)) ? 
+                    ( <ArrowCircleDown  />) : (<></>)
+                } 
+                
+            </IconButton>
+        </>);
+    }
     return (<>
         <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {
-            itinerary.map( (visit,index) => ( <> 
-                <ListItem
-                    key={visit.id}
-                    secondaryAction={
-                        <IconButton edge="end" aria-label="actions">
-                            
-                            <Delete 
-                                onClick={ () => callBackDelete(visit.id)} />
-                            {
-                                index != 0 ? 
-                                ( <ArrowCircleUp  />) : (<></>)
-                            }
-
-                            {
-                                (index != (itinerary.length - 1)) ? 
-                                ( <ArrowCircleDown  />) : (<></>)
-                            } 
-                            
-                        </IconButton>
-                    }
-                    disablePadding
-                >
+            tripinfo.itinerary.map( 
+                (visit, index) => ( <> 
+                    <ListItem
+                        key={visit.id}
+                        secondaryAction={
+                            generateOptions( visit, index )
+                        }
+                        disablePadding
+                    >
                     <ListItemAvatar>
                         <Avatar>
                             <LocationCity />
@@ -64,7 +85,12 @@ function Itinerary ({
                     </ListItemAvatar>
                     <ListItemText 
                         primary={ visit.name } 
-                        secondary={ "Start : " + formatDate(visit.initialdate) +", End : " + formatDate(visit.finaldate)  } 
+                        secondary={ 
+                            "Start : " + 
+                            formatDate( visit.initialdate) + 
+                            ", End : " + 
+                            formatDate( visit.finaldate)  
+                        } 
                     />
                 </ListItem>
             </>))
