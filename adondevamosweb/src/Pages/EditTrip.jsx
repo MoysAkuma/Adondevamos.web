@@ -1,18 +1,14 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import 
-    {
-        TextField, 
+    { 
         Button,
         useMediaQuery,
         useTheme,
-        Container,
         Typography,
         Box,
         Alert,
         AlertTitle,
-        FormControlLabel,
-        Checkbox
         
     } from '@mui/material';
 
@@ -26,6 +22,8 @@ import Itinerary from '../Component/Trips/Itinerary';
 import MemberList from '../Component/Trips/MemberList';
 import config from "../Resources/config";
 import { useParams } from 'react-router-dom';
+import CenteredTemplate from '../Component/Commons/CenteredTemplate';
+import FormTrips from '../Component/Trips/FormTrips';
 
 function EditTrip(){
     const theme = useTheme();
@@ -337,7 +335,7 @@ function EditTrip(){
   },[TripId]);
 
     return (
-        <Container maxWidth="sm" sx={{ py: 8 }}>
+        <CenteredTemplate>
             <Box
               component="form"
               onSubmit={handleSubmit}
@@ -356,52 +354,8 @@ function EditTrip(){
                   About your trip
                 </Typography>
 
-                  <TextField
-                      id="name"
-                      name="name"
-                      label="Name"
-                      placeholder="Name of this trip"
-                      variant="outlined"
-                      onChange={handleChange}
-                      size={isMobile ? 'small' : 'medium'}
-                      value={formTrip.name}
-                      fullWidth
-                      required                      
-                  />
-                
-                  <TextField
-                    type="date"
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    id="initalDate"
-                    name="initalDate"
-                    label="Initial Date"
-                    placeholder="Initial Date of this trip"
-                    variant="outlined"
-                    onChange={handleChange}
-                    size={isMobile ? 'small' : 'medium'}
-                    value={formTrip.initialdate}
-                    fullWidth
-                    required
-                  />
-                
-                  <TextField
-                    type="date"
-                    InputLabelProps={{
-                      shrink: true,
-                    }}
-                    id="finaldate"
-                    name="finaldate"
-                    label="Final Date"
-                    placeholder="Initial Date of this trip"
-                    variant="outlined"
-                    onChange={handleChange}
-                    size={isMobile ? 'small' : 'medium'}
-                    value={formTrip.finaldate}
-                    fullWidth
-                    required
-                  />
+                <FormTrips formTrip={formTrip} />
+                  
                 <Typography variant="body1"   align="left">
                   Add places to itinerary
                 </Typography>
@@ -481,7 +435,7 @@ function EditTrip(){
                   Save info
                 </Button>
             </Box>
-        </Container>
+        </CenteredTemplate>
     );
 }
 

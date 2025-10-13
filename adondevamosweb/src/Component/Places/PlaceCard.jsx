@@ -122,7 +122,7 @@ function PlaceCard ({
           </CardActions>
           <Collapse in={expanded} timeout="auto" unmountOnExit>
             <CardContent>
-
+              
             </CardContent>
           </Collapse>
       </Card>

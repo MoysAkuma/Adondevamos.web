@@ -23,6 +23,7 @@ import { View } from '@mui/icons-material'
 import config from "../Resources/config";
 
 import { X } from "@mui/icons-material";
+import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 
 function ViewTrip(){
     const theme = useTheme();
@@ -62,7 +63,7 @@ function ViewTrip(){
     if (loading) return <div>Loading trip info...</div>;
     if (error) return <div>Error: {error}</div>;
     if (!tripInfo) return <div>trip not found</div>;
-    return (<Container maxWidth="sm"  sx={{ py: 8 }}>
+    return (<CenteredTemplate>
         <Box
             sx={{
             display: 'flex',
@@ -134,42 +135,44 @@ function ViewTrip(){
             {
                tripInfo.itinerary.length != 0 ? (
                     <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-                                    {
-                                        tripInfo.itinerary.map((item) => (
-                                            <>
-                                            <ListItem key={item.id}
-                                            secondaryAction={
-                                                <>
-                                                <IconButton edge="end" aria-label="actions">
-                                                    <Badge badgeContent={item.votes} color="primary" >
-                                                        <FavoriteIcon />
-                                                    </Badge>
-                                                </IconButton>
-                                                <IconButton edge="end" aria-label="actions">
-                                                    <ShareIcon />
-                                                </IconButton>
-                                                </>
-                                            }
-                                            >
-                                                    <ListItemText 
-                                                        primary={item.name} 
-                                                        secondary={ utils.formatDate(item.initialdate) 
-                                                        + " to " 
-                                                        + utils.formatDate(item.finaldate) } />
-                                            </ListItem>
-                                            </>
-                                        ))
-                                    }
-                                </List>
+                    {
+                        tripInfo.itinerary.map((item) => (
+                            <>
+                            <ListItem key={item.id}
+                            secondaryAction={
+                                <>
+                                <IconButton edge="end" aria-label="actions">
+                                    <Badge badgeContent={item.votes} color="primary" >
+                                        <FavoriteIcon />
+                                    </Badge>
+                                </IconButton>
+                                <IconButton edge="end" aria-label="actions">
+                                    <ShareIcon />
+                                </IconButton>
+                                </>
+                            }
+                            >
+                                    <ListItemText 
+                                        primary={item.name} 
+                                        secondary={ utils.formatDate(item.initialdate) 
+                                        + " to " 
+                                        + utils.formatDate(item.finaldate) } />
+                            </ListItem>
+                            </>
+                        ))
+                    }
+                </List>
                ) : 
                (<>
-                    <Alert severity="warning">This trip has no itinerary yet.
-                </Alert>
+                    <Alert 
+                        severity="warning">
+                            This trip has no itinerary yet.
+                    </Alert>
                 </>)
             }
             
         </Box>
-    </Container>);
+    </CenteredTemplate>);
 }
 
 export default ViewTrip;

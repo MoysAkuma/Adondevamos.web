@@ -1,7 +1,18 @@
-import { TextField, Typography, InputAdornment,IconButton, Button, } from "@mui/material";
 import React from "react";
 import { useState, useEffect } from "react";
-import {Edit, Check} from '@mui/icons-material';
+import { Edit, 
+    Delete,
+    Check } 
+    from '@mui/icons-material';
+import  SearchIcon 
+    from '@mui/icons-material/Search'
+import { TextField, 
+    Typography, 
+    InputAdornment,
+    IconButton, 
+    Button,
+    ButtonGroup
+ } from "@mui/material";
 
 export default function TripFilters( { searchMethod } ) {
     const formatDate = (dateString) => {
@@ -64,7 +75,9 @@ export default function TripFilters( { searchMethod } ) {
                         slotProps={{
                             input: {
                                 endAdornment: (
-                                    <InputAdornment position="end" 
+                                    <InputAdornment 
+                                    position="end"
+                                    style={{ cursor: 'pointer', marginLeft: '5px' }}
                                     onClick={ (e) => { e.preventDefault(); setSelectedFilters((prev) => ({...prev, [field]: filters[field]})); changeShowInput(field)(); } }>
                                         <Check />
                                     </InputAdornment>
@@ -122,12 +135,62 @@ export default function TripFilters( { searchMethod } ) {
         }));
     };  
 
+    const clearFilters = () => {
+        setFilters(
+            {
+                name: null,
+                initialdate: null,
+                finaldate: null,
+                cityid: null,
+                countryid: null,
+                stateid: null,
+                creatorid: null,
+                mytrips: false,
+                membertrips: false
+            }
+        );
+
+        setSelectedFilters({
+            name: null,
+            initialdate: null,
+            finaldate: null,
+            cityid: null,
+            countryid: null,
+            stateid: null,
+            creatorid: null,
+            mytrips: false,
+            membertrips: false
+        });
+    };
+
     return ( <>
-        <Typography variant="body1">Filter Trips</Typography>
+        <Typography variant="body1">Filters Trips</Typography>
         { filterOptionHandler("name", "Trip Name") }
         { filterOptionHandler("initialdate", "Initial Date", "date") }
         { filterOptionHandler("finaldate", "Final Date", "date") }
         <br/>
-        <Button style={{ marginTop: '10px' }} variant="outlined"  onClick={ (e) => { e.preventDefault(); searchMethod(filters); } }>Apply Filters</Button>
+        <ButtonGroup variant="contained" 
+        color="primary" 
+        fullWidth sx={{ mt: 2, mb: 4 }}>
+            <Button 
+                style={{ marginTop: '10px' }} 
+                variant="outlined"  
+                startIcon={ <SearchIcon /> }
+                onClick={ 
+                    (e) => { 
+                        e.preventDefault(); 
+                        searchMethod(filters); 
+                    } }>
+                        Apply Filters
+            </Button>
+            <Button 
+            style={{ marginTop: '10px' }} 
+            variant="outlined"  
+            startIcon={ <Delete /> }
+            onClick={ (e) => { e.preventDefault(); clearFilters(); } }>
+                Clear Filters
+            </Button>
+        </ButtonGroup>
+        
     </>);
 }

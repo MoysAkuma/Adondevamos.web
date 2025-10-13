@@ -26,6 +26,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { styled } from '@mui/material/styles';
 import Itinerary from "./Itinerary";
 
+
 function TripCard ({
   tripinfo
 }) 
@@ -57,7 +58,7 @@ function TripCard ({
 
     const [expanded, setExpanded] = useState(false);
 
-    const[placeHolderImage, setPlaceHolderImage] = useState("/PlaceHolder.jpg");
+    const[placeHolderImage, setPlaceHolderImage] = useState("/PlaceHolder_JP.jpg");
 
     const handleExpandClick = () => {
       setExpanded(!expanded);
@@ -121,14 +122,7 @@ function TripCard ({
       return formatDate(initialdate) + " to " + formatDate(finaldate);
     }
     useEffect( ()=>{
-      switch( tripinfo.countryid){
-        case 1: //Mexico
-          setPlaceHolderImage("/PlaceHolder_MX.jpg");
-          break;
-        case 2: //Japan
-          setPlaceHolderImage("/PlaceHolder_JP.jpg");
-          break;
-      }
+      
     }, [tripinfo]);
     return(
         <Card>

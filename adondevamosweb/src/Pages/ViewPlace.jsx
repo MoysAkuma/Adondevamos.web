@@ -24,6 +24,8 @@ import FacilitiList from "../Component/View/FacilitiList";
 
 import config from "../Resources/config";
 
+import CenteredTemplate from "../Component/Commons/CenteredTemplate";
+
 function ViewPlace(){
     //Get id
     const { PlaceID } = useParams();
@@ -168,7 +170,7 @@ function ViewPlace(){
             getPlaceInfo();
     },[]);
 
-    return (<Container maxWidth="sm" sx={{ py: 8 }}>
+    return (<CenteredTemplate>
         <Box
             sx={{
             display: 'flex',
@@ -217,6 +219,6 @@ function ViewPlace(){
                 <FacilitiList facilityList={catFacilities} />
             </Typography>
         </Box>
-    </Container>);
+    </CenteredTemplate>);
 }
 export default ViewPlace;

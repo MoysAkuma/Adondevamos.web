@@ -48,16 +48,19 @@ import CenteredTemplate from "../Component/Commons/CenteredTemplate";
                                     Create a new trip
                             </Button>
                         
-                        <Button variant="text" 
-                            endIcon={ <Search/> }
-                            href="/Search/Trips" >
-                                Search for trips
-                        </Button>
+                            <Button variant="text" 
+                                endIcon={ <Search/> }
+                                href="/Search/Trips" >
+                                    Search for trips
+                            </Button>
                         </ButtonGroup>
                     </>
                 ) : 
                 (   <>
-                        <ButtonGroup variant="contained" color="primary" fullWidth sx={{ mt: 2, mb: 4 }}>
+                        <ButtonGroup 
+                            variant="contained" 
+                            color="primary" 
+                            fullWidth sx={{ mt: 2, mb: 4 }}>
                             <Button 
                                 variant="text" 
                                 startIcon={ <Person/> }
@@ -66,8 +69,9 @@ import CenteredTemplate from "../Component/Commons/CenteredTemplate";
                             </Button>
                             <Button variant="text" 
                                 endIcon={ <Search/> }
-                                href="/Search/Trip" >
-                                    Search for trips
+                                href="/Search/Trips"
+                            >
+                                Search for trips
                             </Button>
                         </ButtonGroup>
                     </>
@@ -82,22 +86,29 @@ import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 
             <Box sx={{ p: 3, backgroundColor: 'white', borderRadius: 2, boxShadow: 2 }}>
                 <TripCard
-                    tripinfo={{
-                        name: "Trip Name Example",
-                        description: "Trip Description Example",
-                        owner:{ tag: "User_Tag" },
-                        statics:{ Votes: { Total:0 } },
-                        initialdate: null,
-                        finaldate: null,
-                        id: 0,
-                        itinerary: [
-                            { id: 0, name: "Place Name Example", location: "Location 1" }
+                    tripinfo={
+                        {
+                        name : "Trip Name Example",
+                        description : "Trip Description Example",
+                        owner : { tag: "User_Tag" },
+                        statics : { Votes: { Total : 0 } },
+                        initialdate : null,
+                        finaldate : null,
+                        id : 0,
+                        itinerary : [
+                            { 
+                                id: 0, 
+                                name: "Place Name Example", 
+                                location: "Location 1",
+                                initialdate : null,
+                                finaldate : null
+                            }
                         ],
                     }}
                 />
             </Box>
             
-            <NewTrips />
+                <NewTrips />
 
             </Box>
         </>
