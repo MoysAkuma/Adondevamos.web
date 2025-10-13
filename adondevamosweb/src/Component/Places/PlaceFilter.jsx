@@ -38,7 +38,17 @@ function PlaceFilter({
         facilities : null
     });
 
-    const inputController=(name, id, type) => {
+    const formatDate = (dateString) => {
+    if( !dateString ) return "";
+        const date = new Date(dateString);
+        return new Intl.DateTimeFormat('en-US', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        }).format(date);
+    };
+
+    const inputController=(name,field, type) => {
         if (type === "text"){
             return (
                 <TextField
@@ -61,17 +71,16 @@ function PlaceFilter({
                             )
                         }
                     }}
-                /> );
+                /> 
+            );
         }
-            
+        
     };
 
     const filterOptionHandler = (field, name, type) => {
         return (<>
             <b>{name}: </b>
-            { showInput[field] ? (  
-                    inputController(name, field, type);
-            ) : 
+            { showInput[field] ? (  inputController(name, field, type) ) : 
             (
             <>
                 {  ( selectedFilters[field] ) ? (
@@ -141,7 +150,7 @@ function PlaceFilter({
     { filterOptionHandler("countryid", "Country") }
     { filterOptionHandler("stateid", "State") }
     { filterOptionHandler("cityid", "City") }
-    { filterOptionHandler("facilities", "facilities") }
+    { filterOptionHandler("facilities", "Facilities") }
     <br/>
     <ButtonGroup 
         variant="contained"
