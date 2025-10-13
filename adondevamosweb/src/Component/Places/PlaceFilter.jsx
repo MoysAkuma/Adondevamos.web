@@ -146,10 +146,10 @@ function PlaceFilter({
     }
     return (<>
     <Typography variant="body1">Filters Places</Typography>
-    { filterOptionHandler("name", "Place Name") }
-    { filterOptionHandler("countryid", "Country") }
-    { filterOptionHandler("stateid", "State") }
-    { filterOptionHandler("cityid", "City") }
+    { filterOptionHandler("name", "Place Name", "text") }
+    { filterOptionHandler("countryid", "Country", "select") }
+    { filterOptionHandler("stateid", "State","select") }
+    { filterOptionHandler("cityid", "City", "select") }
     { filterOptionHandler("facilities", "Facilities") }
     <br/>
     <ButtonGroup 

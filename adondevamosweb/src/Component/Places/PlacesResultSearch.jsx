@@ -56,6 +56,7 @@ import { Table,
                                     <TableCell align="left">Country</TableCell>
                                     <TableCell align="left">State</TableCell>
                                     <TableCell align="left">City</TableCell>
+                                    <TableCell align="left"></TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody> 
@@ -73,6 +74,13 @@ import { Table,
                                                 <TableCell align="right">{ place.state.name }</TableCell>
                                                 <TableCell align="right">{ place.city.name }</TableCell>
                                                 <TableCell align="center" >
+                                                    <IconButton
+                                                        color="primary"
+                                                        aria-label="view"
+                                                        onClick={ () => goToViewPlace(place)}
+                                                    >
+                                                        <Visibility />
+                                                    </IconButton>
                                                     { (auth.role === "Admin") ?
                                                         (<>
                                                             <Tooltip title="Edit Place">
@@ -85,13 +93,7 @@ import { Table,
                                                                 </IconButton>
                                                             </Tooltip>
                                                     
-                                                            <IconButton
-                                                                color="primary"
-                                                                aria-label="view"
-                                                                onClick={ () => goToViewPlace(place)}
-                                                            >
-                                                                <Visibility />
-                                                            </IconButton>
+                                                            
                                                         </>) : (<></>)
                                                     }
                                                     

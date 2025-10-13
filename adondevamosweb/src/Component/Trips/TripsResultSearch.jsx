@@ -14,12 +14,16 @@ import { Table,
  } from "@mui/material";
  import { useNavigate, Link } from 'react-router-dom';
  import { Edit, Visibility } from "@mui/icons-material"; 
+ import { useAuth } from '../../context/AuthContext'
 
 export default function TripsResultSearch({
     results
 }) {
     //navigate
     const navigate = useNavigate();
+
+    //Valida if is admin
+    const auth = useAuth();
 
     const formatDate = (dateString) => {
         if( !dateString ) return "";
@@ -32,13 +36,11 @@ export default function TripsResultSearch({
     }; 
     
     const goToEditTrip = (trip) => {
-        console.log(trip);
       if (trip.id == undefined) return;
       navigate('/EditTrip/' + trip.id);
     };
 
     const goToViewTrip = (trip) => {
-        console.log(trip);
       if (trip.id == undefined) return;
       navigate('/ViewTrip/' + trip.id);
     };
@@ -75,6 +77,7 @@ export default function TripsResultSearch({
                                         <TableCell align="right">{trip.owner.tag}</TableCell>
                                         <TableCell
                                         align="center" >
+                                            { (auth.role === "Admin") ? (
                                             <Tooltip title="Edit Trip">
                                                 <IconButton
                                                     color="primary"
@@ -83,7 +86,8 @@ export default function TripsResultSearch({
                                                 >
                                                     <Edit />
                                                 </IconButton>
-                                            </Tooltip>
+                                            </Tooltip>) : (<></>)
+                                            }
                                             
                                             <IconButton
                                                 color="primary"
