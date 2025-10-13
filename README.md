@@ -46,9 +46,12 @@ npm install
 - Create Place
 - Login
 - ManageSite
-
-## Next
 - Search Trips
 - Sarch Places
+## Next
+- Edit Trip
+- Edit Places
+- View Trip
+- View Place 
 - Users Management
 - Votes Management
