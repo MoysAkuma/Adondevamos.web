@@ -11,13 +11,13 @@ const GenerateUserSection = () => {
         if( localStorage.getItem('role') === 'Admin' ){
             return (
                 <>
-                    <Button variant="text" 
+                    <Button variant="contained"
                         startIcon={ <Search/> }
                         size="small"
                         href="/Search/Places" >
                         Search Places
                     </Button>
-                    <Button variant="text" 
+                    <Button variant="outlined" 
                         endIcon={ <LocationCity/> }
                         size="small"
                         href="/CreatePlace" >
@@ -38,12 +38,12 @@ const GenerateUserSection = () => {
                 return (
                     <>
                         <Button 
-                        variant="text" 
+                        variant="outlined" 
                         startIcon={ <Person/> }
                         href="/login" >
                             Login or Create account
                         </Button>
-                        <Button variant="text" 
+                        <Button variant="contained" 
                             endIcon={ <Search/> }
                             size="small"
                             href="/Search/Places" >
@@ -91,29 +91,12 @@ export default function MainPlaces() {
             </Typography>
             <PlaceCard placeinfo={{
                 name: "Place Name",
-                location: "Place Location",
+                address: "Address of place",
                 description: "Place Description",
                 facilities: "Wc, Parking, Wifi",
                 statics: {Votes: {Total: '0'}},
                 id: 0
             }} />
-            <List sx={{ width: '80%', alignContent:'center' , bgcolor: 'background.paper' }}>
-                <ListItemText 
-                    primary="Address" 
-                    secondary="Exact location where is this place located" 
-                />
-                <ListItemText 
-                    primary="Description" 
-                    secondary="A brief description of the place" 
-                />
-                <ListItemText 
-                    primary="Facilities" 
-                    secondary="Facilities that the place offers" 
-                />
-            </List>
-            
-
-        
         </>
         </CenteredTemplate>
     );

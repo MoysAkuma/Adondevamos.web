@@ -1,5 +1,5 @@
 import { useState, useEffect, use } from "react";
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate, useLocation } from 'react-router-dom';
 import 
   {
     Avatar,
@@ -12,7 +12,8 @@ import
     IconButton,
     Badge,
     Collapse,
-    Tooltip
+    Tooltip,
+    Snackbar
   } from '@mui/material';
 import { ExpandMore, Visibility, FlightLand, 
   FlightTakeoff, Place, Edit } 
@@ -24,39 +25,43 @@ import ShareIcon from '@mui/icons-material/Share';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { styled } from '@mui/material/styles';
-import Itinerary from "./Itinerary";
+import Itinerary from "./Itinerary/Itinerary";
 
 
 function TripCard ({
   tripinfo
 }) 
 {
-  const ExpandMore = styled((props) => {
-    const { expand, ...other } = props;
-      return <IconButton {...other} />;
-    })(({ theme }) => ({
-      marginLeft: 'auto',
-      transition: theme.transitions.create('transform', {
-      duration: theme.transitions.duration.shortest,
-    }),
-    variants: [
-      {
-        props: ({ expand }) => !expand,
-        style: {
-          transform: 'rotate(0deg)',
+    const ExpandMore = styled((props) => {
+      const { expand, ...other } = props;
+        return <IconButton {...other} />;
+      })(({ theme }) => ({
+        marginLeft: 'auto',
+        transition: theme.transitions.create('transform', {
+        duration: theme.transitions.duration.shortest,
+      }),
+      variants: [
+        {
+          props: ({ expand }) => !expand,
+          style: {
+            transform: 'rotate(0deg)',
+          },
         },
-      },
-      {
-        props: ({ expand }) => !!expand,
-        style: {
-          transform: 'rotate(180deg)',
+        {
+          props: ({ expand }) => !!expand,
+          style: {
+            transform: 'rotate(180deg)',
+          },
         },
-      },
-    ],
-  }));
+      ],
+    }));
+    const location = useLocation();
+
     const navigate = useNavigate();
 
     const [expanded, setExpanded] = useState(false);
+
+    const [showSnackBar, setshowSnackBar] = useState(false);
 
     const[placeHolderImage, setPlaceHolderImage] = useState("/PlaceHolder_JP.jpg");
 
@@ -64,21 +69,31 @@ function TripCard ({
       setExpanded(!expanded);
     };
 
+    const getFullURL = () => {
+      // For SPA with React Router
+      return window.location.origin + location.pathname + location.search;
+    };
+
     const gotoViewTrip = (trip) => {
       if( !trip.id ) return;
-      navigate('/ViewTrip/'+trip.id);
+      navigate('/ViewTrip/' + trip.id);
     };
 
     const gotoEditTrip = (trip) => {
       if( !trip.id ) return; 
-      navigate('/EditTrip/'+trip.id);
+      navigate('/EditTrip/' + trip.id);
     };
     
     const gotoViewPlace = (place) => {
       if( !place.id ) return;
-      navigate('/ViewPlace/'+place.id);
+      navigate('/ViewPlace/' + place.id);
     };
 
+    const getShareLocation = (id) => {
+        const url = getFullURL() + 'ViewTrip/' + id;
+        navigator.clipboard.writeText(url);
+        setshowSnackBar(true);
+    };
   
     const formatDate = (dateString) => {
         const date = new Date(dateString);
@@ -121,6 +136,12 @@ function TripCard ({
       if( !initialdate || !finaldate ) return "Initial and final dates";
       return formatDate(initialdate) + " to " + formatDate(finaldate);
     }
+
+    const handleCloseSnackBarShare= () => {
+      setshowSnackBar(false);
+    };
+
+
     useEffect( ()=>{
       
     }, [tripinfo]);
@@ -152,16 +173,14 @@ function TripCard ({
           <CardContent
           sx={{ bgcolor: "#F9E1D4" }}
           >
-            <Typography component="p" sx={{ color: 'text.secondary' }}>
+            <Typography component="b" sx={{ color: '#ffffffff' }}>
               {
                 tripinfo.description
               }
             </Typography>
-
-            
           </CardContent>
           <CardActions disableSpacing 
-          sx={{ bgcolor: "#C9C1F8" }}>
+            sx={{ bgcolor: "#C9C1F8" }}>
             <Tooltip title="Vote Trip not implemented yet">
             <IconButton aria-label="vote">
                 <Badge 
@@ -172,8 +191,17 @@ function TripCard ({
               </IconButton>
             </Tooltip>
               <IconButton aria-label="share">
-                <ShareIcon />
+                <ShareIcon
+                  onClick={ (x) => getShareLocation(tripinfo.id)  }
+                 />
               </IconButton>
+               <Snackbar
+                  open={showSnackBar}
+                  onClose={handleCloseSnackBarShare}
+                  key={"verticalhorizontal"}
+                  message="Link was copied"
+                  autoHideDuration={2000}
+                />
               <ExpandMore
                 expand={expanded}
                 onClick={handleExpandClick}

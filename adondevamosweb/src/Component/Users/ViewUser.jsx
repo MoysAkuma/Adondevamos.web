@@ -16,7 +16,7 @@ import
         Checkbox 
     } from '@mui/material';
 
-import config from "../Resources/config";
+import config from "../../Resources/config";
     
 function ViewUser(){
     //Get id

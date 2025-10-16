@@ -15,15 +15,15 @@ import
     } from '@mui/material';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import ViewMemberList from '../Component/View/ViewMemberList'
+import ViewMemberList from '../View/ViewMemberList'
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
-import utils from "../Resources/utils";
+import utils from "../../Resources/utils";
 import { View } from '@mui/icons-material'
-import config from "../Resources/config";
+import config from "../../Resources/config";
 
 import { X } from "@mui/icons-material";
-import CenteredTemplate from "../Component/Commons/CenteredTemplate";
+import CenteredTemplate from "../Commons/CenteredTemplate";
 
 function ViewTrip(){
     const theme = useTheme();

@@ -39,16 +39,18 @@ import CenteredTemplate from "../Component/Commons/CenteredTemplate";
             {
                 isUser ? (
                     <>
-                        <ButtonGroup variant="contained" 
+                        <ButtonGroup 
+                        variant="contained" 
                         color="primary" 
                         fullWidth sx={{ mt: 2, mb: 4 }}>
-                            <Button variant="text" 
+                            <Button 
+                                variant="contained" 
                                 startIcon={ <Flight/> }
-                                href="/CreateTrip" >
+                                href="/Create/Trip" >
                                     Create a new trip
                             </Button>
                         
-                            <Button variant="text" 
+                            <Button variant="outlined" 
                                 endIcon={ <Search/> }
                                 href="/Search/Trips" >
                                     Search for trips
@@ -62,12 +64,12 @@ import CenteredTemplate from "../Component/Commons/CenteredTemplate";
                             color="primary" 
                             fullWidth sx={{ mt: 2, mb: 4 }}>
                             <Button 
-                                variant="text" 
+                                variant="contained"
                                 startIcon={ <Person/> }
                                 href="/login" >
                                     Login or Create account
                             </Button>
-                            <Button variant="text" 
+                            <Button variant="outlined" 
                                 endIcon={ <Search/> }
                                 href="/Search/Trips"
                             >
