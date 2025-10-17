@@ -44,6 +44,7 @@ function Itinerary ({
     };
 
     const generateOptions = ( visit, index) => {
+        console.log(tripinfo.owner);
         const isOwner = (tripinfo.owner.id == localStorage.getItem('userid'));
         if( !isOwner ) return (<></>);
         return (<>
@@ -84,11 +85,10 @@ function Itinerary ({
                     </ListItemAvatar>
                     <ListItemText 
                         primary={ visit.name } 
-                        secondary={ 
-                            "Start : " + 
-                            formatDate( visit.initialdate) + 
-                            ", End : " + 
-                            formatDate( visit.finaldate)  
+                        secondary={  
+                            formatDate( visit.initialdate ) + 
+                            " to " + 
+                            formatDate( visit.finaldate)
                         } 
                     />
                 </ListItem>

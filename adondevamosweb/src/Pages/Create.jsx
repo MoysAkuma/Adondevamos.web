@@ -71,12 +71,7 @@ export default function Create() {
     return (
         <CenteredTemplate>
             <>
-               <img 
-                    src="/UnderConstruction.png" 
-                    alt="UnderConstruction" 
-                    style={{ width: '100%', height: 'auto', marginTop: '20px' }} />
                 {controlViewOption(opt)}
-                
             </>
         </CenteredTemplate>
     );

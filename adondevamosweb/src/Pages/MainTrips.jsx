@@ -110,7 +110,7 @@ import CenteredTemplate from "../Component/Commons/CenteredTemplate";
                 />
             </Box>
             
-                <NewTrips />
+            <NewTrips />
 
             </Box>
         </>

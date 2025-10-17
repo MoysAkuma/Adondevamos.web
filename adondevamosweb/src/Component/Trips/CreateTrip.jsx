@@ -1,22 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import 
     {
-        TextField, 
         Button,
-        useMediaQuery,
         useTheme,
-        Container,
         Typography,
         Box,
         Alert,
         AlertTitle,
-        FormControlLabel,
-        Checkbox,
         ButtonGroup
         
     } from '@mui/material';
-
 import MemberSearch from './MemberSearch';
 import SearchPlaces from './SearchPlaces';
 import Itinerary from './Itinerary/Itinerary';
@@ -24,13 +18,10 @@ import MemberList from './MemberList';
 import config from "../../Resources/config";
 import { useAuth } from '../../context/AuthContext';
 import FormTrips from './FormTrips';
-import { Add, Delete, WatchLater } from '@mui/icons-material'
+import { AccountCircle, Add, Delete, WatchLater } from '@mui/icons-material'
 
 function CreateTrip(catCountries, catStates, catCities  ) {
     const auth = useAuth();
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    
     //URLS
     const [URLsCatalogService, setURLsCatalogService] = useState(
         {
@@ -42,27 +33,32 @@ function CreateTrip(catCountries, catStates, catCities  ) {
         }
     );
 
-    const [itinerary, setItinerary] = useState([]);
-
-    const [addedMemberList, setAddedMemberList] = useState([]);
-
     const [errors, setErrors] = useState({
       duplicatedplace : false,
-      duplicateduser : false
+      duplicateduser : false,
+      nameempty : false
     });
 
-    const [showManager, setManager] = useState({
+    const [showManager, setShowManager] = useState({
       itinerary : false,
       memberlist : false
     });
 
     // trip info
-    const [formTrip, setFormTrip] = useState({
+    const [formTrip, setFormTrip] = useState(
+      {
         name : '',
         description : '',
         initialdate : '',
-        finaldate : ''      
-    });
+        finaldate : '',
+        owner:{
+          id : null,
+          tag : ''
+        },
+        itinerary:[],
+        memberlist:[]
+      }
+    );
     // UI state
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
@@ -88,15 +84,11 @@ function CreateTrip(catCountries, catStates, catCities  ) {
       // Validate for field Trip Name
       if (!formTrip.name.trim()) {
         throw new Error('Trip name is required');
+        setErrors( prev => ( { ...prev, nameempty : true } ) );
       }
       // Validate for field Description
       if (!formTrip.description.trim()) {
         throw new Error('Trip description is required');
-      }
-      
-      // Validate for field itinerary
-      if (!formTrip.itinerary != null) {
-        throw new Error('select at least one place is required');
       }
 
       // Validate for field initialDate
@@ -108,19 +100,14 @@ function CreateTrip(catCountries, catStates, catCities  ) {
       if (!formTrip.finaldate != null) {
         throw new Error('set final date');
       }
-
-      // Validate for field member
-      if (!formTrip.memberlist != null ) {
-        throw new Error('set member list');
-      }
       
       // API call to create trip
       const response = await axios.post(URLsCatalogService.Trips, {
         name : formTrip.name.trim(),
-        description : formTrip.description,
-        isInternational : formTrip.isinternational,
+        description : formTrip.description.trim(),
         initialDate : formTrip.initialdate,
         finalDate : formTrip.finaldate,
+        ownerid : formTrip.owner.id
       }, {
         headers: {
           'Content-Type': 'application/json',
@@ -129,11 +116,12 @@ function CreateTrip(catCountries, catStates, catCities  ) {
       });
       if(response.status == 200){
         //Save member list
-        if  ( addedMemberList.length > 0 ){
+        if  ( formTrip.memberlist.length > 0 ) {
           saveMemberlist(response.data.info);
         }
+
         //Save itinerary
-        if(itinerary.length > 0 ){
+        if ( formTrip.itinerary.length > 0 ) {
           saveItinerary(response.data.info);
         }
       } 
@@ -148,6 +136,7 @@ function CreateTrip(catCountries, catStates, catCities  ) {
           initialdate : "",
           finaldate : "",
           isinternational : false,
+          itinerary : [],
           memberlist : []
         }
       );
@@ -160,30 +149,28 @@ function CreateTrip(catCountries, catStates, catCities  ) {
     }
   };
 
-  
-
     //saveMemberlist
-    const saveMemberlist = async( item ) =>{
-        const id = item.id;
-        const lst = addedMemberList.map(member => ({
-          userid : member.id,
-          roleid : member.role,
-          hide : false
-        }));
-        const rq = {
-          "MemberList" : lst
-        };
-        axios.post(
-          URLsCatalogService.Trips +'/' + id+ '/Members', rq)
-        .then(resp => {
-        })
-        .catch(error => console.error("Error getting catalogue of countries"));
+    const saveMemberlist = async( item ) => {
+      const id = item.id;
+      const lst = formTrip.memberlist.map(member => ({
+        userid : member.id,
+        roleid : member.role,
+        hide : false
+      }));
+      const rq = {
+        "MemberList" : lst
+      };
+      axios.post(
+        URLsCatalogService.Trips +'/' + id+ '/Members', rq)
+      .then(resp => {
+      })
+      .catch(error => console.error("Error getting catalogue of countries"));
     };
 
     //save itinerary
     const saveItinerary = async( item ) =>{
         const id = item.id;
-        const lst = itinerary.map(place => ({
+        const lst = formTrip.itinerary.map(place => ({
           "placeid" : place.id ,
           "initialdate" : place.initialdate,
           "finaldate" : place.finaldate,
@@ -192,7 +179,7 @@ function CreateTrip(catCountries, catStates, catCities  ) {
         const rq = {
           "Itinerary" : lst
         };
-        axios.post(URLsCatalogService.Trips+'/' + id + '/Itinerary', rq )
+        axios.post(URLsCatalogService.Trips + '/' + id + '/Itinerary', rq )
         .then(resp => {
         })
         .catch(error => console.error("Error getting catalogue of countries"));
@@ -200,10 +187,17 @@ function CreateTrip(catCountries, catStates, catCities  ) {
 
   const handlePlaceAdd = (item) => {
 
-    const foundInList = itinerary.filter( x => x.id == item.id );
+    const foundInList = formTrip.itinerary.filter( x => x.id == item.id );
 
     if ( foundInList.length == 0 ){
-        setItinerary([...itinerary, item]);
+        setFormTrip( 
+          prev => (
+            { ...prev, 
+                itinerary : [...prev.itinerary, item] 
+            }
+          )
+        );
+        setShowManager( prev => ( { ...prev, itinerary : false } ) );
     } else {
         setErrors(prev => (
           {
@@ -218,19 +212,26 @@ function CreateTrip(catCountries, catStates, catCities  ) {
 
   const handleRemove = (event) => {
     //Item exist in list
-    const foundInList = itinerary.filter( x => x.id == event);
+    const foundInList = formTrip.itinerary.filter( x => x.id == event);
 
     if ( foundInList.length == 1 ){
-        setItinerary(prev => prev.filter(item => item.id !== event ) );
+        setFormTrip(prev => prev.itinerary.filter(item => item.id !== event ) );
     } 
   }
 
   const handleUserAdd = (item) => {
 
-    const foundInList = itinerary.filter( x => x.id == item );
+    const foundInList = formTrip.itinerary.filter( x => x.id == item );
 
     if ( foundInList.length == 0 ){
-        setAddedMemberList([...addedMemberList, item]);
+        setFormTrip(
+          prev => (
+            { ...prev, 
+                memberlist : [...prev.memberlist, item] 
+            }
+          )
+        );
+        setShowManager( prev => ( { ...prev, memberlist : false } ) );
     } else {
         setErrors(prev => (
           {
@@ -245,13 +246,42 @@ function CreateTrip(catCountries, catStates, catCities  ) {
 
   const handleRemoveUser = (event) => {
     //Item exist in list
-    const foundInList = addedMemberList.filter( x => x.id == event);
+    const foundInList = formTrip.memberlist.filter( x => x.id == event);
 
     if ( foundInList.length == 1 ){
-        setAddedMemberList(prev => prev.filter(item => item.id !== event ) );
+        setFormTrip(prev => prev.memberlist.filter(item => item.id !== event ) );
     } 
-  }
+  };
 
+  const showSearch = (item) => {
+    if(item == 1){
+      setShowManager( prev => ( { ...prev, itinerary : true } ) );
+    } else {
+      setShowManager( prev => ( { ...prev, memberlist : true } ) );
+    }
+  };
+  
+  const clearItinerary = () => {
+    setFormTrip(
+          prev => (
+            { ...prev, 
+                itinerary : []
+            }
+          )
+        );
+  };
+
+  useEffect(() => {
+      setFormTrip(
+        prev => ( 
+            { ...prev, 
+              owner : { 
+                id : localStorage.getItem('userid'), 
+                tag : localStorage.getItem('tag') } 
+              } 
+            )
+          );
+  }, [auth]);
     return (
         
             <Box
@@ -283,16 +313,17 @@ function CreateTrip(catCountries, catStates, catCities  ) {
                 variant="contained" 
                 color="primary" 
                 fullWidth sx={{ mt: 2, mb: 4 }}>
+                  <Button 
+                    variant="contained" 
+                    startIcon={ <Add/> }
+                    onClick={ (x) => showSearch(1)}
+                    disabled={showManager.itinerary}
+                    >
+                      Add place
+                  </Button>
                   {
-                    (itinerary.length == 0 ) ? (
+                    (formTrip.itinerary.length == 0 ) ? (
                       <>
-                        <Button 
-                            variant="contained" 
-                            startIcon={ <Add/> }
-
-                            >
-                                Add place
-                        </Button>
                         <Button 
                             variant="text" 
                             startIcon={ <WatchLater/> }
@@ -304,17 +335,18 @@ function CreateTrip(catCountries, catStates, catCities  ) {
                     
                     ) : (
                       <Button 
-                        variant="contained" 
-                        startIcon={ <Delete/> }
+                        variant="text" 
+                        onClick={clearItinerary}
+                        endIcon={ <Delete/> }
                          >
-                            Reset all places
+                            Reset itinerary
                     </Button>
                     )
                   }
                 </ButtonGroup>
                 
                 {
-                  (itinerary.length == 0) && (
+                  ( formTrip.itinerary.length == 0) && (
                     <Alert severity='info' >
                       Your itinerary is empty
                     </Alert>
@@ -324,7 +356,7 @@ function CreateTrip(catCountries, catStates, catCities  ) {
                   (showManager.itinerary ) && (
                     <SearchPlaces 
                       callback={handlePlaceAdd} 
-                    itinerary={itinerary} 
+                    itinerary={formTrip.itinerary} 
                     />
                   )
                 }
@@ -341,10 +373,10 @@ function CreateTrip(catCountries, catStates, catCities  ) {
                 }
                 
                 {
-                  itinerary?.length > 0 ? (
+                  formTrip.itinerary?.length > 0 ? (
                   <>
                     <Itinerary 
-                      itinerary={itinerary} 
+                      tripinfo={formTrip} 
                       callBackDelete={handleRemove} 
                       />
                   </>) : (<></>)
@@ -359,47 +391,47 @@ function CreateTrip(catCountries, catStates, catCities  ) {
                 variant="contained" 
                 color="primary" 
                 fullWidth sx={{ mt: 2, mb: 4 }}>
+                  <Button 
+                      variant="contained" 
+                      startIcon={ <AccountCircle/> }
+                      onClick={ (x) => showSearch(2)}
+                      >
+                        Add member
+                  </Button>
                   {
-                    (itinerary.length == 0 ) ? (
+                    (formTrip.memberlist.length == 0 ) ? (
                       <>
-                        <Button 
-                            variant="contained" 
-                            startIcon={ <Add/> }
-
-                            >
-                                Add member
-                        </Button>
                         <Button 
                             variant="text" 
                             startIcon={ <WatchLater/> }
                             onClick={ (x) => ( x )}
                             >
-                                Decided Later
+                              Decided Later
                         </Button>
                     </>
                     
                     ) : (
                       <Button 
-                        variant="contained" 
+                        variant="text" 
                         startIcon={ <Delete/> }
                          >
-                            Reset all member list
+                            Reset member list
                     </Button>
                     )
                   }
                 </ButtonGroup>
                 {
-                  (addedMemberList.length == 0) && (
+                  (formTrip.memberlist.length == 0) && (
                     <Alert severity='info' >
                       Your member list is empty
                     </Alert>
                   )
                 }
                 {
-                  (showManager.itinerary ) && (
+                  (showManager.memberlist ) && (
                     <MemberSearch
                       callback={handleUserAdd}
-                      memberlist={addedMemberList}
+                      memberlist={formTrip.memberlist}
                     />
                   )
                 }
@@ -415,13 +447,13 @@ function CreateTrip(catCountries, catStates, catCities  ) {
                 }
 
                 {
-                  addedMemberList?.length > 0 ? (
+                  formTrip.memberlist?.length > 0 ? (
                   <>
                     <Typography variant="body1"   align="left">
                       Member list 
                     </Typography>
                     <MemberList 
-                      memberlist={addedMemberList} 
+                      memberlist={formTrip.memberlist} 
                       callBackDelete={handleRemoveUser} 
                       />
                   </>) : (<></>)

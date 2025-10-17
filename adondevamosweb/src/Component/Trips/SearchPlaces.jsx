@@ -116,32 +116,11 @@ function SearchPlaces({ callback, itinerary }){
     return (<>
         <Typography variant="body1"  gutterBottom align="left">
            { 
-                !placename ? "Search Places to add to your itinerary" : "select dates of this visit"
+                !placename ? 
+                "Search Places to add to your itinerary" : 
+                "Choose a place "
            } 
         </Typography>
-
-        <TextField
-            id="placename"
-            name="placename"
-            label="Name"
-            placeholder="Name of place"
-            variant="outlined"
-            onChange={handleChange}
-            size={isMobile ? 'small' : 'medium'}
-            value={placename}
-            fullWidth
-        />
-        {
-            (loading && placename.length >= 3 ) ? 
-                ( 
-                    <PlaceListFound 
-                        placeList={findedPlaces} 
-                        callback={addPlace} 
-                        itinerary={itinerary} 
-                    />) 
-                : 
-                ( <></>)
-        }
         {
             selectedPlace ? 
             (
@@ -208,7 +187,30 @@ function SearchPlaces({ callback, itinerary }){
                         }}
                     />
                 </>
-            ) : <></>
+            ) : <>
+                <TextField
+                    id="placename"
+                    name="placename"
+                    label="Name"
+                    placeholder="Name of place"
+                    variant="standard"
+                    onChange={handleChange}
+                    size={isMobile ? 'small' : 'medium'}
+                    value={placename}
+                    fullWidth
+                />
+                {
+                    (loading && placename.length >= 3 ) ? 
+                        ( 
+                            <PlaceListFound 
+                                placeList={findedPlaces} 
+                                callback={addPlace} 
+                                itinerary={itinerary} 
+                            />) 
+                        : 
+                        ( <></>)
+                }
+            </>
         }        
     </> );
 }
