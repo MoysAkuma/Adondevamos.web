@@ -37,16 +37,28 @@ const FormTrips = ({
             fullWidth
             required                      
         />
+
+        <TextField
+            id="description"
+            name="description"
+            label="Description"
+            placeholder="A simple description of goal of this trip"
+            variant="standard"
+            onChange={handleChange}
+            size={ 'small' }
+            value={formTrip.description}
+            fullWidth
+            required                      
+        />
     
         <TextField
             type="date"
             InputLabelProps={{
                 shrink: true,
             }}
-            id="initalDate"
-            name="initalDate"
+            id="initialdate"
+            name="initialdate"
             label="Initial Date"
-            placeholder="Initial Date of this trip"
             variant="standard"
             onChange={handleChange}
             size={'small'}
@@ -63,7 +75,6 @@ const FormTrips = ({
             id="finaldate"
             name="finaldate"
             label="Final Date"
-            placeholder="Initial Date of this trip"
             variant="standard"
             onChange={handleChange}
             size={'small'}

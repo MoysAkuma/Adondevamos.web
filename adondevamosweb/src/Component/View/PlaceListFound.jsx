@@ -15,7 +15,7 @@ import {  LocationCity, Add } from '@mui/icons-material';
 
 function PlaceListFound({ placeList, callback, itinerary }){
     const [dense, setDense] = useState(false);
-
+console.log(itinerary);
     return ( 
         <List dense={dense}>
             {

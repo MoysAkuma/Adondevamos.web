@@ -6,6 +6,7 @@ import axios from 'axios';
 
 import config from "../Resources/config";
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
+import EditTrip from "../Component/Trips/EditTrip";
 
 
 export default function Edit() {
@@ -19,6 +20,7 @@ export default function Edit() {
                 <Typography variant="h5" align="center">
                     Trip Edit Page
                 </Typography>
+                <EditTrip />
             </>;
         }
         if (opt === "Place") {
@@ -33,11 +35,11 @@ export default function Edit() {
     return (
         <CenteredTemplate>
             <>
-                {controlViewOption(opt)}
                 <img 
                 src="/UnderConstruction.png" 
                 alt="UnderConstruction" 
                 style={{ width: '100%', height: 'auto', marginTop: '20px' }} />
+                {controlViewOption(opt)}
             </>
         </CenteredTemplate>
     );

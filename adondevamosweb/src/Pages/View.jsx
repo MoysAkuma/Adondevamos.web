@@ -6,11 +6,12 @@ import axios from 'axios';
 
 import config from "../Resources/config";
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
+import ViewTrip from "../Component/Trips/ViewTrip";
 
 
 export default function View() {
     //Module to show the search page
-    const { opt } = useParams();
+    const { opt, id } = useParams();
     const [searchResults, setSearchResults] = useState([]);
 
     const controlViewOption = (opt) => {
@@ -19,6 +20,7 @@ export default function View() {
                 <Typography variant="h5" align="center">
                     Trip View Page
                 </Typography>
+                <ViewTrip />
             </>;
         }
         if (opt === "Place") {
@@ -33,11 +35,11 @@ export default function View() {
     return (
         <CenteredTemplate>
             <>
-                {controlViewOption(opt)}
                 <img 
                 src="/UnderConstruction.png" 
                 alt="UnderConstruction" 
                 style={{ width: '100%', height: 'auto', marginTop: '20px' }} />
+                {controlViewOption(opt)}
             </>
         </CenteredTemplate>
     );

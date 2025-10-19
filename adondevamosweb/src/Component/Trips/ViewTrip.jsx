@@ -29,7 +29,7 @@ function ViewTrip(){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     
-    const { tripId } = useParams();
+    const { id } = useParams();
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -44,9 +44,9 @@ function ViewTrip(){
 
     useEffect(()=> {
         const fetchTrip = async () => {
-            if(!tripId) return;
+            if(!id) return;
          try{
-            axios.get(URLsCatalogService.Trips + '/' + tripId)
+            axios.get(URLsCatalogService.Trips + '/' + id)
             .then(resp => {
                 setTripInfo( resp.data.info );
             })
@@ -58,12 +58,12 @@ function ViewTrip(){
          } 
         }
         fetchTrip();  
-    },[tripId]);
+    },[id]);
 
     if (loading) return <div>Loading trip info...</div>;
     if (error) return <div>Error: {error}</div>;
     if (!tripInfo) return <div>trip not found</div>;
-    return (<CenteredTemplate>
+    return (
         <Box
             sx={{
             display: 'flex',
@@ -171,8 +171,7 @@ function ViewTrip(){
                 </>)
             }
             
-        </Box>
-    </CenteredTemplate>);
+        </Box>);
 }
 
 export default ViewTrip;

@@ -21,8 +21,6 @@ import CitiesSelect from "../Catalogues/CitiesSelect";
 
 import config from "../../Resources/config";
 
-import CenteredTemplate from '../Commons/CenteredTemplate';
-
 function CreatePlace() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -323,7 +321,7 @@ const facilitiesChange = (event) => {
       getFacilities();
     },[]);
   return (
-    <CenteredTemplate>
+    <>
       <Typography variant="h6" component="h6" 
       gutterBottom align="center">
           Create Place
@@ -382,7 +380,7 @@ const facilitiesChange = (event) => {
           onChange={handleChange}
           value={formCreatePlace.address}
         />
-
+        
         <CountriesSelectList 
           val={formCreatePlace.countryid} 
           onChangecall={handleSelect} 
@@ -464,7 +462,7 @@ const facilitiesChange = (event) => {
           Create Place
         </Button>
       </Box>
-    </CenteredTemplate>
+    </>
   );
 };
 

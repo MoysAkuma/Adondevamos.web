@@ -43,8 +43,8 @@ function Itinerary ({
         
     };
 
-    const generateOptions = ( visit, index) => {
-        console.log(tripinfo.owner);
+    const generateOptions = ( visit, index) => {debugger
+        console.log(tripinfo);
         const isOwner = (tripinfo.owner.id == localStorage.getItem('userid'));
         if( !isOwner ) return (<></>);
         return (<>

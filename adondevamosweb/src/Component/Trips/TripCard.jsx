@@ -76,17 +76,12 @@ function TripCard ({
 
     const gotoViewTrip = (trip) => {
       if( !trip.id ) return;
-      navigate('/ViewTrip/' + trip.id);
+      navigate('/View/Trip/' + trip.id);
     };
 
     const gotoEditTrip = (trip) => {
       if( !trip.id ) return; 
-      navigate('/EditTrip/' + trip.id);
-    };
-    
-    const gotoViewPlace = (place) => {
-      if( !place.id ) return;
-      navigate('/ViewPlace/' + place.id);
+      navigate('/Edit/Trip/' + trip.id);
     };
 
     const getShareLocation = (id) => {
