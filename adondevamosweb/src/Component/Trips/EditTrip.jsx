@@ -3,7 +3,7 @@ import axios from 'axios';
 import 
     { 
         Button,
-        useTheme,
+        ButtonGroup,
         Typography,
         Box,
         Alert,
@@ -39,8 +39,6 @@ function EditTrip(){
         Trips : `${config.api.baseUrl}${config.api.endpoints.Trips}`
     };
 
-    //Message snack text
-    const [messageSnack, setMessageStack] = useState('');
 
     const [errors, setErrors] = useState({
       duplicatedplace : false,
@@ -70,9 +68,8 @@ function EditTrip(){
     });
     // UI state
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [submitError, setSubmitError] = useState('');
     const [submitSuccess, setSubmitSuccess] = useState(false);
-    
+    const [messageSnack, setMessageStack] = useState('');
     //update request
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -86,7 +83,6 @@ function EditTrip(){
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setSubmitError('');
     setSubmitSuccess(false);
 
     try {
@@ -98,20 +94,7 @@ function EditTrip(){
       if (!formTrip.description.trim()) {
         throw new Error('Trip description is required');
       }
-      // Validate for field Country
-      if (!formTrip.countryid != null) {
-        throw new Error('countryid is required');
-      }
-
-      // Validate for field State
-      if (!formTrip.stateid != null) {
-        throw new Error('stateid is required');
-      }
-
-      // Validate for field City
-      if (!formTrip.cityid != null) {
-        throw new Error('cityid is required');
-      }
+      
       // Validate for field itinerary
       if (!formTrip.itinerary != null) {
         throw new Error('select at least one place is required');
@@ -125,11 +108,6 @@ function EditTrip(){
       // Validate for field finalDate
       if (!formTrip.finalDate != null) {
         throw new Error('set final date');
-      }
-
-      // Validate for field member
-      if (!formTrip.memberlist != null ) {
-        throw new Error('set member list');
       }
       
       // API call to create trip
@@ -158,7 +136,6 @@ function EditTrip(){
       setSubmitSuccess(true);
     
     } catch (error) {
-      setSubmitError(error.response?.data?.message || error.message);
       console.error('Error creating place:', error);
     } finally {
       setIsSubmitting(false);
@@ -282,11 +259,35 @@ const handleRemoveUser = (event) => {
     } 
   };
 
+  const showSearch = (item) => {
+    if ( item == 1 ) {
+      setShowManager( prev => ( { ...prev, itinerary : true } ) );
+    } else {
+      setShowManager( prev => ( { ...prev, memberlist : true } ) );
+    }
+  };
+
+   const clearItinerary = () => {
+    setFormTrip(
+          prev => (
+            { ...prev, 
+                itinerary : []
+            }
+          )
+        );
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSubmitSuccess(false);
+  };
+
   useEffect(()=> {
       const fetchTrip = async () => {
-          if(!id) return;
-          try{
-          
+          if ( !id ) return;
+          try {
             axios.get(URLsCatalogService.Trips + '/' + id)
             .then(resp => {
                 setFormTrip( resp.data.info );
@@ -328,16 +329,65 @@ const handleRemoveUser = (event) => {
                   About your trip
                 </Typography>
 
-                <FormTrips formTrip={formTrip} />
-                  
+                <FormTrips formTrip={formTrip}
+                handleChange={handleChange} />
+
                 <Typography variant="body1"   align="left">
-                  Add places to itinerary
+                  Itinerary
                 </Typography>
-                
-                <SearchPlaces 
-                  callback={handlePlaceAdd} 
-                  itinerary={formTrip.itinerary} 
-                />
+
+                <ButtonGroup 
+                  variant="contained" 
+                  color="primary" 
+                  fullWidth >
+                    <Button 
+                      variant="contained" 
+                      startIcon={ <Add/> }
+                      onClick={ (x) => showSearch(1)}
+                      disabled={showManager.itinerary}
+                      >
+                        Add place
+                    </Button>
+                    {
+                      (formTrip.itinerary.length == 0 ) ? (
+                        <>
+                          <Button 
+                              variant="text" 
+                              endIcon={ <WatchLater/> }
+                              onClick={ (x) => ( x )}
+                              >
+                                  Decided Later
+                          </Button>
+                      </>
+                      
+                      ) : (
+                        <Button 
+                          variant="text" 
+                          onClick={clearItinerary}
+                          endIcon={ <Delete/> }
+                            >
+                              Reset itinerary
+                      </Button>
+                      )
+                    }
+                  </ButtonGroup>
+                  
+                  
+                {
+                  ( formTrip.itinerary.length == 0) && (
+                    <Alert severity='info' >
+                      Your itinerary is empty
+                    </Alert>
+                  )
+                }
+                {
+                  (showManager.itinerary ) && (
+                    <SearchPlaces 
+                      callback={handlePlaceAdd} 
+                      itinerary={formTrip.itinerary} 
+                    />
+                  )
+                }
 
                 {
                   errors.duplicatedplace ? 
@@ -367,15 +417,56 @@ const handleRemoveUser = (event) => {
                 <Typography variant="subtitle2"  align="left">
                   Members
                 </Typography>
-                
-                <Typography variant="subtitle2"   align="left">
-                  Add members
-                </Typography>
 
-                <MemberSearch
-                  callback={handleUserAdd}
-                  memberlist={formTrip.memberlist}
-                 />
+                <ButtonGroup 
+                variant="contained" 
+                color="primary" 
+                fullWidth >
+                  <Button 
+                      variant="contained" 
+                      startIcon={ <AccountCircle/> }
+                      onClick={ (x) => showSearch(2)}
+                      >
+                        Add member
+                  </Button>
+                  {
+                    (formTrip.memberlist.length == 0 ) ? (
+                      <>
+                        <Button 
+                            variant="text" 
+                            startIcon={ <WatchLater/> }
+                            onClick={ (x) => ( x )}
+                            >
+                              Decided Later
+                        </Button>
+                    </>
+                    
+                    ) : (
+                      <Button 
+                        variant="text" 
+                        startIcon={ <Delete/> }
+                          >
+                            Reset members
+                      </Button>
+                    )
+                  }
+                  </ButtonGroup>
+                {
+                  (formTrip.memberlist.length == 0) && (
+                    <Alert severity='info' >
+                      Your member list is empty
+                    </Alert>
+                  )
+                }
+
+                {
+                  (showManager.memberlist ) && (
+                    <MemberSearch
+                      callback={handleUserAdd}
+                      memberlist={formTrip.memberlist}
+                    />
+                  )
+                }
 
                 {
                   errors.duplicateduser ? 
@@ -408,6 +499,13 @@ const handleRemoveUser = (event) => {
                   >
                   Save info
                 </Button>
+                <Snackbar 
+                  open={submitSuccess}
+                  autoHideDuration={3000}
+                  message={messageSnack}
+                  onClose={handleSnackbarClose}
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+                />
             </Box>
     );
 }

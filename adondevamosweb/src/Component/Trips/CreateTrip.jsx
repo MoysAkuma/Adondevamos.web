@@ -372,7 +372,7 @@ function CreateTrip( ) {
               <>
                 <Button 
                     variant="text" 
-                    startIcon={ <WatchLater/> }
+                    endIcon={ <WatchLater/> }
                     onClick={ (x) => ( x )}
                     >
                         Decided Later
