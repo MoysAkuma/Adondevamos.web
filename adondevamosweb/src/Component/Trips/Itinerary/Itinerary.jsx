@@ -43,8 +43,7 @@ function Itinerary ({
         
     };
 
-    const generateOptions = ( visit, index) => {debugger
-        console.log(tripinfo);
+    const generateOptions = ( visit, index) => {
         const isOwner = (tripinfo.owner.id == localStorage.getItem('userid'));
         if( !isOwner ) return (<></>);
         return (<>
@@ -68,9 +67,7 @@ function Itinerary ({
     }
     return (<>
         <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-        {
-            tripinfo.itinerary.map( 
-                (visit, index) => ( <> 
+        {tripinfo.itinerary.map( (visit, index) => (
                     <ListItem
                         key={visit.id}
                         secondaryAction={
@@ -92,7 +89,7 @@ function Itinerary ({
                         } 
                     />
                 </ListItem>
-            </>))
+            ))
         }
         </List>
     </>);

@@ -22,7 +22,7 @@ function MemberList ({
     return (<>
         <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {
-            memberlist.map( (user,index) => (<> 
+            memberlist.map( (user,index) => (
                 <ListItem
                     key={user.id}
                     secondaryAction={
@@ -54,7 +54,7 @@ function MemberList ({
                         secondary={ user.email  } 
                     />
                 </ListItem>
-            </>))
+            ))
         }
         </List>
     </>);

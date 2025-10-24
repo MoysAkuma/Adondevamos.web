@@ -112,7 +112,6 @@ function CreateTrip( ) {
         finalDate : formTrip.finaldate,
         ownerid : formTrip.owner.id
       };
-      console.log(rq);
       //const response = {status : 201, data:{info: { id : 0 }}}
       // API call to create trip
       const response = await axios.post(URLsCatalogService.Trips, rq , {

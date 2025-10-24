@@ -17,9 +17,6 @@ export default function Edit() {
     const controlViewOption = (opt) => {
         if (opt === "Trip") {
             return <>
-                <Typography variant="h5" align="center">
-                    Trip Edit Page
-                </Typography>
                 <EditTrip />
             </>;
         }
@@ -35,10 +32,6 @@ export default function Edit() {
     return (
         <CenteredTemplate>
             <>
-                <img 
-                src="/UnderConstruction.png" 
-                alt="UnderConstruction" 
-                style={{ width: '100%', height: 'auto', marginTop: '20px' }} />
                 {controlViewOption(opt)}
             </>
         </CenteredTemplate>

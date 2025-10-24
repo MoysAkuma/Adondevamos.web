@@ -94,19 +94,14 @@ function EditTrip(){
       if (!formTrip.description.trim()) {
         throw new Error('Trip description is required');
       }
-      
-      // Validate for field itinerary
-      if (!formTrip.itinerary != null) {
-        throw new Error('select at least one place is required');
-      }
 
       // Validate for field initialDate
-      if (!formTrip.initialDate != null) {
+      if (!formTrip.initialdate != null) {
         throw new Error('set initial date');
       }
 
       // Validate for field finalDate
-      if (!formTrip.finalDate != null) {
+      if (!formTrip.finaldate != null) {
         throw new Error('set final date');
       }
       
