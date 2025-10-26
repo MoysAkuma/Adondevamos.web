@@ -96,12 +96,12 @@ function EditTrip(){
       }
 
       // Validate for field initialDate
-      if (!formTrip.initialdate != null) {
+      if (!formTrip.initialdate != "") {
         throw new Error('set initial date');
       }
 
       // Validate for field finalDate
-      if (!formTrip.finaldate != null) {
+      if (!formTrip.finaldate != "") {
         throw new Error('set final date');
       }
       
@@ -118,14 +118,7 @@ function EditTrip(){
         }
       });
       if(response.status == 200){
-        //Save member list
-        if(formTrip.memberlist.length > 0 ){
-          saveMemberlist();
-        }
-        //Save itinerary
-        if(formTrip.itinerary.length > 0 ){
-          saveItinerary();
-        }
+        setMessageStack("Trip info was updated.");
       } 
       // Handle success
       setSubmitSuccess(true);
@@ -326,166 +319,6 @@ const handleRemoveUser = (event) => {
 
                 <FormTrips formTrip={formTrip}
                 handleChange={handleChange} />
-
-                <Typography variant="body1"   align="left">
-                  Itinerary
-                </Typography>
-
-                <ButtonGroup 
-                  variant="contained" 
-                  color="primary" 
-                  fullWidth >
-                    <Button 
-                      variant="contained" 
-                      startIcon={ <Add/> }
-                      onClick={ (x) => showSearch(1)}
-                      disabled={showManager.itinerary}
-                      >
-                        Add place
-                    </Button>
-                    {
-                      (formTrip.itinerary.length == 0 ) ? (
-                        <>
-                          <Button 
-                              variant="text" 
-                              endIcon={ <WatchLater/> }
-                              onClick={ (x) => ( x )}
-                              >
-                                  Decided Later
-                          </Button>
-                      </>
-                      
-                      ) : (
-                        <Button 
-                          variant="text" 
-                          onClick={clearItinerary}
-                          endIcon={ <Delete/> }
-                            >
-                              Reset itinerary
-                      </Button>
-                      )
-                    }
-                  </ButtonGroup>
-                  
-                  
-                {
-                  ( formTrip.itinerary.length == 0) && (
-                    <Alert severity='info' >
-                      Your itinerary is empty
-                    </Alert>
-                  )
-                }
-                {
-                  (showManager.itinerary ) && (
-                    <SearchPlaces 
-                      callback={handlePlaceAdd} 
-                      itinerary={formTrip.itinerary} 
-                    />
-                  )
-                }
-
-                {
-                  errors.duplicatedplace ? 
-                  (
-                  <>
-                    <Alert severity="warning">
-                      <AlertTitle>This place was already added </AlertTitle>
-                      Please, select another place
-                    </Alert>
-                  </>) : (<></>)
-                }
-                
-                {
-                  formTrip.itinerary?.length > 0 ? (
-                  <>
-                    <Typography variant="body1"   align="left">
-                      Itinerary 
-                    </Typography>
-                    <Itinerary 
-                      tripinfo={formTrip} 
-                      callBackDelete={handleRemove} 
-                      />
-                  </>) : (<></>)
-                }  
-                
-
-                <Typography variant="subtitle2"  align="left">
-                  Members
-                </Typography>
-
-                <ButtonGroup 
-                variant="contained" 
-                color="primary" 
-                fullWidth >
-                  <Button 
-                      variant="contained" 
-                      startIcon={ <AccountCircle/> }
-                      onClick={ (x) => showSearch(2)}
-                      >
-                        Add member
-                  </Button>
-                  {
-                    (formTrip.memberlist.length == 0 ) ? (
-                      <>
-                        <Button 
-                            variant="text" 
-                            startIcon={ <WatchLater/> }
-                            onClick={ (x) => ( x )}
-                            >
-                              Decided Later
-                        </Button>
-                    </>
-                    
-                    ) : (
-                      <Button 
-                        variant="text" 
-                        startIcon={ <Delete/> }
-                          >
-                            Reset members
-                      </Button>
-                    )
-                  }
-                  </ButtonGroup>
-                {
-                  (formTrip.memberlist.length == 0) && (
-                    <Alert severity='info' >
-                      Your member list is empty
-                    </Alert>
-                  )
-                }
-
-                {
-                  (showManager.memberlist ) && (
-                    <MemberSearch
-                      callback={handleUserAdd}
-                      memberlist={formTrip.memberlist}
-                    />
-                  )
-                }
-
-                {
-                  errors.duplicateduser ? 
-                  (
-                  <>
-                    <Alert severity="warning">
-                      <AlertTitle>This User was already added </AlertTitle>
-                      Please, select another user
-                    </Alert>
-                  </>) : (<></>)
-                }
-
-                {
-                  formTrip.memberlist?.length > 0 ? (
-                  <>
-                    <Typography variant="body1"   align="left">
-                      Member list 
-                    </Typography>
-                    <MemberList 
-                      memberlist={formTrip.memberlist} 
-                      callBackDelete={handleRemoveUser} 
-                      />
-                  </>) : (<></>)
-                }
 
                 <Button 
                   type="submit" 

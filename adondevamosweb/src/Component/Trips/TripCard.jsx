@@ -13,7 +13,8 @@ import
     Badge,
     Collapse,
     Tooltip,
-    Snackbar
+    Chip,
+    Divider
   } from '@mui/material';
 import { ExpandMore, Visibility, FlightLand, 
   FlightTakeoff, Place, Edit } 
@@ -62,6 +63,8 @@ function TripCard ({
     const [expanded, setExpanded] = useState(false);
 
     const [showSnackBar, setshowSnackBar] = useState(false);
+
+    const [acronyms, setAcronyms] = useState("");
 
     const[placeHolderImage, setPlaceHolderImage] = useState("/PlaceHolder_JP.jpg");
 
@@ -173,6 +176,12 @@ function TripCard ({
                 tripinfo.description
               }
             </Typography>
+            <Divider sx={{ marginTop: '10px', marginBottom: '10px' }}/>
+            {
+              tripinfo.itinerary.map( 
+                (x) => x.Ubication.Country.acronym || "" ).map( (x) => <Chip  label={x}  />)
+              
+            }
           </CardContent>
           <CardActions disableSpacing 
             sx={{ bgcolor: "#C9C1F8" }}>
@@ -185,44 +194,36 @@ function TripCard ({
                 </Badge>
               </IconButton>
             </Tooltip>
-              <IconButton aria-label="share">
-                <ShareIcon
-                  onClick={ (x) => getShareLocation(tripinfo.id)  }
-                 />
-              </IconButton>
-               <Snackbar
-                  open={showSnackBar}
-                  onClose={handleCloseSnackBarShare}
-                  key={"verticalhorizontal"}
-                  message="Link was copied"
-                  autoHideDuration={2000}
-                />
-              <ExpandMore
-                expand={expanded}
-                onClick={handleExpandClick}
-                aria-expanded={expanded}
-                aria-label="show more"
-                sx={{ marginLeft: 'auto' }}
-              >
-                { expanded ? <ExpandLessIcon /> : <ExpandMoreIcon /> }
-              </ExpandMore>
+            <IconButton aria-label="share">
+              <ShareIcon
+                onClick={ (x) => getShareLocation(tripinfo.id)  }
+              />
+            </IconButton>
+            
+            <ExpandMore
+              expand={expanded}
+              onClick={handleExpandClick}
+              aria-expanded={expanded}
+              aria-label="show more"
+              sx={{ marginLeft: 'auto' }}
+            >
+              { expanded ? <ExpandLessIcon /> : <ExpandMoreIcon /> }
+            </ExpandMore>
           </CardActions>
-           <Collapse in={expanded} timeout="auto" unmountOnExit>
-              <CardContent sx={{ bgcolor: "#edeba6ff" }}>
-                <Typography gutterBottom component="p" >
-                  Itinerary
+          <Collapse in={expanded} timeout="auto" unmountOnExit>
+            <CardContent sx={{ bgcolor: "#edeba6ff" }}>
+              <Typography gutterBottom component="p" >
+                Itinerary
+              </Typography>
+              {
+                (tripinfo.itinerary.length == 0) ?
+                <Typography component="p" sx={{ color: 'text.secondary' }}>
+                No places added yet.
                 </Typography>
-                {
-                  (tripinfo.itinerary.length == 0) ?
-                  <Typography component="p" sx={{ color: 'text.secondary' }}>
-                    No places added yet.
-                  </Typography>
-                  : 
-                  <>
-                    <Itinerary 
-                      tripinfo={tripinfo} 
-                    />
-                  </>
+                : 
+                <Itinerary 
+                  tripinfo={tripinfo} 
+                />
                 }
               </CardContent>
             </Collapse>
