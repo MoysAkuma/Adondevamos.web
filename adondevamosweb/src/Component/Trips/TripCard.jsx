@@ -66,7 +66,8 @@ function TripCard ({
 
     const [acronyms, setAcronyms] = useState("");
 
-    const[placeHolderImage, setPlaceHolderImage] = useState("/PlaceHolder_JP.jpg");
+    const[placeHolderImageJP, setPlaceHolderImageJP] = useState("/PlaceHolder_JP.jpg");
+    const[placeHolderImageMX, setPlaceHolderImageMX] = useState("/PlaceHolder_MX.jpg");
 
     const handleExpandClick = () => {
       setExpanded(!expanded);
@@ -132,6 +133,7 @@ function TripCard ({
 
     const generateSubHeader = (initialdate, finaldate) => {
       if( !initialdate || !finaldate ) return "Initial and final dates";
+      if (initialdate == finaldate) return formatDate(initialdate);
       return formatDate(initialdate) + " to " + formatDate(finaldate);
     }
 
@@ -161,7 +163,7 @@ function TripCard ({
           />
           <CardMedia
             component="img"
-            image={placeHolderImage}
+            image={tripinfo.itinerary.length > 0 ? tripinfo.itinerary[0].Ubication.Country.acronym == "JP" ? placeHolderImageJP : placeHolderImageMX : placeHolderImageMX}
             height="140"
             alt="Trip image"
             onClick={ (x) => gotoViewTrip(tripinfo) }
@@ -171,12 +173,12 @@ function TripCard ({
           <CardContent
           sx={{ bgcolor: "#F9E1D4" }}
           >
-            <Typography component="b" sx={{ color: '#ffffffff' }}>
+            <Typography component="b" sx={{ color: '#000000ff' }}>
               {
                 tripinfo.description
               }
             </Typography>
-            <Divider sx={{ marginTop: '10px', marginBottom: '10px' }}/>
+            <Divider sx={{ marginTop: '5px', marginBottom: '5px' }}/>
             {
               tripinfo.itinerary.map( 
                 (x) => x.Ubication.Country.acronym || "" ).map( (x) => <Chip  label={x}  />)

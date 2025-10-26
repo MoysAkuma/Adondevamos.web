@@ -103,7 +103,8 @@ import CenteredTemplate from "../Component/Commons/CenteredTemplate";
                                 name: "Place Name Example", 
                                 location: "Location 1",
                                 initialdate : null,
-                                finaldate : null
+                                finaldate : null,
+                                Ubication : { Country : { acronym : "MX" } }
                             }
                         ],
                     }}

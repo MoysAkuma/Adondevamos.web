@@ -42,6 +42,11 @@ function Itinerary ({
     const callBackEdite = (e) => {
         
     };
+    const generateDateText = (initialdate, finaldate) => {
+      if( !initialdate || !finaldate ) return "Initial and final dates";
+      if (initialdate == finaldate) return formatDate(initialdate);
+      return formatDate(initialdate) + " to " + formatDate(finaldate);
+    }
 
     const generateOptions = ( visit, index) => {
         const isOwner = (tripinfo.owner.id == localStorage.getItem('userid'));
@@ -83,9 +88,7 @@ function Itinerary ({
                     <ListItemText 
                         primary={ visit.name } 
                         secondary={  
-                            formatDate( visit.initialdate ) + 
-                            " to " + 
-                            formatDate( visit.finaldate)
+                            generateDateText( visit.initialdate, visit.finaldate )
                         } 
                     />
                 </ListItem>
