@@ -19,19 +19,10 @@ function MemberList ({
     callBackDelete = function(item){}, 
 })
 {
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return new Intl.DateTimeFormat('en-US', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric'
-        }).format(date);
-    };
-
     return (<>
         <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {
-            memberlist.map( (user,index) => (<> 
+            memberlist.map( (user,index) => (
                 <ListItem
                     key={user.id}
                     secondaryAction={
@@ -63,7 +54,7 @@ function MemberList ({
                         secondary={ user.email  } 
                     />
                 </ListItem>
-            </>))
+            ))
         }
         </List>
     </>);

@@ -30,7 +30,6 @@ function Itinerary ({
 })
 {
     const formatDate = (dateString) => {
-        console.log(dateString);
         if( !dateString ) return "";
         const date = new Date(dateString);
         return new Intl.DateTimeFormat('en-US', {
@@ -68,9 +67,7 @@ function Itinerary ({
     }
     return (<>
         <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-        {
-            tripinfo.itinerary.map( 
-                (visit, index) => ( <> 
+        {tripinfo.itinerary.map( (visit, index) => (
                     <ListItem
                         key={visit.id}
                         secondaryAction={
@@ -85,15 +82,14 @@ function Itinerary ({
                     </ListItemAvatar>
                     <ListItemText 
                         primary={ visit.name } 
-                        secondary={ 
-                            "Start : " + 
-                            formatDate( visit.initialdate) + 
-                            ", End : " + 
-                            formatDate( visit.finaldate)  
+                        secondary={  
+                            formatDate( visit.initialdate ) + 
+                            " to " + 
+                            formatDate( visit.finaldate)
                         } 
                     />
                 </ListItem>
-            </>))
+            ))
         }
         </List>
     </>);

@@ -14,13 +14,13 @@ import
         Box
     } from '@mui/material';
 
-import CountriesSelectList from "../Component/Catalogues/CountriesSelectList";
-import StateSelect from "../Component/Catalogues/StateSelect";
-import CitiesSelect from "../Component/Catalogues/CitiesSelect";
+import CountriesSelectList from "../Catalogues/CountriesSelectList";
+import StateSelect from "../Catalogues/StateSelect";
+import CitiesSelect from "../Catalogues/CitiesSelect";
 
-import config from "../Resources/config";
+import config from "../../Resources/config";
 
-import CenteredTemplate from "../Component/Commons/CenteredTemplate";
+import CenteredTemplate from "../Commons/CenteredTemplate";
 
 function CreateUser(){
     const theme = useTheme();

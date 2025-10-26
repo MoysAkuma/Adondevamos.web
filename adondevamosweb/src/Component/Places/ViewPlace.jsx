@@ -20,11 +20,11 @@ import
         ListItemText
     } from '@mui/material';
 
-import FacilitiList from "../Component/View/FacilitiList";
+import FacilitiList from "../View/FacilitiList";
 
-import config from "../Resources/config";
+import config from "../../Resources/config";
 
-import CenteredTemplate from "../Component/Commons/CenteredTemplate";
+import CenteredTemplate from "../Commons/CenteredTemplate";
 
 function ViewPlace(){
     //Get id

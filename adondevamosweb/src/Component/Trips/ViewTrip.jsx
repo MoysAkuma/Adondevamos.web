@@ -15,21 +15,21 @@ import
     } from '@mui/material';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import ViewMemberList from '../Component/View/ViewMemberList'
+import ViewMemberList from '../View/ViewMemberList'
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
-import utils from "../Resources/utils";
+import utils from "../../Resources/utils";
 import { View } from '@mui/icons-material'
-import config from "../Resources/config";
+import config from "../../Resources/config";
 
 import { X } from "@mui/icons-material";
-import CenteredTemplate from "../Component/Commons/CenteredTemplate";
+import CenteredTemplate from "../Commons/CenteredTemplate";
 
 function ViewTrip(){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     
-    const { tripId } = useParams();
+    const { id } = useParams();
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -44,9 +44,9 @@ function ViewTrip(){
 
     useEffect(()=> {
         const fetchTrip = async () => {
-            if(!tripId) return;
+            if(!id) return;
          try{
-            axios.get(URLsCatalogService.Trips + '/' + tripId)
+            axios.get(URLsCatalogService.Trips + '/' + id)
             .then(resp => {
                 setTripInfo( resp.data.info );
             })
@@ -58,12 +58,12 @@ function ViewTrip(){
          } 
         }
         fetchTrip();  
-    },[tripId]);
+    },[id]);
 
     if (loading) return <div>Loading trip info...</div>;
     if (error) return <div>Error: {error}</div>;
     if (!tripInfo) return <div>trip not found</div>;
-    return (<CenteredTemplate>
+    return (
         <Box
             sx={{
             display: 'flex',
@@ -171,8 +171,7 @@ function ViewTrip(){
                 </>)
             }
             
-        </Box>
-    </CenteredTemplate>);
+        </Box>);
 }
 
 export default ViewTrip;

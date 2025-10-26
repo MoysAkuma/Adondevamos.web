@@ -16,24 +16,31 @@ const CenteredTemplate = ({ children }) => (
     }}
   >
     
-    <Container maxWidth="sm" sx={{ py: 9, backgroundColor: 'white', borderRadius: 3, boxShadow: 3 }}>
-      <img 
-        src="/Logo.png" 
-        width="120" 
-        height="120" 
-        alt="Logo" 
-        style={
-          { 
-            marginBottom: '8px', 
-            display: 'block', 
-            marginLeft: 'auto', 
-            marginRight: 'auto' 
-          }
-        } 
-      />
+    <Container maxWidth="sm" sx={{ 
+      py : 5,
+      pb : 2, 
+      backgroundColor: 'white', 
+      borderRadius: 3, 
+      boxShadow: 3 }}>
+      <a href="/">
+        <img 
+          src="/Logo.png" 
+          width="120" 
+          height="120" 
+          alt="Logo" 
+          style={
+            { 
+              display: 'block', 
+              marginLeft: 'auto', 
+              marginRight: 'auto',
+              colorScheme: 'light only'
+            }
+          } 
+        />
+      </a>
       {children}
     </Container>
-    <Box sx={{ mt: 1, mb: 2, textAlign: 'center', color: 'white' }}>
+    <Box sx={{ mt: 1, mb: 1, textAlign: 'center', color: 'white' }}>
       Site made by <b>@MoysAkuma</b>
     </Box>
   </Box>

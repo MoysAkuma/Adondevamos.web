@@ -6,7 +6,6 @@ import
         Button,
         useMediaQuery,
         useTheme,
-        Container,
         Typography,
         Box,
         FormGroup,
@@ -16,13 +15,11 @@ import
         Alert
 } from '@mui/material';
 
-import CountriesSelectList from "../Component/Catalogues/CountriesSelectList";
-import StateSelect from "../Component/Catalogues/StateSelect";
-import CitiesSelect from "../Component/Catalogues/CitiesSelect";
+import CountriesSelectList from "../Catalogues/CountriesSelectList";
+import StateSelect from "../Catalogues/StateSelect";
+import CitiesSelect from "../Catalogues/CitiesSelect";
 
-import config from "../Resources/config";
-
-import CenteredTemplate from '../Component/Commons/CenteredTemplate';
+import config from "../../Resources/config";
 
 function CreatePlace() {
   const theme = useTheme();
@@ -324,7 +321,7 @@ const facilitiesChange = (event) => {
       getFacilities();
     },[]);
   return (
-    <CenteredTemplate>
+    <>
       <Typography variant="h6" component="h6" 
       gutterBottom align="center">
           Create Place
@@ -383,7 +380,7 @@ const facilitiesChange = (event) => {
           onChange={handleChange}
           value={formCreatePlace.address}
         />
-
+        
         <CountriesSelectList 
           val={formCreatePlace.countryid} 
           onChangecall={handleSelect} 
@@ -465,7 +462,7 @@ const facilitiesChange = (event) => {
           Create Place
         </Button>
       </Box>
-    </CenteredTemplate>
+    </>
   );
 };
 

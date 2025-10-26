@@ -14,6 +14,7 @@ import Facilitymanager from "../Component/ManagmentSite/Facilitymanager";
 import CountryManager from '../Component/ManagmentSite/CountryManager';
 import StatesManager from '../Component/ManagmentSite/StatesManager';
 import CitiesManager from '../Component/ManagmentSite/CitiesManager';
+import CenteredTemplate from '../Component/Commons/CenteredTemplate'
 import { useAuth } from '../context/AuthContext';
 
  function ManageSite(){
@@ -27,7 +28,7 @@ import { useAuth } from '../context/AuthContext';
     };
 
     return (
-        <Container maxWidth="sm" sx={{ py: 8 }}>
+        <CenteredTemplate>
             <Typography variant="h4" component="h1" gutterBottom align="center">
                 Site Management
             </Typography>
@@ -57,7 +58,7 @@ import { useAuth } from '../context/AuthContext';
                 {tabValue === 1 && <StatesManager />}
                 {tabValue === 2 && <CitiesManager />}
             </Box>
-        </Container>)
+        </CenteredTemplate>)
 }
 
 export default ManageSite;

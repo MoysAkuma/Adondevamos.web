@@ -16,6 +16,7 @@ function CountriesSelectList({ val, onChangecall, catCountries}){
             fullWidth
             size="small"
             variant="standard"
+            helperText="Please select a Country"
             >
             {
                 catCountries.map(

@@ -8,11 +8,13 @@ import
         useTheme,
         InputAdornment,
         Typography,
-        Box
+        IconButton,
+        Stack
     } from '@mui/material';
 
 import { FlightTakeoff, 
-    FlightLand } 
+    FlightLand, 
+    Delete } 
     from '@mui/icons-material';
 
 import config from '../../Resources/config';
@@ -67,7 +69,6 @@ function SearchPlaces({ callback, itinerary }){
 
             case "finaldate": 
                 setFinalDate(e.target.value);
-                callresponse(e.target.value);
             break;
         }
     };
@@ -116,32 +117,10 @@ function SearchPlaces({ callback, itinerary }){
     return (<>
         <Typography variant="body1"  gutterBottom align="left">
            { 
-                !placename ? "Search Places to add to your itinerary" : "select dates of this visit"
+                !placename ? 
+                "Search Places to add to your itinerary" : (!selectedPlace ? "Choose a place " : "")
            } 
         </Typography>
-
-        <TextField
-            id="placename"
-            name="placename"
-            label="Name"
-            placeholder="Name of place"
-            variant="outlined"
-            onChange={handleChange}
-            size={isMobile ? 'small' : 'medium'}
-            value={placename}
-            fullWidth
-        />
-        {
-            (loading && placename.length >= 3 ) ? 
-                ( 
-                    <PlaceListFound 
-                        placeList={findedPlaces} 
-                        callback={addPlace} 
-                        itinerary={itinerary} 
-                    />) 
-                : 
-                ( <></>)
-        }
         {
             selectedPlace ? 
             (
@@ -151,11 +130,25 @@ function SearchPlaces({ callback, itinerary }){
                         align="left">
                         Selected Place
                     </Typography>
-                    <Typography variant="b"  gutterBottom align="right">
+                    
                     {
-                        selectedPlace ? (selectedPlace.name) : <></>
+                        selectedPlace ? ( 
+                        <>
+                        <Stack direction="row" spacing={1} alignItems="center" >
+                            <Typography variant="body1"  gutterBottom sx={{mb:0}} >
+                                {selectedPlace.name}
+                            </Typography>
+                            <IconButton aria-label="delete" onClick={ () => setSelectedPlace(null) }>
+                                <Delete  />
+                            </IconButton>
+                        </Stack>
+                        </>
+                        )  : <></>
                     }
-                    </Typography>
+                    
+                    {
+
+                    }
                     <TextField
                         type="date"
                         InputLabelProps={{
@@ -206,9 +199,33 @@ function SearchPlaces({ callback, itinerary }){
                                 )
                             }
                         }}
+                        onBlurCapture={() => callresponse(finalDate) }
                     />
                 </>
-            ) : <></>
+            ) : <>
+                <TextField
+                    id="placename"
+                    name="placename"
+                    label="Name"
+                    placeholder="Name of place"
+                    variant="standard"
+                    onChange={handleChange}
+                    size={isMobile ? 'small' : 'medium'}
+                    value={placename}
+                    fullWidth
+                />
+                {
+                    (loading && placename.length >= 3 ) ? 
+                        ( 
+                            <PlaceListFound 
+                                placeList={findedPlaces} 
+                                callback={addPlace} 
+                                itinerary={itinerary} 
+                            />) 
+                        : 
+                        ( <></>)
+                }
+            </>
         }        
     </> );
 }

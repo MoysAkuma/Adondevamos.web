@@ -74,7 +74,7 @@ function PlaceCard ({
               </IconButton>
             }
             title={placeinfo.name}
-            subheader={placeinfo.location}
+            subheader={placeinfo.address}
           />
           <CardMedia
             sx={{ height: 140 }}

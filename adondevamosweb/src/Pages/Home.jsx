@@ -8,7 +8,6 @@ import
         Typography
     } from '@mui/material';
 import  NewTrips  from "../Component/Trips/NewTrips";
-import  MostVotedPlaces  from "../Component/MostVotedPlaces";
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 
 function Home() {
@@ -19,11 +18,11 @@ function Home() {
     return (
           <CenteredTemplate>
             <Typography variant="h3"  gutterBottom align="center" >
-              ¿A donde vamos?
+              AdondeVamos
             </Typography>
             
             <Typography variant="h5"  gutterBottom align="center">
-              What is Adondevamos.io?
+              What is Adondevamos?
             </Typography>
 
             <Typography variant="body1" gutterBottom align="center">
@@ -31,6 +30,7 @@ function Home() {
             </Typography>
 
             <NewTrips/>
+
           </CenteredTemplate>
     );
   };
