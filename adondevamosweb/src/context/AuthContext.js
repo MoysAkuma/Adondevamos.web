@@ -13,6 +13,7 @@ export const AuthProvider = ({ children }) => {
   const [isLogged, setIsLogged] = useState(false);
   const [role, setRole] = useState(false);
   const [loading, setLoading] = useState(false);
+  axios.defaults.withCredentials = true;
 
   //URLS
   const [URLs, setURLs] = useState(
@@ -65,7 +66,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       const response = await axios.post(
-        URLs.Site + '/login',
+        URLs.Site + '/Login',
         { 
             id: username, 
             password : password 
@@ -100,18 +101,18 @@ export const AuthProvider = ({ children }) => {
     try {
       setUser(null);
       const response = await axios.post(URLs.Site 
-        +'/logout', 
+        +'/Logout', 
         {}, 
         { withCredentials: true });
-      localStorage.removeItem('userid');
-      localStorage.removeItem('tag');
-      localStorage.removeItem('role');
-      setIsLogged(false);
-      setRole(null);
-      setUserTag(null);
-      // Re-check session from backend to sync state
-      await checkAuthStatus();
-      return { success: true };
+        localStorage.removeItem('userid');
+        localStorage.removeItem('tag');
+        localStorage.removeItem('role');
+        setIsLogged(false);
+        setRole(null);
+        setUserTag(null);
+        // Re-check session from backend to sync state
+        await checkAuthStatus();
+        return { success: true };
     } catch (error) {
       console.error('Logout failed:', error);
     }

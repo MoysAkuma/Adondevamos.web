@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { Typography, Box } from "@mui/material";
+import { Typography, Box, Tooltip } from "@mui/material";
 
 import { Button, Modal } from "@mui/material";
 import { Help } from "@mui/icons-material";
@@ -31,8 +31,8 @@ export default function RecoverPassword()
 
     return(
     <>
-
-        <Button 
+        <Tooltip title="Working on this, sorry >w< ">
+            <Button 
             type="button" 
             disabled={isSubmitting}
             variant="text"
@@ -42,6 +42,8 @@ export default function RecoverPassword()
             >
             Recover Password
         </Button>
+        </Tooltip>
+        
         <Modal
         open={open}
         onClose={handleClose}

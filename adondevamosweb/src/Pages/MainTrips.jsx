@@ -5,7 +5,7 @@ import
 {
     Stack, 
     Button,
-    Container,
+    Tooltip,
     Typography,
     Box,ButtonGroup
 } from '@mui/material';
@@ -43,12 +43,15 @@ import CenteredTemplate from "../Component/Commons/CenteredTemplate";
                         variant="contained" 
                         color="primary" 
                         fullWidth sx={{ mt: 2, mb: 4 }}>
-                            <Button 
-                                variant="contained" 
-                                startIcon={ <Flight/> }
-                                href="/Create/Trip" >
-                                    Create a new trip
-                            </Button>
+                            <Tooltip title="This feature is not working now">
+                                <Button 
+                                    variant="contained"
+                                    disabled 
+                                    startIcon={ <Flight/> }
+                                    >
+                                        Create a new trip
+                                </Button>
+                            </Tooltip>
                         
                             <Button variant="outlined" 
                                 endIcon={ <Search/> }
@@ -63,12 +66,15 @@ import CenteredTemplate from "../Component/Commons/CenteredTemplate";
                             variant="contained" 
                             color="primary" 
                             fullWidth sx={{ mt: 2, mb: 4 }}>
-                            <Button 
-                                variant="contained"
-                                startIcon={ <Person/> }
-                                href="/login" >
-                                    Login or Create account
-                            </Button>
+                            <Tooltip title="This feature is not working now">
+                                <Button 
+                                    variant="contained"
+                                    startIcon={ <Person/> }
+                                    disabled
+                                    href="/login" >
+                                        Login or Create account
+                                </Button>
+                            </Tooltip>
                             <Button variant="outlined" 
                                 endIcon={ <Search/> }
                                 href="/Search/Trips"

@@ -7,7 +7,7 @@ import
         Button,
         useMediaQuery,
         useTheme,
-        Container,
+        Tooltip,
         Typography,
         Box,
         InputAdornment,
@@ -16,7 +16,7 @@ import
         AlertTitle
     } from '@mui/material';
 
-import {  Visibility, VisibilityOff, AccountCircle } from '@mui/icons-material';
+import {  Visibility, VisibilityOff, AccountCircle, PersonAdd } from '@mui/icons-material';
 import LoginIcon  from '@mui/icons-material/Login';
 import { useAuth }  from '../context/AuthContext'
 
@@ -219,9 +219,18 @@ function Login(){
 
                     <RecoverPassword />
                     
-                    <Typography variant="body2" align="center">
-                        Don't have an account? <Link to="/CreateAccount">Create one</Link>
-                    </Typography>
+                    <Tooltip title="Working on this, sorry >w< ">
+                        <Button 
+                        type="button" 
+                        disabled={isSubmitting}
+                        variant="text"
+                        size="small"
+                        startIcon={ <PersonAdd/> }
+                        sx={{ color:"#000"}}
+                        >
+                            Create an Account
+                        </Button>
+                    </Tooltip>
                 </Box>
             </>
         </CenteredTemplate>

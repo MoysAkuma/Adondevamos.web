@@ -41,7 +41,7 @@ const CenteredTemplate = ({ children }) => (
       {children}
     </Container>
     <Box sx={{ mt: 1, mb: 1, textAlign: 'center', color: 'white' }}>
-      Site made by <b>@MoysAkuma</b>
+      Site made by <a href='https://github.com/MoysAkuma'>@MoysAkuma</a>
     </Box>
   </Box>
 );
