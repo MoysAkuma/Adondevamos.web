@@ -42,7 +42,7 @@ export default function TripsResultSearch({
 
     const goToViewTrip = (trip) => {
       if (trip.id == undefined) return;
-      navigate('/ViewTrip/' + trip.id);
+      navigate('/View/Trip/' + trip.id);
     };
     
     return (

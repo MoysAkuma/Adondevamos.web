@@ -28,7 +28,7 @@ import CenteredTemplate from "../Commons/CenteredTemplate";
 
 function ViewPlace(){
     //Get id
-    const { PlaceID } = useParams();
+    const { id } = useParams();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -79,98 +79,23 @@ function ViewPlace(){
         }
     );
 
-    //catalogues
-    const [catCountries, setCatCountries] = useState([
-        {
-            id : 1,
-            name : "MEXICO"
-        }
-    ]);
-    const [catStates, setCatStates] = useState([
-        {
-            id : 1,
-            name : "SINALOA"
-        }
-    ]);
-
-    const [catCities, setCatCities] = useState([
-        {
-            id:1,
-            name:"Culiacan"
-        },
-        {
-            id:2,
-            name:"Los mochis"
-        }
-    ]);
-
-    const [catFacilities, setCatFacilities] = useState([
-        {
-            id:true,
-            name:"Wi-fi",
-            code:"wifi"
-        },
-        {
-            value : false,
-            name : "Bathroom",
-            code : "bath"
-        }
-    ]);
+    
 
     //getPlaceInfo
     const getPlaceInfo = async(  ) =>{
-        axios.get(URLsCatalogService.Places + '/' + PlaceID)
+        axios.get(URLsCatalogService.Places + '/' + id)
         .then(resp => {
             const data = resp.data.info;
             setPlaceinfo(data);
         })
         .catch(error => console.error("Error getting place id"));
     };
-
-    //getUbicationName
-    const getUbicationNames = async( placeinfo ) =>{
-        axios.get(URLsCatalogService.Places + 
-            '/Ubications/' + placeinfo.countryid +
-            '/' + placeinfo.stateid +
-            '/' + placeinfo.cityid)
-        .then(resp => {
-            let find = resp.data.info;
-            setUbication( 
-            {
-                CountryName : find.CountryName,
-                StateName : find.StateName,
-                CityName : find.CityName
-            }
-            );
-        })
-        .catch(error => console.error("Error getting names of ubications"));
-    };
-
-    //getFacilities
-    const getFacilities = async( placeinfo ) =>{
-        const urlCall = 
-            URLsCatalogService.ViewPlaces 
-            + '/'
-            + placeinfo.id 
-            + '/Facilities';
-        
-        axios.get(urlCall)
-        .then( resp => {
-            setCatFacilities(resp.data.info); 
-        })
-        .catch(
-            error => {
-                setCatFacilities([]);
-                console.error("Error getting facilitie list", error);
-            }
-        );
-    };
     
     useEffect(()=> {
             getPlaceInfo();
     },[]);
 
-    return (<CenteredTemplate>
+    return (
         <Box
             sx={{
             display: 'flex',
@@ -208,17 +133,13 @@ function ViewPlace(){
             </Typography>
 
             <Typography gutterBottom variant="body1" component="div" align="right">
-            { placeinfo.state }, { placeinfo.state }, { placeinfo.country}
+                {
+                    placeinfo.City.name + ", " + placeinfo.State.name + ", " + placeinfo.Country.name
+                }
             </Typography>
             
-            <Typography gutterBottom variant="h6" component="div" align="left">
-                Facilities
-            </Typography>
-            
-            <Typography variant="body1" component="body1"  align="right">
-                <FacilitiList facilityList={catFacilities} />
-            </Typography>
+
         </Box>
-    </CenteredTemplate>);
+    );
 }
 export default ViewPlace;

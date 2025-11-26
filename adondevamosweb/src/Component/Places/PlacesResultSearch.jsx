@@ -40,7 +40,7 @@ import { Table,
     
         const goToViewPlace = (place) => {
           if (place.id == undefined) return;
-          navigate('/ViewPlace/' + place.id);
+          navigate('/View/Place/' + place.id);
         };
 
         return (
@@ -53,9 +53,9 @@ import { Table,
                             <TableHead>
                                 <TableRow>
                                     <TableCell>Name</TableCell>
-                                    <TableCell align="left">Country</TableCell>
-                                    <TableCell align="left">State</TableCell>
-                                    <TableCell align="left">City</TableCell>
+                                    <TableCell align="left">Ubication</TableCell>
+                                    <TableCell align="left">Address</TableCell>
+                                    <TableCell align="left"></TableCell>
                                     <TableCell align="left"></TableCell>
                                 </TableRow>
                             </TableHead>
@@ -68,11 +68,19 @@ import { Table,
                                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                             >
                                                 <TableCell component="th" scope="row">
-                                                    {place.name}
+                                                    { 
+                                                        place.name 
+                                                    }
                                                 </TableCell>
-                                                <TableCell align="right">{ place.country.name }</TableCell>
-                                                <TableCell align="right">{ place.state.name }</TableCell>
-                                                <TableCell align="right">{ place.city.name }</TableCell>
+                                                <TableCell align="right">{ place.City.name + ", " + place.Country.name + ", " + place.State.name }</TableCell>
+                                                <TableCell align="right">
+                                                    <Tooltip title={place.address}>
+                                                        <span>
+                                                            { place.address.length > 15 ? place.address.substring(0, 15) + "..." : place.address }
+                                                        </span>
+                                                    </Tooltip>
+                                                </TableCell>
+                                                <TableCell align="right">{  }</TableCell>
                                                 <TableCell align="center" >
                                                     <IconButton
                                                         color="primary"
@@ -92,8 +100,6 @@ import { Table,
                                                                     <Edit />
                                                                 </IconButton>
                                                             </Tooltip>
-                                                    
-                                                            
                                                         </>) : (<></>)
                                                     }
                                                     
