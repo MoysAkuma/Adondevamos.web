@@ -11,7 +11,8 @@ import
         List,
         ListItem,
         ListItemText,
-        Alert
+        Alert,
+        Icon
     } from '@mui/material';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
@@ -19,7 +20,7 @@ import ViewMemberList from '../View/ViewMemberList'
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import utils from "../../Resources/utils";
-import { View } from '@mui/icons-material'
+import { Visibility } from '@mui/icons-material'
 import config from "../../Resources/config";
 
 import { X } from "@mui/icons-material";
@@ -118,10 +119,10 @@ function ViewTrip(){
                 Members
             </Typography>
             {
-                tripInfo.memberlist.length != 0 ? 
+                tripInfo.members.length != 0 ? 
                 (
                 <>
-                    <ViewMemberList memberlist={tripInfo.memberlist}/>
+                    <ViewMemberList memberlist={tripInfo.members}/>
                 </>
                 ) : 
                 (
@@ -134,7 +135,7 @@ function ViewTrip(){
             </Typography>
             {
                tripInfo.itinerary.length != 0 ? (
-                    <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+                    <List sx={{ width: '100%', bgcolor: 'background.paper'  }}>
                     {
                         tripInfo.itinerary.map((item) => (
                             <>
@@ -149,11 +150,18 @@ function ViewTrip(){
                                 <IconButton edge="end" aria-label="actions">
                                     <ShareIcon />
                                 </IconButton>
+                                {
+                                    item.place.id ? (
+                                    <IconButton edge="end" aria-label="actions" href={"/View/Places/" + item.place.id} >
+                                        <Visibility  />
+                                    </IconButton>) : null
+                                }
+                                
                                 </>
                             }
                             >
-                                    <ListItemText 
-                                        primary={item.name} 
+                            <ListItemText 
+                                        primary={item.place.name} 
                                         secondary={ utils.formatDate(item.initialdate) 
                                         + " to " 
                                         + utils.formatDate(item.finaldate) } />
