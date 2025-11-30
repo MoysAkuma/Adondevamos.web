@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import 
     {
         useMediaQuery,
-        useTheme,
         Container,
         Typography,
         Box,
@@ -24,12 +23,9 @@ import { Visibility } from '@mui/icons-material'
 import config from "../../Resources/config";
 
 import { X } from "@mui/icons-material";
-import CenteredTemplate from "../Commons/CenteredTemplate";
 
 function ViewTrip(){
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    
+    //Get id
     const { id } = useParams();
 
     const [loading, setLoading] = useState(true);

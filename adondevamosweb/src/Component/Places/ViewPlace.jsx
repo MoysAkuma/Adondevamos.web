@@ -4,140 +4,137 @@ import axios from 'axios';
 
 import 
     {
-        TextField, 
-        Button,
-        useMediaQuery,
-        useTheme,
-        Container,
         Typography,
         Box,
-        MenuItem,
-        FormGroup,
-        FormControlLabel,
-        Checkbox,
-        List,
-        ListItem,
-        ListItemText
+        CircularProgress,
+        Alert,
+        Stack,
+        Tooltip
     } from '@mui/material';
 
-import FacilitiList from "../View/FacilitiList";
-
 import config from "../../Resources/config";
-
-import CenteredTemplate from "../Commons/CenteredTemplate";
+import FacilityIcon from './FacilityIcon';
 
 function ViewPlace(){
     //Get id
     const { id } = useParams();
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-    const [ubication, setUbication] = useState({
-        CountryName : "",
-        StateName : "",
-        CityName : ""
-    });
-    
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [placeInfo, setPlaceInfo] = useState(null);
 
     //URLS
-    const [URLsCatalogService, setURLsCatalogService] = useState(
-        {
-            Places:`${config.api.baseUrl}${config.api.endpoints.Places}`,
-            ViewPlaces:`${config.api.baseUrl}${config.api.site.View}${config.api.endpoints.Places}`
-        }
-    );
-
-    //mock
-    const [placemock, setPlacemock] = useState(
-        {
-            id : 1,
-            name: 'Place Name',
-            countryid: 1,
-            stateid: 1,
-            cityid: 1,
-            description: 'Description',
-            address:'Address Text',
-            facilities:[
-                {
-                    id:1,
-                    name:"WC"
-                }
-            ],
-            isinternational: false
-        }
-    );
-
-    const [placeinfo, setPlaceinfo] = useState(
-        {
-            name: 'Place Name',
-            countryid: 1,
-            stateid: 1,
-            cityid: 1,
-            description: 'Description',
-            address:'Address Text',
-            isinternational: false
-        }
-    );
-
-    
-
-    //getPlaceInfo
-    const getPlaceInfo = async(  ) =>{
-        axios.get(URLsCatalogService.Places + '/' + id)
-        .then(resp => {
-            const data = resp.data.info;
-            setPlaceinfo(data);
-        })
-        .catch(error => console.error("Error getting place id"));
+    const URLsCatalogService = {
+        Places:`${config.api.baseUrl}${config.api.endpoints.Places}`
     };
     
-    useEffect(()=> {
-            getPlaceInfo();
-    },[]);
+    useEffect(() => {
+        const fetchPlace = async () => {
+            if (!id) {
+                setLoading(false);
+                return;
+            }
+            
+            setLoading(true);
+            setError(null);
+            
+            try {
+                const response = await axios.get(`${URLsCatalogService.Places}/${id}`);
+                setPlaceInfo(response.data.info);
+            } catch (err) {
+                console.error("Error getting place info:", err);
+                setError(err.response?.data?.message || 'Failed to fetch place');
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        fetchPlace();
+    }, [id]); // id is the only dependency needed
 
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
+    
+    if (error) {
+        return (
+            <Alert severity="error" sx={{ mt: 2 }}>
+                Error: {error}
+            </Alert>
+        );
+    }
+    
+    if (!placeInfo) {
+        return (
+            <Alert severity="warning" sx={{ mt: 2 }}>
+                Place not found
+            </Alert>
+        );
+    }
+    
     return (
         <Box
             sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 2,
-            width: '100%'
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+                width: '100%'
             }}
         >
             <Typography variant="h4" component="h4" gutterBottom align="center">
-                {
-                    placeinfo.name
-                }
+                {placeInfo.name}
             </Typography>
 
             <Typography variant="h5" component="h5" gutterBottom align="left">
                 Description
             </Typography>
-            <Typography variant="body1" component="body1"  align="right">
-                {
-                    placeinfo.description
-                }
+            <Typography variant="body1" component="body1" align="left">
+                {placeInfo.description}
             </Typography>
 
             <Typography variant="h5" component="h5" gutterBottom align="left">
                 Address
             </Typography>
-            <Typography variant="body1" component="body1"  align="right">
-                {
-                    placeinfo.address
-                }
+            <Typography variant="body1" component="body1" align="left">
+                {placeInfo.address}
             </Typography>
 
             <Typography gutterBottom variant="h6" component="div" align="left">
                 Ubication
             </Typography>
 
-            <Typography gutterBottom variant="body1" component="div" align="right">
-                {
-                    placeinfo.City.name + ", " + placeinfo.State.name + ", " + placeinfo.Country.name
-                }
+            <Typography gutterBottom variant="body1" component="div" align="left">
+                {placeInfo.City.name}, {placeInfo.State.name}, {placeInfo.Country.name}
             </Typography>
-            
+
+            <Typography gutterBottom variant="h6" component="div" align="left">
+                Facilities
+            </Typography>
+            {
+                placeInfo.facilities.length !== 0 ? 
+                (
+                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                        {placeInfo.facilities.map((facility) => (
+                            <Tooltip title={facility.name} key={facility.code}>
+                            <FacilityIcon 
+                                key={facility.code} 
+                                code={facility.code} 
+                                titleAccess={facility.name}
+                                color="primary"
+                            />
+                            </Tooltip>
+                        ))}
+                    </Stack>
+                ) : (
+                    <Typography variant="body2" component="div" align="left">
+                        No facilities available.
+                    </Typography>
+                )
+            }
 
         </Box>
     );
