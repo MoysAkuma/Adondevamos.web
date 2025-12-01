@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import 
     {
-        useMediaQuery,
+        CircularProgress,
         Container,
         Typography,
         Box,
@@ -21,8 +21,6 @@ import ShareIcon from '@mui/icons-material/Share';
 import utils from "../../Resources/utils";
 import { Visibility } from '@mui/icons-material'
 import config from "../../Resources/config";
-
-import { X } from "@mui/icons-material";
 
 function ViewTrip(){
     //Get id
@@ -57,9 +55,29 @@ function ViewTrip(){
         fetchTrip();  
     },[id]);
 
-    if (loading) return <div>Loading trip info...</div>;
-    if (error) return <div>Error: {error}</div>;
-    if (!tripInfo) return <div>trip not found</div>;
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
+    
+    if (error) {
+        return (
+            <Alert severity="error" sx={{ mt: 2 }}>
+                Error: {error}
+            </Alert>
+        );
+    }
+    
+    if (!tripInfo) {
+        return (
+            <Alert severity="warning" sx={{ mt: 2 }}>
+                Trip not found
+            </Alert>
+        );
+    }
     return (
         <Box
             sx={{
@@ -78,7 +96,7 @@ function ViewTrip(){
             <Typography gutterBottom variant="h6" component="div">
                 Description
             </Typography>
-            <Typography gutterBottom variant="body1" component="div" align="right">
+            <Typography  variant="body1" component="div" align="right">
             {
                 tripInfo.description
             }

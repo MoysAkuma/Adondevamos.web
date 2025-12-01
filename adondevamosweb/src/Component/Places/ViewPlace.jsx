@@ -86,20 +86,25 @@ function ViewPlace(){
             }}
         >
             <Typography variant="h4" component="h4" gutterBottom align="center">
-                {placeInfo.name}
+                {
+                    placeInfo.name
+                }
             </Typography>
 
             <Typography variant="h5" component="h5" gutterBottom align="left">
                 Description
             </Typography>
-            <Typography variant="body1" component="body1" align="left">
-                {placeInfo.description}
+            
+            <Typography variant="body1" component="body1" align="right">
+                {
+                    placeInfo.description
+                }
             </Typography>
 
             <Typography variant="h5" component="h5" gutterBottom align="left">
                 Address
             </Typography>
-            <Typography variant="body1" component="body1" align="left">
+            <Typography variant="body1" component="body1" align="right">
                 {placeInfo.address}
             </Typography>
 
@@ -107,32 +112,39 @@ function ViewPlace(){
                 Ubication
             </Typography>
 
-            <Typography gutterBottom variant="body1" component="div" align="left">
+            <Typography gutterBottom variant="body1" component="div" align="right">
                 {placeInfo.City.name}, {placeInfo.State.name}, {placeInfo.Country.name}
             </Typography>
 
-            <Typography gutterBottom variant="h6" component="div" align="left">
+            <Typography variant="h6" component="div" align="center">
                 Facilities
             </Typography>
             {
                 placeInfo.facilities.length !== 0 ? 
                 (
-                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                        {placeInfo.facilities.map((facility) => (
-                            <Tooltip title={facility.name} key={facility.code}>
-                            <FacilityIcon 
+                    <Stack 
+                        direction="row" 
+                        spacing={2} 
+                        flexWrap="wrap" 
+                        useFlexGap 
+                        alignSelf="center"
+                        >
+                        {
+                            placeInfo.facilities.map((facility) => (
+                                
+                                <FacilityIcon 
                                 key={facility.code} 
                                 code={facility.code} 
                                 titleAccess={facility.name}
-                                color="primary"
+                                color="white"
+                                fontSize="x-large"
                             />
-                            </Tooltip>
                         ))}
                     </Stack>
                 ) : (
-                    <Typography variant="body2" component="div" align="left">
-                        No facilities available.
-                    </Typography>
+                    <Alert severity="info" sx={{ mt: 2 }}>
+                        No facilities to show.
+                    </Alert>
                 )
             }
 

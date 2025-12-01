@@ -20,6 +20,7 @@ const GenerateUserSection = () => {
                     <Button variant="outlined" 
                         endIcon={ <LocationCity/> }
                         size="small"
+                        disabled
                         href="/Create/Place" >
                         Create Places
                     </Button>
@@ -40,6 +41,7 @@ const GenerateUserSection = () => {
                         <Button 
                         variant="outlined" 
                         startIcon={ <Person/> }
+                        disabled
                         href="/login" >
                             Login or Create account
                         </Button>
