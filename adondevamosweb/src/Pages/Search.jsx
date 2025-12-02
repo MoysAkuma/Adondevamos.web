@@ -5,7 +5,6 @@ import { Container, Box, Typography } from "@mui/material";
 import axios from 'axios';
 
 import config from "../Resources/config";
-import NewTrips from "../Component/Trips/NewTrips";
 import TripFilters from "../Component/Trips/TripFilters";
 import PlaceFilter from "../Component/Places/PlaceFilter";
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";

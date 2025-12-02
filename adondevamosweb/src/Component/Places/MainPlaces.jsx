@@ -2,8 +2,8 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Container, Box, Typography, Button, ButtonGroup, List, ListItem, ListItemText } from "@mui/material";
-import { Flight, LocationCity, Search, Person } from '@mui/icons-material';
+import { Typography, Button, ButtonGroup } from "@mui/material";
+import { LocationCity, Search, Person } from '@mui/icons-material';
 import PlaceCard from "./PlaceCard";
 import CenteredTemplate from "../Commons/CenteredTemplate";
 
@@ -20,6 +20,7 @@ const GenerateUserSection = () => {
                     <Button variant="outlined" 
                         endIcon={ <LocationCity/> }
                         size="small"
+                        disabled
                         href="/Create/Place" >
                         Create Places
                     </Button>
@@ -40,6 +41,7 @@ const GenerateUserSection = () => {
                         <Button 
                         variant="outlined" 
                         startIcon={ <Person/> }
+                        disabled
                         href="/login" >
                             Login or Create account
                         </Button>

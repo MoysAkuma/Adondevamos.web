@@ -1,32 +1,40 @@
 import { useState, useEffect } from "react";
 import axios from 'axios';
 
-import { Typography, List, ListItem, ListItemText, IconButton, ListItemAvatar
-    , Avatar
+import { Typography, List, ListItem, ListItemText, 
+    IconButton, ListItemAvatar, Avatar,
+    Tooltip,
+    Icon
  } from '@mui/material';
 import { Chat, FlightTakeoff, Add, Delete, Edit, ArrowCircleUp, 
     ArrowCircleDown, AccountCircle } from '@mui/icons-material';
 function ViewMemberList ({
     memberlist = [
     { 
-        id : 1,
-        name : "Moises Moran",
-        email : "moises141294@hotmail.com",
-        tag : "MoysAkuma",
-        role : "Creator"
+        id: 0,
+        user:{
+            id: 0,
+            tag: "user1",
+            email: "",
+            lastname: ""        
+        }
     }
     ]
 })
 {
     return (<>
-        <List sx={{ width: '80%', bgcolor: 'background.paper' }}>
+        <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {
-            memberlist.map( (user,index) => (<> 
+            memberlist.map( (member,index) => (<> 
                 <ListItem
-                    key={user.id}
+                    key={member.user.id}
                     secondaryAction={
                         <IconButton edge="end" aria-label="actions">
-                            <Chat />
+                            <Tooltip title="Send Message" arrow>
+                              <IconButton disabled aria-label="chat">
+                                <Chat />
+                                </IconButton>
+                            </Tooltip>
                             {
                                 index != 0 ? 
                                 ( <ArrowCircleUp  />) : (<></>)
@@ -47,13 +55,13 @@ function ViewMemberList ({
                         </Avatar>
                     </ListItemAvatar>
                     <ListItemText 
-                        primary={ "@" + user.tag } 
+                        primary={ "@" + member.user.tag } 
                         secondary={ <> 
                             <Typography 
                                 component="span" variant="body2" 
                                 sx={{ color: 'text.primary', display: 'inline' }} >
                                 {
-                                    user.email
+                                    member.user.email
                                 }    
                             </Typography> </>   } 
                     />

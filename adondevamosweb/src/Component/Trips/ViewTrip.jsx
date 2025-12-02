@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import 
     {
-        useMediaQuery,
-        useTheme,
-        Container,
+        CircularProgress,
         Typography,
         Box,
         IconButton,
@@ -19,16 +17,11 @@ import ViewMemberList from '../View/ViewMemberList'
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import utils from "../../Resources/utils";
-import { View } from '@mui/icons-material'
+import { Visibility } from '@mui/icons-material'
 import config from "../../Resources/config";
 
-import { X } from "@mui/icons-material";
-import CenteredTemplate from "../Commons/CenteredTemplate";
-
 function ViewTrip(){
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    
+    //Get id
     const { id } = useParams();
 
     const [loading, setLoading] = useState(true);
@@ -60,9 +53,29 @@ function ViewTrip(){
         fetchTrip();  
     },[id]);
 
-    if (loading) return <div>Loading trip info...</div>;
-    if (error) return <div>Error: {error}</div>;
-    if (!tripInfo) return <div>trip not found</div>;
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
+    
+    if (error) {
+        return (
+            <Alert severity="error" sx={{ mt: 2 }}>
+                Error: {error}
+            </Alert>
+        );
+    }
+    
+    if (!tripInfo) {
+        return (
+            <Alert severity="warning" sx={{ mt: 2 }}>
+                Trip not found
+            </Alert>
+        );
+    }
     return (
         <Box
             sx={{
@@ -72,16 +85,16 @@ function ViewTrip(){
             width: '100%'
             }}
         >
-            <Typography gutterBottom variant="h5" component="h5" align="left">
+            <Typography gutterBottom variant="h4" component="h4" align="center">
             {
                 tripInfo.name
             }
             </Typography>
 
-            <Typography gutterBottom variant="h6" component="div">
+            <Typography gutterBottom variant="h4" component="div" align="center">
                 Description
             </Typography>
-            <Typography gutterBottom variant="body1" component="div" align="right">
+            <Typography  variant="body1" component="div" align="right">
             {
                 tripInfo.description
             }
@@ -118,10 +131,10 @@ function ViewTrip(){
                 Members
             </Typography>
             {
-                tripInfo.memberlist.length != 0 ? 
+                tripInfo.members.length != 0 ? 
                 (
                 <>
-                    <ViewMemberList memberlist={tripInfo.memberlist}/>
+                    <ViewMemberList memberlist={tripInfo.members}/>
                 </>
                 ) : 
                 (
@@ -134,7 +147,7 @@ function ViewTrip(){
             </Typography>
             {
                tripInfo.itinerary.length != 0 ? (
-                    <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+                    <List sx={{ width: '100%', bgcolor: 'background.paper'  }}>
                     {
                         tripInfo.itinerary.map((item) => (
                             <>
@@ -149,11 +162,18 @@ function ViewTrip(){
                                 <IconButton edge="end" aria-label="actions">
                                     <ShareIcon />
                                 </IconButton>
+                                {
+                                    item.place.id ? (
+                                    <IconButton edge="end" aria-label="actions" href={"/View/Places/" + item.place.id} >
+                                        <Visibility  />
+                                    </IconButton>) : null
+                                }
+                                
                                 </>
                             }
                             >
-                                    <ListItemText 
-                                        primary={item.name} 
+                            <ListItemText 
+                                        primary={item.place.name} 
                                         secondary={ utils.formatDate(item.initialdate) 
                                         + " to " 
                                         + utils.formatDate(item.finaldate) } />

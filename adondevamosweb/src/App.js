@@ -1,6 +1,5 @@
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import NavBar from './Component/NavBar';
 import  Home  from "./Pages/Home";
 import Login from "./Pages/Login"
 import ManageSite from "./Pages/ManageSite";
@@ -13,12 +12,12 @@ import Edit from "./Pages/Edit"
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from "./Component/ProtectedRoute";
 import { Navigate } from 'react-router-dom';
-
+import AppBar from "./Component/Commons/AppBar";
 function AppContent() {
   
   return (
     <>
-      <NavBar/>
+      <AppBar/>
         <Routes>
           <Route exact path="/" element={ <Home /> } />
           <Route path="/Login" element={ <Login/>}/>

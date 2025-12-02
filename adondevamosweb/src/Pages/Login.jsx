@@ -7,7 +7,7 @@ import
         Button,
         useMediaQuery,
         useTheme,
-        Container,
+        Tooltip,
         Typography,
         Box,
         InputAdornment,
@@ -16,12 +16,13 @@ import
         AlertTitle
     } from '@mui/material';
 
-import {  Visibility, VisibilityOff, AccountCircle } from '@mui/icons-material';
+import {  Visibility, VisibilityOff, AccountCircle, PersonAdd } from '@mui/icons-material';
 import LoginIcon  from '@mui/icons-material/Login';
 import { useAuth }  from '../context/AuthContext'
 
 import config from '../Resources/config';
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
+import RecoverPassword from "../Component/Users/RecoverPassword";
 function Login(){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -115,8 +116,8 @@ function Login(){
     return (
         <CenteredTemplate>
             <>
-                <Typography variant="h6"  gutterBottom align="center">
-                    A donde vamos
+                <Typography variant={isMobile ? "h3" : "h4"} gutterBottom align="center">
+                    AdondeVamos
                 </Typography>
                 
                 <Box
@@ -133,11 +134,8 @@ function Login(){
                         }
                     }
                 >
-                    <Typography 
-                        variant="h6"  
-                        gutterBottom 
-                        align="center">
-                        Log In
+                    <Typography variant={ "h4" } gutterBottom align="center">
+                        Log in
                     </Typography>
                     
                     <TextField
@@ -218,12 +216,21 @@ function Login(){
                         >
                         Log In
                     </Button>
-                    <Typography variant="body2" align="center">
-                        Recover password <Link to="/RecoverPassword">here</Link>
-                    </Typography>
-                    <Typography variant="body2" align="center">
-                        Don't have an account? <Link to="/CreateAccount">Create one</Link>
-                    </Typography>
+
+                    <RecoverPassword />
+                    
+                    <Tooltip title="Working on this, sorry >w< ">
+                        <Button 
+                        type="button" 
+                        disabled={isSubmitting}
+                        variant="text"
+                        size="small"
+                        startIcon={ <PersonAdd/> }
+                        sx={{ color:"#000"}}
+                        >
+                            Create an Account
+                        </Button>
+                    </Tooltip>
                 </Box>
             </>
         </CenteredTemplate>

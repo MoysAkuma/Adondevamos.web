@@ -5,15 +5,53 @@ import
 {
     Stack, 
     Button,
-    Container,
+    Tooltip,
     Typography,
     Box,ButtonGroup
 } from '@mui/material';
 import { Flight, Search, Person } from '@mui/icons-material';
 import TripCard from "../Component/Trips/TripCard";
-import NewTrips from "../Component/Trips/NewTrips";
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 
+const GenerateBottonSection = () => { 
+    if( localStorage.getItem('userid') != null ){
+        return (
+            <>
+                
+                <Button 
+                    variant="contained"
+                    startIcon={ <Flight/> }
+                    href="/Create/Trip" 
+                    disabled
+                    >
+                    Create a new trip
+                </Button>
+                <Button variant="outlined"
+                    endIcon={ <Search/> }
+                    href="/Search/Trips" >
+                    Search for trips
+                </Button>
+            </>
+        );
+    } else {
+        return (
+            <>  
+                <Button 
+                    variant="contained" 
+                    startIcon={ <Person/> }
+                    disabled
+                    href="/login" >
+                    Login or Create account
+                </Button>
+                <Button variant="outlined"
+                    endIcon={ <Search/> }
+                    href="/Search/Trips" >
+                    Search for trips
+                </Button>
+            </>
+        );
+    }
+}
  const MainTrips = () => {
     const [isUser, setIsUser] = useState(false);
     
@@ -24,7 +62,10 @@ import CenteredTemplate from "../Component/Commons/CenteredTemplate";
     return (
         <CenteredTemplate>
         <>
-            <Typography variant="h4" align="center" gutterBottom>
+            <Typography 
+                variant="h5" 
+                align="center" 
+                >
                 Trips
             </Typography>
             <Box
@@ -36,49 +77,16 @@ import CenteredTemplate from "../Component/Commons/CenteredTemplate";
                 width: '100%'
                 }}
             >
-            {
-                isUser ? (
-                    <>
-                        <ButtonGroup 
-                        variant="contained" 
-                        color="primary" 
-                        fullWidth sx={{ mt: 2, mb: 4 }}>
-                            <Button 
-                                variant="contained" 
-                                startIcon={ <Flight/> }
-                                href="/Create/Trip" >
-                                    Create a new trip
-                            </Button>
-                        
-                            <Button variant="outlined" 
-                                endIcon={ <Search/> }
-                                href="/Search/Trips" >
-                                    Search for trips
-                            </Button>
-                        </ButtonGroup>
-                    </>
-                ) : 
-                (   <>
-                        <ButtonGroup 
-                            variant="contained" 
-                            color="primary" 
-                            fullWidth sx={{ mt: 2, mb: 4 }}>
-                            <Button 
-                                variant="contained"
-                                startIcon={ <Person/> }
-                                href="/login" >
-                                    Login or Create account
-                            </Button>
-                            <Button variant="outlined" 
-                                endIcon={ <Search/> }
-                                href="/Search/Trips"
-                            >
-                                Search for trips
-                            </Button>
-                        </ButtonGroup>
-                    </>
-                )
-            }
+            
+                <ButtonGroup 
+                    variant="contained" 
+                    color="primary" 
+                    fullWidth sx={{ mt: 2, mb: 4 }}>
+                        {
+                            GenerateBottonSection()
+                        }
+                </ButtonGroup>
+            
             <Typography variant="h6" align="left">
                 What is a Trip in AdondeVamos?
             </Typography>
@@ -86,7 +94,7 @@ import CenteredTemplate from "../Component/Commons/CenteredTemplate";
                 A trip is a list of places you want to visit with your friends.
             </Typography>
 
-            <Box sx={{ p: 3, backgroundColor: 'white', borderRadius: 2, boxShadow: 2 }}>
+            <Box sx={{ backgroundColor: 'white', borderRadius: 2, boxShadow: 2 }}>
                 <TripCard
                     tripinfo={
                         {
@@ -110,8 +118,6 @@ import CenteredTemplate from "../Component/Commons/CenteredTemplate";
                     }}
                 />
             </Box>
-            
-            <NewTrips />
 
             </Box>
         </>
