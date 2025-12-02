@@ -37,15 +37,6 @@ export default function AppBarComp() {
                             <Button color="inherit" component={Link} to="/ManageSite">
                                 Manage Site
                             </Button>
-                            <Button color="inherit" onClick={auth.logout}>
-                                Logout
-                            </Button>
-                        </>
-                    ) : (
-                        <>
-                            <Button color="inherit" component={Link} to="/Login">
-                                Login
-                            </Button>
                             <Button color="inherit" component={Link} to="/Trips">
                                 Trips
                             </Button>
@@ -53,6 +44,16 @@ export default function AppBarComp() {
                                 Places
                             </Button>
                             <UserProfileAvatar settings={settings} />
+                        </>
+                    ) : (
+                        <>
+                            <Button color="inherit" component={Link} to="/Trips">
+                                Trips
+                            </Button>
+                            <Button color="inherit" component={Link} to="/Places">
+                                Places
+                            </Button>
+                            
                         </>
                     )}
                     

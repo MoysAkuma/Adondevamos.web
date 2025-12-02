@@ -55,7 +55,7 @@ import { Table,
                                     <TableCell>Name</TableCell>
                                     <TableCell align="left">Ubication</TableCell>
                                     <TableCell align="left">Address</TableCell>
-                                    <TableCell align="left"></TableCell>
+                            
                                     <TableCell align="left"></TableCell>
                                 </TableRow>
                             </TableHead>
@@ -72,7 +72,13 @@ import { Table,
                                                         place.name 
                                                     }
                                                 </TableCell>
-                                                <TableCell align="right">{ place.City.name + ", " + place.Country.name + ", " + place.State.name }</TableCell>
+                                                <TableCell align="right">
+                                                    { 
+                                                        place.City.name + ", " + 
+                                                        place.Country.name + ", " + 
+                                                        place.State.name 
+                                                    }
+                                                </TableCell>
                                                 <TableCell align="right">
                                                     <Tooltip title={place.address}>
                                                         <span>
@@ -80,7 +86,7 @@ import { Table,
                                                         </span>
                                                     </Tooltip>
                                                 </TableCell>
-                                                <TableCell align="right">{  }</TableCell>
+                                                
                                                 <TableCell align="center" >
                                                     <IconButton
                                                         color="primary"

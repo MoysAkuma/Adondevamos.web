@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import 
     {
         CircularProgress,
-        Container,
         Typography,
         Box,
         IconButton,
@@ -10,8 +9,7 @@ import
         List,
         ListItem,
         ListItemText,
-        Alert,
-        Icon
+        Alert
     } from '@mui/material';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
@@ -87,13 +85,13 @@ function ViewTrip(){
             width: '100%'
             }}
         >
-            <Typography gutterBottom variant="h5" component="h5" align="left">
+            <Typography gutterBottom variant="h4" component="h4" align="center">
             {
                 tripInfo.name
             }
             </Typography>
 
-            <Typography gutterBottom variant="h6" component="div">
+            <Typography gutterBottom variant="h4" component="div" align="center">
                 Description
             </Typography>
             <Typography  variant="body1" component="div" align="right">

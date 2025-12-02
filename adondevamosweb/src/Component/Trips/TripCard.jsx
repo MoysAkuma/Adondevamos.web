@@ -27,6 +27,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { styled } from '@mui/material/styles';
 import Itinerary from "./Itinerary/Itinerary";
+import { Stack } from "@mui/system";
 
 
 function TripCard ({
@@ -179,11 +180,20 @@ function TripCard ({
               }
             </Typography>
             <Divider sx={{ marginTop: '5px', marginBottom: '5px' }}/>
+            <Stack direction="row" spacing={1} alignItems="right">
             {
-              tripinfo.itinerary.map( 
-                (x) => x.Ubication.Country.acronym || "" ).map( (x) => <Chip  label={x}  />)
-              
-            }
+              tripinfo.itinerary
+                .map((x) => x.Ubication.Country.acronym || "")
+                .map((acronym, index) => 
+                  <Chip  
+                    key={`${acronym}-${index}`}
+                    variant="outlined"
+                    size="small"
+                    label={acronym}  
+                  />
+                )
+}
+</Stack>
           </CardContent>
           <CardActions disableSpacing 
             sx={{ bgcolor: "#C9C1F8" }}>
