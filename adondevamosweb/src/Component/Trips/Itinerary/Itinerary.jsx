@@ -20,10 +20,10 @@ import {
     FlightTakeoff, 
     Add, 
     Delete, 
-    Edit, 
     ArrowCircleUp, 
     ArrowCircleDown, 
-    LocationCity 
+    LocationCity, 
+    Visibility
 } from '@mui/icons-material';
 
 function Itinerary ({
@@ -38,7 +38,7 @@ function Itinerary ({
         }
         ]
     },
-    callBackDelete = function(item){}
+    callBackView = function(item){}
 })
 {
     const formatDate = (dateString) => {
@@ -99,12 +99,11 @@ function Itinerary ({
                 
                 <IconButton 
                     edge="end" 
-                    aria-label="delete" 
+                    aria-label="view" 
                     size="small"
-                    color="error"
-                    onClick={() => callBackDelete(visit.id)}
+                    onClick={() => callBackView(visit.id)}
                 >
-                    <Delete />
+                    <Visibility />
                 </IconButton>
             </Box>
         );

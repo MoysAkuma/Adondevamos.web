@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { AppBar, Toolbar, Typography, 
-    Button
+    Button, Box, CircularProgress
  } from "@mui/material";
 import { Link } from "react-router-dom";
 
@@ -9,18 +9,11 @@ import { Container } from "@mui/system";
 import { NotListedLocation } from "@mui/icons-material";
 import UserProfileAvatar from "../Users/UserProfileAvatar";
 
-export default function AppBarComp() {  
-    const [isLoggedIn, setIsLoggedIn ] = useState(false);
-    const auth = useAuth();
+export default function AppBarComp() {
+    const { isLogged, loading } = useAuth();
 
-    useEffect(() => {
-        setIsLoggedIn(auth.isLogged);
-    }, [auth.isLogged]);
-    const pages = ['Home', 'Trips', 'Places'];
-    const settings = ['Profile', 'Account', 'Logout'];
+    const settings = [{text :'Profile', path: '/Profile'}, {text: 'Logout', path: '/Logout'}];
 
-    
-    
     return (
         <AppBar position="fixed" color="default" sx={{ mb: 2 }}>
             <Container maxWidth="lg">
@@ -32,7 +25,12 @@ export default function AppBarComp() {
                         </Link>
                     </Typography>
                     
-                    {isLoggedIn ? (
+                    {/* while auth is being checked, avoid showing login/logout UI */}
+                    {loading ? (
+                        <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center' }}>
+                            <CircularProgress size={20} />
+                        </Box>
+                    ) : isLogged ? (
                         <>
                             <Button color="inherit" component={Link} to="/ManageSite">
                                 Manage Site
@@ -53,7 +51,9 @@ export default function AppBarComp() {
                             <Button color="inherit" component={Link} to="/Places">
                                 Places
                             </Button>
-                            
+                            <Button color="inherit" component={Link} to="/Login">
+                                Login
+                            </Button>
                         </>
                     )}
                     
