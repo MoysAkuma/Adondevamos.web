@@ -16,11 +16,12 @@ export default function Profile() {
       };
     useEffect(() => {
         const fetchUserInfo = async () => {
-            console.log('Fetching user info for:', auth.user);
+            
             try {
                 const response = await axios.get(`${URLs.Site}/Users/${auth.user}`, {
                     withCredentials: true
                 });
+
                 setUserInfo(response.data.info);
             } catch (error) {
                 console.error("Error fetching user info:", error);

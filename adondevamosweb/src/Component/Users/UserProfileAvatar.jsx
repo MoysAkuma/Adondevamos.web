@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, IconButton, Menu, MenuItem, Tooltip, Avatar, Typography } from '@mui/material';
+import { Box, IconButton, Menu, MenuItem, 
+    Tooltip, Avatar, Typography } from '@mui/material';
 import { Person } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
 

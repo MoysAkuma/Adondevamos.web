@@ -27,6 +27,19 @@ export default function Edit() {
                 </Typography>
             </>;
         }
+        if (opt === "Profile") {
+            return <>
+                <Typography variant="h5" align="center">
+                    Profile Edit Page
+                </Typography>
+            </>;
+        }
+        return <>
+            <img src="/UnderConstruction.png" 
+                alt="404 Not Found" 
+                style={{ display: 'block', margin: '0 auto', maxWidth: '100%' }} 
+            />
+        </>
     }
 
     return (

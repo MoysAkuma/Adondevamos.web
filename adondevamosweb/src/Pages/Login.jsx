@@ -212,25 +212,25 @@ function Login(){
                         disabled={isSubmitting}
                         variant="text"
                         size="small"
-                        startIcon={ <LoginIcon/> }
+                        endIcon={ <LoginIcon/> }
                         >
                         Log In
                     </Button>
 
                     <RecoverPassword />
                     
-                    <Tooltip title="Working on this, sorry >w< ">
-                        <Button 
+                    <Button 
                         type="button" 
                         disabled={isSubmitting}
                         variant="text"
                         size="small"
                         startIcon={ <PersonAdd/> }
                         sx={{ color:"#000"}}
-                        >
-                            Create an Account
-                        </Button>
-                    </Tooltip>
+                        href="/Create/User"
+                    >
+                        Create an Account
+                    </Button>
+                    
                 </Box>
             </>
         </CenteredTemplate>

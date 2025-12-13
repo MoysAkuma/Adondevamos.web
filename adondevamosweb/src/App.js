@@ -26,6 +26,7 @@ function AppContent() {
           <Route path="/Places" element={ <MainPlaces/>}/>
           <Route path="/ManageSite" element={<ProtectedRoute><ManageSite/></ProtectedRoute>}/>
           <Route path="/Create/:opt" element={<ProtectedRoute> <Create /> </ProtectedRoute>}/>
+          <Route path="/Edit/:opt/:id" element={<ProtectedRoute> <Edit /> </ProtectedRoute>}/>
           <Route path="/Search/:opt" element={<Search/>}/>
           <Route path="/View/:opt/:id" element={<View/>}/>
           <Route path="/Profile" element={<ProtectedRoute><Profile/></ProtectedRoute>}/>
