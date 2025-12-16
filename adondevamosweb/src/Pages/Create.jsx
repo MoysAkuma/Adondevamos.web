@@ -8,8 +8,10 @@ import config from "../Resources/config";
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 import CreateTrip from "../Component/Trips/CreateTrip";
 import CreatePlace from "../Component/Places/CreatePlace"
-
+import CreateUser from "../Component/Users/CreateUser";
+import { useAuth } from "../context/AuthContext";
 export default function Create() {
+    const { isLogged, loading } = useAuth();
     //Module to show the search page
     const { opt } = useParams();
     const [searchResults, setSearchResults] = useState([]);
@@ -29,7 +31,20 @@ export default function Create() {
     const [catState, setCatState] = useState([]);
     const [catCities, setCatCities] = useState([]); 
     const controlViewOption = (opt) => {
-        if (opt === "Trip") {
+        
+        if (opt === "User") {
+            return <>
+                <CreateUser />
+            </>;
+        }
+        if (isLogged === false && loading === false) {
+            return <>
+                <Typography variant="h6" color="error">
+                    You must be logged in to create content.
+                </Typography>
+            </>;
+        }
+        if (opt === "Trip" ) {
             return <>
                 <CreateTrip />
             </>;
@@ -39,34 +54,8 @@ export default function Create() {
                 <CreatePlace />
             </>;
         }
+        
     }
-    
-    //getCountries
-    const getCountries = async( ) =>{
-        axios.get(URLsAPIService.Countries)
-        .then(resp => {
-            setCatCountries(resp.data.info);
-        })
-        .catch(error => console.error("Error getting catalogue of countries"));
-    };
-
-    //getStates
-    const getStates = async( ) =>{
-        axios.get(URLsAPIService.States)
-        .then(resp => {
-            setCatState(resp.data.info);
-        })
-        .catch(error => console.error("Error getting catalogue of state"));
-    };
-
-    //getCity
-    const getCity = async( ) =>{
-        axios.get(URLsAPIService.Cities)
-        .then(resp => {
-            setCatCities(resp.data.info);
-        })
-        .catch(error => console.error("Error getting catalogue of state"));
-    };
 
     return (
         <CenteredTemplate>

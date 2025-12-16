@@ -20,7 +20,6 @@ import CitiesSelect from "../Catalogues/CitiesSelect";
 
 import config from "../../Resources/config";
 
-import CenteredTemplate from "../Commons/CenteredTemplate";
 
 function CreateUser(){
     const theme = useTheme();
@@ -282,7 +281,7 @@ function CreateUser(){
     },[]);
 
     return (
-        <CenteredTemplate>
+        <>
             <Typography variant="h5" component="h1" gutterBottom align="center">
                 Create User
             </Typography>
@@ -461,7 +460,7 @@ function CreateUser(){
                 </Button>
 
             </Box>
-        </CenteredTemplate>
+        </>
     );
 }
 

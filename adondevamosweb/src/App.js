@@ -25,7 +25,7 @@ function AppContent() {
           <Route path="/Trips" element={ <MainTrips/>}/>
           <Route path="/Places" element={ <MainPlaces/>}/>
           <Route path="/ManageSite" element={<ProtectedRoute><ManageSite/></ProtectedRoute>}/>
-          <Route path="/Create/:opt" element={<ProtectedRoute> <Create /> </ProtectedRoute>}/>
+          <Route path="/Create/:opt" element={<Create />}/>
           <Route path="/Edit/:opt/:id" element={<ProtectedRoute> <Edit /> </ProtectedRoute>}/>
           <Route path="/Search/:opt" element={<Search/>}/>
           <Route path="/View/:opt/:id" element={<View/>}/>
