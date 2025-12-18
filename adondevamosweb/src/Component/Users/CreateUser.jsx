@@ -9,7 +9,7 @@ import
         Button,
         useMediaQuery,
         useTheme,
-        Container,
+        CircularProgress,
         Typography,
         Box
     } from '@mui/material';
@@ -19,21 +19,19 @@ import StateSelect from "../Catalogues/StateSelect";
 import CitiesSelect from "../Catalogues/CitiesSelect";
 
 import config from "../../Resources/config";
-
+import utils from "../../Resources/utils";
 
 function CreateUser(){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [loading, setLoading] = useState(true);
     //URLS
-    const [URLsCatalogService, setURLsCatalogService] = useState(
+    const URLsCatalogService =
         {
-            Countries:`${config.api.baseUrl}${config.api.endpoints.Countries}`,
-            States:`${config.api.baseUrl}${config.api.endpoints.States}`,
-            Cities:`${config.api.baseUrl}${config.api.endpoints.Cities}`,
-            Users:`${config.api.baseUrl}${config.api.endpoints.Users}`,
+            Catalogues:`${config.api.baseUrl}${config.api.endpoints.Catalogues}`,
+            Users : `${config.api.baseUrl}${config.api.endpoints.Users}`
         }
-    );
+
     //tag
     const [tagwasVerify, setTagWasVerify] = useState(false);
     const [tagistaken, setTagistaken] = useState(false);
@@ -47,6 +45,9 @@ function CreateUser(){
     //Password
     const [confirmPassword, setConfirmPassword] = useState('');
     const [passwordWasVerify, setPasswordWasVerify] = useState(false);
+
+    //AllCatalogues
+    const [allCatalogues, setAllCatalogues] = useState({});
 
     //catalogues
     const [catCountries, setCatCountries] = useState([
@@ -97,10 +98,19 @@ function CreateUser(){
         }));
         switch (name){
             case 'countryid':
-                getStates(value);
+               setCatStates( allCatalogues.states.filter( item => item.countryid == value ) );
+               setFormCreateUser( prev => ({
+                ...prev,
+                stateid: 0,
+                cityid: 0
+               }) );
             break
             case 'stateid':
-                getCities(value);
+                setCatCities( allCatalogues.cities.filter( item => item.stateid == value ) );
+                setFormCreateUser( prev => ({
+                    ...prev,
+                    cityid: 0
+                   }) );
             break
         }
     };
@@ -216,45 +226,22 @@ function CreateUser(){
         }
     };
 
-    //getCountries
-    const getCountries = async( ) =>{
-        axios.get(URLsCatalogService.Countries)
-        .then(resp => {
-            setCatCountries(resp.data.info);
-        })
-        .catch(error => console.error("Error getting catalogue of countries"));
-    };
-
-    //getStates
-    const getStates = async( item ) =>{
-        axios.get(URLsCatalogService.States + '/ByCountryID/' + item)
-        .then(resp => {
-            setCatStates(resp.data.info);
-            handleChange({target:{cityid:0}});
-        })
-        .catch(error => console.error("Error getting catalogue of countries"));
-    };
-
-    //getCities
-    const getCities = async( item ) =>{
-        axios.get(URLsCatalogService.Cities + '/ByState/' + item)
-        .then(resp => {
-            setCatCities(resp.data.info);
-        })
-        .catch(error => console.error("Error getting catalogue of countries"));
-    };
 
     //verifytag
     const verifyTag = async( item ) =>{
-        if(item.length > 0){
+        if(item.length > 3){
             setTagWasVerify(true);
-            axios.get(URLsCatalogService.User + '/Verify/Tag/' + item)
+            axios.get(URLsCatalogService.Users + '/Verify/tag/' + item)
             .then(resp => {
-                setTagistaken(false);
+                console.log(resp);
+                setTagistaken( (resp.status == 200 ));
             })
             .catch(error => { 
-                setTagistaken( (error.status == 409 ));
-            console.error("Error verification of tag")});    
+                    if(error.status == 404 ){
+                        setTagistaken(false);
+                    }
+                }
+            );
         }
         
     };
@@ -262,13 +249,18 @@ function CreateUser(){
     //verifyemail
     const verifyEmail = async( item ) =>{
         setEmailWasVerify(true);
-        axios.get(URLsCatalogService.User + '/Verify/Email/' + item)
+        if( !utils.validateEmail(item) ) return;
+        axios.get(URLsCatalogService.Users + '/Verify/email/' + item)
         .then(resp => {
-            setEmailIsUsed(false);
+            console.log(resp);
+            setEmailIsUsed(resp.status == 200);
         })
         .catch(error => { 
-            setTagistaken((error.status == 409));
-            console.error("Error verification of tag")}
+                if( (error.status == 404) || (error.response?.status == 404) ){
+                    setEmailIsUsed(false);
+                    
+                }
+            }
         );
     };
 
@@ -277,9 +269,30 @@ function CreateUser(){
     };
 
     useEffect(()=> {
-        getCountries();
+        //getCatalogues
+        const getCatalogues = async() => {
+            try {
+                const response = await axios.get(`${URLsCatalogService.Catalogues}/all`);
+                const data = response.data.info;
+                console.log("Catalogues fetched:", data);
+                setAllCatalogues(data);
+                setCatCountries(data.countries);
+                setLoading(false);
+            } catch (error) {
+                console.error("Error fetching catalogues:", error);
+            }
+        };
+        
+        getCatalogues();
     },[]);
 
+    if (loading) {
+        return (
+            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <CircularProgress />
+            </Box>
+        );
+    }
     return (
         <>
             <Typography variant="h5" component="h1" gutterBottom align="center">
@@ -377,7 +390,7 @@ function CreateUser(){
                 {
                     passwordWasVerify ? (
                     <Typography variant="body1" component="body1" gutterBottom align="center">
-                    Password is confirmed
+                        Password is confirmed
                     </Typography>) : 
                     <></>
                 }
@@ -438,17 +451,37 @@ function CreateUser(){
                 onChangecall={handleSelect} 
                 catCountries={catCountries} />
 
-                <StateSelect 
-                val={formCreateUser.stateid}
-                onChangecall={handleSelect}
-                catStates={catStates}
-                />
+                {
+                    (formCreateUser.countryid != 0) ?
+                    (
+                        <>
+                            <StateSelect 
+                            val={formCreateUser.stateid}
+                            onChangecall={handleSelect}
+                            catStates={catStates}
+                            />
+                        </>
+                    )
+                    :
+                    <></>
+                }
 
-                <CitiesSelect 
-                val={formCreateUser.cityid}
-                onChangecall={handleSelect}
-                catCities={catCities}
-                />
+                {
+                    (formCreateUser.stateid != 0) ?
+                    (
+                        <>
+                            <CitiesSelect 
+                            val={formCreateUser.cityid}
+                            onChangecall={handleSelect}
+                            catCities={catCities}
+                            />
+                        </>
+                    )
+                    :
+                    <></>
+                }
+
+                
 
                 <Button 
                     type="submit" 

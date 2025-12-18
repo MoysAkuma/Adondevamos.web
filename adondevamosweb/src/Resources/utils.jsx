@@ -8,8 +8,14 @@ const formatDate = (dateString) => {
         }).format(date);
 };
 
+const validateEmail = (email) => {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(String(email).toLowerCase());
+}
+
 const utils = {
-  formatDate : formatDate
+  formatDate : formatDate,
+  validateEmail : validateEmail
 };
 
 export default utils;
