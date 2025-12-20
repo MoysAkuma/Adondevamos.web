@@ -11,12 +11,14 @@ import
         useTheme,
         CircularProgress,
         Typography,
-        Box
+        Box,
+        Alert,
+        Snackbar
     } from '@mui/material';
 
-import CountriesSelectList from "../Catalogues/CountriesSelectList";
-import StateSelect from "../Catalogues/StateSelect";
-import CitiesSelect from "../Catalogues/CitiesSelect";
+import { Person } from '@mui/icons-material';
+
+import UbicationSelector from "../Commons/Ubication/UbicationSelector";
 
 import config from "../../Resources/config";
 import utils from "../../Resources/utils";
@@ -49,44 +51,25 @@ function CreateUser(){
     //AllCatalogues
     const [allCatalogues, setAllCatalogues] = useState({});
 
-    //catalogues
-    const [catCountries, setCatCountries] = useState([
-        {
-            id : 1,
-            name:"MEXICO"
-        }
-    ]);
-
-    const [catStates, setCatStates] = useState([
-        {
-            id : 1,
-            name : "SINALOA"
-        }
-    ]);
-
-    const [catCities, setCatCities] = useState([
-        {
-            id : 1,
-            name : "Culiacan"
-        },
-        {
-            id : 2,
-            name : "Los mochis"
-        }
-    ]);
-
     // user info
     const [formCreateUser, setFormCreateUser] = useState({
         name: '',
         secondName:'',
         lastName:'',
-        countryid: 1,
+        countryid: 0,
         stateid: 0,
         cityid: 0,
         description: '',
         email:'',
         tag:'',
         password:''
+    });
+
+    // Location state
+    const [locationValues, setLocationValues] = useState({
+        countryid: 0,
+        stateid: 0,
+        cityid: 0
     });
  
     //update request
@@ -96,32 +79,22 @@ function CreateUser(){
           ...prev,
           [name]: value
         }));
-        switch (name){
-            case 'countryid':
-               setCatStates( allCatalogues.states.filter( item => item.countryid == value ) );
-               setFormCreateUser( prev => ({
-                ...prev,
-                stateid: 0,
-                cityid: 0
-               }) );
-            break
-            case 'stateid':
-                setCatCities( allCatalogues.cities.filter( item => item.stateid == value ) );
-                setFormCreateUser( prev => ({
-                    ...prev,
-                    cityid: 0
-                   }) );
-            break
-        }
     };
+
     const handleChangeConfirmPassword = (e) => {
         const { name, value } = e.target;
         setConfirmPassword(value);
     }
 
-    
-    const handleSelect = (event) => {
-        handleChange(event);
+    // Handle location changes
+    const handleLocationChange = (newLocationValues) => {
+        setLocationValues(newLocationValues);
+        setFormCreateUser(prev => ({
+            ...prev,
+            countryid: newLocationValues.countryid,
+            stateid: newLocationValues.stateid,
+            cityid: newLocationValues.cityid
+        }));
     };
     
     // UI state
@@ -142,7 +115,7 @@ function CreateUser(){
         }
 
         // Validate for field Last Name
-        if (!formCreateUser.lastName.trim()) {
+        if (!formCreateUser.lastname.trim()) {
             throw new Error('User Last name is required');
         }
         
@@ -180,11 +153,13 @@ function CreateUser(){
             throw new Error('cityID is required');
         }
 
+        console.log('Submitting form with data:', formCreateUser);
+        
         // API call to create user
         const response = await axios.post(URLsCatalogService.Users, {
             name: formCreateUser.name.trim(),
-            secondName: formCreateUser.secondName.trim(),
-            lastName: formCreateUser.lastName.trim(),
+            secondname: formCreateUser.secondName.trim(),
+            lastname: formCreateUser.lastname.trim(),
             countryid: formCreateUser.countryid,
             stateid: formCreateUser.stateid,
             cityid: formCreateUser.cityid,
@@ -199,22 +174,26 @@ function CreateUser(){
             }
         });
 
-        // Handle success
-        setSubmitSuccess(true);
-        
+        //handle response
+        if (response.status !== 201) {
+            setSubmitError('Failed to create user. Please try again.');
+            return;
+        } else {
+            setSubmitSuccess(true);
+        }
         // Reset form after successful submission
         setFormCreateUser(
             {
-            name: '',
-            secondName:'',
-            lastName:'',
-            countryID: '',
-            stateID: '',
-            cityID: '',
-            description: '',
-            email:'',
-            tag:'',
-            password:''
+                name: '',
+                secondname:'',
+                lastname:'',
+                countryid: '',
+                stateid: '',
+                cityid: '',
+                description: '',
+                email:'',
+                tag:'',
+                password:''
             }
         );
         
@@ -248,8 +227,9 @@ function CreateUser(){
 
     //verifyemail
     const verifyEmail = async( item ) =>{
-        setEmailWasVerify(true);
+        if (item === "") return;
         if( !utils.validateEmail(item) ) return;
+        setEmailWasVerify(true);
         axios.get(URLsCatalogService.Users + '/Verify/email/' + item)
         .then(resp => {
             console.log(resp);
@@ -258,7 +238,6 @@ function CreateUser(){
         .catch(error => { 
                 if( (error.status == 404) || (error.response?.status == 404) ){
                     setEmailIsUsed(false);
-                    
                 }
             }
         );
@@ -274,9 +253,7 @@ function CreateUser(){
             try {
                 const response = await axios.get(`${URLsCatalogService.Catalogues}/all`);
                 const data = response.data.info;
-                console.log("Catalogues fetched:", data);
                 setAllCatalogues(data);
-                setCatCountries(data.countries);
                 setLoading(false);
             } catch (error) {
                 console.error("Error fetching catalogues:", error);
@@ -287,11 +264,8 @@ function CreateUser(){
     },[]);
 
     if (loading) {
-        return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-                <CircularProgress />
-            </Box>
-        );
+        setLoading(false)
+        return <CircularProgress />;
     }
     return (
         <>
@@ -304,10 +278,10 @@ function CreateUser(){
                 onSubmit={handleSubmit}
                 autoComplete="off"
                 sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2,
-                width: '100%'
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2,
+                    width: '100%'
                 }}
             >
                 
@@ -330,9 +304,17 @@ function CreateUser(){
                     required
                 />
                 {
-                    tagwasVerify ? (<Typography variant="body1" component="body1" gutterBottom align="center">
-                    { tagistaken ? "Tag is already taken" : "Tag is available" }
-                    </Typography>) : <></>
+                    tagwasVerify ? 
+                    ( 
+                        <Alert variant="outlined" 
+                            component="body1" 
+                            gutterBottom 
+                            align="center" 
+                            severity={ tagistaken ? "error" : "success" }>
+                                { tagistaken ? "Tag is already taken" : "Tag is available" }
+                        </Alert>
+                    )
+                    : <></>
                 }
 
                 <TextField
@@ -351,9 +333,16 @@ function CreateUser(){
                     required
                 />
                 {
-                    emailwasVerify ? (<Typography variant="body1" component="body1" gutterBottom align="center">
-                    { emailIsUsed ? "Email is already registed" : "Email is available" }
-                    </Typography>) : <></>
+                    emailwasVerify ? (
+                    <Alert 
+                        variant="outlined" 
+                        component="body1" 
+                        gutterBottom 
+                        align="center" 
+                        severity={ emailIsUsed ? "error" : "success" } >
+                        { emailIsUsed ? "Email is already registed" : "Email is available" }
+                    </Alert>) : 
+                    <></>
                 }
                 <Typography variant="h6" component="h1" gutterBottom align="center">
                     Security
@@ -413,22 +402,22 @@ function CreateUser(){
                 
                 <TextField
                     id="secondName"
-                    name="secondName"
+                    name="secondname"
                     label="Second Name"
                     placeholder="Second Name"
                     onChange={handleChange}
-                    value={formCreateUser.secondName}
+                    value={formCreateUser.secondname}
                     fullWidth
                 />
 
                 <TextField
                     required
-                    id="lastName"
-                    name="lastName"
+                    id="lastname"
+                    name="lastname"
                     label="Last Name"
                     placeholder="User Last Name"
                     onChange={handleChange}
-                    value={formCreateUser.lastName}
+                    value={formCreateUser.lastname}
                     fullWidth
                 />
 
@@ -439,60 +428,44 @@ function CreateUser(){
                     label="Description"
                     placeholder="About you"
                     onChange={handleChange}
-                    value={formCreateUser.description}
+                    multiline
+                    rows={3}
                 />
-                <Typography variant="h6" component="h6" gutterBottom align="center">
-                    Ubication
-                </Typography>
 
-                
-                <CountriesSelectList 
-                val={formCreateUser.countryid} 
-                onChangecall={handleSelect} 
-                catCountries={catCountries} />
-
-                {
-                    (formCreateUser.countryid != 0) ?
-                    (
-                        <>
-                            <StateSelect 
-                            val={formCreateUser.stateid}
-                            onChangecall={handleSelect}
-                            catStates={catStates}
-                            />
-                        </>
-                    )
-                    :
-                    <></>
-                }
-
-                {
-                    (formCreateUser.stateid != 0) ?
-                    (
-                        <>
-                            <CitiesSelect 
-                            val={formCreateUser.cityid}
-                            onChangecall={handleSelect}
-                            catCities={catCities}
-                            />
-                        </>
-                    )
-                    :
-                    <></>
-                }
-
-                
+                <UbicationSelector
+                    allCatalogues={allCatalogues}
+                    selectedValues={locationValues}
+                    onChange={handleLocationChange}
+                    required={true}
+                    size={isMobile ? 'small' : 'medium'}
+                    showLabels={true}
+                    variant="outlined"
+                    showIcon={true}
+                />
 
                 <Button 
                     type="submit" 
                     disabled={isSubmitting}
                     variant="text"
                     onClick={handleSubmit}
+                    startIcon={ <Person/> }
                 >
                     Create User
                 </Button>
 
             </Box>
+            <Snackbar
+                open={!!submitError}
+                autoHideDuration={6000}
+                onClose={() => setSubmitError('')}
+                message={submitError}
+            />
+            <Snackbar
+                open={submitSuccess}
+                autoHideDuration={6000}
+                onClose={() => setSubmitSuccess(false)}
+                message="User created successfully!"
+            />
         </>
     );
 }

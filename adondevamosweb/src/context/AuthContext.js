@@ -39,8 +39,6 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     const isSession = localStorage.getItem('userid');
 
-    console.log('Checking auth status, session found:', isSession);
-
     if (!isSession) {
       setIsLogged(false);
       setRole(null);
