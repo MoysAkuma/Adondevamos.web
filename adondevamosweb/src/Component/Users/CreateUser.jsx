@@ -54,8 +54,8 @@ function CreateUser(){
     // user info
     const [formCreateUser, setFormCreateUser] = useState({
         name: '',
-        secondName:'',
-        lastName:'',
+        secondname:'',
+        lastname:'',
         countryid: 0,
         stateid: 0,
         cityid: 0,
@@ -111,54 +111,62 @@ function CreateUser(){
 
         // Validate for field Name
         if (!formCreateUser.name.trim()) {
-            throw new Error('User name is required');
+            setSubmitError('User name is required');
+            return;
         }
 
         // Validate for field Last Name
         if (!formCreateUser.lastname.trim()) {
-            throw new Error('User Last name is required');
+            setSubmitError('User Last name is required');
+            return;
+        
         }
         
         // Validate for field Tag
         if (!formCreateUser.tag.trim()) {
-            throw new Error('tag is required');
+            setSubmitError('tag is required');
+            return;
         }
 
         // Validate for field Password
         if (!formCreateUser.password.trim()) {
-            throw new Error('password is required');
+            setSubmitError('password is required');
+            return;
         }
 
         if (formCreateUser.password.trim() != confirmPassword) {
-            throw new Error('confirm password required');
+            setSubmitError('confirm password required');
+            return;
         }
 
         // Validate for field Email
         if (!formCreateUser.email.trim()) {
-            throw new Error('email is required');
+            setSubmitError('email is required');
+            return;
         }
 
         // Validate for field Country
         if (!formCreateUser.countryid) {
-            throw new Error('CountryID is required');
+            setSubmitError('CountryID is required');
+            return;
         }
 
         // Validate for field State
         if (!formCreateUser.stateid) {
-            throw new Error('StateID is required');
+            setSubmitError('StateID is required');
+            return;
         }
 
         // Validate for field City
         if (!formCreateUser.cityid) {
-            throw new Error('cityID is required');
+            setSubmitError('cityID is required');
+            return;
         }
-
-        console.log('Submitting form with data:', formCreateUser);
         
         // API call to create user
         const response = await axios.post(URLsCatalogService.Users, {
             name: formCreateUser.name.trim(),
-            secondname: formCreateUser.secondName.trim(),
+            secondname: formCreateUser.secondname.trim(),
             lastname: formCreateUser.lastname.trim(),
             countryid: formCreateUser.countryid,
             stateid: formCreateUser.stateid,
@@ -182,20 +190,7 @@ function CreateUser(){
             setSubmitSuccess(true);
         }
         // Reset form after successful submission
-        setFormCreateUser(
-            {
-                name: '',
-                secondname:'',
-                lastname:'',
-                countryid: '',
-                stateid: '',
-                cityid: '',
-                description: '',
-                email:'',
-                tag:'',
-                password:''
-            }
-        );
+        resetForm();
         
         } catch (error) {
             setSubmitError(error.response?.data?.message || error.message);
@@ -232,7 +227,6 @@ function CreateUser(){
         setEmailWasVerify(true);
         axios.get(URLsCatalogService.Users + '/Verify/email/' + item)
         .then(resp => {
-            console.log(resp);
             setEmailIsUsed(resp.status == 200);
         })
         .catch(error => { 
@@ -247,6 +241,33 @@ function CreateUser(){
         setPasswordWasVerify( (formCreateUser.password == confirmPassword) );
     };
 
+    const resetForm = () => {
+        setFormCreateUser({
+            name: '',
+            secondname:'',
+            lastname:'',
+            countryid: 0,
+            stateid: 0,
+            cityid: 0,
+            description: '',
+            email:'',
+            tag:'',
+            password:''
+        });
+        setLocationValues({
+            countryid: 0,
+            stateid: 0,
+            cityid: 0
+        });
+        setConfirmPassword('');
+        setTagWasVerify(false);
+        setTagistaken(false);
+        setEmailWasVerify(false);
+        setEmailIsUsed(false);
+        setPasswordWasVerify(false);
+    };
+            
+
     useEffect(()=> {
         //getCatalogues
         const getCatalogues = async() => {
@@ -256,7 +277,7 @@ function CreateUser(){
                 setAllCatalogues(data);
                 setLoading(false);
             } catch (error) {
-                console.error("Error fetching catalogues:", error);
+
             }
         };
         
@@ -302,12 +323,12 @@ function CreateUser(){
                     ref={tagRef}
                     fullWidth
                     required
+                    error={ tagwasVerify && tagistaken }
                 />
                 {
                     tagwasVerify ? 
                     ( 
                         <Alert variant="outlined" 
-                            component="body1" 
                             gutterBottom 
                             align="center" 
                             severity={ tagistaken ? "error" : "success" }>
@@ -360,6 +381,7 @@ function CreateUser(){
                     value={formCreateUser.password}
                     fullWidth
                     required
+                    error={ passwordWasVerify === false && confirmPassword.length > 0 }
                 />
 
                 <TextField
@@ -375,12 +397,19 @@ function CreateUser(){
                     onChange={handleChangeConfirmPassword}
                     fullWidth
                     required
+                    error={ passwordWasVerify === false && confirmPassword.length > 0 }
                 />
                 {
                     passwordWasVerify ? (
-                    <Typography variant="body1" component="body1" gutterBottom align="center">
-                        Password is confirmed
-                    </Typography>) : 
+                        <Alert 
+                            variant="outlined" 
+                            component="body1"
+                            gutterBottom 
+                            align="center" 
+                            severity={ passwordWasVerify ? "success" : "error" } >
+                            { passwordWasVerify ? "Passwords match" : "Passwords do not match" }
+                        </Alert>
+                    ) : 
                     <></>
                 }
 
@@ -401,7 +430,7 @@ function CreateUser(){
                 />
                 
                 <TextField
-                    id="secondName"
+                    id="secondname"
                     name="secondname"
                     label="Second Name"
                     placeholder="Second Name"
@@ -426,6 +455,7 @@ function CreateUser(){
                     name="description"
                     id="description"
                     label="Description"
+                    value={formCreateUser.description}
                     placeholder="About you"
                     onChange={handleChange}
                     multiline
@@ -458,8 +488,12 @@ function CreateUser(){
                 open={!!submitError}
                 autoHideDuration={6000}
                 onClose={() => setSubmitError('')}
-                message={submitError}
-            />
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert onClose={() => setSubmitError('')} severity="error" sx={{ width: '100%' }}>
+                    {submitError}
+                </Alert>
+            </Snackbar>
             <Snackbar
                 open={submitSuccess}
                 autoHideDuration={6000}
