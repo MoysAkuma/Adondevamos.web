@@ -41,7 +41,7 @@ export default function ProfileDetails({ user }) {
             <Button 
             variant="contained"
             sx={{ mt: 2 }} 
-            href={`/Edit/User/${userid}`}>
+            href={`/Edit/Profile/${userid}`}>
                 Edit Profile
             </Button>
         </Box>

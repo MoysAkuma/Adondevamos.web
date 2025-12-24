@@ -7,14 +7,14 @@ import axios from 'axios';
 import config from "../Resources/config";
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 import EditTrip from "../Component/Trips/EditTrip";
-
+import EditUser from "../Component/Users/EditUser";
 
 export default function Edit() {
     //Module to show the search page
     const { opt } = useParams();
-    const [searchResults, setSearchResults] = useState([]);
 
     const controlViewOption = (opt) => {
+        console.log("Edit option:", opt);
         if (opt === "Trip") {
             return <>
                 <EditTrip />
@@ -29,9 +29,7 @@ export default function Edit() {
         }
         if (opt === "Profile") {
             return <>
-                <Typography variant="h5" align="center">
-                    Profile Edit Page
-                </Typography>
+                <EditUser />
             </>;
         }
         return <>

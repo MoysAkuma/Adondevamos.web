@@ -1,11 +1,9 @@
 import React, 
     { useState, 
-    useEffect,
-    useRef } from "react";
+    useEffect } from "react";
 import axios from 'axios';
 import 
     {
-        TextField, 
         Button,
         useMediaQuery,
         useTheme,
@@ -18,10 +16,8 @@ import
 
 import { Person } from '@mui/icons-material';
 
-import UbicationSelector from "../Commons/Ubication/UbicationSelector";
-
+import FormUser from "./FormUser";
 import config from "../../Resources/config";
-import utils from "../../Resources/utils";
 
 function CreateUser(){
     const theme = useTheme();
@@ -34,19 +30,8 @@ function CreateUser(){
             Users : `${config.api.baseUrl}${config.api.endpoints.Users}`
         }
 
-    //tag
-    const [tagwasVerify, setTagWasVerify] = useState(false);
-    const [tagistaken, setTagistaken] = useState(false);
-    const tagRef = useRef(null);
-
-    //email
-    const [emailwasVerify, setEmailWasVerify] = useState(false);
-    const [emailIsUsed, setEmailIsUsed] = useState(false);
-    const emailRef = useRef(null);
-
     //Password
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [passwordWasVerify, setPasswordWasVerify] = useState(false);
 
     //AllCatalogues
     const [allCatalogues, setAllCatalogues] = useState({});
@@ -200,47 +185,6 @@ function CreateUser(){
         }
     };
 
-
-    //verifytag
-    const verifyTag = async( item ) =>{
-        if(item.length > 3){
-            setTagWasVerify(true);
-            axios.get(URLsCatalogService.Users + '/Verify/tag/' + item)
-            .then(resp => {
-                console.log(resp);
-                setTagistaken( (resp.status == 200 ));
-            })
-            .catch(error => { 
-                    if(error.status == 404 ){
-                        setTagistaken(false);
-                    }
-                }
-            );
-        }
-        
-    };
-
-    //verifyemail
-    const verifyEmail = async( item ) =>{
-        if (item === "") return;
-        if( !utils.validateEmail(item) ) return;
-        setEmailWasVerify(true);
-        axios.get(URLsCatalogService.Users + '/Verify/email/' + item)
-        .then(resp => {
-            setEmailIsUsed(resp.status == 200);
-        })
-        .catch(error => { 
-                if( (error.status == 404) || (error.response?.status == 404) ){
-                    setEmailIsUsed(false);
-                }
-            }
-        );
-    };
-
-    const handleConfirmPassword =() => {
-        setPasswordWasVerify( (formCreateUser.password == confirmPassword) );
-    };
-
     const resetForm = () => {
         setFormCreateUser({
             name: '',
@@ -260,13 +204,7 @@ function CreateUser(){
             cityid: 0
         });
         setConfirmPassword('');
-        setTagWasVerify(false);
-        setTagistaken(false);
-        setEmailWasVerify(false);
-        setEmailIsUsed(false);
-        setPasswordWasVerify(false);
     };
-            
 
     useEffect(()=> {
         //getCatalogues
@@ -306,171 +244,16 @@ function CreateUser(){
                 }}
             >
                 
-                <Typography variant="h6" component="h1" gutterBottom align="center">
-                    Unique as You
-                </Typography>
-                <TextField
-                    id="tag"
-                    name="tag"
-                    label="Tag"
-                    placeholder="Tag"
-                    variant="outlined"
-                    helperText="Your tag must be unique"
-                    onChange={handleChange}
-                    size={isMobile ? 'small' : 'medium'}
-                    value={formCreateUser.tag}
-                    onBlur={() =>  verifyTag(formCreateUser.tag)}
-                    ref={tagRef}
-                    fullWidth
-                    required
-                    error={ tagwasVerify && tagistaken }
-                />
-                {
-                    tagwasVerify ? 
-                    ( 
-                        <Alert variant="outlined" 
-                            gutterBottom 
-                            align="center" 
-                            severity={ tagistaken ? "error" : "success" }>
-                                { tagistaken ? "Tag is already taken" : "Tag is available" }
-                        </Alert>
-                    )
-                    : <></>
-                }
-
-                <TextField
-                    id="email"
-                    name="email"
-                    label="Email"
-                    placeholder="Email accout"
-                    variant="outlined"
-                    helperText="Your email must be unique"
-                    onChange={handleChange}
-                    onBlur={() => verifyEmail(formCreateUser.email)}
-                    size={isMobile ? 'small' : 'medium'}
-                    value={formCreateUser.email}
-                    ref={emailRef}
-                    fullWidth
-                    required
-                />
-                {
-                    emailwasVerify ? (
-                    <Alert 
-                        variant="outlined" 
-                        component="body1" 
-                        gutterBottom 
-                        align="center" 
-                        severity={ emailIsUsed ? "error" : "success" } >
-                        { emailIsUsed ? "Email is already registed" : "Email is available" }
-                    </Alert>) : 
-                    <></>
-                }
-                <Typography variant="h6" component="h1" gutterBottom align="center">
-                    Security
-                </Typography>
-
-                <TextField
-                    type="password"
-                    id="password"
-                    name="password"
-                    label="Password"
-                    placeholder="Password"
-                    variant="outlined"
-                    onChange={handleChange}
-                    size={isMobile ? 'small' : 'medium'}
-                    value={formCreateUser.password}
-                    fullWidth
-                    required
-                    error={ passwordWasVerify === false && confirmPassword.length > 0 }
-                />
-
-                <TextField
-                    type="password"
-                    id="confirmpassword"
-                    name="confirmpassword"
-                    label="Confirm your Password"
-                    placeholder="Type again your password"
-                    variant="outlined"
-                    size={isMobile ? 'small' : 'medium'}
-                    value={confirmPassword}
-                    onBlur={handleConfirmPassword}
-                    onChange={handleChangeConfirmPassword}
-                    fullWidth
-                    required
-                    error={ passwordWasVerify === false && confirmPassword.length > 0 }
-                />
-                {
-                    passwordWasVerify ? (
-                        <Alert 
-                            variant="outlined" 
-                            component="body1"
-                            gutterBottom 
-                            align="center" 
-                            severity={ passwordWasVerify ? "success" : "error" } >
-                            { passwordWasVerify ? "Passwords match" : "Passwords do not match" }
-                        </Alert>
-                    ) : 
-                    <></>
-                }
-
-                <Typography variant="h6" component="h1" gutterBottom align="center">
-                    Your name
-                </Typography>
-                <TextField
-                    id="name"
-                    name="name"
-                    label="Name"
-                    placeholder="First Name"
-                    onChange={handleChange}
-                    size={isMobile ? 'small' : 'medium'}
-                    variant="outlined"
-                    value={formCreateUser.name}
-                    fullWidth
-                    required
-                />
-                
-                <TextField
-                    id="secondname"
-                    name="secondname"
-                    label="Second Name"
-                    placeholder="Second Name"
-                    onChange={handleChange}
-                    value={formCreateUser.secondname}
-                    fullWidth
-                />
-
-                <TextField
-                    required
-                    id="lastname"
-                    name="lastname"
-                    label="Last Name"
-                    placeholder="User Last Name"
-                    onChange={handleChange}
-                    value={formCreateUser.lastname}
-                    fullWidth
-                />
-
-                <TextField
-                    fullWidth
-                    name="description"
-                    id="description"
-                    label="Description"
-                    value={formCreateUser.description}
-                    placeholder="About you"
-                    onChange={handleChange}
-                    multiline
-                    rows={3}
-                />
-
-                <UbicationSelector
+                <FormUser
+                    formUser={formCreateUser}
+                    handleChange={handleChange}
+                    id={null}
                     allCatalogues={allCatalogues}
-                    selectedValues={locationValues}
-                    onChange={handleLocationChange}
-                    required={true}
+                    locationValues={locationValues}
+                    onLocationChange={handleLocationChange}
+                    confirmPassword={confirmPassword}
+                    onConfirmPasswordChange={handleChangeConfirmPassword}
                     size={isMobile ? 'small' : 'medium'}
-                    showLabels={true}
-                    variant="outlined"
-                    showIcon={true}
                 />
 
                 <Button 
