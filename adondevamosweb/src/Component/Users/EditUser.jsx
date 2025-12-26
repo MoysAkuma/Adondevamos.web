@@ -136,12 +136,6 @@ function EditUser() {
                 return;
             }
 
-            // Only validate password if it's being changed
-            if (formEditUser.password.trim() && formEditUser.password.trim() !== confirmPassword) {
-                setSubmitError('Passwords do not match');
-                return;
-            }
-
             // API call to update user
             const updateData = {
                 name: formEditUser.name.trim(),
@@ -154,11 +148,6 @@ function EditUser() {
                 email: formEditUser.email,
                 tag: formEditUser.tag
             };
-
-            // Only include password if it's being changed
-            if (formEditUser.password.trim()) {
-                updateData.password = formEditUser.password;
-            }
 
             const response = await axios.put(
                 `${URLsCatalogService.Users}/${id}`,
@@ -205,8 +194,10 @@ function EditUser() {
                     lastname: userData.lastname || '',
                     description: userData.description || '',
                     email: userData.email || '',
-                    tag: userData.tag || ''
-                    
+                    tag: userData.tag || '',
+                    countryid: userData.Country.id || 0,
+                    stateid: userData.State.id || 0,
+                    cityid: userData.City.id || 0
                 });
                 console.log(userData);
                 setLocationValues({
@@ -287,8 +278,12 @@ function EditUser() {
                 open={submitSuccess}
                 autoHideDuration={6000}
                 onClose={() => setSubmitSuccess(false)}
-                message="User updated successfully!"
-            />
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert onClose={() => setSubmitSuccess(false)} severity="success" sx={{ width: '100%' }}>
+                    User updated successfully!
+                </Alert>
+            </Snackbar>
         </>
     );
 }
