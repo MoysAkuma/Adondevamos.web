@@ -9,6 +9,7 @@ import Create from "./Pages/Create";
 import Search from "./Pages/Search";
 import View from "./Pages/View"
 import Edit from "./Pages/Edit"
+import Profile from "./Pages/Profile";
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from "./Component/ProtectedRoute";
 import { Navigate } from 'react-router-dom';
@@ -24,10 +25,11 @@ function AppContent() {
           <Route path="/Trips" element={ <MainTrips/>}/>
           <Route path="/Places" element={ <MainPlaces/>}/>
           <Route path="/ManageSite" element={<ProtectedRoute><ManageSite/></ProtectedRoute>}/>
-          <Route path="/Create/:opt" element={ <ProtectedRoute><Create/></ProtectedRoute>}/>
+          <Route path="/Create/:opt" element={<Create />}/>
+          <Route path="/Edit/:opt/:id" element={<ProtectedRoute> <Edit /> </ProtectedRoute>}/>
           <Route path="/Search/:opt" element={<Search/>}/>
           <Route path="/View/:opt/:id" element={<View/>}/>
-          <Route path="/Edit/:opt/:id" element={<ProtectedRoute> <Edit /> </ProtectedRoute>}/>
+          <Route path="/Profile" element={<ProtectedRoute><Profile/></ProtectedRoute>}/>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
     </> );

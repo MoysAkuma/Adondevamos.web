@@ -30,14 +30,17 @@ import Itinerary from "./Itinerary/Itinerary";
 import { Stack } from "@mui/system";
 
 
-function TripCard ({
-  tripinfo
-}) 
+function TripCard (
+  {
+    tripinfo
+  }
+) 
 {
     const ExpandMore = styled((props) => {
       const { expand, ...other } = props;
-        return <IconButton {...other} />;
-      })(({ theme }) => ({
+      return <IconButton {...other} />;
+    })
+    (({ theme }) => ({
         marginLeft: 'auto',
         transition: theme.transitions.create('transform', {
         duration: theme.transitions.duration.shortest,
@@ -85,8 +88,9 @@ function TripCard ({
     };
 
     const gotoEditTrip = (trip) => {
-      if( !trip.id ) return; 
-      navigate('/Edit/Trip/' + trip.id);
+      /*if( !trip.id ) return; 
+      navigate('/Edit/Trip/' + trip.id);*/
+      if( !trip.id ) return;
     };
 
     const getShareLocation = (id) => {
@@ -105,31 +109,18 @@ function TripCard ({
     };
 
     const generateOptions = (creatorid) => {
-     const isOwner = (creatorid == localStorage.getItem('userid'));
-     
-      return (<>
+      return (
+        <>
           <IconButton aria-label="view">
             <Tooltip title="View Trip">
-            <Visibility 
-              onClick={ (x) => gotoViewTrip(tripinfo) } 
-              sx={{color: grey[500]}}
-            />
+              <Visibility 
+                onClick={ (x) => gotoViewTrip(tripinfo) } 
+                sx={{color: grey[500]}}
+              />
             </Tooltip>
           </IconButton>
-          {    
-            (isOwner) ? (
-            <IconButton aria-label="view">
-              <Tooltip title="Edit Trip">
-                <Edit 
-                  onClick={ (x) => gotoEditTrip(tripinfo) } 
-                  sx={{color: grey[500]}}
-                  />
-                </Tooltip>
-            </IconButton>
-          ) : (<></>)
-          }
         </>
-        )
+      );
     }
 
     const generateSubHeader = (initialdate, finaldate) => {
@@ -179,29 +170,31 @@ function TripCard ({
                 tripinfo.description
               }
             </Typography>
+
             <Divider sx={{ marginTop: '5px', marginBottom: '5px' }}/>
+            
             <Stack direction="row" spacing={1} alignItems="right">
-            {
-              tripinfo.itinerary
-                .map((x) => x.Ubication.Country.acronym || "")
-                .map((acronym, index) => 
-                  <Chip  
-                    key={`${acronym}-${index}`}
-                    variant="outlined"
-                    size="small"
-                    label={acronym}  
-                  />
-                )
-}
-</Stack>
+              {
+                tripinfo.itinerary
+                  .map((x) => x.Ubication.Country.acronym || "")
+                  .map((acronym, index) => 
+                    <Chip  
+                      key={`${acronym}-${index}`}
+                      variant="outlined"
+                      size="small"
+                      label={acronym}  
+                    />
+                  )
+              }
+            </Stack>
           </CardContent>
           <CardActions disableSpacing 
             sx={{ bgcolor: "#C9C1F8" }}>
             <Tooltip title="Vote Trip not implemented yet">
-            <IconButton aria-label="vote">
+              <IconButton aria-label="vote">
                 <Badge 
-                color="secondary" 
-                badgeContent={tripinfo.statics.Votes.Total} max={999}>
+                  color="secondary" 
+                  badgeContent={tripinfo.statics.Votes.Total} max={999}>
                   <FavoriteIcon />
                 </Badge>
               </IconButton>

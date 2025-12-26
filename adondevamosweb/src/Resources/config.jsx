@@ -7,9 +7,7 @@ const config = {
       },
       endpoints: {
         Facilities:"/Facilities",
-        Countries: '/Countries',
-        States: '/States',
-        Cities: '/Cities',
+        Catalogues: '/Catalogues',
         Users: '/Users',
         Places: '/Places',
         Trips: '/Trips'
@@ -24,9 +22,7 @@ const config = {
       },
       endpoints: {
         Facilities:"/Facilities",
-        Countries: '/Countries',
-        States: '/States',
-        Cities: '/Cities',
+        Catalogues: '/Catalogues',
         Users: '/Users',
         Places: '/Places',
         Trips: '/Trips'
