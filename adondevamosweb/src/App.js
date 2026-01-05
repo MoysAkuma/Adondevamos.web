@@ -11,7 +11,7 @@ import View from "./Pages/View"
 import Edit from "./Pages/Edit"
 import Profile from "./Pages/Profile";
 import { AuthProvider, useAuth } from './context/AuthContext';
-import ProtectedRoute from "./Component/ProtectedRoute";
+import ProtectedRoute from "./Component/Commons/ProtectedRoute";
 import { Navigate } from 'react-router-dom';
 import AppBar from "./Component/Commons/AppBar";
 function AppContent() {

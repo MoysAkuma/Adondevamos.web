@@ -1,19 +1,18 @@
 import React from "react";
 
-import { Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    Tab,
-    ButtonGroup,
+import { 
+    Card,
+    CardContent,
+    CardActions,
+    Grid,
+    Typography,
     Tooltip,
-    IconButton
+    IconButton,
+    Box,
+    Chip
  } from "@mui/material";
  import { useNavigate, Link } from 'react-router-dom';
- import { Edit, Visibility } from "@mui/icons-material"; 
+ import { Edit, Visibility, LocationOn, Home } from "@mui/icons-material"; 
  import { useAuth } from '../../context/AuthContext'
 
  export default function PlacesResultSearch({results}){
@@ -46,78 +45,113 @@ import { Table,
         return (
                 <>
                     {
-                    (results.length === 0) ? 
-                    ( <p>No places found.</p> ) : ( 
-                        <TableContainer component={Paper}>
-                        <Table sx={{ minWidth: 650 }} aria-label="place table">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Name</TableCell>
-                                    <TableCell align="left">Ubication</TableCell>
-                                    <TableCell align="left">Address</TableCell>
-                            
-                                    <TableCell align="left"></TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody> 
-                                {
-                                    results.map(
-                                        (place) => (
-                                            <TableRow
-                                                key={place.id}
-                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                        (results.length === 0) ? 
+                        (<Typography variant="h6" color="text.secondary" align="center" sx={{ mt: 4 }}>
+                            No places found.
+                        </Typography>) : ( 
+                        <Grid container spacing={2} sx={{ mt: 2 }}>
+                            {
+                                results.map(
+                                    (place) => (
+                                        <Grid item xs={12} key={place.id}>
+                                            <Card 
+                                                elevation={3}
+                                                sx={{ 
+                                                    width: '100%',
+                                                    display: 'flex',
+                                                    flexDirection: 'row',
+                                                    transition: 'transform 0.2s, box-shadow 0.2s',
+                                                    '&:hover': {
+                                                        transform: 'translateY(-4px)',
+                                                        boxShadow: 6
+                                                    }
+                                                }}
                                             >
-                                                <TableCell component="th" scope="row">
-                                                    { 
-                                                        place.name 
-                                                    }
-                                                </TableCell>
-                                                <TableCell align="right">
-                                                    { 
-                                                        place.City.name + ", " + 
-                                                        place.Country.name + ", " + 
-                                                        place.State.name 
-                                                    }
-                                                </TableCell>
-                                                <TableCell align="right">
-                                                    <Tooltip title={place.address}>
-                                                        <span>
-                                                            { place.address.length > 15 ? place.address.substring(0, 15) + "..." : place.address }
-                                                        </span>
-                                                    </Tooltip>
-                                                </TableCell>
-                                                
-                                                <TableCell align="center" >
-                                                    <IconButton
-                                                        color="primary"
-                                                        aria-label="view"
-                                                        onClick={ () => goToViewPlace(place)}
+                                                <CardContent sx={{ flexGrow: 1, py: 2 }}>
+                                                    <Typography 
+                                                        variant="h6" 
+                                                        component="h2" 
+                                                        gutterBottom
+                                                        sx={{ 
+                                                            fontWeight: 600,
+                                                            color: "#000",
+                                                            mb: 1
+                                                        }}
                                                     >
-                                                        <Visibility />
-                                                    </IconButton>
-                                                    { (auth.role === "Admin") ?
-                                                        (<>
-                                                            <Tooltip title="Edit Place">
-                                                                <IconButton
-                                                                    color="primary"
-                                                                    aria-label="edit"
-                                                                    onClick={ () => goToEditPlace(place)}
-                                                                >
-                                                                    <Edit />
-                                                                </IconButton>
-                                                            </Tooltip>
-                                                        </>) : (<></>)
-                                                    }
+                                                        {place.name}
+                                                    </Typography>
                                                     
-                                                </TableCell>
-                                            </TableRow>
-                                        )
-                                    ) 
-                                }
-                            </TableBody>
-                        </Table>
-                        </TableContainer>
-                           
+                                                    <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 1 }}>
+                                                        <LocationOn 
+                                                            sx={{ 
+                                                                fontSize: 18, 
+                                                                mr: 1, 
+                                                                color: 'text.secondary',
+                                                                mt: 0.2
+                                                            }} 
+                                                        />
+                                                        <Typography variant="body2" color="text.secondary">
+                                                            {place.City.name}, {place.State.name}, {place.Country.name}
+                                                        </Typography>
+                                                    </Box>
+                                                    
+                                                    <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                                                        <Home 
+                                                            sx={{ 
+                                                                fontSize: 18, 
+                                                                mr: 1, 
+                                                                color: 'text.secondary',
+                                                                mt: 0.2
+                                                            }} 
+                                                        />
+                                                        <Tooltip title={place.address}>
+                                                            <Typography 
+                                                                variant="body2" 
+                                                                color="text.secondary"
+                                                                sx={{
+                                                                    overflow: 'hidden',
+                                                                    textOverflow: 'ellipsis',
+                                                                    display: '-webkit-box',
+                                                                    WebkitLineClamp: 2,
+                                                                    WebkitBoxOrient: 'vertical',
+                                                                }}
+                                                            >
+                                                                {place.address}
+                                                            </Typography>
+                                                        </Tooltip>
+                                                    </Box>
+                                                </CardContent>
+                                                
+                                                <CardActions sx={{ justifyContent: 'flex-end', px: 2, alignItems: 'center' }}>
+                                                    <Tooltip title="View Place">
+                                                        <IconButton
+                                                            color="primary"
+                                                            aria-label="view"
+                                                            onClick={() => goToViewPlace(place)}
+                                                            size="small"
+                                                        >
+                                                            <Visibility />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    {auth.role === "Admin" && (
+                                                        <Tooltip title="Edit Place">
+                                                            <IconButton
+                                                                color="primary"
+                                                                aria-label="edit"
+                                                                onClick={() => goToEditPlace(place)}
+                                                                size="small"
+                                                            >
+                                                                <Edit />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    )}
+                                                </CardActions>
+                                            </Card>
+                                        </Grid>
+                                    )
+                                ) 
+                            }
+                        </Grid>
                      )
                     }
                 </>

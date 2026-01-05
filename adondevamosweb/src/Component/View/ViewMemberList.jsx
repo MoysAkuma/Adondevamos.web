@@ -25,27 +25,30 @@ function ViewMemberList ({
     return (<>
         <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {
-            memberlist.map( (member,index) => (<> 
+            memberlist.map( (member,index) => ( 
                 <ListItem
                     key={member.user.id}
                     secondaryAction={
-                        <IconButton edge="end" aria-label="actions">
+                        <>
                             <Tooltip title="Send Message" arrow>
-                              <IconButton disabled aria-label="chat">
+                              <IconButton disabled aria-label="chat" edge="end">
                                 <Chat />
                                 </IconButton>
                             </Tooltip>
                             {
-                                index != 0 ? 
-                                ( <ArrowCircleUp  />) : (<></>)
+                                index != 0 && 
+                                ( <IconButton aria-label="move up" edge="end">
+                                    <ArrowCircleUp />
+                                </IconButton>)
                             }
 
                             {
-                                (index != (memberlist.length - 1)) ? 
-                                ( <ArrowCircleDown  />) : (<></>)
+                                (index != (memberlist.length - 1)) && 
+                                ( <IconButton aria-label="move down" edge="end">
+                                    <ArrowCircleDown />
+                                </IconButton>)
                             } 
-                            
-                        </IconButton>
+                        </>
                     }
                     disablePadding
                 >
@@ -66,7 +69,7 @@ function ViewMemberList ({
                             </Typography> </>   } 
                     />
                 </ListItem>
-            </>))
+            ))
         }
         </List>
     </>);

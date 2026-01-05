@@ -9,49 +9,102 @@ import
         List,
         ListItem,
         ListItemText,
-        Alert
+        Alert,
+        Divider,
+        Paper,
+        Tooltip
     } from '@mui/material';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import ViewMemberList from '../View/ViewMemberList'
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import utils from "../../Resources/utils";
-import { Visibility } from '@mui/icons-material'
+import { Visibility, Edit, FavoriteBorder } from '@mui/icons-material'
 import config from "../../Resources/config";
+import { useAuth } from '../../context/AuthContext';
 
 function ViewTrip(){
     //Get id
     const { id } = useParams();
+    const navigate = useNavigate();
+    const auth = useAuth();
+
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [tripInfo, setTripInfo] = useState(null);
+    const [liked, setLiked] = useState(false);
+    const [isOwner, setIsOwner] = useState(false);
 
     //URLS
     const [URLsCatalogService, setURLsCatalogService] = useState(
         {
-            Trips :`${config.api.baseUrl}${config.api.endpoints.Trips}`
+            Trips :`${config.api.baseUrl}${config.api.endpoints.Trips}`,
+            Votes :`${config.api.baseUrl}${config.api.endpoints.Votes}`
         }
     );
 
     useEffect(()=> {
         const fetchTrip = async () => {
-            if(!id) return;
-         try{
-            axios.get(URLsCatalogService.Trips + '/' + id)
-            .then(resp => {
-                setTripInfo( resp.data.info );
-            })
-            .catch(error => console.error("Error getting trip info"));
-         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to fetch user');
-         } finally {
-            setLoading(false);
-         } 
+            if(!id) {
+                setLoading(false);
+                return;
+            }
+            setLoading(true);
+            setError(null);
+            try{
+                const headers = {};
+                if (auth.user) {
+                    headers['user-id'] = auth.user;
+                }
+                const response = await axios.get(
+                    URLsCatalogService.Trips + '/' + id,
+                    { headers }
+                );
+                setTripInfo( response.data.info );
+                setLiked( response.data.info.userVoted || false );
+                console.log("Owner ID:", response.data.info.owner.id, "User ID:", auth.user);
+                setIsOwner( auth.user && (response.data.info.owner.id === parseInt(auth.user))  
+            );
+            } catch (err) {
+                setError(err.response?.data?.message || 'Failed to fetch user');
+            } finally {
+                setLoading(false);
+            } 
         }
         fetchTrip();  
-    },[id]);
+    },[id, auth.user]);
+
+    const handleVoteTrip = () => {
+        if (!auth.user) {
+            alert('You must be logged in to like a trip.');
+            return;
+        }
+        axios.post(
+            `${URLsCatalogService.Votes}/${auth.user}`,
+            {
+                "tripid": id
+            },
+        ).then( (response) => {
+            setLiked(!liked);
+        }).catch( (error) => {
+            console.error("There was an error liking the trip!", error);
+        });
+    };
+
+    const handleEdit = () => {
+        navigate(`/Edit/Trips/${id}`);
+    };
+
+    const handleShare = () => {
+        const tripUrl = window.location.href;
+        navigator.clipboard.writeText(tripUrl).then(() => {
+            alert('Trip link copied to clipboard!');
+        });
+    };
+
+    
 
     if (loading) {
         return (
@@ -85,21 +138,21 @@ function ViewTrip(){
             width: '100%'
             }}
         >
+
             <Typography gutterBottom variant="h4" component="h4" align="center">
             {
                 tripInfo.name
             }
             </Typography>
 
-            <Typography gutterBottom variant="h4" component="div" align="center">
-                Description
-            </Typography>
             <Typography  variant="body1" component="div" align="right">
             {
                 tripInfo.description
             }
             </Typography>
 
+            
+            <Divider />
             <Typography gutterBottom variant="span" component="div">
                 Created by
             </Typography>
@@ -190,6 +243,49 @@ function ViewTrip(){
                     </Alert>
                 </>)
             }
+            <Divider />
+            <Paper 
+                elevation={2} 
+                sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'center',
+                    gap: 1
+                }}
+            >
+                <Tooltip title={liked ? "Unlike" : "Vote this trip"}>
+                    <IconButton 
+                        color={liked ? "error" : "default"}
+                        onClick={handleVoteTrip}
+                        size="medium"
+                    >
+                        <Badge badgeContent={tripInfo.statics.Votes.Total} color="primary">
+                            {liked ? <FavoriteIcon /> : <FavoriteBorder />}
+                        </Badge>
+                    </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Share trip">
+                    <IconButton 
+                        color="default"
+                        onClick={handleShare}
+                        size="medium"
+                    >
+                        <ShareIcon />
+                    </IconButton>
+                </Tooltip>
+                
+                {isOwner && (
+                    <Tooltip title="Edit trip">
+                        <IconButton 
+                            color="primary"
+                            onClick={handleEdit}
+                            size="medium"
+                        >
+                            <Edit />
+                        </IconButton>
+                    </Tooltip>
+                )}
+            </Paper>
             
         </Box>);
 }

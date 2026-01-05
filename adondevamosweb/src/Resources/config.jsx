@@ -10,7 +10,8 @@ const config = {
         Catalogues: '/Catalogues',
         Users: '/Users',
         Places: '/Places',
-        Trips: '/Trips'
+        Trips: '/Trips',
+        Votes: '/Votes'
       }
     }
   },
@@ -25,7 +26,8 @@ const config = {
         Catalogues: '/Catalogues',
         Users: '/Users',
         Places: '/Places',
-        Trips: '/Trips'
+        Trips: '/Trips',
+        Votes: '/Votes'
       }
     }
   }
