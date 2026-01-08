@@ -25,7 +25,6 @@ export default function AppBarComp() {
                         </Link>
                     </Typography>
                     
-                    {/* while auth is being checked, avoid showing login/logout UI */}
                     {loading ? (
                         <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center' }}>
                             <CircularProgress size={20} />

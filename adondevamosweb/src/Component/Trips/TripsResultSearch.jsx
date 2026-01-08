@@ -36,7 +36,7 @@ export default function TripsResultSearch({
     
     const goToEditTrip = (trip) => {
       if (trip.id == undefined) return;
-      navigate('/EditTrip/' + trip.id);
+      navigate('/Edit/Trip/' + trip.id);
     };
 
     const goToViewTrip = (trip) => {

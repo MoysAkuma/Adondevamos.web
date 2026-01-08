@@ -17,6 +17,7 @@ import
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import ViewMemberList from '../View/ViewMemberList'
+import ViewItinerary from './Itinerary/ViewItinerary'
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import utils from "../../Resources/utils";
@@ -94,7 +95,7 @@ function ViewTrip(){
     };
 
     const handleEdit = () => {
-        navigate(`/Edit/Trips/${id}`);
+        navigate(`/Edit/Trip/${id}`);
     };
 
     const handleShare = () => {
@@ -134,7 +135,7 @@ function ViewTrip(){
             sx={{
             display: 'flex',
             flexDirection: 'column',
-            gap: 2,
+            gap: 1,
             width: '100%'
             }}
         >
@@ -153,96 +154,60 @@ function ViewTrip(){
 
             
             <Divider />
-            <Typography gutterBottom variant="span" component="div">
+            <Typography variant="span" component="div">
                 Created by
             </Typography>
-            <Typography gutterBottom variant="span" component="div" align="right">
+            <Typography variant="b" component="b" align="right">
             {
                 tripInfo.owner.tag
             }
             </Typography>
 
-            <Typography gutterBottom variant="span" component="div">
+            <Typography variant="span" component="div">
                 Initial Date
             </Typography>
-            <Typography gutterBottom variant="span" component="div" align="right">
+            <Typography variant="span" component="div" align="right">
             {
                 utils.formatDate(tripInfo.initialdate)
             }
             </Typography>
 
-            <Typography gutterBottom variant="span" component="div">
+            <Typography variant="span" component="div">
                 Final Date
             </Typography>
-            <Typography gutterBottom variant="span" component="div" align="right">
+            <Typography variant="span" component="div" align="right">
             {
                 utils.formatDate(tripInfo.finaldate)
             }
             </Typography>
 
-            <Typography gutterBottom variant="h6" component="div">
+            <Typography variant="h6" component="div">
                 Members
             </Typography>
             {
                 tripInfo.members.length != 0 ? 
                 (
-                <>
-                    <ViewMemberList memberlist={tripInfo.members}/>
-                </>
+                    <>
+                        <ViewMemberList 
+                        memberlist={tripInfo.members}/>
+                    </>
                 ) : 
                 (
-                    <><Alert severity="warning">This trip has no member list yet.</Alert></>
+                    <>
+                        <Alert 
+                            severity="warning">
+                                This trip has no member list yet.
+                        </Alert>
+                    </>
                 )
             }
             
-            <Typography gutterBottom variant="h6" component="div">
+            <Typography 
+                variant="h6" 
+                component="div">
                 Itinerary
             </Typography>
-            {
-               tripInfo.itinerary.length != 0 ? (
-                    <List sx={{ width: '100%', bgcolor: 'background.paper'  }}>
-                    {
-                        tripInfo.itinerary.map((item) => (
-                            <>
-                            <ListItem key={item.id}
-                            secondaryAction={
-                                <>
-                                <IconButton edge="end" aria-label="actions">
-                                    <Badge badgeContent={item.votes} color="primary" >
-                                        <FavoriteIcon />
-                                    </Badge>
-                                </IconButton>
-                                <IconButton edge="end" aria-label="actions">
-                                    <ShareIcon />
-                                </IconButton>
-                                {
-                                    item.place.id ? (
-                                    <IconButton edge="end" aria-label="actions" href={"/View/Places/" + item.place.id} >
-                                        <Visibility  />
-                                    </IconButton>) : null
-                                }
-                                
-                                </>
-                            }
-                            >
-                            <ListItemText 
-                                        primary={item.place.name} 
-                                        secondary={ utils.formatDate(item.initialdate) 
-                                        + " to " 
-                                        + utils.formatDate(item.finaldate) } />
-                            </ListItem>
-                            </>
-                        ))
-                    }
-                </List>
-               ) : 
-               (<>
-                    <Alert 
-                        severity="warning">
-                            This trip has no itinerary yet.
-                    </Alert>
-                </>)
-            }
+            <ViewItinerary itinerary={tripInfo.itinerary} />
             <Divider />
             <Paper 
                 elevation={2} 
@@ -274,7 +239,8 @@ function ViewTrip(){
                     </IconButton>
                 </Tooltip>
                 
-                {isOwner && (
+                {
+                isOwner && (
                     <Tooltip title="Edit trip">
                         <IconButton 
                             color="primary"

@@ -4,10 +4,14 @@ import axios from 'axios';
 import { Typography, List, ListItem, ListItemText, 
     IconButton, ListItemAvatar, Avatar,
     Tooltip,
-    Icon
+    Icon,
+    Collapse,
+    Box,
+    Pagination,
+    Button
  } from '@mui/material';
 import { Chat, FlightTakeoff, Add, Delete, Edit, ArrowCircleUp, 
-    ArrowCircleDown, AccountCircle } from '@mui/icons-material';
+    ArrowCircleDown, AccountCircle, ExpandMore, ExpandLess } from '@mui/icons-material';
 function ViewMemberList ({
     memberlist = [
     { 
@@ -22,28 +26,45 @@ function ViewMemberList ({
     ]
 })
 {
+    const [showAll, setShowAll] = useState(false);
+    const [page, setPage] = useState(1);
+    const itemsPerPage = 5;
+    
+    const displayedItems = showAll 
+        ? memberlist.slice((page - 1) * itemsPerPage, page * itemsPerPage)
+        : memberlist.slice(0, 3);
+    
+    const totalPages = Math.ceil(memberlist.length / itemsPerPage);
+    
+    const handlePageChange = (event, value) => {
+        setPage(value);
+    };
+    
     return (<>
+
         <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {
-            memberlist.map( (member,index) => ( 
+            displayedItems.map( (member,index) => {
+                const actualIndex = showAll ? (page - 1) * itemsPerPage + index : index;
+                return ( 
                 <ListItem
                     key={member.user.id}
                     secondaryAction={
                         <>
                             <Tooltip title="Send Message" arrow>
                               <IconButton disabled aria-label="chat" edge="end">
-                                <Chat />
+                            
                                 </IconButton>
                             </Tooltip>
                             {
-                                index != 0 && 
+                                actualIndex != 0 && 
                                 ( <IconButton aria-label="move up" edge="end">
                                     <ArrowCircleUp />
                                 </IconButton>)
                             }
 
                             {
-                                (index != (memberlist.length - 1)) && 
+                                (actualIndex != (memberlist.length - 1)) && 
                                 ( <IconButton aria-label="move down" edge="end">
                                     <ArrowCircleDown />
                                 </IconButton>)
@@ -69,9 +90,35 @@ function ViewMemberList ({
                             </Typography> </>   } 
                     />
                 </ListItem>
-            ))
+                );
+            })
         }
         </List>
+        
+        {memberlist.length > 3 && (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 2, gap: 2 }}>
+                <Button
+                    variant="outlined"
+                    startIcon={showAll ? <ExpandLess /> : <ExpandMore />}
+                    onClick={() => {
+                        setShowAll(!showAll);
+                        setPage(1);
+                    }}
+                >
+                    {showAll ? 'Show Less' : `Show All (${memberlist.length})`}
+                </Button>
+                
+                {showAll && totalPages > 1 && (
+                    <Pagination 
+                        count={totalPages}
+                        page={page}
+                        onChange={handlePageChange}
+                        color="primary"
+                        size="small"
+                    />
+                )}
+            </Box>
+        )}
     </>);
 }
 

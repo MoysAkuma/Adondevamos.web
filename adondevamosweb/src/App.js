@@ -39,16 +39,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <div style={{ minHeight: '100vh', 
-          display: 'flex', 
-          flexDirection: 'column',
-          backgroundImage: 'url(/Background.JPEG)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          flexGrow: 1}}>
           <AppContent />
-        </div>
       </AuthProvider>
     </BrowserRouter>
   );

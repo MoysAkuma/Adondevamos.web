@@ -11,8 +11,7 @@ import {
 } from '@mui/material';
 
 import MemberSearch from './MemberSearch';
-import SearchPlaces from './SearchPlaces';
-import Itinerary from './Itinerary/Itinerary';
+import ManageItinerary from './Itinerary/ManageItinerary';
 import MemberList from './MemberList';
 import config from "../../Resources/config";
 import { useAuth } from '../../context/AuthContext';
@@ -120,7 +119,6 @@ function CreateTrip( ) {
           // 'Authorization': 'Bearer your-token-here'
         }
       });
-      debugger
 
       if(response.status == 201) {
         //Show message of saved countries
@@ -350,82 +348,12 @@ function CreateTrip( ) {
         <FormTrips formTrip={formTrip} 
         handleChange={handleChange} />
 
-        <Typography variant="body1"   align="left">
-          Itinerary
-        </Typography>
-                
-        <ButtonGroup 
-        variant="contained" 
-        color="primary" 
-        fullWidth >
-          <Button 
-            variant="contained" 
-            startIcon={ <Add/> }
-            onClick={ (x) => showSearch(1)}
-            disabled={showManager.itinerary}
-            >
-              Add place
-          </Button>
-          {
-            (formTrip.itinerary.length == 0 ) ? (
-              <>
-                <Button 
-                    variant="text" 
-                    endIcon={ <WatchLater/> }
-                    onClick={ (x) => ( x )}
-                    >
-                        Decided Later
-                </Button>
-            </>
-            
-            ) : (
-              <Button 
-                variant="text" 
-                onClick={clearItinerary}
-                endIcon={ <Delete/> }
-                  >
-                    Reset itinerary
-            </Button>
-            )
-          }
-        </ButtonGroup>
-                
-        {
-          ( formTrip.itinerary.length == 0) && (
-            <Alert severity='info' >
-              Your itinerary is empty
-            </Alert>
-          )
-        }
-        {
-          (showManager.itinerary ) && (
-            <SearchPlaces 
-              callback={handlePlaceAdd} 
-              itinerary={formTrip.itinerary} 
-            />
-          )
-        }
-        {
-          errors.duplicatedplace ? 
-          (
-          <>
-            <Alert severity="warning">
-              <AlertTitle>This place was already added </AlertTitle>
-              Please, select another place
-            </Alert>
-          </>) : 
-          (<></>)
-        }
-                
-        {
-          formTrip.itinerary?.length > 0 ? (
-          <>
-            <Itinerary 
-              tripinfo={formTrip} 
-              callBackDelete={handleRemove} 
-              />
-          </>) : (<></>)
-        }  
+        <ManageItinerary
+          itinerary={formTrip.itinerary}
+          onPlaceAdd={handlePlaceAdd}
+          onPlaceRemove={handleRemove}
+          onClearItinerary={clearItinerary}
+        />  
                 
 
         <Typography variant="subtitle2"  align="left">

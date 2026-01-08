@@ -85,26 +85,38 @@ function ViewPlace(){
                 width: '100%'
             }}
         >
-            <Typography variant="h4" component="h4" gutterBottom align="center">
+            <Typography variant="h4" component="h4" align="center">
                 {
                     placeInfo.name
                 }
             </Typography>
 
-            <Typography variant="h5" component="h5" gutterBottom align="left">
+            <Typography 
+                variant="body1" 
+                component="body1" 
+                align="left">
                 Description
             </Typography>
             
-            <Typography variant="body1" component="body1" align="right">
+            <Typography 
+                variant="b" 
+                component="b" 
+                align="right">
                 {
                     placeInfo.description
                 }
             </Typography>
 
-            <Typography variant="h5" component="h5" gutterBottom align="left">
+            <Typography 
+                variant="body1" 
+                component="body1" 
+                align="left">
                 Address
             </Typography>
-            <Typography variant="body1" component="body1" align="right">
+            <Typography 
+                variant="b" 
+                component="b" 
+                align="right">
                 {placeInfo.address}
             </Typography>
 
@@ -131,14 +143,16 @@ function ViewPlace(){
                         >
                         {
                             placeInfo.facilities.map((facility) => (
-                                
-                                <FacilityIcon 
-                                key={facility.code} 
-                                code={facility.code} 
-                                titleAccess={facility.name}
-                                color="white"
-                                fontSize="x-large"
-                            />
+                                <Tooltip 
+                                    title={facility.name} >
+                                    <FacilityIcon 
+                                        key={facility.code} 
+                                        code={facility.code} 
+                                        titleAccess={facility.name}
+                                        color="white"
+                                        fontSize="x-large"
+                                    />
+                            </Tooltip>
                         ))}
                     </Stack>
                 ) : (
