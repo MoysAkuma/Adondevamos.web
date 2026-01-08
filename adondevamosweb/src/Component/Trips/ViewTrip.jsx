@@ -29,10 +29,8 @@ function ViewTrip(){
     //Get id
     const { id } = useParams();
     const navigate = useNavigate();
-    const auth = useAuth();
-
-
-    const [loading, setLoading] = useState(true);
+    const { isLogged, user, loading } = useAuth();
+    const [loadingPage, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [tripInfo, setTripInfo] = useState(null);
     const [liked, setLiked] = useState(false);
@@ -56,8 +54,8 @@ function ViewTrip(){
             setError(null);
             try{
                 const headers = {};
-                if (auth.user) {
-                    headers['user-id'] = auth.user;
+                if (isLogged) {
+                    headers['user-id'] = user;
                 }
                 const response = await axios.get(
                     URLsCatalogService.Trips + '/' + id,
@@ -65,8 +63,8 @@ function ViewTrip(){
                 );
                 setTripInfo( response.data.info );
                 setLiked( response.data.info.userVoted || false );
-                console.log("Owner ID:", response.data.info.owner.id, "User ID:", auth.user);
-                setIsOwner( auth.user && (response.data.info.owner.id === parseInt(auth.user))  
+                console.log("Owner ID:", response.data.info.owner.id, "User ID:", user);
+                setIsOwner( user && (response.data.info.owner.id === parseInt(user))  
             );
             } catch (err) {
                 setError(err.response?.data?.message || 'Failed to fetch user');
@@ -75,22 +73,40 @@ function ViewTrip(){
             } 
         }
         fetchTrip();  
-    },[id, auth.user]);
+    },[id, user, isLogged]);
 
     const handleVoteTrip = () => {
-        if (!auth.user) {
+        if (!user) {
             alert('You must be logged in to like a trip.');
             return;
         }
         axios.post(
-            `${URLsCatalogService.Votes}/${auth.user}`,
+            `${URLsCatalogService.Votes}/${user}`,
             {
                 "tripid": id
             },
         ).then( (response) => {
-            setLiked(!liked);
+            updateVotes();
+            setLiked( prevLiked => !prevLiked );
         }).catch( (error) => {
             console.error("There was an error liking the trip!", error);
+        });
+    };
+
+    const updateVotes = () => {
+        axios.get(
+            URLsCatalogService.Votes + '/Trip/' + id
+        ).then( (response) => {
+            setTripInfo( prevTripInfo => ({
+                ...prevTripInfo,
+                statics: {
+                    ...prevTripInfo.statics,
+                    Votes: { Total: response.data.info.summary }
+                }
+            }));
+            console.log("Trip info updated with new votes.", tripInfo);
+        }).catch( (error) => {
+            console.error("There was an error fetching the votes!", error);
         });
     };
 
@@ -101,7 +117,7 @@ function ViewTrip(){
     const handleShare = () => {
         const tripUrl = window.location.href;
         navigator.clipboard.writeText(tripUrl).then(() => {
-            alert('Trip link copied to clipboard!');
+            
         });
     };
 

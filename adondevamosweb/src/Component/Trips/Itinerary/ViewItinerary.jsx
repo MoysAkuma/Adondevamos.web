@@ -14,11 +14,13 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import { Visibility, ExpandMore, ExpandLess } from '@mui/icons-material';
 import utils from "../../../Resources/utils";
+import { useAuth } from '../../../context/AuthContext';
 
 function ViewItinerary({ itinerary = [] }) {
     const [showAll, setShowAll] = useState(false);
     const [page, setPage] = useState(1);
     const itemsPerPage = 5;
+    const { isLogged, user, loading } = useAuth();
     
     const displayedItems = showAll 
         ? itinerary.slice((page - 1) * itemsPerPage, page * itemsPerPage)
@@ -46,12 +48,6 @@ function ViewItinerary({ itinerary = [] }) {
                         key={item.id}
                         secondaryAction={
                             <>
-                                <IconButton edge="end" aria-label="actions">
-                                    <Badge badgeContent={item.votes} 
-                                    color="primary">
-                                        <FavoriteIcon />
-                                    </Badge>
-                                </IconButton>
                                 <IconButton edge="end" aria-label="actions">
                                     <ShareIcon />
                                 </IconButton>
