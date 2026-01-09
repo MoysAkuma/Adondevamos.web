@@ -11,7 +11,7 @@ import View from "./Pages/View"
 import Edit from "./Pages/Edit"
 import Profile from "./Pages/Profile";
 import { AuthProvider, useAuth } from './context/AuthContext';
-import ProtectedRoute from "./Component/ProtectedRoute";
+import ProtectedRoute from "./Component/Commons/ProtectedRoute";
 import { Navigate } from 'react-router-dom';
 import AppBar from "./Component/Commons/AppBar";
 function AppContent() {
@@ -39,16 +39,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <div style={{ minHeight: '100vh', 
-          display: 'flex', 
-          flexDirection: 'column',
-          backgroundImage: 'url(/Background.JPEG)',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          flexGrow: 1}}>
           <AppContent />
-        </div>
       </AuthProvider>
     </BrowserRouter>
   );

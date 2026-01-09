@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 import 
@@ -9,23 +9,80 @@ import
         CircularProgress,
         Alert,
         Stack,
-        Tooltip
+        Tooltip,
+        Divider,
+        Paper,
+        IconButton,
+        Badge
     } from '@mui/material';
-
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import ShareIcon from '@mui/icons-material/Share';
+import { FavoriteBorder, Edit } from '@mui/icons-material';
 import config from "../../Resources/config";
 import FacilityIcon from './FacilityIcon';
+import { useAuth } from '../../context/AuthContext';
 
 function ViewPlace(){
     //Get id
     const { id } = useParams();
-
+    const { isLogged, user, loading: authLoading, role } = useAuth();
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [placeInfo, setPlaceInfo] = useState(null);
+    const [liked, setLiked] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
 
     //URLS
     const URLsCatalogService = {
-        Places:`${config.api.baseUrl}${config.api.endpoints.Places}`
+        Places:`${config.api.baseUrl}${config.api.endpoints.Places}`,
+        Votes:`${config.api.baseUrl}${config.api.endpoints.Votes}`
+    };
+
+    const handleVotePlace = async () => {
+        if (!user) {
+            alert('You must be logged in to like a trip.');
+            return;
+        }
+        axios.post(
+            `${URLsCatalogService.Votes}/${user}`,
+            {
+                "placeid": id
+            },
+        ).then( (response) => {
+            updateVotes();
+            setLiked( prevLiked => !prevLiked );
+        }).catch( (error) => {
+            console.error("There was an error liking the trip!", error);
+        });
+    };
+
+    const handleShare = () => {
+        const placeUrl = window.location.href;
+        navigator.clipboard.writeText(placeUrl).then(() => {
+            // Optionally notify the user that the link has been copied
+        });
+    };
+
+    const handleEdit = () => {
+        navigate(`/Edit/Place/${id}`);
+    };
+
+    const updateVotes = () => {
+        axios.get(
+            URLsCatalogService.Votes + '/Place/' + id
+        ).then( (response) => {
+            setPlaceInfo( prevPlaceInfo => ({
+                ...prevPlaceInfo,
+                statics: {
+                    ...prevPlaceInfo.statics,
+                    Votes: { Total: response.data.info.summary }
+                }
+            }));
+            console.log("Place info updated with new votes.", placeInfo);
+        }).catch( (error) => {
+            console.error("There was an error fetching the votes!", error);
+        });
     };
     
     useEffect(() => {
@@ -39,8 +96,18 @@ function ViewPlace(){
             setError(null);
             
             try {
-                const response = await axios.get(`${URLsCatalogService.Places}/${id}`);
+                const headers = {};
+                console.log("isLogged:", isLogged, "user:", user);
+                if (isLogged) {
+                    headers['user-id'] = user;
+                }
+                
+                const response = 
+                await axios.get(`${URLsCatalogService.Places}/${id}`,
+                    { headers });
                 setPlaceInfo(response.data.info);
+                console.log("Place info fetched:", response.data.info);
+                setLiked( response.data.info.userVote || false );
             } catch (err) {
                 console.error("Error getting place info:", err);
                 setError(err.response?.data?.message || 'Failed to fetch place');
@@ -48,9 +115,9 @@ function ViewPlace(){
                 setLoading(false);
             }
         };
-        
         fetchPlace();
-    }, [id]); // id is the only dependency needed
+        
+    }, [id, user]);
 
     if (loading) {
         return (
@@ -85,26 +152,38 @@ function ViewPlace(){
                 width: '100%'
             }}
         >
-            <Typography variant="h4" component="h4" gutterBottom align="center">
+            <Typography variant="h4" component="h4" align="center">
                 {
                     placeInfo.name
                 }
             </Typography>
 
-            <Typography variant="h5" component="h5" gutterBottom align="left">
+            <Typography 
+                variant="body1" 
+                component="body1" 
+                align="left">
                 Description
             </Typography>
             
-            <Typography variant="body1" component="body1" align="right">
+            <Typography 
+                variant="b" 
+                component="b" 
+                align="right">
                 {
                     placeInfo.description
                 }
             </Typography>
 
-            <Typography variant="h5" component="h5" gutterBottom align="left">
+            <Typography 
+                variant="body1" 
+                component="body1" 
+                align="left">
                 Address
             </Typography>
-            <Typography variant="body1" component="body1" align="right">
+            <Typography 
+                variant="b" 
+                component="b" 
+                align="right">
                 {placeInfo.address}
             </Typography>
 
@@ -119,6 +198,7 @@ function ViewPlace(){
             <Typography variant="h6" component="div" align="center">
                 Facilities
             </Typography>
+            <Divider />
             {
                 placeInfo.facilities.length !== 0 ? 
                 (
@@ -131,14 +211,16 @@ function ViewPlace(){
                         >
                         {
                             placeInfo.facilities.map((facility) => (
-                                
-                                <FacilityIcon 
-                                key={facility.code} 
-                                code={facility.code} 
-                                titleAccess={facility.name}
-                                color="white"
-                                fontSize="x-large"
-                            />
+                                <Tooltip 
+                                    title={facility.name} >
+                                    <FacilityIcon 
+                                        key={facility.code} 
+                                        code={facility.code} 
+                                        titleAccess={facility.name}
+                                        color="white"
+                                        fontSize="x-large"
+                                    />
+                            </Tooltip>
                         ))}
                     </Stack>
                 ) : (
@@ -147,6 +229,50 @@ function ViewPlace(){
                     </Alert>
                 )
             }
+            <Divider />
+            <Paper 
+                elevation={2} 
+                sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'center',
+                    gap: 1
+                }}
+            >
+                <Tooltip title={liked ? "Unlike" : "Vote this trip"}>
+                    <IconButton 
+                        color={liked ? "error" : "default"}
+                        onClick={handleVotePlace}
+                        size="medium"
+                    >
+                        <Badge badgeContent={placeInfo.statics.Votes.Total} color="primary">
+                            {liked ? <FavoriteIcon /> : <FavoriteBorder />}
+                        </Badge>
+                    </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Share trip">
+                    <IconButton 
+                        color="default"
+                        onClick={handleShare}
+                        size="medium"
+                    >
+                        <ShareIcon />
+                    </IconButton>
+                </Tooltip>
+                
+                {
+                role == "admin" && (
+                    <Tooltip title="Edit trip">
+                        <IconButton 
+                            color="primary"
+                            onClick={handleEdit}
+                            size="medium"
+                        >
+                            <Edit />
+                        </IconButton>
+                    </Tooltip>
+                )}
+            </Paper>
 
         </Box>
     );

@@ -8,25 +8,26 @@ import
         Box,
         Alert,
         AlertTitle,
-        Snackbar
+        Snackbar,
+        CircularProgress
 } from '@mui/material';
 
 import { AccountCircle, 
   Add, 
   Delete, 
   FlightTakeoff, 
-  WatchLater 
+  WatchLater
 } from '@mui/icons-material'
 import MemberSearch from './MemberSearch';
-import SearchPlaces from './SearchPlaces';
-import Itinerary from './Itinerary/Itinerary';
+import ManageItinerary from './Itinerary/ManageItinerary';
 import MemberList from './MemberList';
 import config from "../../Resources/config";
 import { useParams } from 'react-router-dom';
 import FormTrips from './FormTrips';
+import { useAuth } from "../../context/AuthContext";
 
 function EditTrip(){
-
+    const { isLogged, loading } = useAuth();
     const [isUser, setIsUser] = useState(false);
 
     //Trip id
@@ -106,7 +107,7 @@ function EditTrip(){
       }
       
       // API call to create trip
-      const response = await axios.put(URLsCatalogService.Trips + "/" + id, {
+      const response = await axios.put(URLsCatalogService.Trips + '/' + id, {
         name : formTrip.name.trim(),
         description : formTrip.description,
         initialdate : formTrip.initialdate,
@@ -297,7 +298,13 @@ const handleRemoveUser = (event) => {
       fetchTrip();
       setIsUser( localStorage.getItem('userid') != null );
   },[id]);
-
+    if ( loading ) {
+        return (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress />
+          </Box>
+        );
+    }
     return (
             <Box
               component="form"
@@ -317,8 +324,16 @@ const handleRemoveUser = (event) => {
                   About your trip
                 </Typography>
 
-                <FormTrips formTrip={formTrip}
-                handleChange={handleChange} />
+                <FormTrips 
+                  formTrip={formTrip}
+                  handleChange={handleChange} />
+                
+                <ManageItinerary
+                  itinerary={formTrip.itinerary}
+                  onPlaceAdd={handlePlaceAdd}
+                  onPlaceRemove={handleRemove}
+                  onClearItinerary={clearItinerary}
+                />
 
                 <Button 
                   type="submit" 

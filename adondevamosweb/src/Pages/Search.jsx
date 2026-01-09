@@ -16,6 +16,23 @@ export default function Search() {
     //Module to show the search page
     const { opt } = useParams();
     const [searchResults, setSearchResults] = useState([]);
+    const [catalogues, setCatalogues] = useState({
+        countries: [],
+        states: [],
+        cities: [],
+        facilities: []
+    });
+    
+    useEffect(() => {
+        // Fetch catalogues data once when component mounts
+        axios.get(`${config.api.baseUrl}${config.api.endpoints.Catalogues}/all`)
+            .then((response) => {
+                setCatalogues(response.data.info);
+            })
+            .catch((error) => {
+                console.error("Error fetching catalogues:", error);
+            });
+    }, []);
     
     const controlViewOption = (opt) => {
         if (opt === "Trips") {
@@ -31,7 +48,13 @@ export default function Search() {
         if (opt === "Places"){
             return (
             <>
-                <PlaceFilter searchMethod={searchPlacessByFilters} />
+                <PlaceFilter 
+                    searchMethod={searchPlacessByFilters}
+                    countries={catalogues.countries}
+                    states={catalogues.states}
+                    cities={catalogues.cities}
+                    facilitiesOptions={catalogues.facilities}
+                />
                 {
                     (searchResults.length !== 0) && controlViewResult(opt)
                 }
@@ -79,7 +102,7 @@ export default function Search() {
         <CenteredTemplate>
             <>
                 <Typography variant="h5" align="center">
-                    Search Page {opt}
+                    Discover {opt}
                 </Typography>
                 {controlViewOption(opt)}
             </>

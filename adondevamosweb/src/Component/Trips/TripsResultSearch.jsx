@@ -1,19 +1,18 @@
 import React from "react";
 
-import { Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
-    Tab,
-    ButtonGroup,
+import { 
+    Card,
+    CardContent,
+    CardActions,
+    Grid,
+    Typography,
     Tooltip,
-    IconButton
+    IconButton,
+    Box,
+    Chip
  } from "@mui/material";
  import { useNavigate, Link } from 'react-router-dom';
- import { Edit, Visibility } from "@mui/icons-material"; 
+ import { Edit, Visibility, CalendarToday, Person } from "@mui/icons-material"; 
  import { useAuth } from '../../context/AuthContext'
 
 export default function TripsResultSearch({
@@ -37,7 +36,7 @@ export default function TripsResultSearch({
     
     const goToEditTrip = (trip) => {
       if (trip.id == undefined) return;
-      navigate('/EditTrip/' + trip.id);
+      navigate('/Edit/Trip/' + trip.id);
     };
 
     const goToViewTrip = (trip) => {
@@ -49,62 +48,114 @@ export default function TripsResultSearch({
         <>
             {
             (results.length === 0) ? 
-            ( <p>No trips found.</p> ) : ( 
-                <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 650 }} aria-label="trips table">
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Name</TableCell>
-                            <TableCell align="left">Inital Date</TableCell>
-                            <TableCell align="left">Final Date</TableCell>
-                            <TableCell align="left">Creator</TableCell>
-                            <TableCell align="left"></TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody> 
-                        {
-                            results.map(
-                                (trip) => (
-                                    <TableRow
-                                        key={trip.id}
-                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            ( <Typography variant="h6" color="text.secondary" align="center" sx={{ mt: 4 }}>
+                No trips found.
+            </Typography> ) : ( 
+                <Grid container spacing={2} sx={{ mt: 2 }}>
+                    {
+                        results.map(
+                            (trip) => (
+                                <Grid item xs={12} key={trip.id}>
+                                    <Card 
+                                        elevation={3}
+                                        sx={{ 
+                                            width: '100%',
+                                            display: 'flex',
+                                            flexDirection: 'row',
+                                            transition: 'transform 0.2s, box-shadow 0.2s',
+                                            '&:hover': {
+                                                transform: 'translateY(-4px)',
+                                                boxShadow: 6
+                                            }
+                                        }}
                                     >
-                                        <TableCell component="th" scope="row">
-                                            {trip.name}
-                                        </TableCell>
-                                        <TableCell align="right">{ formatDate(trip.initialdate) }</TableCell>
-                                        <TableCell align="right">{ formatDate(trip.finaldate) }</TableCell>
-                                        <TableCell align="right">{trip.owner.tag}</TableCell>
-                                        <TableCell
-                                        align="center" >
-                                            { (auth.role === "Admin") ? (
-                                            <Tooltip title="Edit Trip">
+                                        <CardContent sx={{ flexGrow: 1, py: 2 }}>
+                                            <Typography 
+                                                variant="h6" 
+                                                component="h2" 
+                                                gutterBottom
+                                                sx={{ 
+                                                    fontWeight: 600,
+                                                    color: '#000',
+                                                    mb: 1
+                                                }}
+                                            >
+                                                {trip.name}
+                                            </Typography>
+                                            
+                                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                                <CalendarToday 
+                                                    sx={{ 
+                                                        fontSize: 18, 
+                                                        mr: 1, 
+                                                        color: 'text.secondary'
+                                                    }} 
+                                                />
+                                                <Typography variant="body2" color="text.secondary">
+                                                    <strong>Start:</strong> {formatDate(trip.initialdate)}
+                                                </Typography>
+                                            </Box>
+                                            
+                                            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                                <CalendarToday 
+                                                    sx={{ 
+                                                        fontSize: 18, 
+                                                        mr: 1, 
+                                                        color: 'text.secondary'
+                                                    }} 
+                                                />
+                                                <Typography variant="body2" color="text.secondary">
+                                                    <strong>End:</strong> {formatDate(trip.finaldate)}
+                                                </Typography>
+                                            </Box>
+                                            
+                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                <Person 
+                                                    sx={{ 
+                                                        fontSize: 18, 
+                                                        mr: 1, 
+                                                        color: 'text.secondary'
+                                                    }} 
+                                                />
+                                                <Chip 
+                                                    label={trip.owner.tag} 
+                                                    size="small" 
+                                                    color="primary"
+                                                    variant="outlined"
+                                                />
+                                            </Box>
+                                        </CardContent>
+                                        
+                                        <CardActions sx={{ justifyContent: 'flex-end', px: 2, alignItems: 'center' }}>
+                                            <Tooltip title="View Trip">
                                                 <IconButton
                                                     color="primary"
-                                                    aria-label="edit"
-                                                    onClick={ () => goToEditTrip(trip)}
+                                                    aria-label="view"
+                                                    onClick={() => goToViewTrip(trip)}
+                                                    size="small"
                                                 >
-                                                    <Edit />
+                                                    <Visibility />
                                                 </IconButton>
-                                            </Tooltip>) : (<></>)
-                                            }
-                                            
-                                            <IconButton
-                                                color="primary"
-                                                aria-label="view"
-                                                onClick={ () => goToViewTrip(trip)}
-                                            >
-                                                <Visibility />
-                                            </IconButton>
-                                        </TableCell>
-                                    </TableRow>
-                                )
-                            ) 
-                        }
-                    </TableBody>
-                </Table>
-                </TableContainer>
-                   
+                                            </Tooltip>
+                                            {auth.role === "Admin" && (
+                                                <Tooltip title="Edit Trip">
+                                                    <IconButton
+                                                        color="primary"
+                                                        aria-label="edit"
+                                                        onClick={() => goToEditTrip(trip)}
+                                                        size="small"
+                                                    >
+                                                        <Edit />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
+                                        </CardActions>
+                                    </Card>
+                                </Grid>
+                            )
+                        ) 
+                    }
+                </Grid>
              )
             }
         </>

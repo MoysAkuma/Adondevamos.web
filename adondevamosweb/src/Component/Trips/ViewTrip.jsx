@@ -9,49 +9,119 @@ import
         List,
         ListItem,
         ListItemText,
-        Alert
+        Alert,
+        Divider,
+        Paper,
+        Tooltip
     } from '@mui/material';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import ViewMemberList from '../View/ViewMemberList'
+import ViewItinerary from './Itinerary/ViewItinerary'
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import utils from "../../Resources/utils";
-import { Visibility } from '@mui/icons-material'
+import { Visibility, Edit, FavoriteBorder } from '@mui/icons-material'
 import config from "../../Resources/config";
+import { useAuth } from '../../context/AuthContext';
 
 function ViewTrip(){
     //Get id
     const { id } = useParams();
-
-    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+    const { isLogged, user, loading } = useAuth();
+    const [loadingPage, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [tripInfo, setTripInfo] = useState(null);
+    const [liked, setLiked] = useState(false);
+    const [isOwner, setIsOwner] = useState(false);
 
     //URLS
     const [URLsCatalogService, setURLsCatalogService] = useState(
         {
-            Trips :`${config.api.baseUrl}${config.api.endpoints.Trips}`
+            Trips :`${config.api.baseUrl}${config.api.endpoints.Trips}`,
+            Votes :`${config.api.baseUrl}${config.api.endpoints.Votes}`
         }
     );
 
     useEffect(()=> {
         const fetchTrip = async () => {
-            if(!id) return;
-         try{
-            axios.get(URLsCatalogService.Trips + '/' + id)
-            .then(resp => {
-                setTripInfo( resp.data.info );
-            })
-            .catch(error => console.error("Error getting trip info"));
-         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to fetch user');
-         } finally {
-            setLoading(false);
-         } 
+            if(!id) {
+                setLoading(false);
+                return;
+            }
+            setLoading(true);
+            setError(null);
+            try{
+                const headers = {};
+                if (isLogged) {
+                    headers['user-id'] = user;
+                }
+                const response = await axios.get(
+                    URLsCatalogService.Trips + '/' + id,
+                    { headers }
+                );
+                setTripInfo( response.data.info );
+                setLiked( response.data.info.userVoted || false );
+                console.log("Owner ID:", response.data.info.owner.id, "User ID:", user);
+                setIsOwner( user && (response.data.info.owner.id === parseInt(user))  
+            );
+            } catch (err) {
+                setError(err.response?.data?.message || 'Failed to fetch user');
+            } finally {
+                setLoading(false);
+            } 
         }
         fetchTrip();  
-    },[id]);
+    },[id, user, isLogged]);
+
+    const handleVoteTrip = () => {
+        if (!user) {
+            alert('You must be logged in to like a trip.');
+            return;
+        }
+        axios.post(
+            `${URLsCatalogService.Votes}/${user}`,
+            {
+                "tripid": id
+            },
+        ).then( (response) => {
+            updateVotes();
+            setLiked( prevLiked => !prevLiked );
+        }).catch( (error) => {
+            console.error("There was an error liking the trip!", error);
+        });
+    };
+
+    const updateVotes = () => {
+        axios.get(
+            URLsCatalogService.Votes + '/Trip/' + id
+        ).then( (response) => {
+            setTripInfo( prevTripInfo => ({
+                ...prevTripInfo,
+                statics: {
+                    ...prevTripInfo.statics,
+                    Votes: { Total: response.data.info.summary }
+                }
+            }));
+            console.log("Trip info updated with new votes.", tripInfo);
+        }).catch( (error) => {
+            console.error("There was an error fetching the votes!", error);
+        });
+    };
+
+    const handleEdit = () => {
+        navigate(`/Edit/Trip/${id}`);
+    };
+
+    const handleShare = () => {
+        const tripUrl = window.location.href;
+        navigator.clipboard.writeText(tripUrl).then(() => {
+            
+        });
+    };
+
+    
 
     if (loading) {
         return (
@@ -81,115 +151,123 @@ function ViewTrip(){
             sx={{
             display: 'flex',
             flexDirection: 'column',
-            gap: 2,
+            gap: 1,
             width: '100%'
             }}
         >
+
             <Typography gutterBottom variant="h4" component="h4" align="center">
             {
                 tripInfo.name
             }
             </Typography>
 
-            <Typography gutterBottom variant="h4" component="div" align="center">
-                Description
-            </Typography>
             <Typography  variant="body1" component="div" align="right">
             {
                 tripInfo.description
             }
             </Typography>
 
-            <Typography gutterBottom variant="span" component="div">
+            
+            <Divider />
+            <Typography variant="span" component="div">
                 Created by
             </Typography>
-            <Typography gutterBottom variant="span" component="div" align="right">
+            <Typography variant="b" component="b" align="right">
             {
                 tripInfo.owner.tag
             }
             </Typography>
 
-            <Typography gutterBottom variant="span" component="div">
+            <Typography variant="span" component="div">
                 Initial Date
             </Typography>
-            <Typography gutterBottom variant="span" component="div" align="right">
+            <Typography variant="span" component="div" align="right">
             {
                 utils.formatDate(tripInfo.initialdate)
             }
             </Typography>
 
-            <Typography gutterBottom variant="span" component="div">
+            <Typography variant="span" component="div">
                 Final Date
             </Typography>
-            <Typography gutterBottom variant="span" component="div" align="right">
+            <Typography variant="span" component="div" align="right">
             {
                 utils.formatDate(tripInfo.finaldate)
             }
             </Typography>
 
-            <Typography gutterBottom variant="h6" component="div">
+            <Typography variant="h6" component="div">
                 Members
             </Typography>
             {
                 tripInfo.members.length != 0 ? 
                 (
-                <>
-                    <ViewMemberList memberlist={tripInfo.members}/>
-                </>
+                    <>
+                        <ViewMemberList 
+                        memberlist={tripInfo.members}/>
+                    </>
                 ) : 
                 (
-                    <><Alert severity="warning">This trip has no member list yet.</Alert></>
+                    <>
+                        <Alert 
+                            severity="warning">
+                                This trip has no member list yet.
+                        </Alert>
+                    </>
                 )
             }
             
-            <Typography gutterBottom variant="h6" component="div">
+            <Typography 
+                variant="h6" 
+                component="div">
                 Itinerary
             </Typography>
-            {
-               tripInfo.itinerary.length != 0 ? (
-                    <List sx={{ width: '100%', bgcolor: 'background.paper'  }}>
-                    {
-                        tripInfo.itinerary.map((item) => (
-                            <>
-                            <ListItem key={item.id}
-                            secondaryAction={
-                                <>
-                                <IconButton edge="end" aria-label="actions">
-                                    <Badge badgeContent={item.votes} color="primary" >
-                                        <FavoriteIcon />
-                                    </Badge>
-                                </IconButton>
-                                <IconButton edge="end" aria-label="actions">
-                                    <ShareIcon />
-                                </IconButton>
-                                {
-                                    item.place.id ? (
-                                    <IconButton edge="end" aria-label="actions" href={"/View/Places/" + item.place.id} >
-                                        <Visibility  />
-                                    </IconButton>) : null
-                                }
-                                
-                                </>
-                            }
-                            >
-                            <ListItemText 
-                                        primary={item.place.name} 
-                                        secondary={ utils.formatDate(item.initialdate) 
-                                        + " to " 
-                                        + utils.formatDate(item.finaldate) } />
-                            </ListItem>
-                            </>
-                        ))
-                    }
-                </List>
-               ) : 
-               (<>
-                    <Alert 
-                        severity="warning">
-                            This trip has no itinerary yet.
-                    </Alert>
-                </>)
-            }
+            <ViewItinerary itinerary={tripInfo.itinerary} />
+            <Divider />
+            <Paper 
+                elevation={2} 
+                sx={{ 
+                    display: 'flex', 
+                    justifyContent: 'center',
+                    gap: 1
+                }}
+            >
+                <Tooltip title={liked ? "Unlike" : "Vote this trip"}>
+                    <IconButton 
+                        color={liked ? "error" : "default"}
+                        onClick={handleVoteTrip}
+                        size="medium"
+                    >
+                        <Badge badgeContent={tripInfo.statics.Votes.Total} color="primary">
+                            {liked ? <FavoriteIcon /> : <FavoriteBorder />}
+                        </Badge>
+                    </IconButton>
+                </Tooltip>
+
+                <Tooltip title="Share trip">
+                    <IconButton 
+                        color="default"
+                        onClick={handleShare}
+                        size="medium"
+                    >
+                        <ShareIcon />
+                    </IconButton>
+                </Tooltip>
+                
+                {
+                isOwner && (
+                    <Tooltip title="Edit trip">
+                        <IconButton 
+                            color="primary"
+                            onClick={handleEdit}
+                            size="medium"
+                        >
+                            <Edit />
+                        </IconButton>
+                    </Tooltip>
+                )}
+            </Paper>
             
         </Box>);
 }

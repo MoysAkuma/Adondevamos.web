@@ -70,7 +70,7 @@ function Itinerary ({
     }
 
     const generateOptions = ( visit, index) => {
-        const isOwner = (tripinfo.owner.id == localStorage.getItem('userid'));
+        const isOwner = (tripinfo?.owner?.id == localStorage.getItem('userid'));
         if( !isOwner ) return null;
         
         return (
