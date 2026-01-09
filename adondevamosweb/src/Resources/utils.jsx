@@ -12,10 +12,17 @@ const validateEmail = (email) => {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(String(email).toLowerCase());
 }
+const generateDateText = (initialDate, finalDate) => {
+    const formattedInitialDate = formatDate(initialDate);
+    const formattedFinalDate = formatDate(finalDate);
+    return `${formattedInitialDate} - ${formattedFinalDate}`;
+}
+
 
 const utils = {
   formatDate : formatDate,
-  validateEmail : validateEmail
+  validateEmail : validateEmail,
+  generateDateText: generateDateText
 };
 
 export default utils;

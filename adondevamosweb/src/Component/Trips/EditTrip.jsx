@@ -67,6 +67,9 @@ function EditTrip(){
         memberlist:[]
         
     });
+
+    //copy of original trip info for comparison
+    const [originalTrip, setOriginalTrip] = useState(null);
     // UI state
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -118,9 +121,15 @@ function EditTrip(){
           // 'Authorization': 'Bearer your-token-here' // Add if needed
         }
       });
-      if(response.status == 200){
+      if(response.status == 201 || response.status == 200){
         setMessageStack("Trip info was updated.");
+        //compare original trip with form trip and save changes
+        if ( JSON.stringify(originalTrip.itinerary) != JSON.stringify(formTrip.itinerary) ){
+          setMessageStack("Saving itinerary...");
+          saveItinerary();
+        }
       } 
+
       // Handle success
       setSubmitSuccess(true);
     
@@ -153,43 +162,37 @@ function EditTrip(){
 
     //save itinerary
     const saveItinerary = async( ) =>{
-        const lst = formTrip.itinerary.map(place => ({
-          "placeid" : place.id ,
-          "initialdate" : place.initialdate,
-          "finaldate" : place.finaldate,
-          "hide" : false
+        const lst = formTrip.itinerary.map(itinerary => ({
+          "placeid" : itinerary.place.id ,
+          "initialdate" : itinerary.initialdate,
+          "finaldate" : itinerary.finaldate
         }));
+        console.log("Itinerary to save:", lst);
         const rq = {
           "Itinerary" : lst
         };
-        axios.post(URLsCatalogService.Trips+'/' + id + '/Itinerary', rq )
+        axios.put(URLsCatalogService.Trips+'/' + id + '/Itinerary', rq )
         .then(resp => {
             setMessageStack("Itinerary was saved.");
-            setFormTrip(
-              prev => (
-                {
-                ...prev,
-                  itinerary : []
-                }
-              ) 
-            );
         })
         .catch(error => console.error("Error getting catalogue of countries"));
     };
 
   const handlePlaceAdd = (item) => {
+    console.log("Adding place to itinerary:", item);
     //Search if exist in itinerary
-    const foundInList = formTrip.itinerary.filter( x => x.id == item.id );
+    const foundInList = formTrip.itinerary.filter( x => x.place.id == item.place.id );
     
     //if not found, add to itinerary
     if ( foundInList.length == 0 ){
-        setFormTrip( 
-          prev => (
-            { ...prev, 
-                itinerary : [...prev.itinerary, item] 
-            }
-          )
-        );
+        setFormTrip(
+            prev => (
+              {
+              ...prev,
+                itinerary :[...prev.itinerary, item]
+              }
+            ) 
+          );
 
         setShowManager( prev => ( { ...prev, itinerary : false } ) );
     } else {
@@ -205,11 +208,13 @@ function EditTrip(){
   };
 
   const handleRemove = (event) => {
+    console.log("Remove place from itinerary:", event);
     //Item exist in list
-    const foundInList = formTrip.itinerary.filter( x => x.id == event);
+
+    const foundInList = formTrip.itinerary.filter( x => x.place.id == event);
     // if found, filter list and set to form itinerary
     if ( foundInList.length == 1 ){
-        const filteredList = formTrip.itinerary.filter(item => item.id !== event )
+        const filteredList = formTrip.itinerary.filter(item => item.place.id !== event )
         setFormTrip( prev => ({...prev, itinerary : filteredList } ));
     } 
   }
@@ -257,6 +262,7 @@ const handleRemoveUser = (event) => {
   };
 
    const clearItinerary = () => {
+
     setFormTrip(
           prev => (
             { ...prev, 
@@ -280,6 +286,7 @@ const handleRemoveUser = (event) => {
             axios.get(URLsCatalogService.Trips + '/' + id)
             .then(resp => {
                 setFormTrip( resp.data.info );
+                setOriginalTrip( resp.data.info );
             })
             .catch(error => console.error("Error getting trip info"));
         } catch (err) {
