@@ -18,7 +18,6 @@ import {
 import { LocationCity } from '@mui/icons-material';
 import { Add, Delete, WatchLater } from '@mui/icons-material';
 import SearchPlaces from '../SearchPlaces';
-import Itinerary from './Itinerary';
 import utils from '../../../Resources/utils';
 
 function ManageItinerary({ 

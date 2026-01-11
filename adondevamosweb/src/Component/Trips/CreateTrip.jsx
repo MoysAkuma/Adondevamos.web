@@ -6,13 +6,14 @@ import {
         Box,
         Alert,
         AlertTitle,
-        ButtonGroup,
-        Snackbar
+        ButtonGroup
 } from '@mui/material';
 
 import MemberSearch from './MemberSearch';
 import ManageItinerary from './Itinerary/ManageItinerary';
 import MemberList from './MemberList';
+import ManageMemberList from './ManageMemberList';
+import SnackbarNotification from '../Commons/SnackbarNotification';
 import config from "../../Resources/config";
 import { useAuth } from '../../context/AuthContext';
 import FormTrips from './FormTrips';
@@ -171,7 +172,6 @@ function CreateTrip( ) {
       axios.post(
         URLsCatalogService.Trips +'/' + id+ '/Members', rq)
       .then(resp => {
-        console.log("Member list was saved");
         setFormTrip(
           prev => (
             {
@@ -251,8 +251,7 @@ function CreateTrip( ) {
   }
 
   const handleUserAdd = (item) => {
-
-    const foundInList = formTrip.memberlist.filter( x => x.id == item );
+    const foundInList = formTrip.memberlist.filter( x => x.id == item.id );
 
     if ( foundInList.length == 0 ){
         setFormTrip(
@@ -262,7 +261,7 @@ function CreateTrip( ) {
             }
           )
         );
-        setShowManager( prev => ( { ...prev, memberlist : false } ) );
+        setErrors(prev => ({ ...prev, duplicateduser : false }));
     } else {
         setErrors(prev => (
           {
@@ -272,7 +271,6 @@ function CreateTrip( ) {
         )
       );
     }
-        
   };
 
   const handleRemoveUser = (event) => {
@@ -280,8 +278,14 @@ function CreateTrip( ) {
     const foundInList = formTrip.memberlist.filter( x => x.id == event);
 
     if ( foundInList.length == 1 ){
-        setFormTrip(prev => prev.memberlist.filter(item => item.id !== event ) );
+        const filteredList = formTrip.memberlist.filter(item => item.id !== event );
+        setFormTrip(prev => ({ ...prev, memberlist: filteredList }));
     } 
+  };
+
+  const resetMembers = () => {
+    setFormTrip(prev => ({ ...prev, memberlist: [] }));
+    setErrors(prev => ({ ...prev, duplicateduser: false }));
   };
 
   const showSearch = (item) => {
@@ -354,83 +358,14 @@ function CreateTrip( ) {
           onPlaceRemove={handleRemove}
           onClearItinerary={clearItinerary}
         />  
-                
 
-        <Typography variant="subtitle2"  align="left">
-          Members
-        </Typography>
-            
-        <ButtonGroup 
-        variant="contained" 
-        color="primary" 
-        fullWidth >
-          <Button 
-              variant="contained" 
-              startIcon={ <AccountCircle/> }
-              onClick={ (x) => showSearch(2)}
-              >
-                Add member
-          </Button>
-          {
-            (formTrip.memberlist.length == 0 ) ? (
-              <>
-                <Button 
-                    variant="text" 
-                    startIcon={ <WatchLater/> }
-                    onClick={ (x) => ( x )}
-                    >
-                      Decided Later
-                </Button>
-            </>
-            
-            ) : (
-              <Button 
-                variant="text" 
-                startIcon={ <Delete/> }
-                  >
-                    Reset members
-              </Button>
-            )
-          }
-          </ButtonGroup>
-        {
-          (formTrip.memberlist.length == 0) && (
-            <Alert severity='info' >
-              Your member list is empty
-            </Alert>
-          )
-        }
-        {
-          (showManager.memberlist ) && (
-            <MemberSearch
-              callback={handleUserAdd}
-              memberlist={formTrip.memberlist}
-            />
-          )
-        }
-        {
-          errors.duplicateduser ? 
-          (
-          <>
-            <Alert severity="warning">
-              <AlertTitle>This User was already added </AlertTitle>
-              Please, select another user
-            </Alert>
-          </>) : (<></>)
-        }
-
-        {
-          formTrip.memberlist?.length > 0 ? (
-          <>
-            <Typography variant="body1"   align="left">
-              Member list 
-            </Typography>
-            <MemberList 
-              memberlist={formTrip.memberlist} 
-              callBackDelete={handleRemoveUser} 
-              />
-          </>) : (<></>)
-        }
+        <ManageMemberList
+          memberlist={formTrip.memberlist}
+          onAddMember={handleUserAdd}
+          onRemoveMember={handleRemoveUser}
+          onResetMembers={resetMembers}
+          showDuplicateError={errors.duplicateduser}
+        />
 
         <Button 
           type="submit" 
@@ -441,12 +376,11 @@ function CreateTrip( ) {
           Create Trip
         </Button>
 
-        <Snackbar 
+        <SnackbarNotification 
           open={submitSuccess}
-          autoHideDuration={3000}
-          message={messageSnack}
           onClose={handleSnackbarClose}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          message={messageSnack}
+          severity="success"
         />
       </Box>
   );

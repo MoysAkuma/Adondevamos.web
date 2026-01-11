@@ -18,6 +18,7 @@ import
 import CountriesSelectList from "../Catalogues/CountriesSelectList";
 import StateSelect from "../Catalogues/StateSelect";
 import CitiesSelect from "../Catalogues/CitiesSelect";
+import SnackbarNotification from "../Commons/SnackbarNotification";
 
 import config from "../../Resources/config";
 
@@ -430,30 +431,21 @@ const facilitiesChange = (event) => {
           }
 
         </FormGroup>
-        <Snackbar open={responseSuceess.place} 
-        autoHideDuration={6000} 
-        onClose={handleCloseAlert}>
-          <Alert
-            onClose={handleCloseAlert}
-            severity="success"
-            variant="filled"
-            sx={{ width: '100%' }}
-          >
-            A new trip was added!. Plase, wait until we create the rest
-          </Alert>
-        </Snackbar>
-        <Snackbar open={responseSuceess.place} 
-        autoHideDuration={6000} 
-        onClose={handleCloseAlert}>
-          <Alert
-            onClose={handleCloseAlert}
-            severity="success"
-            variant="filled"
-            sx={{ width: '100%' }}
-          >
-            A new trip was added!. Plase, wait until we create the rest
-          </Alert>
-        </Snackbar>
+        
+        <SnackbarNotification
+          open={responseSuceess.place}
+          onClose={handleCloseAlert}
+          message="A new place was added! Please wait while we save the facilities."
+          severity="success"
+        />
+        
+        <SnackbarNotification
+          open={!!submitError}
+          onClose={() => setSubmitError('')}
+          message={submitError}
+          severity="error"
+        />
+        
         <Button 
           type="submit" 
           disabled={isSubmitting}

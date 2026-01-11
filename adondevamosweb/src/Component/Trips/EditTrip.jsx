@@ -8,19 +8,16 @@ import
         Box,
         Alert,
         AlertTitle,
-        Snackbar,
         CircularProgress
 } from '@mui/material';
 
-import { AccountCircle, 
-  Add, 
-  Delete, 
-  FlightTakeoff, 
-  WatchLater
+import { Save
 } from '@mui/icons-material'
 import MemberSearch from './MemberSearch';
 import ManageItinerary from './Itinerary/ManageItinerary';
 import MemberList from './MemberList';
+import ManageMemberList from './ManageMemberList';
+import SnackbarNotification from '../Commons/SnackbarNotification';
 import config from "../../Resources/config";
 import { useParams } from 'react-router-dom';
 import FormTrips from './FormTrips';
@@ -64,7 +61,7 @@ function EditTrip(){
           tag : ''
         },
         itinerary:[],
-        memberlist:[]
+        members:[]
         
     });
 
@@ -127,6 +124,7 @@ function EditTrip(){
         if ( JSON.stringify(originalTrip.itinerary) != JSON.stringify(formTrip.itinerary) ){
           setMessageStack("Saving itinerary...");
           saveItinerary();
+          saveMemberlist();
         }
       } 
 
@@ -144,9 +142,8 @@ function EditTrip(){
 
     //saveMemberlist
     const saveMemberlist = async( ) =>{
-        const lst = formTrip.memberlist.map(member => ({
+        const lst = formTrip.members.map(member => ({
           userid : member.id,
-          roleid : member.role,
           hide : false
         }));
         const rq = {
@@ -167,7 +164,7 @@ function EditTrip(){
           "initialdate" : itinerary.initialdate,
           "finaldate" : itinerary.finaldate
         }));
-        console.log("Itinerary to save:", lst);
+
         const rq = {
           "Itinerary" : lst
         };
@@ -179,7 +176,6 @@ function EditTrip(){
     };
 
   const handlePlaceAdd = (item) => {
-    console.log("Adding place to itinerary:", item);
     //Search if exist in itinerary
     const foundInList = formTrip.itinerary.filter( x => x.place.id == item.place.id );
     
@@ -208,9 +204,7 @@ function EditTrip(){
   };
 
   const handleRemove = (event) => {
-    console.log("Remove place from itinerary:", event);
     //Item exist in list
-
     const foundInList = formTrip.itinerary.filter( x => x.place.id == event);
     // if found, filter list and set to form itinerary
     if ( foundInList.length == 1 ){
@@ -220,18 +214,18 @@ function EditTrip(){
   }
 
   const handleUserAdd = (item) => {
-
-    const foundInList = formTrip.memberlist.filter( x => x.id == item );
+  
+    const foundInList = formTrip.members.filter( x => x.id == item.id );
 
     if ( foundInList.length == 0 ){
         setFormTrip(
           prev => (
             { ...prev, 
-                memberlist : [...prev.memberlist, item] 
+                members : [...prev.members, item] 
             }
           )
         );
-        setShowManager( prev => ( { ...prev, memberlist : false } ) );
+        setErrors(prev => ({ ...prev, duplicateduser : false }));
     } else {
         setErrors(prev => (
           {
@@ -241,23 +235,28 @@ function EditTrip(){
         )
       );
     }
-        
   };
 
 const handleRemoveUser = (event) => {
     //Item exist in list
-    const foundInList = formTrip.memberlist.filter( x => x.id == event);
+    const foundInList = formTrip.members.filter( x => x.id == event);
 
     if ( foundInList.length == 1 ){
-        setFormTrip(prev => prev.memberlist.filter(item => item.id !== event ) );
+        const filteredList = formTrip.members.filter(item => item.id !== event );
+        setFormTrip(prev => ({ ...prev, members: filteredList }));
     } 
+  };
+
+  const resetMembers = () => {
+    setFormTrip(prev => ({ ...prev, members: [] }));
+    setErrors(prev => ({ ...prev, duplicateduser: false }));
   };
 
   const showSearch = (item) => {
     if ( item == 1 ) {
       setShowManager( prev => ( { ...prev, itinerary : true } ) );
     } else {
-      setShowManager( prev => ( { ...prev, memberlist : true } ) );
+      setShowManager( prev => ( { ...prev, members : true } ) );
     }
   };
 
@@ -313,50 +312,61 @@ const handleRemoveUser = (event) => {
         );
     }
     return (
-            <Box
-              component="form"
-              onSubmit={handleSubmit}
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2,
-                width: '100%'
-              }}
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+          width: '100%'
+        }}
+      >
+          <Typography variant="h5" align="center">
+            Edit Trip 
+          </Typography>
+          
+          <Typography variant="body1"  align="left">
+            About your trip
+          </Typography>
+
+          <FormTrips 
+            formTrip={formTrip}
+            handleChange={handleChange} />
+          
+          <ManageItinerary
+            itinerary={formTrip.itinerary}
+            onPlaceAdd={handlePlaceAdd}
+            onPlaceRemove={handleRemove}
+            onClearItinerary={clearItinerary}
+          />
+
+          <ManageMemberList
+            memberlist={formTrip.members}
+            onAddMember={handleUserAdd}
+            onRemoveMember={handleRemoveUser}
+            onResetMembers={resetMembers}
+            showDuplicateError={errors.duplicateduser}
+          />
+
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            variant="text"
+            startIcon={<Save/>}
             >
-                <Typography variant="h5" align="center">
-                  Edit Trip 
-                </Typography>
-                
-                <Typography variant="body1"  align="left">
-                  About your trip
-                </Typography>
+            Save changes
+          </Button>
 
-                <FormTrips 
-                  formTrip={formTrip}
-                  handleChange={handleChange} />
-                
-                <ManageItinerary
-                  itinerary={formTrip.itinerary}
-                  onPlaceAdd={handlePlaceAdd}
-                  onPlaceRemove={handleRemove}
-                  onClearItinerary={clearItinerary}
-                />
-
-                <Button 
-                  type="submit" 
-                  disabled={isSubmitting}
-                  variant="text"
-                  >
-                  Save info
-                </Button>
-                <Snackbar 
-                  open={submitSuccess}
-                  autoHideDuration={3000}
-                  message={messageSnack}
-                  onClose={handleSnackbarClose}
-                  anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-                />
-            </Box>
+          <SnackbarNotification
+            open={submitSuccess}
+            onClose={handleSnackbarClose}
+            message={messageSnack}
+            severity="success"
+            autoHideDuration={3000}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          />
+      </Box>
     );
 }
 
