@@ -4,11 +4,21 @@ import {
     ButtonGroup,
     Alert,
     AlertTitle,
-    Typography
+    Typography,
+    Box,
+    Paper,
+    List,
+    ListItem,
+    ListItemText,
+    ListItemAvatar,
+    Avatar,
+    Divider
 } from '@mui/material';
+
+import { LocationCity } from '@mui/icons-material';
 import { Add, Delete, WatchLater } from '@mui/icons-material';
 import SearchPlaces from '../SearchPlaces';
-import Itinerary from './Itinerary';
+import utils from '../../../Resources/utils';
 
 function ManageItinerary({ 
     itinerary = [], 
@@ -20,12 +30,22 @@ function ManageItinerary({
     const [duplicateError, setDuplicateError] = useState(false);
 
     const handlePlaceAdd = (item) => {
+        console.log("Adding place to itinerary:", item);
         // Search if exists in itinerary
-        const foundInList = itinerary.filter(x => x.id === item.id);
-        
+        const foundInList = itinerary.filter(x => x.place.id === item.id);
+        console.log("Found in itinerary:", foundInList);
         // If not found, add to itinerary
         if (foundInList.length === 0) {
-            onPlaceAdd(item);
+            onPlaceAdd({
+                place: {
+                    name: item.name,
+                    id: item.id
+                },
+                initialdate: item.initialdate || "",
+                finaldate: item.finaldate || ""
+                }
+            );
+            
             setShowManager(false);
             setDuplicateError(false);
         } else {
@@ -46,6 +66,75 @@ function ManageItinerary({
     const showSearch = () => {
         setShowManager(true);
         setDuplicateError(false);
+    };
+
+
+    const generateItineratyList = (itinerary) => {
+           return( <Paper 
+                elevation={1} 
+                sx={{ 
+                    borderRadius: 2,
+                    overflow: 'hidden',
+                    bgcolor: 'background.paper'
+                }}
+            >
+            <List sx={{ width: '100%', p: 0 }}>
+                {itinerary.map((visit, index) => {
+                    return (
+                        <Box key={visit.place.id}>
+                            <ListItem
+                                sx={{
+                                    py: 2,
+                                    px: 2,
+                                    '&:hover': {
+                                        bgcolor: 'action.hover'
+                                    }
+                                }}
+                                secondaryAction={<>
+                                    <Button 
+                                        variant="text" 
+                                        color="error"
+                                        onClick={() => handleRemove(visit.place.id)}
+                                    >
+                                        Remove
+                                    </Button>
+                                </>}
+                            >
+                                <ListItemAvatar>
+                                    <Avatar 
+                                        sx={{ 
+                                            bgcolor: 'primary.main',
+                                            width: 48,
+                                            height: 48
+                                        }}
+                                    >
+                                        <LocationCity />
+                                    </Avatar>
+                                </ListItemAvatar>
+                                
+                                <ListItemText 
+                                    primary={
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <Typography variant="subtitle1" fontWeight={600}>
+                                                {visit.place.name}
+                                            </Typography>
+                                            
+                                        </Box>
+                                    }
+                                    secondary={
+                                        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                                            {utils.generateDateText(visit.initialdate, visit.finaldate)}
+                                        </Typography>
+                                    }
+                                />
+                            </ListItem>
+                            
+                            {index < itinerary.length - 1 && <Divider />}
+                        </Box>
+                    );
+                })}
+            </List>
+        </Paper>)
     };
 
     return (
@@ -106,11 +195,9 @@ function ManageItinerary({
                 </Alert>
             )}
             
-            {itinerary.length > 0 && (
-                <Itinerary 
-                    tripinfo={{ itinerary }} 
-                    callBackDelete={handleRemove} 
-                />
+            {
+            itinerary.length > 0 && (
+                generateItineratyList(itinerary)
             )}
         </>
     );

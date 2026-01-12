@@ -30,9 +30,23 @@ function Itinerary ({
     tripinfo = {
         itinerary : [
         { 
-            id : 0,
-            name : "Place Name",
-            description : "Place description",
+            place : {
+                id : 0,
+                name : "Place Name",
+                Country: {
+                    id: 0,
+                    name: "Country Name",
+                    acronym: "CN"
+                },
+                State : {
+                    id: 0,
+                    name: "State Name"
+                },
+                City:{
+                    id: 0,
+                    name: "City Name"
+                }
+            },
             initialdate : "2024-03-23",
             finaldate : "2025-02-17"
         }

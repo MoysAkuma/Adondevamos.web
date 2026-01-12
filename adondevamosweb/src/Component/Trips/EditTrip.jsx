@@ -8,27 +8,25 @@ import
         Box,
         Alert,
         AlertTitle,
-        Snackbar,
         CircularProgress
 } from '@mui/material';
 
-import { AccountCircle, 
-  Add, 
-  Delete, 
-  FlightTakeoff, 
-  WatchLater
+import { Save
 } from '@mui/icons-material'
-import MemberSearch from './MemberSearch';
+import MemberSearch from './MembersList/MemberSearch';
 import ManageItinerary from './Itinerary/ManageItinerary';
-import MemberList from './MemberList';
+import MemberList from './MembersList/MemberList';
+import ManageMemberList from './MembersList/ManageMemberList';
+import SnackbarNotification from '../Commons/SnackbarNotification';
 import config from "../../Resources/config";
-import { useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import FormTrips from './FormTrips';
 import { useAuth } from "../../context/AuthContext";
 
 function EditTrip(){
     const { isLogged, loading } = useAuth();
     const [isUser, setIsUser] = useState(false);
+    const navigate = useNavigate();
 
     //Trip id
     const { id } = useParams();
@@ -64,9 +62,12 @@ function EditTrip(){
           tag : ''
         },
         itinerary:[],
-        memberlist:[]
+        members:[]
         
     });
+
+    //copy of original trip info for comparison
+    const [originalTrip, setOriginalTrip] = useState(null);
     // UI state
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -118,16 +119,34 @@ function EditTrip(){
           // 'Authorization': 'Bearer your-token-here' // Add if needed
         }
       });
-      if(response.status == 200){
+      if(response.status == 201 
+        || response.status == 200){
         setMessageStack("Trip info was updated.");
       } 
+
       // Handle success
       setSubmitSuccess(true);
     
     } catch (error) {
-      console.error('Error creating place:', error);
+      setMessageStack(`Error updating trip: ${error.message}`);
+      console.error('Error updating trip:', error);
     } finally {
       setIsSubmitting(false);
+      //compare original trip with form trip and save changes
+      if ( JSON.stringify(originalTrip.itinerary) 
+        != JSON.stringify(formTrip.itinerary) ){
+        setMessageStack("Saving itinerary...");
+        saveItinerary();
+      }
+      if ( JSON.stringify(originalTrip.members) 
+        != JSON.stringify(formTrip.members) ){
+        setMessageStack("Saving member list...");
+        saveMemberlist();
+      }
+      setTimeout(() => {
+        navigate('/View/Trip/' + id )}, 
+        3000);
+
     }
   };
 
@@ -135,61 +154,54 @@ function EditTrip(){
 
     //saveMemberlist
     const saveMemberlist = async( ) =>{
-        const lst = formTrip.memberlist.map(member => ({
-          userid : member.id,
-          roleid : member.role,
+        const lst = formTrip.members.map(member => ({
+          userid : member.user.id,
           hide : false
         }));
+
         const rq = {
-          "MemberList" : lst
+          "Members" : lst
         };
-        axios.post(
+        axios.put(
           URLsCatalogService.Trips +'/' + id+ '/Members', rq)
         .then(resp => {
-            
+            setMessageStack("Member list was saved.");
         })
         .catch(error => console.error("Error getting catalogue of countries"));
     };
 
     //save itinerary
     const saveItinerary = async( ) =>{
-        const lst = formTrip.itinerary.map(place => ({
-          "placeid" : place.id ,
-          "initialdate" : place.initialdate,
-          "finaldate" : place.finaldate,
-          "hide" : false
+        const lst = formTrip.itinerary.map(itinerary => ({
+          "placeid" : itinerary.place.id ,
+          "initialdate" : itinerary.initialdate,
+          "finaldate" : itinerary.finaldate
         }));
+
         const rq = {
           "Itinerary" : lst
         };
-        axios.post(URLsCatalogService.Trips+'/' + id + '/Itinerary', rq )
+        axios.put(URLsCatalogService.Trips+'/' + id + '/Itinerary', rq )
         .then(resp => {
             setMessageStack("Itinerary was saved.");
-            setFormTrip(
-              prev => (
-                {
-                ...prev,
-                  itinerary : []
-                }
-              ) 
-            );
         })
         .catch(error => console.error("Error getting catalogue of countries"));
     };
 
   const handlePlaceAdd = (item) => {
     //Search if exist in itinerary
-    const foundInList = formTrip.itinerary.filter( x => x.id == item.id );
+    const foundInList = formTrip.itinerary.filter( x => x.place.id == item.place.id );
     
     //if not found, add to itinerary
     if ( foundInList.length == 0 ){
-        setFormTrip( 
-          prev => (
-            { ...prev, 
-                itinerary : [...prev.itinerary, item] 
-            }
-          )
-        );
+        setFormTrip(
+            prev => (
+              {
+              ...prev,
+                itinerary :[...prev.itinerary, item]
+              }
+            ) 
+          );
 
         setShowManager( prev => ( { ...prev, itinerary : false } ) );
     } else {
@@ -206,27 +218,35 @@ function EditTrip(){
 
   const handleRemove = (event) => {
     //Item exist in list
-    const foundInList = formTrip.itinerary.filter( x => x.id == event);
+    const foundInList = formTrip.itinerary.filter( x => x.place.id == event);
     // if found, filter list and set to form itinerary
     if ( foundInList.length == 1 ){
-        const filteredList = formTrip.itinerary.filter(item => item.id !== event )
+        const filteredList = formTrip.itinerary.filter(item => item.place.id !== event )
         setFormTrip( prev => ({...prev, itinerary : filteredList } ));
     } 
   }
 
-  const handleUserAdd = (item) => {
-
-    const foundInList = formTrip.memberlist.filter( x => x.id == item );
-
+  const handleUserAdd = (item) => {debugger
+    console.log("Adding user to member list:", item);
+    const foundInList = formTrip.members.filter( x => x.user.id == item.id );
+    const memberToInsert = {
+      user : {
+        id : item.id,
+        tag : item.tag,  
+        name : item.name,
+        email : item.email
+      },
+      hide : false
+    };
     if ( foundInList.length == 0 ){
         setFormTrip(
           prev => (
             { ...prev, 
-                memberlist : [...prev.memberlist, item] 
+                members : [...prev.members, memberToInsert] 
             }
           )
         );
-        setShowManager( prev => ( { ...prev, memberlist : false } ) );
+        setErrors(prev => ({ ...prev, duplicateduser : false }));
     } else {
         setErrors(prev => (
           {
@@ -236,27 +256,33 @@ function EditTrip(){
         )
       );
     }
-        
   };
 
 const handleRemoveUser = (event) => {
     //Item exist in list
-    const foundInList = formTrip.memberlist.filter( x => x.id == event);
+    const foundInList = formTrip.members.filter( x => x.user.id == event);
 
     if ( foundInList.length == 1 ){
-        setFormTrip(prev => prev.memberlist.filter(item => item.id !== event ) );
+        const filteredList = formTrip.members.filter(item => item.user.id !== event );
+        setFormTrip(prev => ({ ...prev, members: filteredList }));
     } 
+  };
+
+  const resetMembers = () => {
+    setFormTrip(prev => ({ ...prev, members: [] }));
+    setErrors(prev => ({ ...prev, duplicateduser: false }));
   };
 
   const showSearch = (item) => {
     if ( item == 1 ) {
       setShowManager( prev => ( { ...prev, itinerary : true } ) );
     } else {
-      setShowManager( prev => ( { ...prev, memberlist : true } ) );
+      setShowManager( prev => ( { ...prev, members : true } ) );
     }
   };
 
    const clearItinerary = () => {
+
     setFormTrip(
           prev => (
             { ...prev, 
@@ -280,6 +306,7 @@ const handleRemoveUser = (event) => {
             axios.get(URLsCatalogService.Trips + '/' + id)
             .then(resp => {
                 setFormTrip( resp.data.info );
+                setOriginalTrip( resp.data.info );
             })
             .catch(error => console.error("Error getting trip info"));
         } catch (err) {
@@ -306,50 +333,62 @@ const handleRemoveUser = (event) => {
         );
     }
     return (
-            <Box
-              component="form"
-              onSubmit={handleSubmit}
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2,
-                width: '100%'
-              }}
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+          width: '100%'
+        }}
+      >
+          <Typography variant="h5" align="center">
+            Edit Trip 
+          </Typography>
+          
+          <Typography variant="body1"  align="left">
+            About your trip
+          </Typography>
+
+          <FormTrips 
+            formTrip={formTrip}
+            handleChange={handleChange} />
+          
+          <ManageItinerary
+            itinerary={formTrip.itinerary}
+            onPlaceAdd={handlePlaceAdd}
+            onPlaceRemove={handleRemove}
+            onClearItinerary={clearItinerary}
+          />
+
+          <ManageMemberList
+            memberlist={formTrip.members}
+            onAddMember={handleUserAdd}
+            onRemoveMember={handleRemoveUser}
+            onResetMembers={resetMembers}
+            showDuplicateError={errors.duplicateduser}
+          />
+
+          <Button 
+            type="submit" 
+            disabled={isSubmitting}
+            variant="text"
+            startIcon={<Save/>}
             >
-                <Typography variant="h5" align="center">
-                  Edit Trip 
-                </Typography>
-                
-                <Typography variant="body1"  align="left">
-                  About your trip
-                </Typography>
+            Save changes
+          </Button>
 
-                <FormTrips 
-                  formTrip={formTrip}
-                  handleChange={handleChange} />
-                
-                <ManageItinerary
-                  itinerary={formTrip.itinerary}
-                  onPlaceAdd={handlePlaceAdd}
-                  onPlaceRemove={handleRemove}
-                  onClearItinerary={clearItinerary}
-                />
+          <SnackbarNotification
+            open={submitSuccess}
+            onClose={handleSnackbarClose}
+            message={messageSnack}
+            severity="success"
+            autoHideDuration={3000}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          />
 
-                <Button 
-                  type="submit" 
-                  disabled={isSubmitting}
-                  variant="text"
-                  >
-                  Save info
-                </Button>
-                <Snackbar 
-                  open={submitSuccess}
-                  autoHideDuration={3000}
-                  message={messageSnack}
-                  onClose={handleSnackbarClose}
-                  anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-                />
-            </Box>
+      </Box>
     );
 }
 

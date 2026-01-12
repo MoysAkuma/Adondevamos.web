@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import 
     {
         useMediaQuery,
@@ -7,8 +7,11 @@ import
         Typography,
         Tab,
         Tabs,
-        Box 
+        Box,
+        CircularProgress
     } from '@mui/material';
+import axios from 'axios';
+import config from '../Resources/config';
 
 import Facilitymanager from "../Component/ManagmentSite/Facilitymanager";
 import CountryManager from '../Component/ManagmentSite/CountryManager';
@@ -22,11 +25,37 @@ import { useAuth } from '../context/AuthContext';
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [tabValue, setTabValue] = useState(0);
+    const URLsCatalogService =
+    {
+        Catalogues:`${config.api.baseUrl}${config.api.endpoints.Catalogues}`,
+        Users : `${config.api.baseUrl}${config.api.endpoints.Users}`
+    };
+    const [allCatalogues, setAllCatalogues] = useState({});
+    const [loading, setLoading] = useState(true);
 
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
     };
 
+    useEffect(()=> {
+        //getCatalogues
+        const getCatalogues = async() => {
+            try {
+                const response = 
+                await axios.get(`${URLsCatalogService.Catalogues}/all`);
+                const data = response.data.info;
+                setAllCatalogues(data);
+                setLoading(false);
+            } catch (error) {
+
+            }
+        };
+        
+        getCatalogues();
+    },[]);
+    if (loading) {
+        return <CircularProgress />;
+    }
     return (
         <CenteredTemplate>
             <Typography variant="h4" component="h1" gutterBottom align="center">

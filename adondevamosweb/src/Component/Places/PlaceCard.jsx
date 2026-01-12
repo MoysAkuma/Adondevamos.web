@@ -54,7 +54,7 @@ function PlaceCard ({
 
   const gotoViewPlace = (place) => {
       if (place.id == undefined) return;
-      navigate('/ViewPlace/'+place.id);
+      navigate('/View/Place/'+place.id);
   };
   
   const handleExpandClick = () => {

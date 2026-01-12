@@ -12,12 +12,10 @@ import
     } from '@mui/material';
 
 
-import config from '../../Resources/config';
-import UserListFound from '../View/UserListFound';
+import config from '../../../Resources/config';
+import UserListFound from '../../View/UserListFound';
 
 function MemberSearch({ callback, memberlist }){
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [loading, setLoading] = useState(false);
 
     //var param to search user with a given tag or email
@@ -38,6 +36,8 @@ function MemberSearch({ callback, memberlist }){
         {
             id : 1,
             name : "User name",
+            lastname : "Last name",
+            tag : "userTag",
             email : "example@domain.com"
         }
     ]);
@@ -53,7 +53,7 @@ function MemberSearch({ callback, memberlist }){
 
     //request to get user list
     const searchUserList = async( item ) =>{
-        axios.get(URLsService.Users+'/Search/tag='+item)
+        axios.get(URLsService.Users+'/Search/tag/'+item)
         .then(resp => {
             setFoundedUser(resp.data.info);
             if(resp.data.info.length > 0){
@@ -101,7 +101,6 @@ function MemberSearch({ callback, memberlist }){
             placeholder="Tag or Email"
             variant="outlined"
             onChange={handleChange}
-            size={isMobile ? 'small' : 'medium'}
             value={searchtext}
             fullWidth
         />

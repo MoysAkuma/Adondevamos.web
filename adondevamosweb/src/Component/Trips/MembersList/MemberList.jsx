@@ -22,14 +22,14 @@ function MemberList ({
     return (<>
         <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
         {
-            memberlist.map( (user,index) => (
+            memberlist.map( (member,index) => (
                 <ListItem
-                    key={user.id}
+                    key={member.user.id}
                     secondaryAction={
                         <IconButton edge="end" aria-label="actions">
                             
                             <Delete 
-                                onClick={ () => callBackDelete(user.id)} />
+                                onClick={ () => callBackDelete(member.user.id)} />
                             {
                                 index != 0 ? 
                                 ( <ArrowCircleUp  />) : (<></>)
@@ -50,8 +50,8 @@ function MemberList ({
                         </Avatar>
                     </ListItemAvatar>
                     <ListItemText 
-                        primary={ "@" + user.tag } 
-                        secondary={ user.email  } 
+                        primary={ "@" + member.user.tag } 
+                        secondary={ member.user.email  } 
                     />
                 </ListItem>
             ))
