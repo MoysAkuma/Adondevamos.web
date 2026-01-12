@@ -16,7 +16,7 @@ import
     Chip,
     Divider
   } from '@mui/material';
-import { ExpandMore, Visibility, FlightLand, 
+import { CalendarToday, Visibility, FlightLand, 
   FlightTakeoff, Place, Edit } 
 from "@mui/icons-material";
 
@@ -28,7 +28,7 @@ import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import { styled } from '@mui/material/styles';
 import Itinerary from "./Itinerary/Itinerary";
 import { Stack } from "@mui/system";
-
+import utils from "../../Resources/utils";
 
 function TripCard (
   {
@@ -88,9 +88,8 @@ function TripCard (
     };
 
     const gotoEditTrip = (trip) => {
-      /*if( !trip.id ) return; 
-      navigate('/Edit/Trip/' + trip.id);*/
-      if( !trip.id ) return;
+      if( !trip.id ) return; 
+      navigate('/Edit/Trip/' + trip.id);
     };
 
     const getShareLocation = (id) => {
@@ -124,9 +123,36 @@ function TripCard (
     }
 
     const generateSubHeader = (initialdate, finaldate) => {
-      if( !initialdate || !finaldate ) return "Initial and final dates";
-      if (initialdate == finaldate) return formatDate(initialdate);
-      return formatDate(initialdate) + " to " + formatDate(finaldate);
+      return (
+        <>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Tooltip title="Initial Date">
+              <CalendarToday 
+                fontSize="small"
+                sx={{ color: grey[500] }}
+              />
+            </Tooltip>
+            <Typography 
+              variant="body2" 
+              sx={{ color: grey[500] }}
+            >
+              { formatDate(initialdate) }
+            </Typography>
+            <Tooltip title="Final Date">
+              <CalendarToday 
+                fontSize="small"
+                sx={{ color: grey[500] }}
+              />
+            </Tooltip>
+            <Typography 
+              variant="body2" 
+              sx={{ color: grey[500] }}
+            >
+              { formatDate(finaldate) }
+            </Typography>
+          </Stack>
+        </>
+      );
     }
 
     const handleCloseSnackBarShare= () => {

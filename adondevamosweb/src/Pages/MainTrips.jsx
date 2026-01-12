@@ -24,7 +24,7 @@ const GenerateBottonSection = () => {
                     href="/Create/Trip" 
                     disabled
                     >
-                    Create a new trip
+                    Add new trip
                 </Button>
                 <Button variant="outlined"
                     endIcon={ <Search/> }

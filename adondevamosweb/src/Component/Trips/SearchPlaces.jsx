@@ -75,7 +75,7 @@ function SearchPlaces({ callback, itinerary }){
 
     //request to get place list
     const searchPlaceList = async( item ) =>{
-        axios.get(URLsCatalogService.Places+'/Search/'+item)
+        axios.get(URLsCatalogService.Places+'/Search/name/'+item)
         .then(resp => {
             setFindedPlaces(resp.data.info);
             if(resp.data.info.length > 0){

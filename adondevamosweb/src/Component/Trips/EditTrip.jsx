@@ -128,7 +128,8 @@ function EditTrip(){
       setSubmitSuccess(true);
     
     } catch (error) {
-      console.error('Error creating place:', error);
+      setMessageStack(`Error updating trip: ${error.message}`);
+      console.error('Error updating trip:', error);
     } finally {
       setIsSubmitting(false);
       //compare original trip with form trip and save changes
@@ -142,7 +143,10 @@ function EditTrip(){
         setMessageStack("Saving member list...");
         saveMemberlist();
       }
-      navigate('/View/Trip/' + id );
+      setTimeout(() => {
+        navigate('/View/Trip/' + id )}, 
+        3000);
+
     }
   };
 
@@ -151,16 +155,17 @@ function EditTrip(){
     //saveMemberlist
     const saveMemberlist = async( ) =>{
         const lst = formTrip.members.map(member => ({
-          userid : member.id,
+          userid : member.user.id,
           hide : false
         }));
+
         const rq = {
           "Members" : lst
         };
-        axios.post(
+        axios.put(
           URLsCatalogService.Trips +'/' + id+ '/Members', rq)
         .then(resp => {
-            
+            setMessageStack("Member list was saved.");
         })
         .catch(error => console.error("Error getting catalogue of countries"));
     };
@@ -221,15 +226,23 @@ function EditTrip(){
     } 
   }
 
-  const handleUserAdd = (item) => {
+  const handleUserAdd = (item) => {debugger
     console.log("Adding user to member list:", item);
-    const foundInList = formTrip.members.filter( x => x.user.id == item );
-
+    const foundInList = formTrip.members.filter( x => x.user.id == item.id );
+    const memberToInsert = {
+      user : {
+        id : item.id,
+        tag : item.tag,  
+        name : item.name,
+        email : item.email
+      },
+      hide : false
+    };
     if ( foundInList.length == 0 ){
         setFormTrip(
           prev => (
             { ...prev, 
-                members : [...prev.members, item] 
+                members : [...prev.members, memberToInsert] 
             }
           )
         );
@@ -374,6 +387,7 @@ const handleRemoveUser = (event) => {
             autoHideDuration={3000}
             anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
           />
+
       </Box>
     );
 }
