@@ -13,19 +13,20 @@ import
 
 import { Save
 } from '@mui/icons-material'
-import MemberSearch from './MemberSearch';
+import MemberSearch from './MembersList/MemberSearch';
 import ManageItinerary from './Itinerary/ManageItinerary';
-import MemberList from './MemberList';
-import ManageMemberList from './ManageMemberList';
+import MemberList from './MembersList/MemberList';
+import ManageMemberList from './MembersList/ManageMemberList';
 import SnackbarNotification from '../Commons/SnackbarNotification';
 import config from "../../Resources/config";
-import { useParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import FormTrips from './FormTrips';
 import { useAuth } from "../../context/AuthContext";
 
 function EditTrip(){
     const { isLogged, loading } = useAuth();
     const [isUser, setIsUser] = useState(false);
+    const navigate = useNavigate();
 
     //Trip id
     const { id } = useParams();
@@ -118,14 +119,9 @@ function EditTrip(){
           // 'Authorization': 'Bearer your-token-here' // Add if needed
         }
       });
-      if(response.status == 201 || response.status == 200){
+      if(response.status == 201 
+        || response.status == 200){
         setMessageStack("Trip info was updated.");
-        //compare original trip with form trip and save changes
-        if ( JSON.stringify(originalTrip.itinerary) != JSON.stringify(formTrip.itinerary) ){
-          setMessageStack("Saving itinerary...");
-          saveItinerary();
-          saveMemberlist();
-        }
       } 
 
       // Handle success
@@ -135,6 +131,18 @@ function EditTrip(){
       console.error('Error creating place:', error);
     } finally {
       setIsSubmitting(false);
+      //compare original trip with form trip and save changes
+      if ( JSON.stringify(originalTrip.itinerary) 
+        != JSON.stringify(formTrip.itinerary) ){
+        setMessageStack("Saving itinerary...");
+        saveItinerary();
+      }
+      if ( JSON.stringify(originalTrip.members) 
+        != JSON.stringify(formTrip.members) ){
+        setMessageStack("Saving member list...");
+        saveMemberlist();
+      }
+      navigate('/View/Trip/' + id );
     }
   };
 
@@ -147,7 +155,7 @@ function EditTrip(){
           hide : false
         }));
         const rq = {
-          "MemberList" : lst
+          "Members" : lst
         };
         axios.post(
           URLsCatalogService.Trips +'/' + id+ '/Members', rq)
@@ -214,8 +222,8 @@ function EditTrip(){
   }
 
   const handleUserAdd = (item) => {
-  
-    const foundInList = formTrip.members.filter( x => x.id == item.id );
+    console.log("Adding user to member list:", item);
+    const foundInList = formTrip.members.filter( x => x.user.id == item );
 
     if ( foundInList.length == 0 ){
         setFormTrip(
@@ -239,10 +247,10 @@ function EditTrip(){
 
 const handleRemoveUser = (event) => {
     //Item exist in list
-    const foundInList = formTrip.members.filter( x => x.id == event);
+    const foundInList = formTrip.members.filter( x => x.user.id == event);
 
     if ( foundInList.length == 1 ){
-        const filteredList = formTrip.members.filter(item => item.id !== event );
+        const filteredList = formTrip.members.filter(item => item.user.id !== event );
         setFormTrip(prev => ({ ...prev, members: filteredList }));
     } 
   };

@@ -9,10 +9,10 @@ import {
         ButtonGroup
 } from '@mui/material';
 
-import MemberSearch from './MemberSearch';
+import MemberSearch from './MembersList/MemberSearch';
 import ManageItinerary from './Itinerary/ManageItinerary';
-import MemberList from './MemberList';
-import ManageMemberList from './ManageMemberList';
+import MemberList from './MembersList/MemberList';
+import ManageMemberList from './MembersList/ManageMemberList';
 import SnackbarNotification from '../Commons/SnackbarNotification';
 import config from "../../Resources/config";
 import { useAuth } from '../../context/AuthContext';

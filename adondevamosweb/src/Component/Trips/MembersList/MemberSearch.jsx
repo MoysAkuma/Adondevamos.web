@@ -12,8 +12,8 @@ import
     } from '@mui/material';
 
 
-import config from '../../Resources/config';
-import UserListFound from '../View/UserListFound';
+import config from '../../../Resources/config';
+import UserListFound from '../../View/UserListFound';
 
 function MemberSearch({ callback, memberlist }){
     const [loading, setLoading] = useState(false);
