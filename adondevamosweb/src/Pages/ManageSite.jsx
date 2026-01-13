@@ -50,7 +50,6 @@ import { useAuth } from '../context/AuthContext';
 
             }
         };
-        
         getCatalogues();
     },[]);
     if (loading) {
@@ -65,7 +64,7 @@ import { useAuth } from '../context/AuthContext';
                 Welcome, {auth.usertag} 
             </Typography>
             
-            <Facilitymanager />
+            <Facilitymanager facilities={allCatalogues.facilities} />
 
             <Typography variant="h6" component="h1" gutterBottom align="center">
                 Ubications
@@ -83,9 +82,9 @@ import { useAuth } from '../context/AuthContext';
                     <Tab label="States" value={1} />
                     <Tab label="Cities" value={2} />
                 </Tabs>
-                {tabValue === 0 && <CountryManager />}
-                {tabValue === 1 && <StatesManager />}
-                {tabValue === 2 && <CitiesManager />}
+                {tabValue === 0 && <CountryManager countries={allCatalogues.countries} />}
+                {tabValue === 1 && <StatesManager states={allCatalogues.states} />}
+                {tabValue === 2 && <CitiesManager cities={allCatalogues.cities} />}
             </Box>
         </CenteredTemplate>)
 }

@@ -19,7 +19,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import { FavoriteBorder, Edit } from '@mui/icons-material';
 import config from "../../Resources/config";
-import FacilityIcon from './FacilityIcon';
+import FacilityIcon from "../Commons/FacilityIcon";
 import { useAuth } from '../../context/AuthContext';
 
 function ViewPlace(){
