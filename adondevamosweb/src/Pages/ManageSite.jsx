@@ -30,12 +30,16 @@ import { useAuth } from '../context/AuthContext';
         Catalogues:`${config.api.baseUrl}${config.api.endpoints.Catalogues}`,
         Users : `${config.api.baseUrl}${config.api.endpoints.Users}`
     };
-    const [allCatalogues, setAllCatalogues] = useState({});
+    const [facilities, setFacilities] = useState([]);
+    const [countries, setCountries] = useState([]);
+    const [states, setStates] = useState([]);
+    const [cities, setCities] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
     };
+
 
     useEffect(()=> {
         //getCatalogues
@@ -43,11 +47,22 @@ import { useAuth } from '../context/AuthContext';
             try {
                 const response = 
                 await axios.get(`${URLsCatalogService.Catalogues}/all`);
+                console.log("Catalogues data", response);
+                if (response.status !== 200){
+                    return;
+                }
                 const data = response.data.info;
-                setAllCatalogues(data);
-                setLoading(false);
+                
+                setFacilities(data.facilities);
+                setCountries(data.countries);
+                setStates(data.states);
+                setCities(data.cities);
+                
             } catch (error) {
-
+                console.error("Error getting catalogues for site management", error);   
+            }
+            finally{
+                setLoading(false);
             }
         };
         getCatalogues();
@@ -64,7 +79,10 @@ import { useAuth } from '../context/AuthContext';
                 Welcome, {auth.usertag} 
             </Typography>
             
-            <Facilitymanager facilities={allCatalogues.facilities} />
+            <Facilitymanager 
+            callbackUpdateFacility={setFacilities} 
+            callbackAddFacility={() => {}}
+            facilities={facilities} />
 
             <Typography variant="h6" component="h1" gutterBottom align="center">
                 Ubications
@@ -82,9 +100,18 @@ import { useAuth } from '../context/AuthContext';
                     <Tab label="States" value={1} />
                     <Tab label="Cities" value={2} />
                 </Tabs>
-                {tabValue === 0 && <CountryManager countries={allCatalogues.countries} />}
-                {tabValue === 1 && <StatesManager states={allCatalogues.states} />}
-                {tabValue === 2 && <CitiesManager cities={allCatalogues.cities} />}
+                {
+                    tabValue === 0 && <CountryManager 
+                    countries={countries} />
+                }
+                {
+                    tabValue === 1 && <StatesManager 
+                        states={states} />
+                }
+                {
+                    tabValue === 2 && <CitiesManager 
+                    cities={cities} />
+                }
             </Box>
         </CenteredTemplate>)
 }

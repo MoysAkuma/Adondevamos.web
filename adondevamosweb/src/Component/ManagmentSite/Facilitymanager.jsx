@@ -19,7 +19,8 @@ import
         ListItem,
         ListItemText,
         ButtonGroup,
-        Slide
+        Slide,
+        Tooltip
 } from '@mui/material';
 
 import { Add, Delete, Visibility, VisibilityOff } from '@mui/icons-material';
@@ -28,14 +29,17 @@ import FormFacility from './FormFacility';
 import config from '../../Resources/config';
 import FacilityIcon from '../Commons/FacilityIcon';
 
-function Facilitymanager({ facilities,  
-    id, callback}){
+function Facilitymanager({ 
+    facilities,  
+    id, 
+    callbackAddFacility, 
+    callbackUpdateFacility }) {
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
     const [facilityid, setFacilityID] = useState(null);
     const [showFacilityForm, setShowFacilityForm] = useState(false);
-    const [URLSERVICE, setURLSERVICE] = useState(`${config.api.baseUrl}${config.api.endpoints.Catalogues}/Facilities`);
+    const URLSERVICE = `${config.api.baseUrl}${config.api.endpoints.Catalogues}`;
 
     const toggleShowFacilities = ( e ) => {
         setShowFacilityForm(true);
@@ -47,12 +51,39 @@ function Facilitymanager({ facilities,
     };
 
     const toggleVisibilityFacility = async( item ) =>{
-        axios.patch(URLSERVICE + '/' + item.id + '/visibility/'+ !item.hide)
-        .then(resp => {
+        setLoading(true);
+        try {
+            const response = await axios.patch(URLSERVICE + '/facility/' + item.id , {
+                hide: !item.hide
+            });
+            if (response.status !== 200){
+                console.error("Error updating facility visibility", response);
+                return;
+            }
+            reloadFacilities();
+        } catch (error) {
+            console.error("Error updating facility visibility", error);
+        }
+        finally{
             setLoading(false);
-        })
-        .catch(error => console.error("Error getting catalogue of facilities"));
-        
+        }
+    };
+
+    const reloadFacilities = async() => {
+        setLoading(true);
+        try {
+                const response = 
+                await axios.get(URLSERVICE+'/facilities');
+                const data = response.data.info;
+                callbackUpdateFacility(data);
+            
+        } catch (error) {
+            console.error("Error getting catalogue of facilities", error);
+            
+        }
+        finally{
+            setLoading(false);
+        }
     };
 
     useEffect(()=> {
@@ -88,10 +119,12 @@ function Facilitymanager({ facilities,
                                 primary={x.name} 
                                 secondary={x.code} />
                             <IconButton edge="end">
+                                <Tooltip title={ x.hide ? "Show Facility" : "Hide Facility" }>  
                                 { x.hide ? 
                                     <Visibility onClick={()=> toggleVisibilityFacility(x)} /> 
                                     : <VisibilityOff onClick={()=> toggleVisibilityFacility(x)}/>
                                 }
+                                </Tooltip>
                             </IconButton>
                             
                         </ListItem>
