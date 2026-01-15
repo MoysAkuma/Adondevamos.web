@@ -11,7 +11,8 @@ import
         ListItem,
         ListItemText,
         ButtonGroup,
-        Modal
+        Modal,
+        Divider
 } from '@mui/material';
 import { Edit, Delete, Visibility, VisibilityOff, Close } from '@mui/icons-material';
 
@@ -21,42 +22,58 @@ function CountryManager({ countries = [], callback: onCountryUpdate }){
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
     const [submitSuccess, setSubmitSuccess] = useState(false);
-    const [showCountries, setShowCountries] = useState(false);
     const [openModal, setOpenModal] = useState(false);
     const [countryid, setCountryID] = useState(null);
-    const [URLCountry] = useState(`${config.api.baseUrl}${config.api.endpoints.Country}`);
-
+    const [URLCountry] = useState(`${config.api.baseUrl}${config.api.endpoints.Catalogues}`);
+    const [infoToEdit, setInfoToEdit] = useState(null); 
 
     const editCountry = (item) => {
-        setCountryID(item);
-        setShowCountries(true);
+        setInfoToEdit(item);
         setOpenModal(true);
     };
 
     const handleCloseModal = () => {
         setOpenModal(false);
-        setShowCountries(false);
+        
         setCountryID(null);
     };
 
     const editsuccess = () => {
-        setShowCountries(false);
+        
         setOpenModal(false);
-        if (onCountryUpdate) {
-            onCountryUpdate();
-        }
+        reloadCountries();
         setCountryID(null);
     }
+
+    const reloadCountries = async() => {
+        try {
+                const response = 
+                await axios.get(URLCountry+'/countries');
+                
+                if (response.status !== 200){
+                    return;
+                }
+
+                const data = response.data.info;
+                if (onCountryUpdate)
+                    onCountryUpdate(data);
+            
+        } catch (error) {
+            console.error("Error getting catalogue of countries", error);
+            
+        }
+        finally{
+            
+        }
+    };
 
     const toggleVisibilityCountry = async( item ) =>{
         setIsSubmitting(true);
         setSubmitError('');
         try {
-            const endpoint = item.hide ? 'Show' : 'Hide';
-            await axios.patch(`${URLCountry}/${item.id}/${endpoint}`);
-            if (onCountryUpdate) {
-                onCountryUpdate();
-            }
+            
+            await axios.patch(`${URLCountry}/country/${item.id}`, {hide: !item.hide} );
+            reloadCountries();
         } catch (error) {
             setSubmitError(error.response?.data?.message || error.message);
             console.error('Error toggling country visibility:', error);
@@ -65,10 +82,6 @@ function CountryManager({ countries = [], callback: onCountryUpdate }){
         }
     };
     
-    const showform = ( ) =>{
-        setShowCountries(true);
-        setOpenModal(true);
-    };
 
     return (
         <>
@@ -87,7 +100,7 @@ function CountryManager({ countries = [], callback: onCountryUpdate }){
             )}
             
             <ButtonGroup variant="outlined" aria-label="Basic button group">
-                <Button onClick={showform} disabled={isSubmitting}> Add </Button>
+                <Button onClick={() => setOpenModal(true)} disabled={isSubmitting}> Add </Button>
             </ButtonGroup>
         
             <Modal
@@ -117,15 +130,15 @@ function CountryManager({ countries = [], callback: onCountryUpdate }){
                             <Close />
                         </IconButton>
                     </Box>
-                    { showCountries && (<FormCountry 
-                    id={countryid} callback={ editsuccess} />) }
+                    { (<FormCountry 
+                    formData={infoToEdit} callback={ editsuccess} />) }
                 </Box>
             </Modal>
         
             <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
                 {
                     countries.length > 0 ? countries.map(
-                        (x)=>(
+                        (x)=>(<>
                             <ListItem key={x.id}>
                                 <ListItemText 
                                     primary={x.name} 
@@ -133,7 +146,7 @@ function CountryManager({ countries = [], callback: onCountryUpdate }){
                                 <IconButton 
                                     edge="end"
                                     aria-label="edit"
-                                    onClick={() => editCountry(x.id)}
+                                    onClick={() => editCountry(x)}
                                     disabled={isSubmitting}
                                 >
                                     <Edit />
@@ -147,6 +160,8 @@ function CountryManager({ countries = [], callback: onCountryUpdate }){
                                     { x.hide ? <Visibility /> : <VisibilityOff />}
                                 </IconButton>
                             </ListItem>
+                            <Divider />
+                            </>
                     )): <ListItem> 
                         <ListItemText primary="No countries added" ></ListItemText>
                     </ListItem>

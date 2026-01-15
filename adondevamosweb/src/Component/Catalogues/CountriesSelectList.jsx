@@ -18,6 +18,7 @@ function CountriesSelectList({ val, onChangecall, catCountries}){
             variant="standard"
             helperText="Please select a Country"
             >
+                <MenuItem value={0}>-- Select Country --</MenuItem>
             {
                 catCountries.map(
                     (option) => (

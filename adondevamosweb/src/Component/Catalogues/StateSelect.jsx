@@ -2,6 +2,7 @@ import React from "react";
 
 import 
     {
+        Menu,
         MenuItem,
         Select
     } from '@mui/material';
@@ -17,6 +18,7 @@ function StateSelect({ val, onChangecall, catStates}){
             fullWidth
             variant="standard"
             >
+            <MenuItem value={0}>-- Select State --</MenuItem>
             {  
                 catStates.map(
                     (option) => (

@@ -24,7 +24,8 @@ import
         ListItemText,
         ButtonGroup,
         Slide,
-        Modal
+        Modal,
+        Divider
 } from '@mui/material';
 
 import { Delete, Visibility, VisibilityOff, Close, Edit } from '@mui/icons-material';
@@ -40,67 +41,49 @@ function StatesManager({ states = [], countries = [], callback }){
     const [openModal, setOpenModal] = useState(false);
     const [countryidfilter, setCountryIDFilter]= useState(null);
     const [stateid, setStateID]= useState(null);
-    
-    const [URLStates, setURLStates] = useState(`${config.api.baseUrl}${config.api.endpoints.State}`);
-    const [URLStatesSearch, setURLStatesSearch] = useState(`${config.api.baseUrl}${config.api.endpoints.States}`);
-    const [URLCountrySearch, setURLCountrySearch] = useState(`${config.api.baseUrl}${config.api.endpoints.Countries}`);
+    const [infoToEdit, setInfoToEdit] = useState(null);
+    const URLStates = `${config.api.baseUrl}${config.api.endpoints.Catalogues}`;
     
     
-    const deleteState = async( item ) =>{
+    const realoadStates = async() => {
         try {
-            const urldelete = URLStates + '/' + item;
-            axios.delete(urldelete)
-            .then(resp => {
-                //Stop loading form
-                setLoading(false);
-                if (callback) {
-                    callback();
+                const response = 
+                await axios.get(`${URLStates}/states`);
+                if (response.status !== 200){
+                    return;
                 }
-            })
-            .catch(error => console.error("Error deleting a state"));
+                const data = response.data.info;
+                if (callback) {
+                    callback(data);
+                }
         } catch (error) {
-            setSubmitError(error.response?.data?.message || error.message);
-            console.error('Error deleting of facility:', error);
-        } finally {
-            setIsSubmitting(false);
+            console.error('Error reloading states:', error);
         }
     };
 
-    const editState = (id) => {
-        setStateID(id);
-        setShowForm(true);
+    const editState = (item) => {
+        setInfoToEdit(item);
         setOpenModal(true);
     };
 
     const handleCloseModal = () => {
         setOpenModal(false);
-        setShowForm(false);
-        setStateID(null);
-    };
-
-    const showformToCreate = ( ) =>{
-        setStateID(null);
-        setShowForm(true);
-        setOpenModal(true);
+        setInfoToEdit(null);
     };
 
     const formSucess = () => {
         setShowForm(false);
         setOpenModal(false);
-        setStateID(null);
-        if (callback) {
-            callback();
-        }
+        setInfoToEdit(null);
+        realoadStates();
     };
 
     const toggleVisibilityState = async( item ) =>{
         setIsSubmitting(true);
         setSubmitError('');
         try {
-            await axios.patch(`${URLStates}/${item.id}/toggle`);
-            if (callback) {
-                callback();
-            }
+            await axios.patch(`${URLStates}/state/${item.id}/`, {hide: !item.hide} );
+            realoadStates();
         } catch (error) {
             setSubmitError(error.response?.data?.message || error.message);
             console.error('Error toggling state visibility:', error);
@@ -109,9 +92,6 @@ function StatesManager({ states = [], countries = [], callback }){
         }
     };
 
-    const showFilters = () => {
-        
-    };
     useEffect(()=> {
        setLoading(false);
     },[]);
@@ -123,8 +103,7 @@ function StatesManager({ states = [], countries = [], callback }){
             }}
         >
         <ButtonGroup variant="outlined" aria-label="Basic button group">
-            <Button onClick={() => showformToCreate()} >Add</Button>
-            <Button onClick={() => showFilters()} > Set Filters </Button>
+            <Button onClick={() => setOpenModal(true)} >Add</Button>
         </ButtonGroup>
         
         <Modal
@@ -154,7 +133,8 @@ function StatesManager({ states = [], countries = [], callback }){
                         <Close />
                     </IconButton>
                 </Box>
-                {showForm && (<FormStates id={stateid} callback={formSucess}/> )}
+                {(<FormStates 
+                formData={infoToEdit} callback={formSucess} countries={countries} />)}
             </Box>
         </Modal>
         
@@ -162,6 +142,7 @@ function StatesManager({ states = [], countries = [], callback }){
             {
                 !loading && states.length > 0 ? states.map(
                     (x)=>(
+                        <>
                         <ListItem key={x.id}>
                             <ListItemText 
                                 primary={x.name} 
@@ -169,7 +150,7 @@ function StatesManager({ states = [], countries = [], callback }){
                             <IconButton 
                                 edge="end"
                                 aria-label="edit"
-                                onClick={() => editState(x.id)}
+                                onClick={() => editState(x)}
                                 disabled={isSubmitting}
                             >
                                 <Edit />
@@ -184,6 +165,8 @@ function StatesManager({ states = [], countries = [], callback }){
                             </IconButton>
                             
                         </ListItem>
+                        <Divider />
+                        </>
                 )): <ListItem> 
                     <ListItemText 
                     primary="No states added yet" ></ListItemText>

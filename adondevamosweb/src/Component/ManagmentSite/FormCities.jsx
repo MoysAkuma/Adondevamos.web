@@ -21,7 +21,7 @@ import CountriesSelectList from "../Catalogues/CountriesSelectList";
 import StateSelect from "../Catalogues/StateSelect";
 import CitiesSelect from "../Catalogues/CitiesSelect";
 
-function FormCities({id, callback}){
+function FormCities({formData, callback, countries = [], states = []}){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     
@@ -34,30 +34,22 @@ function FormCities({id, callback}){
     const [submitSuccess,setSubmitSuccess] = useState(false);
     
     const [submitError, setSubmitError] = useState('');
+
+    const [filteredStates, setFilteredStates] = useState([]);
+    
     
     //URLS
-    const [URLsCatalogService, setURLsCatalogService] = useState(
-        {
-            Countries:`${config.api.baseUrl}${config.api.endpoints.Countries}`,
-            States:`${config.api.baseUrl}${config.api.endpoints.States}`,
-            Cities:`${config.api.baseUrl}${config.api.endpoints.Cities}`,
-            Country:`${config.api.baseUrl}${config.api.endpoints.Country}`,
-            State:`${config.api.baseUrl}${config.api.endpoints.State}`
-        }
-    );
+    const URLCity = `${config.api.baseUrl}${config.api.endpoints.Catalogues}`;
+    
 
     const [formCities,setFormCities] = useState({
         name : '',
         originalname : '',
-        acronyn : '',
-        countryid : null,
-        stateid : null,
+        countryid : 0,
+        stateid : 0,
         enabled : true,
         hide : false
     });
-
-    const [catCountries, setCatCountries] = useState([]);
-    const [catStates, setCatStates] = useState([]);
 
     //update request
     const handleChange = (e) => {
@@ -70,13 +62,17 @@ function FormCities({id, callback}){
 
     //handle selectcountry
     const handleSelectCountry = (e) => {
-        if(e){
-            handleChange(e);
-            getStatesByCountry({id:e.target.value});
-        }
+        handleChange(e);
+        setFilteredStates(states.filter(state => state.countryid === parseInt(e.target.value)));
+        
+        //reset state
+        setFormCities(prev => ({
+            ...prev,
+            stateid: 0
+        }));
     };
 
-    const handleSubmit = async (e) =>{debugger
+    const handleSubmit = async (e) =>{
         e.preventDefault();
         setIsSubmitting(true);
         setSubmitError('');
@@ -97,10 +93,35 @@ function FormCities({id, callback}){
         if (!formCities.stateid ) {
             throw new Error('State is required');
         }
-        axios.post(URLsCatalogService.Cities, formCities )
-        .then(resp => {
+        if(isEdit){
+            //Edit mode
+            await axios.patch(`${URLCity}/city/${formData.id}`, 
+                formCities ).then(resp => {
+                    if (resp.status === 200){
+                        setSubmitSuccess(true);
+                    }
+                    
+                }
+            );
+
+        } else {
+            axios.post(URLCity + '/city', formCities )
+            .then(resp => {
+                    if (resp.status === 201){
+                        setSubmitSuccess(true);
+                    }
+            })
+            .catch(error => console.error("Error creating a city"));
+        }
+        
+        } catch (error) {
+            setSubmitError(error.response?.data?.message || error.message);
+            console.error('Error creating city:', error);
+        } finally {
             //Stop loading form
             setLoading(false);
+            
+            setIsSubmitting(false);
             //empty form
             setFormCities({
                 name: '',
@@ -112,40 +133,27 @@ function FormCities({id, callback}){
             });
             //callback
             callback();
-        })
-        .catch(error => console.error("Error creating a city"));
-        
-        } catch (error) {
-            setSubmitError(error.response?.data?.message || error.message);
-            console.error('Error creating city:', error);
-        } finally {
-            setIsSubmitting(false);
         }
     };
 
-    //getCountries
-    const getCountries = async( ) =>{
-        axios.get(URLsCatalogService.Countries)
-        .then(resp => {
-            setCatCountries(resp.data.info);
-            setLoading(false);
-        })
-        .catch(error => console.error("Error getting catalogue of countries"));
-    };
-
-    //getStatesByCountry
-    const getStatesByCountry = async( item ) =>{
-        axios.get(URLsCatalogService.States + '/ByCountryID/' + item.id)
-        .then(resp => {
-            setCatStates(resp.data.info);
-            setLoading(false);
-        })
-        .catch(error => console.error("Error getting catalogue of states"));
-    };
-
     useEffect(()=> {
-        getCountries();
-    },[]);
+        if (formData && formData.id){
+            console.log('FormCities: Loading data for edit:', formData);
+            //Edit mode
+            setisEdit(true);
+            setFormCities({
+                name : formData.name || '',
+                originalname : formData.originalname || '',
+                countryid : formData.countryid || 0,
+                stateid : formData.stateid || 0,
+                hide : formData.hide || false
+            });
+            setFilteredStates(states.filter(state => state.countryid === formData.countryid));
+        } else {
+            //Create mode
+            setisEdit(false);
+        }
+    },[formData]);
 
     return (<>
     <Box
@@ -158,10 +166,6 @@ function FormCities({id, callback}){
                 width: '100%'
               }}
               >
-                <Typography variant="body1" component="body1" gutterBottom align="center">
-                  { isEdit ? "Edit cities" : "Create cities"}
-                </Typography>
-    
                 <TextField
                     id="name"
                     name="name"
@@ -191,12 +195,27 @@ function FormCities({id, callback}){
                 <CountriesSelectList 
                     val={formCities.countryid} 
                     onChangecall={handleSelectCountry} 
-                    catCountries={catCountries} />
+                    catCountries={countries} />
+                
+                {
+                    (formCities.countryid != 0 ) &&
+                    (<>
+                        {
+                            (filteredStates.length === 0) &&
+                            (<Typography variant="body2" color="error">
+                                No states available for the selected country. Please add states first.
+                            </Typography>)
+                        }
+                        <StateSelect 
+                        val={formCities.stateid} 
+                        onChangecall={handleChange} 
+                        countryId={formCities.countryid} 
+                        catStates={filteredStates} />
+                    </>)
+                    
+                }
 
-                <StateSelect 
-                    val={formCities.stateid} 
-                    onChangecall={handleChange} 
-                    catStates={catStates} />
+                
         
                 <FormGroup>
                     <FormControlLabel  

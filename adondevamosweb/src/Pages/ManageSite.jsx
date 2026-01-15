@@ -47,7 +47,7 @@ import { useAuth } from '../context/AuthContext';
             try {
                 const response = 
                 await axios.get(`${URLsCatalogService.Catalogues}/all`);
-                console.log("Catalogues data", response);
+                
                 if (response.status !== 200){
                     return;
                 }
@@ -78,14 +78,9 @@ import { useAuth } from '../context/AuthContext';
             <Typography variant="body1" component="body1" gutterBottom align="center" sx={{ mb: 4 }}>
                 Welcome, {auth.usertag} 
             </Typography>
-            
-            <Facilitymanager 
-            callbackUpdateFacility={setFacilities} 
-            callbackAddFacility={() => {}}
-            facilities={facilities} />
 
             <Typography variant="h6" component="h1" gutterBottom align="center">
-                Ubications
+                Catalogues
             </Typography>
             <Box sx={{ width: '100%', mt: 2, align: 'center', mb: 4 }}>
                 <Tabs
@@ -93,11 +88,12 @@ import { useAuth } from '../context/AuthContext';
                     variant={isMobile ? "scrollable" : "standard"}
                     onChange={handleTabChange}
                     centered={true}
-                    aria-label="Ubication management tabs"
+                    aria-label="Catalogue management tabs"
                 >
                     <Tab label="Countries" value={0} />
                     <Tab label="States" value={1} />
                     <Tab label="Cities" value={2} />
+                    <Tab label="Facilities" value={3} />
                 </Tabs>
                 {
                     tabValue === 0 && <CountryManager 
@@ -116,6 +112,12 @@ import { useAuth } from '../context/AuthContext';
                     states={states}
                     countries={countries}
                     callback={setCities} />
+                }
+                {
+                    tabValue === 3 && <Facilitymanager 
+                    callbackUpdateFacility={setFacilities} 
+                    callbackAddFacility={() => {}}
+                    facilities={facilities} />
                 }
             </Box>
         </CenteredTemplate>)

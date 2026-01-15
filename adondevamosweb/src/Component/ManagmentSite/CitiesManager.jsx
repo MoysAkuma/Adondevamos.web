@@ -12,7 +12,8 @@ import
         ListItem,
         ListItemText,
         ButtonGroup,
-        Modal
+        Modal,
+        Divider
 } from '@mui/material';
 
 import { Delete, Visibility, VisibilityOff, Close, Edit } from '@mui/icons-material';
@@ -33,14 +34,10 @@ function CitiesManager({id,
     const [openModal, setOpenModal] = useState(false);
     const [countryid, setCountryID] = useState(null);
     const [cityid, setCityID] = useState(null);
-    const [isEdit, setisEdit] = useState(false);
-
-    //deletestate
-    const deleteState = async( id ) =>{};
-
-    const editCity = (id) => {
-        setCityID(id);
-        setShowForm(true);
+    const [infoToEdit, setInfoToEdit] = useState(null);
+    
+    const editCity = (item) => {
+        setInfoToEdit(item);
         setOpenModal(true);
     };
 
@@ -60,19 +57,33 @@ function CitiesManager({id,
         setShowForm(false);
         setOpenModal(false);
         setCityID(null);
-        if (callback) {
-            callback();
-        }
+        reloadCities();
     };
+    const reloadCities = async() => {
+        try {
+                const response = 
+                await axios.get(`${config.api.baseUrl}${config.api.endpoints.Catalogues}/cities`);
+                if (response.status !== 200){
+                    return;
+                }
+                const data = response.data.info;
+                if (callback) {
+                    callback(data);
+                }
+        } catch (error) {
+            console.error('Error reloading cities:', error);
+        }
+        finally{
+            
+        }
+    };  
 
     const toggleVisibilityCity = async( item ) =>{
         setIsSubmitting(true);
         setSubmitError('');
         try {
-            await axios.patch(`${config.api.baseUrl}${config.api.endpoints.City}/${item.id}/toggle`);
-            if (callback) {
-                callback();
-            }
+            await axios.patch(`${config.api.baseUrl}${config.api.endpoints.Catalogues}/city/${item.id}`, { hide: !item.hide });
+            reloadCities();
         } catch (error) {
             setSubmitError(error.response?.data?.message || error.message);
             console.error('Error toggling city visibility:', error);
@@ -80,6 +91,13 @@ function CitiesManager({id,
             setIsSubmitting(false);
         }
     };
+
+    const generateUbicationName = ( countryid , stateid ) => {
+        console.log('Generating ubication name for countryid:', countryid, 'stateid:', stateid);
+        let countryName = countries.find(c => c.id === countryid)?.name || '';
+        let stateName = states.find(s => s.id === stateid)?.name || '';
+        return `${stateName}, ${countryName}`;
+    }
 
     useEffect(()=> {
         setLoading(false);
@@ -123,7 +141,10 @@ function CitiesManager({id,
                         <Close />
                     </IconButton>
                 </Box>
-                { showForm && (<FormCities id={cityid} callback={formSuccess} />)}
+                { (<FormCities 
+                formData={infoToEdit} callback={formSuccess} 
+                countries={countries} 
+                states={states} />)}
             </Box>
         </Modal>
         
@@ -131,16 +152,16 @@ function CitiesManager({id,
             {
                 !loading && cities.length > 0 ? cities.map(
                     (x)=>(
+                        <>
                         <ListItem key={x.id}>
                             <ListItemText 
                                 primary={x.name} 
-                                secondary={states?.filter(s => s.id === x.stateid)[0]?.name || ''
-                                }
+                                secondary={generateUbicationName(x.countryid, x.stateid)}
                             />
                             <IconButton 
                                 edge="end"
                                 aria-label="edit"
-                                onClick={() => editCity(x.id)}
+                                onClick={() => editCity(x)}
                                 disabled={isSubmitting}
                             >
                                 <Edit />
@@ -155,6 +176,8 @@ function CitiesManager({id,
                             </IconButton>
                             
                         </ListItem>
+                        <Divider />
+                        </>
                 )): <ListItem> 
                     <ListItemText primary="No cities added yet" ></ListItemText>
                 </ListItem>
