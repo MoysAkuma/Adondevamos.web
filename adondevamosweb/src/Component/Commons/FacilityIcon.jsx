@@ -10,7 +10,9 @@ import {
     Pets,
     SmokingRooms,
     LocalBar,
-    HelpOutline
+    HelpOutline,
+    MarkunreadMailbox,
+    Phone, Luggage
 } from '@mui/icons-material';
 
 // Icon mapping based on facility code
@@ -26,6 +28,9 @@ const facilityIcons = {
     Pets: Pets,
     Smoking: SmokingRooms,
     Bar: LocalBar,
+    LocalPostOffice: MarkunreadMailbox,
+    Phone: Phone,
+    Luggage: Luggage
 };
 
 function FacilityIcon({ code, ...props }) {

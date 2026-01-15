@@ -17,7 +17,7 @@ import
 import config from '../../Resources/config';
 import CountriesSelectList from "../Catalogues/CountriesSelectList";
 
-function FormStates({ id, callback}){
+function FormStates({ formData, callback, countries}){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     
@@ -31,25 +31,19 @@ function FormStates({ id, callback}){
     
     const [submitError, setSubmitError] = useState('');
     
-    const [URLsCatalogService, setURLsCatalogService] = useState(
+    const URLsCatalogService = 
     {
-        Countries:`${config.api.baseUrl}${config.api.endpoints.Countries}`,
-        States:`${config.api.baseUrl}${config.api.endpoints.States}`,
-        Cities:`${config.api.baseUrl}${config.api.endpoints.Cities}`,
-        Country:`${config.api.baseUrl}${config.api.endpoints.Country}`,
-        State:`${config.api.baseUrl}${config.api.endpoints.State}`,
+        Catalogues : `${config.api.baseUrl}${config.api.endpoints.Catalogues}`,
+        State : `${config.api.baseUrl}${config.api.endpoints.Catalogues}/state`
     }
-    );
+    
 
     const [formStates,setFormStates] = useState({
         name : '',
         originalname : '',
-        acronyn : '',
         countryid : 0,
         hide : false
     });
-
-    const [catCountries, setCatCountries] = useState([]);
 
     //update request
     const handleChange = (e) => {
@@ -66,31 +60,31 @@ function FormStates({ id, callback}){
         setSubmitError('');
         setSubmitSuccess(false);
         try {
-        // Validate for field Name
-        if (!formStates.name.trim()) {
-            throw new Error('Name of country is required');
-        }
-        if (!formStates.countryid) {
-            throw new Error('Select a country is required');
-        }
-        
-        axios.post(URLsCatalogService.State, formStates )
-        .then(resp => {
-            //Stop loading form
+            // Validate for field Name
+            if (!formStates.name.trim()) {
+                throw new Error('Name of country is required');
+            }
+            if (!formStates.countryid) {
+                throw new Error('Select a country is required');
+            }
+            if(isEdit){
+                //Edit mode
+                await axios.patch(`${URLsCatalogService.State}/${formData.id}`, 
+                    formStates )
+            } else {
+                await axios.post(URLsCatalogService.State, formStates )
+            }
             setLoading(false);
             //empty form
             setFormStates({
-                name : '',
-                originalname : '',
-                acronyn : '',
-                countryid : 0,
-                hide : false
-            });
-            //execute callback
-            callback();
-        })
-        .catch(error => console.error("Error creating a states"));
-        
+                    name : '',
+                    originalname : '',
+                    countryid : 0,
+                    hide : false
+                });
+
+                //execute callback
+                callback();
         } catch (error) {
             setSubmitError(error.response?.data?.message || error.message);
             console.error('Error creating state:', error);
@@ -99,19 +93,22 @@ function FormStates({ id, callback}){
         }
     };
 
-    //getCountries
-    const getCountries = async( ) =>{
-        axios.get(URLsCatalogService.Countries)
-        .then(resp => {
-            setCatCountries(resp.data.info);
-            setLoading(false);
-        })
-        .catch(error => console.error("Error getting catalogue of countries"));
-    };
-
+   
     useEffect(()=> {
-        getCountries();
-    },[]);
+        if (formData && formData.id){
+            //Edit mode
+            setisEdit(true);
+            setFormStates({
+                name : formData.name || '',
+                originalname : formData.originalname || '',
+                countryid : formData.countryid || 0,
+                hide : formData.hide || false
+            });
+        } else {
+            //Create mode
+            setisEdit(false);
+        }
+    },[formData]);
     return (<>
     <Box
                 component="form"
@@ -156,14 +153,14 @@ function FormStates({ id, callback}){
                 <CountriesSelectList 
                     val={formStates.countryid} 
                     onChangecall={handleChange} 
-                    catCountries={catCountries} />
+                    catCountries={countries} />
 
                 <FormGroup>
                     <FormControlLabel  
                         control={
                         <Checkbox 
                         onChange={handleChange}
-                        checked={formStates.hide}
+                        checked={formStates.hide }
                         id="hide"
                         name="hide" 
                           />} 

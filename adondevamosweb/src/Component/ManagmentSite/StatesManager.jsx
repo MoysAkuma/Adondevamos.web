@@ -23,84 +23,77 @@ import
         ListItem,
         ListItemText,
         ButtonGroup,
-        Slide
+        Slide,
+        Modal,
+        Divider
 } from '@mui/material';
 
-import { Delete, Visibility, VisibilityOff } from '@mui/icons-material';
+import { Delete, Visibility, VisibilityOff, Close, Edit } from '@mui/icons-material';
 
 import config from '../../Resources/config';
 
-function StatesManager(){
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+function StatesManager({ states = [], countries = [], callback }){ 
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
     const [submitSuccess,setSubmitSuccess] = useState(false);
-    const [catStates, setCatStates] = useState([]);
-    const [catCountries, setCatCountries] = useState([]);
     const [showForm, setShowForm] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
     const [countryidfilter, setCountryIDFilter]= useState(null);
     const [stateid, setStateID]= useState(null);
-    
-    const [URLStates, setURLStates] = useState(`${config.api.baseUrl}${config.api.endpoints.State}`);
-    const [URLStatesSearch, setURLStatesSearch] = useState(`${config.api.baseUrl}${config.api.endpoints.States}`);
-    const [URLCountrySearch, setURLCountrySearch] = useState(`${config.api.baseUrl}${config.api.endpoints.Countries}`);
+    const [infoToEdit, setInfoToEdit] = useState(null);
+    const URLStates = `${config.api.baseUrl}${config.api.endpoints.Catalogues}`;
     
     
-    const deleteState = async( item ) =>{
+    const realoadStates = async() => {
         try {
-            const urldelete = URLStates + '/' + item;
-            axios.delete(urldelete)
-            .then(resp => {
-                //Stop loading form
-                setLoading(false);
-            })
-            .catch(error => console.error("Error deleting a state"));
+                const response = 
+                await axios.get(`${URLStates}/states`);
+                if (response.status !== 200){
+                    return;
+                }
+                const data = response.data.info;
+                if (callback) {
+                    callback(data);
+                }
+        } catch (error) {
+            console.error('Error reloading states:', error);
+        }
+    };
+
+    const editState = (item) => {
+        setInfoToEdit(item);
+        setOpenModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setOpenModal(false);
+        setInfoToEdit(null);
+    };
+
+    const formSucess = () => {
+        setShowForm(false);
+        setOpenModal(false);
+        setInfoToEdit(null);
+        realoadStates();
+    };
+
+    const toggleVisibilityState = async( item ) =>{
+        setIsSubmitting(true);
+        setSubmitError('');
+        try {
+            await axios.patch(`${URLStates}/state/${item.id}/`, {hide: !item.hide} );
+            realoadStates();
         } catch (error) {
             setSubmitError(error.response?.data?.message || error.message);
-            console.error('Error deleting of facility:', error);
+            console.error('Error toggling state visibility:', error);
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    //getStates
-    const getStates = async( ) =>{
-        axios.get(URLStatesSearch)
-        .then(resp => {
-            setCatStates(resp.data.info);
-            setLoading(false);
-        })
-        .catch(error => console.error("Error getting catalogue of states"));
-    };
-
-    //getCountries
-    const getCountries = async( ) =>{
-        axios.get(URLCountrySearch)
-        .then(resp => {
-            setCatCountries(resp.data.info);
-            setLoading(false);
-            getStates();
-        })
-        .catch(error => console.error("Error getting catalogue of countries"));
-    };
-
-    const showformToCreate = ( ) =>{
-        setShowForm(true);
-    };
-
-    const formSucess = () => {
-        getStates();
-        setShowForm(false);
-        setStateID(null);
-    };
-
-    const showFilters = () => {
-        
-    };
     useEffect(()=> {
-        getCountries();
+       setLoading(false);
     },[]);
     return (<Box
         sx={{
@@ -109,31 +102,74 @@ function StatesManager(){
                 width: '100%'
             }}
         >
-        <Typography variant="h6" component="h6" gutterBottom align="center">
-            States 
-        </Typography>
         <ButtonGroup variant="outlined" aria-label="Basic button group">
-            <Button onClick={() => showformToCreate()} >Add</Button>
-            <Button onClick={() => showFilters()} > Set Filters </Button>
+            <Button onClick={() => setOpenModal(true)} >Add</Button>
         </ButtonGroup>
         
-        {showForm && (<FormStates id={stateid} callback={formSucess}/> )}
+        <Modal
+            open={openModal}
+            onClose={handleCloseModal}
+            aria-labelledby="state-modal-title"
+            aria-describedby="state-modal-description"
+        >
+            <Box sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: { xs: '90%', sm: '80%', md: '60%', lg: '40%' },
+                bgcolor: 'background.paper',
+                boxShadow: 24,
+                borderRadius: 2,
+                p: 4,
+                maxHeight: '90vh',
+                overflow: 'auto'
+            }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography id="state-modal-title" variant="h6" component="h2">
+                        {stateid ? 'Edit State' : 'Add New State'}
+                    </Typography>
+                    <IconButton onClick={handleCloseModal} size="small">
+                        <Close />
+                    </IconButton>
+                </Box>
+                {(<FormStates 
+                formData={infoToEdit} callback={formSucess} countries={countries} />)}
+            </Box>
+        </Modal>
         
         <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
             {
-                !loading && catStates.length > 0 ? catStates.map(
+                !loading && states.length > 0 ? states.map(
                     (x)=>(
+                        <>
                         <ListItem key={x.id}>
                             <ListItemText 
                                 primary={x.name} 
-                                secondary={ catCountries?.filter(c => c.id == x.countryid)[0].name  } />
-                            <IconButton edge="end">
+                                secondary={countries?.filter(c => c.id === x.countryid)[0]?.acronym || ''} />
+                            <IconButton 
+                                edge="end"
+                                aria-label="edit"
+                                onClick={() => editState(x)}
+                                disabled={isSubmitting}
+                            >
+                                <Edit />
+                            </IconButton>
+                            <IconButton 
+                                edge="end"
+                                aria-label="toggle visibility"
+                                onClick={() => toggleVisibilityState(x)}
+                                disabled={isSubmitting}
+                            >
                                 { x.hide ? <Visibility  /> : <VisibilityOff/>}
                             </IconButton>
                             
                         </ListItem>
+                        <Divider />
+                        </>
                 )): <ListItem> 
-                    <ListItemText primary="No states added yet" ></ListItemText>
+                    <ListItemText 
+                    primary="No states added yet" ></ListItemText>
                 </ListItem>
             }
         </List>

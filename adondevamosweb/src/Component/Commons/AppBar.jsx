@@ -10,7 +10,9 @@ import { NotListedLocation } from "@mui/icons-material";
 import UserProfileAvatar from "../Users/UserProfileAvatar";
 
 export default function AppBarComp() {
-    const { isLogged, loading } = useAuth();
+    const { isLogged, loading, role } = useAuth();
+
+    console.log('AppBar - isLogged:', isLogged, 'role:', role, 'type:', typeof role);
 
     const settings = [{text :'Profile', path: '/Profile'}, {text: 'Logout', path: '/Logout'}];
 
@@ -31,9 +33,11 @@ export default function AppBarComp() {
                         </Box>
                     ) : isLogged ? (
                         <>
-                            <Button color="inherit" component={Link} to="/ManageSite">
-                                Manage Site
-                            </Button>
+                            {role === 'Admin' && (
+                                <Button color="inherit" component={Link} to="/ManageSite">
+                                    Manage Site
+                                </Button>
+                            )}
                             <Button color="inherit" component={Link} to="/Trips">
                                 Trips
                             </Button>

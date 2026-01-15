@@ -5,25 +5,23 @@ import
     {
         TextField, 
         Button,
-        useMediaQuery,
-        useTheme,
         Container,
         Typography,
         Box,
         MenuItem,
         FormGroup,
         FormControlLabel,
-        Checkbox 
+        Checkbox,
+        Select,
+        InputLabel,
+        FormControl
     } from '@mui/material';
 import config from '../../Resources/config';
+import FacilityIcon from '../Commons/FacilityIcon';
 
 
 function FormFacility({id, callback}){
-    //Init variables
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    
-    const [isEdit, setisEdit] = useState(false);
+    const [isEdit, setIsEdit] = useState(false);
     
     const [loading, setLoading] = useState(true);
     
@@ -33,7 +31,25 @@ function FormFacility({id, callback}){
     
     const [submitError, setSubmitError] = useState('');
     
-    const [URLFacilities, setURLFacilities] = useState(`${config.api.baseUrl}${config.api.endpoints.Facilities}`);
+    const URLFacilities = `${config.api.baseUrl}${config.api.endpoints.Catalogues}/facility`;
+
+    // Available facility icons
+    const facilityIconOptions = [
+        { code: 'Wc', label: 'Restroom' },
+        { code: 'Subway', label: 'Subway/Transport' },
+        { code: 'Wifi', label: 'WiFi' },
+        { code: 'Restaurant', label: 'Restaurant' },
+        { code: 'Parking', label: 'Parking' },
+        { code: 'AC', label: 'Air Conditioning' },
+        { code: 'Pool', label: 'Pool' },
+        { code: 'Gym', label: 'Gym' },
+        { code: 'Pets', label: 'Pets Allowed' },
+        { code: 'Smoking', label: 'Smoking Area' },
+        { code: 'Bar', label: 'Bar' },
+        { code: 'LocalPostOffice', label: 'Post Office' },
+        { code: 'Phone', label: 'Phone' },
+        { code: 'Luggage', label: 'Luggage Storage' }
+    ];
 
     const [formFacility,setFormFacility] = useState({
         name: '',
@@ -62,6 +78,15 @@ function FormFacility({id, callback}){
             if (!formFacility.name.trim()) {
                 throw new Error('Name of facility is required');
             }
+            // Validate for field Code
+            if (!formFacility.code.trim()) {
+                throw new Error('Icon code is required');
+            }
+            if (isEdit){
+                // Editing existing facility
+                await axios.patch(`${URLFacilities}/${id}`, formFacility );
+                setIsEdit(false);
+            }
             axios.post(URLFacilities, formFacility )
             .then(
                 resp => {
@@ -70,9 +95,7 @@ function FormFacility({id, callback}){
                     //empty form
                     setFormFacility({
                         name: '',
-                        code:'',
-                        enabled:true,
-                        hide:false
+                        code:''
                     });
                     callback();
             }
@@ -86,11 +109,6 @@ function FormFacility({id, callback}){
             setIsSubmitting(false);
         }
     };
-    
-
-    useEffect(()=> {
-            
-    },[]);
 
     return (
         <Box
@@ -103,10 +121,6 @@ function FormFacility({id, callback}){
             width: '100%'
         }}
         >
-            <Typography variant="body1" component="body1" gutterBottom align="center">
-                { isEdit ? "Edit facility" : "Create facility"}
-            </Typography>
-
             <TextField
                 id="name"
                 name="name"
@@ -114,23 +128,38 @@ function FormFacility({id, callback}){
                 placeholder="Name of facility"
                 variant="outlined"
                 onChange={handleChange}
-                size={isMobile ? 'small' : 'medium'}
+                size={ 'small' }
                 value={formFacility.name}
                 fullWidth
                 required
             />
 
-            <FormGroup>
-                <FormControlLabel  
-                    control={
-                    <Checkbox 
+            <FormControl fullWidth size='small'>
+                <InputLabel id="icon-select-label">Icon</InputLabel>
+                <Select
+                    labelId="icon-select-label"
+                    id="code"
+                    name="code"
+                    value={formFacility.code}
+                    label="Icon"
                     onChange={handleChange}
-                    id="show"
-                    name="enabled" 
-                    />} 
-                label="Show it to all?" />
-            </FormGroup>
-
+                    renderValue={(selected) => (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <FacilityIcon code={selected} />
+                            <span>{facilityIconOptions.find(opt => opt.code === selected)?.label || 'Select an icon'}</span>
+                        </Box>
+                    )}
+                >
+                    {facilityIconOptions.map((option) => (
+                        <MenuItem key={option.code} value={option.code}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <FacilityIcon code={option.code} />
+                                <span>{option.label}</span>
+                            </Box>
+                        </MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
             <Button 
                 type="submit" 
                 disabled={isSubmitting}

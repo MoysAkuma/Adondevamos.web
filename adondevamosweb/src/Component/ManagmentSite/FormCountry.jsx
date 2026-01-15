@@ -16,7 +16,7 @@ import
 
 import config from '../../Resources/config';
 
-function FormCountry({id, callback}){
+function FormCountry({formData = null, callback}){
     //Init variables
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -31,9 +31,7 @@ function FormCountry({id, callback}){
     
     const [submitError, setSubmitError] = useState('');
     
-    const [URLCountry,setURLCountry] = useState(`${config.api.baseUrl}${config.api.endpoints.Country}`);
-
-
+    const URLCountry = `${config.api.baseUrl}${config.api.endpoints.Catalogues}/country`;
 
     const [formCountry,setFormCountry] = useState({
         name: '',
@@ -65,12 +63,23 @@ function FormCountry({id, callback}){
             throw new Error('Acronym is required');
         }
         if(isEdit){
-            axios.put(URLCountry + '/' + id, formCountry )
+            axios.patch(URLCountry + '/' + 
+                formData.id, formCountry )
             .then(resp => {
+                if (resp.status === 200){
+                    setSubmitSuccess(true);
+                }
+
                 //Stop loading form
                 setLoading(false);
                 //empty form
-                setFormCountry(resp.data.info[0]);
+                setFormCountry({
+                    name: '',
+                    originalname:'',
+                    acronym:'',
+                    enabled:true,
+                    hide:false
+                });
                 callback();
             })
             .catch(error => console.error("Error creating a country"));
@@ -104,20 +113,17 @@ function FormCountry({id, callback}){
     
 
      useEffect(() => {
-        if (id) {
+        if (formData) {
             setisEdit(true);
-            //getCountrydata
-            const getCountry = async() =>{
-                axios.get(URLCountry+ '/' +id)
-                .then(resp => {
-                    setFormCountry(resp.data.info[0]);
-                    setLoading(false);
-                })
-                .catch(error => console.error("Error getting country"));
-            };
-            getCountry();
+            setFormCountry({
+                name: formData.name || '',
+                originalname: formData.originalname || '',
+                acronym: formData.acronym || '',
+                hide: formData.hide || false
+            });
+            setLoading(false);
         }
-    },[id]);
+    },[formData]);
 
     return (<>
     <Box
@@ -130,10 +136,6 @@ function FormCountry({id, callback}){
             width: '100%'
           }}
           >
-            <Typography variant="body1" component="body1" gutterBottom align="center">
-              { isEdit ? "Edit country" : "Create country"}
-            </Typography>
-
             <TextField
                 id="name"
                 name="name"
