@@ -31,7 +31,7 @@ function FormCountry({id, callback}){
     
     const [submitError, setSubmitError] = useState('');
     
-    const [URLCountry,setURLCountry] = useState(`${config.api.baseUrl}${config.api.endpoints.Country}`);
+    const URLCountry = `${config.api.baseUrl}${config.api.endpoints.Catalogues}/country`;
 
 
 
@@ -130,10 +130,6 @@ function FormCountry({id, callback}){
             width: '100%'
           }}
           >
-            <Typography variant="body1" component="body1" gutterBottom align="center">
-              { isEdit ? "Edit country" : "Create country"}
-            </Typography>
-
             <TextField
                 id="name"
                 name="name"

@@ -10,44 +10,38 @@ import
         List,
         ListItem,
         ListItemText,
-        ButtonGroup
+        ButtonGroup,
+        Modal
 } from '@mui/material';
-import { Edit, Delete, Visibility, VisibilityOff } from '@mui/icons-material';
+import { Edit, Delete, Visibility, VisibilityOff, Close } from '@mui/icons-material';
 
 import config from '../../Resources/config';
 
-function CountryManager({ countries = [], onCountryUpdate }){
+function CountryManager({ countries = [], callback: onCountryUpdate }){
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
     const [submitSuccess, setSubmitSuccess] = useState(false);
     const [showCountries, setShowCountries] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
     const [countryid, setCountryID] = useState(null);
     const [URLCountry] = useState(`${config.api.baseUrl}${config.api.endpoints.Country}`);
 
-    const deleteCountry = async( item ) =>{
-        setIsSubmitting(true);
-        setSubmitError('');
-        try {
-            const urldelete = URLCountry + '/' + item;
-            await axios.delete(urldelete);
-            if (onCountryUpdate) {
-                onCountryUpdate();
-            }
-        } catch (error) {
-            setSubmitError(error.response?.data?.message || error.message);
-            console.error('Error deleting country:', error);
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
 
     const editCountry = (item) => {
         setCountryID(item);
         setShowCountries(true);
+        setOpenModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setOpenModal(false);
+        setShowCountries(false);
+        setCountryID(null);
     };
 
     const editsuccess = () => {
         setShowCountries(false);
+        setOpenModal(false);
         if (onCountryUpdate) {
             onCountryUpdate();
         }
@@ -73,6 +67,7 @@ function CountryManager({ countries = [], onCountryUpdate }){
     
     const showform = ( ) =>{
         setShowCountries(true);
+        setOpenModal(true);
     };
 
     return (
@@ -95,7 +90,37 @@ function CountryManager({ countries = [], onCountryUpdate }){
                 <Button onClick={showform} disabled={isSubmitting}> Add </Button>
             </ButtonGroup>
         
-            { showCountries && (<FormCountry id={countryid} callback={editsuccess} />) }
+            <Modal
+                open={openModal}
+                onClose={handleCloseModal}
+                aria-labelledby="country-modal-title"
+                aria-describedby="country-modal-description"
+            >
+                <Box sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: { xs: '90%', sm: '80%', md: '60%', lg: '40%' },
+                    bgcolor: 'background.paper',
+                    boxShadow: 24,
+                    borderRadius: 2,
+                    p: 4,
+                    maxHeight: '90vh',
+                    overflow: 'auto'
+                }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                        <Typography id="country-modal-title" variant="h6" component="h2">
+                            {countryid ? 'Edit Country' : 'Add New Country'}
+                        </Typography>
+                        <IconButton onClick={handleCloseModal} size="small">
+                            <Close />
+                        </IconButton>
+                    </Box>
+                    { showCountries && (<FormCountry 
+                    id={countryid} callback={ editsuccess} />) }
+                </Box>
+            </Modal>
         
             <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
                 {
@@ -106,12 +131,12 @@ function CountryManager({ countries = [], onCountryUpdate }){
                                     primary={x.name} 
                                     secondary={x.acronym} />
                                 <IconButton 
-                                    edge="end" 
-                                    aria-label="delete"
-                                    onClick={() => deleteCountry(x.id)}
+                                    edge="end"
+                                    aria-label="edit"
+                                    onClick={() => editCountry(x.id)}
                                     disabled={isSubmitting}
                                 >
-                                    <Delete />
+                                    <Edit />
                                 </IconButton>
                                 <IconButton 
                                     edge="end"
@@ -120,14 +145,6 @@ function CountryManager({ countries = [], onCountryUpdate }){
                                     disabled={isSubmitting}
                                 >
                                     { x.hide ? <Visibility /> : <VisibilityOff />}
-                                </IconButton>
-                                <IconButton 
-                                    edge="end" 
-                                    aria-label="edit"
-                                    onClick={() => editCountry(x.id)}
-                                    disabled={isSubmitting}
-                                >
-                                    <Edit />
                                 </IconButton>
                             </ListItem>
                     )): <ListItem> 

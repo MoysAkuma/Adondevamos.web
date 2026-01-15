@@ -101,18 +101,21 @@ import { useAuth } from '../context/AuthContext';
                 </Tabs>
                 {
                     tabValue === 0 && <CountryManager 
-                    countries={countries} />
+                    countries={countries} 
+                    callback={setCountries} />
                 }
                 {
                     tabValue === 1 && <StatesManager 
                         states={states}
-                        countries={countries} />
+                        countries={countries} 
+                        callback={setStates} />
                 }
                 {
                     tabValue === 2 && <CitiesManager 
                     cities={cities}
                     states={states}
-                    countries={countries} />
+                    countries={countries}
+                    callback={setCities} />
                 }
             </Box>
         </CenteredTemplate>)

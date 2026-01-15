@@ -23,19 +23,21 @@ import
         ListItem,
         ListItemText,
         ButtonGroup,
-        Slide
+        Slide,
+        Modal
 } from '@mui/material';
 
-import { Delete, Visibility, VisibilityOff } from '@mui/icons-material';
+import { Delete, Visibility, VisibilityOff, Close, Edit } from '@mui/icons-material';
 
 import config from '../../Resources/config';
 
-function StatesManager({ states = [], countries = [] }){
+function StatesManager({ states = [], countries = [], callback }){ 
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
     const [submitSuccess,setSubmitSuccess] = useState(false);
     const [showForm, setShowForm] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
     const [countryidfilter, setCountryIDFilter]= useState(null);
     const [stateid, setStateID]= useState(null);
     
@@ -51,6 +53,9 @@ function StatesManager({ states = [], countries = [] }){
             .then(resp => {
                 //Stop loading form
                 setLoading(false);
+                if (callback) {
+                    callback();
+                }
             })
             .catch(error => console.error("Error deleting a state"));
         } catch (error) {
@@ -61,14 +66,47 @@ function StatesManager({ states = [], countries = [] }){
         }
     };
 
-    const showformToCreate = ( ) =>{
+    const editState = (id) => {
+        setStateID(id);
         setShowForm(true);
+        setOpenModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setOpenModal(false);
+        setShowForm(false);
+        setStateID(null);
+    };
+
+    const showformToCreate = ( ) =>{
+        setStateID(null);
+        setShowForm(true);
+        setOpenModal(true);
     };
 
     const formSucess = () => {
-        
         setShowForm(false);
+        setOpenModal(false);
         setStateID(null);
+        if (callback) {
+            callback();
+        }
+    };
+
+    const toggleVisibilityState = async( item ) =>{
+        setIsSubmitting(true);
+        setSubmitError('');
+        try {
+            await axios.patch(`${URLStates}/${item.id}/toggle`);
+            if (callback) {
+                callback();
+            }
+        } catch (error) {
+            setSubmitError(error.response?.data?.message || error.message);
+            console.error('Error toggling state visibility:', error);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const showFilters = () => {
@@ -89,7 +127,36 @@ function StatesManager({ states = [], countries = [] }){
             <Button onClick={() => showFilters()} > Set Filters </Button>
         </ButtonGroup>
         
-        {showForm && (<FormStates id={stateid} callback={formSucess}/> )}
+        <Modal
+            open={openModal}
+            onClose={handleCloseModal}
+            aria-labelledby="state-modal-title"
+            aria-describedby="state-modal-description"
+        >
+            <Box sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: { xs: '90%', sm: '80%', md: '60%', lg: '40%' },
+                bgcolor: 'background.paper',
+                boxShadow: 24,
+                borderRadius: 2,
+                p: 4,
+                maxHeight: '90vh',
+                overflow: 'auto'
+            }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography id="state-modal-title" variant="h6" component="h2">
+                        {stateid ? 'Edit State' : 'Add New State'}
+                    </Typography>
+                    <IconButton onClick={handleCloseModal} size="small">
+                        <Close />
+                    </IconButton>
+                </Box>
+                {showForm && (<FormStates id={stateid} callback={formSucess}/> )}
+            </Box>
+        </Modal>
         
         <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
             {
@@ -99,11 +166,21 @@ function StatesManager({ states = [], countries = [] }){
                             <ListItemText 
                                 primary={x.name} 
                                 secondary={countries?.filter(c => c.id === x.countryid)[0]?.acronym || ''} />
-                            <IconButton edge="end">
-                                { 
-                                    x.hide ? <Visibility  /> : 
-                                    <VisibilityOff/>
-                                }
+                            <IconButton 
+                                edge="end"
+                                aria-label="edit"
+                                onClick={() => editState(x.id)}
+                                disabled={isSubmitting}
+                            >
+                                <Edit />
+                            </IconButton>
+                            <IconButton 
+                                edge="end"
+                                aria-label="toggle visibility"
+                                onClick={() => toggleVisibilityState(x)}
+                                disabled={isSubmitting}
+                            >
+                                { x.hide ? <Visibility  /> : <VisibilityOff/>}
                             </IconButton>
                             
                         </ListItem>

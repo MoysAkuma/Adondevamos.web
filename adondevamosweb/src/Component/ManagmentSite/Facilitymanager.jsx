@@ -20,10 +20,11 @@ import
         ListItemText,
         ButtonGroup,
         Slide,
-        Tooltip
+        Tooltip,
+        Modal
 } from '@mui/material';
 
-import { Add, Delete, Visibility, VisibilityOff } from '@mui/icons-material';
+import { Add, Delete, Visibility, VisibilityOff, Close } from '@mui/icons-material';
 
 import FormFacility from './FormFacility';
 import config from '../../Resources/config';
@@ -39,15 +40,24 @@ function Facilitymanager({
     const [submitError, setSubmitError] = useState('');
     const [facilityid, setFacilityID] = useState(null);
     const [showFacilityForm, setShowFacilityForm] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
     const URLSERVICE = `${config.api.baseUrl}${config.api.endpoints.Catalogues}`;
 
     const toggleShowFacilities = ( e ) => {
+        setOpenModal(true);
         setShowFacilityForm(true);
+    };
+
+    const handleCloseModal = () => {
+        setOpenModal(false);
+        setShowFacilityForm(false);
     };
 
     const formSuccess = ()=>{
         setFacilityID(null);
         setShowFacilityForm(false);
+        setOpenModal(false);
+        reloadFacilities();
     };
 
     const toggleVisibilityFacility = async( item ) =>{
@@ -86,6 +96,10 @@ function Facilitymanager({
         }
     };
 
+    const handleSubmit = ( ) => {
+        handleCloseModal();
+    }
+
     useEffect(()=> {
         setLoading(false);
     },[]);
@@ -106,8 +120,38 @@ function Facilitymanager({
             <Button onClick={toggleShowFacilities} >Add</Button>
         </ButtonGroup>
         
-        { showFacilityForm && (
-            <FormFacility id={facilityid} callback={formSuccess} />) }
+        <Modal
+            open={openModal}
+            onClose={handleCloseModal}
+            aria-labelledby="facility-modal-title"
+            aria-describedby="facility-modal-description"
+        >
+            <Box sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: { xs: '90%', sm: '80%', md: '60%', lg: '40%' },
+                bgcolor: 'background.paper',
+                boxShadow: 24,
+                borderRadius: 2,
+                p: 4,
+                maxHeight: '90vh',
+                overflow: 'auto'
+            }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography id="facility-modal-title" variant="h6" component="h2">
+                      { facilityid && "Edit Facility" }{ !facilityid && "Add New Facility" }
+                    </Typography>
+                    <IconButton onClick={handleCloseModal} size="small">
+                        <Close />
+                    </IconButton>
+                </Box>
+                { showFacilityForm && (
+                    <FormFacility id={facilityid} 
+                    callback={formSuccess} />) }
+            </Box>
+        </Modal>
         
         <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
             {
