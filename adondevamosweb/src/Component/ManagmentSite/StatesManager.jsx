@@ -30,15 +30,11 @@ import { Delete, Visibility, VisibilityOff } from '@mui/icons-material';
 
 import config from '../../Resources/config';
 
-function StatesManager(){
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+function StatesManager({ states = [], countries = [] }){
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
     const [submitSuccess,setSubmitSuccess] = useState(false);
-    const [catStates, setCatStates] = useState([]);
-    const [catCountries, setCatCountries] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [countryidfilter, setCountryIDFilter]= useState(null);
     const [stateid, setStateID]= useState(null);
@@ -65,33 +61,12 @@ function StatesManager(){
         }
     };
 
-    //getStates
-    const getStates = async( ) =>{
-        axios.get(URLStatesSearch)
-        .then(resp => {
-            setCatStates(resp.data.info);
-            setLoading(false);
-        })
-        .catch(error => console.error("Error getting catalogue of states"));
-    };
-
-    //getCountries
-    const getCountries = async( ) =>{
-        axios.get(URLCountrySearch)
-        .then(resp => {
-            setCatCountries(resp.data.info);
-            setLoading(false);
-            getStates();
-        })
-        .catch(error => console.error("Error getting catalogue of countries"));
-    };
-
     const showformToCreate = ( ) =>{
         setShowForm(true);
     };
 
     const formSucess = () => {
-        getStates();
+        
         setShowForm(false);
         setStateID(null);
     };
@@ -100,7 +75,7 @@ function StatesManager(){
         
     };
     useEffect(()=> {
-        getCountries();
+       setLoading(false);
     },[]);
     return (<Box
         sx={{
@@ -109,9 +84,6 @@ function StatesManager(){
                 width: '100%'
             }}
         >
-        <Typography variant="h6" component="h6" gutterBottom align="center">
-            States 
-        </Typography>
         <ButtonGroup variant="outlined" aria-label="Basic button group">
             <Button onClick={() => showformToCreate()} >Add</Button>
             <Button onClick={() => showFilters()} > Set Filters </Button>
@@ -121,19 +93,23 @@ function StatesManager(){
         
         <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
             {
-                !loading && catStates.length > 0 ? catStates.map(
+                !loading && states.length > 0 ? states.map(
                     (x)=>(
                         <ListItem key={x.id}>
                             <ListItemText 
                                 primary={x.name} 
-                                secondary={ catCountries?.filter(c => c.id == x.countryid)[0].name  } />
+                                secondary={countries?.filter(c => c.id === x.countryid)[0]?.acronym || ''} />
                             <IconButton edge="end">
-                                { x.hide ? <Visibility  /> : <VisibilityOff/>}
+                                { 
+                                    x.hide ? <Visibility  /> : 
+                                    <VisibilityOff/>
+                                }
                             </IconButton>
                             
                         </ListItem>
                 )): <ListItem> 
-                    <ListItemText primary="No states added yet" ></ListItemText>
+                    <ListItemText 
+                    primary="No states added yet" ></ListItemText>
                 </ListItem>
             }
         </List>

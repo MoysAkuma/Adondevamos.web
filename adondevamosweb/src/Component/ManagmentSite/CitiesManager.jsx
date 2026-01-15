@@ -5,8 +5,6 @@ import FormCities from "./FormCities";
 import 
     { 
         Button,
-        useMediaQuery,
-        useTheme,
         Typography,
         Box,
         IconButton,
@@ -20,7 +18,12 @@ import { Delete, Visibility, VisibilityOff } from '@mui/icons-material';
 
 import config from '../../Resources/config';
 
-function CitiesManager({id, callback}){
+function CitiesManager({id, 
+    callback,
+    cities = [],
+    states = [],
+    countries = []
+}){
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
@@ -29,10 +32,6 @@ function CitiesManager({id, callback}){
     const [countryid, setCountryID] = useState(null);
     const [stateid, setStateID] = useState(null);
     const [isEdit, setisEdit] = useState(false);
-    //Catalogues
-    const [catStates, setCatStates] = useState([]);
-    const [catCountries, setCatCountries] = useState([]);
-    const [catCities, setCatCities] = useState([]);
 
     //URLS
     const [URLsCatalogService, setURLsCatalogService] = useState(
@@ -48,37 +47,17 @@ function CitiesManager({id, callback}){
     //deletestate
     const deleteState = async( id ) =>{};
 
-    //getStates
-    const getStates = async( id ) =>{
-        axios.get(URLsCatalogService.States + '/')
-        .then(resp => {
-            setCatStates(resp.data.info);
-            setLoading(false);
-        })
-        .catch(error => console.error("Error getting catalogue of states"));
-    };
-
-    //getCities
-    const getCities = async( ) =>{
-        axios.get(URLsCatalogService.Cities)
-        .then(resp => {
-            setCatCities(resp.data.info);
-            setLoading(false);
-        })
-        .catch(error => console.error("Error getting catalogue of countries"));
-    };
-
     const toggleFormVisibility = () => {
         setShowForm( !showForm );
     };
 
     const formSuccess = () => {
-        getCities();
+        
         setShowForm(false);
     };
 
     useEffect(()=> {
-        getCities();
+        setLoading(false);
     },[]);
 
     return (<Box
@@ -88,9 +67,6 @@ function CitiesManager({id, callback}){
                 width: '100%'
             }}
         >
-        <Typography variant="h6" component="h6" gutterBottom align="center">
-            Cities 
-        </Typography>
         <ButtonGroup variant="outlined" aria-label="Basic button group">
             <Button onClick={toggleFormVisibility} > { showForm ? 'Hide':'Add' }</Button>
         </ButtonGroup>
@@ -99,11 +75,13 @@ function CitiesManager({id, callback}){
         
         <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
             {
-                !loading && catCities.length > 0 ? catCities.map(
+                !loading && cities.length > 0 ? cities.map(
                     (x)=>(
                         <ListItem key={x.id}>
                             <ListItemText 
                                 primary={x.name} 
+                                secondary={states?.filter(s => s.id === x.stateid)[0]?.name || ''
+                                }
                             />
                             <IconButton edge="end">
                                 { x.hide ? <Visibility  /> : <VisibilityOff/>}
@@ -111,7 +89,7 @@ function CitiesManager({id, callback}){
                             
                         </ListItem>
                 )): <ListItem> 
-                    <ListItemText primary="No states added yet" ></ListItemText>
+                    <ListItemText primary="No cities added yet" ></ListItemText>
                 </ListItem>
             }
         </List>

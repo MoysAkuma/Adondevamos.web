@@ -92,8 +92,7 @@ import { useAuth } from '../context/AuthContext';
                     value={tabValue}
                     variant={isMobile ? "scrollable" : "standard"}
                     onChange={handleTabChange}
-                    centered={!isMobile}
-                    scrollButtons={isMobile ? "auto" : false}
+                    centered={true}
                     aria-label="Ubication management tabs"
                 >
                     <Tab label="Countries" value={0} />
@@ -106,11 +105,14 @@ import { useAuth } from '../context/AuthContext';
                 }
                 {
                     tabValue === 1 && <StatesManager 
-                        states={states} />
+                        states={states}
+                        countries={countries} />
                 }
                 {
                     tabValue === 2 && <CitiesManager 
-                    cities={cities} />
+                    cities={cities}
+                    states={states}
+                    countries={countries} />
                 }
             </Box>
         </CenteredTemplate>)

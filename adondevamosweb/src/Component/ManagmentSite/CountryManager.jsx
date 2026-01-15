@@ -84,9 +84,6 @@ function CountryManager({ countries = [], onCountryUpdate }){
                 width: '100%'
             }}
         >
-            <Typography variant="h6" component="h6" gutterBottom align="center">
-                Countries 
-            </Typography>
             
             {submitError && (
                 <Typography color="error" variant="body2" align="center">
@@ -107,7 +104,7 @@ function CountryManager({ countries = [], onCountryUpdate }){
                             <ListItem key={x.id}>
                                 <ListItemText 
                                     primary={x.name} 
-                                    secondary={x.code} />
+                                    secondary={x.acronym} />
                                 <IconButton 
                                     edge="end" 
                                     aria-label="delete"
