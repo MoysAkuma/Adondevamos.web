@@ -34,7 +34,7 @@ import {
         
         const goToEditPlace = (place) => {
           if (place.id == undefined) return;
-          navigate('/EditPlace/' + place.id);
+          navigate('/Edit/Place/' + place.id);
         };
     
         const goToViewPlace = (place) => {

@@ -14,16 +14,18 @@ import
         Paper,
         Tooltip
     } from '@mui/material';
+import { Visibility, Edit, FavoriteBorder } from '@mui/icons-material'
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+
 import ViewMemberList from '../View/ViewMemberList'
 import ViewItinerary from './Itinerary/ViewItinerary'
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import utils from "../../Resources/utils";
-import { Visibility, Edit, FavoriteBorder } from '@mui/icons-material'
 import config from "../../Resources/config";
-import { useAuth } from '../../context/AuthContext';
+import ImageCarousel from "../Commons/ImageCarousel";
 
 function ViewTrip(){
     //Get id
@@ -224,6 +226,13 @@ function ViewTrip(){
                 Itinerary
             </Typography>
             <ViewItinerary itinerary={tripInfo.itinerary} />
+            <Divider />
+            <Typography 
+                variant="h6" 
+                component="div">
+                Gallery
+            </Typography>
+            <ImageCarousel images={tripInfo.gallery} />
             <Divider />
             <Paper 
                 elevation={2} 

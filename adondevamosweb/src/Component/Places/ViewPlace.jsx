@@ -21,6 +21,7 @@ import { FavoriteBorder, Edit } from '@mui/icons-material';
 import config from "../../Resources/config";
 import FacilityIcon from "../Commons/FacilityIcon";
 import { useAuth } from '../../context/AuthContext';
+import MapView from "../Commons/MapView";
 
 function ViewPlace(){
     //Get id
@@ -186,6 +187,14 @@ function ViewPlace(){
                 align="right">
                 {placeInfo.address}
             </Typography>
+            <MapView
+                address={placeInfo.address}
+                latitude={placeInfo.latitude}
+                longitude={placeInfo.longitude}
+                height={300}
+                width="100%"
+                zoom={15}
+            />
 
             <Typography gutterBottom variant="h6" component="div" align="left">
                 Ubication
@@ -261,12 +270,13 @@ function ViewPlace(){
                 </Tooltip>
                 
                 {
-                role == "admin" && (
+                role == "Admin" && (
                     <Tooltip title="Edit trip">
                         <IconButton 
                             color="primary"
                             onClick={handleEdit}
                             size="medium"
+                            
                         >
                             <Edit />
                         </IconButton>

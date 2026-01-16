@@ -98,29 +98,28 @@ function Home() {
         </Typography>
 
         <Grid container spacing={1} sx={{ mb: 1 }}>
-          <Grid item xs={12} sm={6}
-          >
+          <Grid size={{ xs: 12, sm: 6 }}>
             <StepCard
               icon={FlightTakeoff}
               title="Add your trip"
               subtitle="You just need a cool name"
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <StepCard
               icon={AccountCircle}
               title="Add your friends"
               subtitle="Invite others to join the plan"
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <StepCard
               icon={AddLocation}
               title="Add places"
               subtitle="Add places that you and your friends want to visit"
             />
           </Grid>
-          <Grid item xs={12} sm={6}>
+          <Grid size={{ xs: 12, sm: 6 }}>
             <StepCard
               icon={Favorite}
               title="Vote"
