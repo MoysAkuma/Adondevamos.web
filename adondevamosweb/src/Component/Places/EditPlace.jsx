@@ -248,7 +248,7 @@ function EditPlace({
       facilityid: Number(key),
       value: checkedFacilities[key]
     }));
-
+    console.log("Facilities to save:", checkedFacilitiesToSave);
     const formSaveFacilities = {  
       Facilities: checkedFacilitiesToSave
     };

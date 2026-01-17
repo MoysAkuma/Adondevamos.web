@@ -22,6 +22,7 @@ import config from "../../Resources/config";
 import FacilityIcon from "../Commons/FacilityIcon";
 import { useAuth } from '../../context/AuthContext';
 import MapView from "../Commons/MapView";
+import ImageCarousel from "../Commons/ImageCarousel";
 
 function ViewPlace(){
     //Get id
@@ -153,12 +154,29 @@ function ViewPlace(){
                 width: '100%'
             }}
         >
+            
+            
             <Typography variant="h4" component="h4" align="center">
                 {
                     placeInfo.name
                 }
             </Typography>
-
+            <Divider />
+            {placeInfo.gallery && placeInfo.gallery.length > 0 && (
+                <Box
+                    component="img"
+                    src={placeInfo.gallery[0].completeurl}
+                    alt={placeInfo.name}
+                    sx={{
+                        width: '100%',
+                        height: '250px',
+                        maxHeight: '400px',
+                        objectFit: 'cover',
+                        borderRadius: 2,
+                        mb: 2
+                    }}
+                />
+            )}
             <Typography 
                 variant="body1" 
                 component="body1" 
@@ -187,23 +205,30 @@ function ViewPlace(){
                 align="right">
                 {placeInfo.address}
             </Typography>
+            <Typography gutterBottom variant="h6" component="div" align="left">
+                Ubication
+            </Typography>
             <MapView
                 address={placeInfo.address}
-                latitude={placeInfo.latitude}
-                longitude={placeInfo.longitude}
+                latitude={parseFloat(placeInfo.latitude)}
+                longitude={parseFloat(placeInfo.longitude)}
                 height={300}
                 width="100%"
                 zoom={15}
             />
 
-            <Typography gutterBottom variant="h6" component="div" align="left">
-                Ubication
-            </Typography>
-
             <Typography gutterBottom variant="body1" component="div" align="right">
                 {placeInfo.City.name}, {placeInfo.State.name}, {placeInfo.Country.name}
             </Typography>
 
+            
+            <Typography 
+                variant="h6" 
+                component="div">
+                Gallery
+            </Typography>
+            <ImageCarousel images={placeInfo.gallery} />
+            <Divider />
             <Typography variant="h6" component="div" align="center">
                 Facilities
             </Typography>
