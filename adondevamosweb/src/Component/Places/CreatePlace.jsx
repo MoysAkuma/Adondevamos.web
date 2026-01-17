@@ -11,108 +11,82 @@ import
         FormGroup,
         FormControlLabel,
         Checkbox,
-        Snackbar,
-        Alert
+        CircularProgress
 } from '@mui/material';
 
+import { Save } from '@mui/icons-material';
 import CountriesSelectList from "../Catalogues/CountriesSelectList";
 import StateSelect from "../Catalogues/StateSelect";
 import CitiesSelect from "../Catalogues/CitiesSelect";
 import SnackbarNotification from "../Commons/SnackbarNotification";
-
+import ImageUploader from '../Commons/ImageUploader';
+import LocationPicker from '../Commons/LocationPicker';
 import config from "../../Resources/config";
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from "../../context/AuthContext";
 
-function CreatePlace() {
+function CreatePlace({
+  catCountries,
+    catStates,
+    catCities,
+    catFacilities
+}) {
+  const { isLogged, loading: authLoading, hasPermission } = useAuth();
+  const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [loading, setLoading] = useState(true);
   //URLS
   const [URLsCatalogService, setURLsCatalogService] = useState(
       {
-          Countries:`${config.api.baseUrl}${config.api.endpoints.Countries}`,
-          States:`${config.api.baseUrl}${config.api.endpoints.States}`,
-          Cities:`${config.api.baseUrl}${config.api.endpoints.Cities}`,
-          Users:`${config.api.baseUrl}${config.api.endpoints.Users}`,
-          Facilities:`${config.api.baseUrl}${config.api.endpoints.Facilities}`,
           Places:`${config.api.baseUrl}${config.api.endpoints.Places}`
       }
   );
+  
+  //filtered data
+  const [filteredStates, setFilteredStates] = useState([]);
+  const [filteredCities, setFilteredCities] = useState([]);
+  
+  // Added images
+  const [addedImages, setAddedImages] = useState([]);
 
-  //catalogues
-  const [catCountries, setCatCountries] = useState([
-      {
-          id:1,
-          name:"MEXICO"
-      }
-  ]);
-  const [catStates, setCatStates] = useState([
-      {
-          id:1,
-          name:"SINALOA"
-      }
-  ]);
-
-  const [catCities, setCatCities] = useState([
-      {
-          id:1,
-          name:"Culiacan"
-      },
-      {
-          id:2,
-          name:"Los mochis"
-      }
-  ]);
-
-  const [catFacilities, setCatFacilities] = useState([
-    {
-        name:"Wi-fi",
-        id:1,
-        hide:false
-    },
-    {
-        name:"Restroom",
-        id:2,
-        hide:false
-    }
-]);
-
-const [errors, setErrors] = useState({
-      place : false,
-      facilities : false
-});
-
-const [responseSuceess, setResponseSuccess] = useState({
-      place : false,
-      facilities : false
-});
-
-// State to track checked options
-const [checkedFacilities, 
-  setCheckedFacilities] = useState({});
-
-const facilitiesChange = (event) => {
-  setCheckedFacilities({
-    ...checkedFacilities,
-      [event.target.name]: event.target.checked,
+  const [errors, setErrors] = useState({
+    place: false,
+    facilities: false
   });
-};
-  // placeinfo
-  const [formCreatePlace, setformCreatePlace] = useState(
-    {
-      name: '',
-      countryid: '',
-      stateid: '',
-      cityid: '',
-      description: '',
-      address:'',
-      ispublic: false
-    }
-  );
+
+  const [responseSuceess, setResponseSuccess] = useState({
+    place: false,
+    facilities: false
+  });
+
+  // State to track checked options
+  const [checkedFacilities, setCheckedFacilities] = useState({});
+
+  const facilitiesChange = (event) => {
+    setCheckedFacilities({
+      ...checkedFacilities,
+      [event.target.name]: event.target.checked,
+    });
+  };
+  // Place info
+  const [formCreatePlace, setformCreatePlace] = useState({
+    name: '',
+    countryid: 0,
+    stateid: 0,
+    cityid: 0,
+    description: '',
+    address: '',
+    ispublic: false,
+    latitude: 24.8091,
+    longitude: -107.3940
+  });
 
   // UI state
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [messageSnack, setMessageSnack] = useState('');
 
   //update request
   const handleChange = (e) => {
@@ -147,7 +121,7 @@ const facilitiesChange = (event) => {
       }
 
       // Validate for field Country
-      if (!formCreatePlace.countryid) {
+      if (!formCreatePlace.countryid ) {
         throw new Error('CountryID is required');
       }
 
@@ -166,74 +140,87 @@ const facilitiesChange = (event) => {
         throw new Error('select at least a facility is required');
       }
       
-      // API call to create product
+      // API call to create place
       const response = await axios.post(
         URLsCatalogService.Places, 
-      {
-        name: formCreatePlace.name.trim(),
-        countryid: formCreatePlace.countryid,
-        stateid: formCreatePlace.stateid,
-        cityid: formCreatePlace.cityid,
-        description: formCreatePlace.description,
-        address:formCreatePlace.address,
-        ispublic: formCreatePlace.ispublic
-      }, 
+        {
+          name: formCreatePlace.name.trim(),
+          countryid: formCreatePlace.countryid,
+          stateid: formCreatePlace.stateid,
+          cityid: formCreatePlace.cityid,
+          description: formCreatePlace.description,
+          address: formCreatePlace.address,
+          ispublic: formCreatePlace.ispublic,
+          latitude: formCreatePlace.latitude,
+          longitude: formCreatePlace.longitude
+        }, 
       {
         headers: {
           'Content-Type': 'application/json',
           // 'Authorization': 'Bearer your-token-here' // Add if needed
         }
       });
-      switch(response.status) {
-        case 200, 201:
-          // Handle success
-          setSubmitSuccess(true);
-          // Reset form after successful submission
-          setformCreatePlace({
-            name: '',
-            countryid: "",
-            stateid: "",
-            cityid: "",
-            description: '',
-            address:'',
-            ispublic: false
-          });
-
-          saveSelectedFacilities(response.data.info);
+      if (response.status === 200 || response.status === 201) {
+        setMessageSnack("Place was created successfully!");
+        setSubmitSuccess(true);
+        
+        const placeId = response.data.info[0]?.id;
+        
+        // Save facilities
+        if (placeId) {
+          await saveSelectedFacilities(placeId);
           
-        break;
-        case 409:  throw new Error('A place was created with same info'); break;
-        case 404: throw new Error('No endpoint'); break;
+          // Upload images if added
+          if (addedImages.length > 0) {
+            await addPhotosToGallery(placeId);
+          }
+          
+          // Navigate to the new place after a short delay
+          setTimeout(() => {
+            navigate('/View/Place/' + placeId);
+          }, 2000);
+        }
       }
       
       
     } catch (error) {
       setSubmitError(error.response?.data?.message || error.message);
+      setMessageSnack(`Error creating place: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  //Handle select controller
+  // Handle select controller
   const handleSelect = (event) => {
-        const { name, value } = event.target;
-        handleChange(event);
-        switch(name){
-            case "countryid":
-              getStates(value);
-              setformCreatePlace(prev => ({
-                  ...prev,
-                  stateid: null
-                }));
-             break;
-            case "stateid":
-              getCities(value);
-              setformCreatePlace(prev => ({
-                  ...prev,
-                  cityid: null
-                }));
-            break;
-        }
+    const { name, value } = event.target;
+    handleChange(event);
+    switch(name){
+      case "countryid":
+        setFilteredStates(
+          catStates.filter(
+            (state) => state.countryid === parseInt(value)
+          )
+        );
+        setFilteredCities([]);
+        setformCreatePlace(prev => ({
+          ...prev,
+          stateid: 0,
+          cityid: 0
+        }));
+        break;
+      case "stateid":
+        setFilteredCities(
+          catCities.filter(
+            (city) => city.stateid === parseInt(value)
+          )
+        );
+        setformCreatePlace(prev => ({
+          ...prev,
+          cityid: 0
+        }));
+        break;
+    }
   };
 
   const handleCloseAlert = (event, reason) => {
@@ -241,86 +228,127 @@ const facilitiesChange = (event) => {
       return;
     }
     
-    setErrors(prev => (
-      {
-        place : false,
-        facilities : false
-      }
-    ));
+    setErrors(prev => ({
+      place: false,
+      facilities: false
+    }));
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSubmitSuccess(false);
+    setSubmitError('');
   };
     
-  //getCountries
-    const getCountries = async( ) =>{
-        axios.get(URLsCatalogService.Countries)
-        .then(resp => {
-            setCatCountries(resp.data.info);
+
+  // Save selected facilities
+  const saveSelectedFacilities = async(placeId) => {
+    const checkedFacilitiesToSave = Object.keys(checkedFacilities).map(key => ({
+      facilityid: Number(key),
+      value: checkedFacilities[key]
+    }));
+
+    const formSaveFacilities = {  
+      Facilities: checkedFacilitiesToSave
+    };
+
+    const url = `${URLsCatalogService.Places}/${placeId}/Facilities`;
+    
+    try {
+      await axios.post(url, formSaveFacilities);
+      setMessageSnack("Facilities were saved successfully.");
+    } catch (error) {
+      console.error("Error saving facilities", error);
+      setMessageSnack("Error saving facilities.");
+    }
+  };
+
+  // Add photos to gallery
+  const addPhotosToGallery = async (placeId) => {
+    const convertToBase64 = (file) => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (error) => reject(error);
+      });
+    };
+
+    try {
+      const photos = await Promise.all(
+        addedImages.map(async (photo) => {
+          let base64Data;
+          let mimetype;
+          let extension;
+
+          if (photo.file && photo.file instanceof File) {
+            base64Data = await convertToBase64(photo.file);
+            mimetype = photo.file.type || "image/jpeg";
+            extension = photo.name ? photo.name.split('.').pop() : "jpg";
+          } else if (photo instanceof File) {
+            base64Data = await convertToBase64(photo);
+            mimetype = photo.type || "image/jpeg";
+            extension = photo.name ? photo.name.split('.').pop() : "jpg";
+          }
+
+          return {
+            name: `place_${placeId}_${Date.now()}`,
+            base64: base64Data,
+            mimetype: mimetype,
+            extension: extension
+          };
         })
-        .catch(error => console.error("Error getting catalogue of countries"));
-    };
+      );
 
-    //getStates
-    const getStates = async( item ) =>{
-        axios.get(URLsCatalogService.States + '/ByCountryID/' + item)
-        .then(resp => {
-            setCatStates(resp.data.info);
-            handleChange({target:{cityid:0}});
-        })
-        .catch(error => console.error("Error getting catalogue of countries"));
-    };
-
-    //getCities
-    const getCities = async( item ) =>{
-        axios.get(URLsCatalogService.Cities + '/ByState/' + item)
-        .then(resp => {
-            setCatCities(resp.data.info);
-        })
-        .catch(error => console.error("Error getting catalogue of countries"));
-    };
-
-    //getFacilities
-    const getFacilities = async( ) =>{
-        axios.get(URLsCatalogService.Facilities)
-        .then(resp => {
-            setCatFacilities(resp.data.info);
-            setLoading(false);
-        })
-        .catch(error => console.error("Error getting catalogue of facilities"));
-    };
-
-    //saveplace api call    
-    const saveSelectedFacilities = async(item) =>{
-
-      const checkedFacilitiesToSave = 
-      Object.keys(checkedFacilities).map(key => ({
-        facilityid: Number(key),
-        value: checkedFacilities[key]
-      }));
-
-      const formSaveFacilities = {  
-        Facilities: checkedFacilitiesToSave
-      };
-
-      const url = URLsCatalogService.Places 
-        + '/' + 
-        item[0].id + 
-        '/Facilities';
-      
-      axios.post(url, formSaveFacilities)
-      .then(resp => {
-          setLoading(false);
-          //Clean checked facilities
-          setCheckedFacilities({});
-
-      })
-      .catch(
-        error => console.error("Error getting catalogue of facilities"));
-    };
+      const url = `${URLsCatalogService.Places}/${placeId}/Photos`;
+      await axios.post(url, { Photos: photos });
+      setMessageSnack("Photos uploaded successfully!");
+    } catch (error) {
+      console.error("Error uploading photos", error);
+      setMessageSnack("Error uploading photos.");
+    }
+  };
     
 
-    useEffect(()=> {
-      getCountries();
-      getFacilities();
-    },[]);
+  useEffect(() => {
+    const loadData = async () => {
+
+      setLoading(false);
+    };
+    loadData();
+  }, []);
+
+  // Show loading state
+  if (loading || authLoading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  // Check authentication and permissions
+  if (!isLogged) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Typography variant="h6" color="error" align="center">
+          You must be logged in to create a place.
+        </Typography>
+      </Box>
+    );
+  }
+
+  if (!hasPermission('write')) {
+    return (
+      <Box sx={{ p: 3 }}>
+        <Typography variant="h6" color="error" align="center">
+          You don't have permission to create places.
+        </Typography>
+      </Box>
+    );
+  }
   return (
     <>
       <Typography variant="h6" component="h6" 
@@ -391,25 +419,62 @@ const facilitiesChange = (event) => {
         {
           formCreatePlace.countryid ? (  
             <StateSelect 
-            val={formCreatePlace.stateid}
-            onChangecall={handleSelect}
-            catStates={catStates}
-            /> )   : <>Please, select a country.<br/></>
+              val={formCreatePlace.stateid}
+              onChangecall={handleSelect}
+              catStates={filteredStates}
+            /> 
+          ) : (
+            <Typography variant="caption" color="text.secondary">
+              Please select a country first.
+            </Typography>
+          )
         }
 
         {
           formCreatePlace.stateid ? (
             <CitiesSelect 
-            val={formCreatePlace.cityid}
-            onChangecall={handleSelect}
-            catCities={catCities}
+              val={formCreatePlace.cityid}
+              onChangecall={handleSelect}
+              catCities={filteredCities}
             />
-          ) : <>Please, select a state.<br/></>
+          ) : (
+            <Typography variant="caption" color="text.secondary">
+              Please select a state first.
+            </Typography>
+          )
         }
                 
         <Typography variant="h6" component="h6" 
-        gutterBottom align="left">
-            Facilities
+          gutterBottom align="left">
+          Location Coordinates
+        </Typography>
+
+        <LocationPicker
+          latitude={formCreatePlace.latitude}
+          longitude={formCreatePlace.longitude}
+          onLocationChange={(lat, lng) => {
+            setformCreatePlace(prev => ({
+              ...prev,
+              latitude: lat,
+              longitude: lng
+            }));
+          }}
+        />
+
+        <Typography variant="h6" component="h6" 
+          gutterBottom align="left" sx={{ mt: 3 }}>
+          Images
+        </Typography>
+
+        <ImageUploader
+          images={addedImages}
+          onImagesChange={setAddedImages}
+          maxImages={5}
+        />
+
+        <Typography variant="h6" component="h6" 
+          gutterBottom align="left" sx={{ mt: 3 }}>
+          Facilities
         </Typography>
 
         <FormGroup>
@@ -433,9 +498,9 @@ const facilitiesChange = (event) => {
         </FormGroup>
         
         <SnackbarNotification
-          open={responseSuceess.place}
-          onClose={handleCloseAlert}
-          message="A new place was added! Please wait while we save the facilities."
+          open={submitSuccess}
+          onClose={handleSnackbarClose}
+          message={messageSnack || "Place created successfully!"}
           severity="success"
         />
         
@@ -449,9 +514,12 @@ const facilitiesChange = (event) => {
         <Button 
           type="submit" 
           disabled={isSubmitting}
-          variant="text"
-          >
-          Create Place
+          variant="contained"
+          startIcon={isSubmitting ? <CircularProgress size={20} /> : <Save />}
+          fullWidth
+          sx={{ mt: 3 }}
+        >
+          {isSubmitting ? 'Creating Place...' : 'Create Place'}
         </Button>
       </Box>
     </>

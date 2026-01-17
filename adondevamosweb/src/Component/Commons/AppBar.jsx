@@ -10,7 +10,7 @@ import { NotListedLocation, Menu as MenuIcon } from "@mui/icons-material";
 import UserProfileAvatar from "../Users/UserProfileAvatar";
 
 export default function AppBarComp() {
-    const { isLogged, loading, role, logout } = useAuth();
+    const { isLogged, loading, role, logout, hasRole } = useAuth();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const settings = [{text :'Profile', path: '/Profile'}, {text: 'Logout', path: '/Logout'}];
@@ -45,7 +45,7 @@ export default function AppBarComp() {
                             <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
                                 {isLogged ? (
                                     <>
-                                        {role === 'Admin' && (
+                                        {hasRole('admin') && (
                                             <Button color="inherit" component={Link} to="/ManageSite">
                                                 Manage Site
                                             </Button>
@@ -105,7 +105,7 @@ export default function AppBarComp() {
                 <List>
                     {isLogged ? (
                         <>
-                            {role === 'Admin' && (
+                            {hasRole('admin') && (
                                 <ListItem disablePadding>
                                     <ListItemButton component={Link} to="/ManageSite">
                                         <ListItemText primary="Manage Site" />

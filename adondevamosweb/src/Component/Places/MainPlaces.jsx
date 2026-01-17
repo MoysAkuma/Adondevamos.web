@@ -6,9 +6,15 @@ import { Typography, Button, ButtonGroup } from "@mui/material";
 import { LocationCity, Search, Person } from '@mui/icons-material';
 import PlaceCard from "./PlaceCard";
 import CenteredTemplate from "../Commons/CenteredTemplate";
+import { useAuth } from "../../context/AuthContext";
 
-const GenerateUserSection = () => { 
-        if( localStorage.getItem('role') === 'Admin' ){
+export default function MainPlaces() {
+    const [UserSection, setUserSection] = useState(null);
+    const { isLogged, loading, hasRole, role } = useAuth();
+    
+    
+    const GenerateUserSection = () => { 
+        if (hasRole('admin')) {
             return (
                 <>
                     <Button variant="contained"
@@ -20,52 +26,47 @@ const GenerateUserSection = () => {
                     <Button variant="outlined" 
                         endIcon={ <LocationCity/> }
                         size="small"
-                        disabled
                         href="/Create/Place" >
                         Create Places
                     </Button>
                 </>
             );
-        } else if (localStorage.getItem('userid') != null){
+        } else if (isLogged) {
+            // Logged in users can search
             return (
                 <>
                     <Button variant="text" 
-                    endIcon={ <LocationCity/> }
-                    href="/Search/Places" >
+                        endIcon={ <LocationCity/> }
+                        href="/Search/Places" >
                         Search Places
                     </Button>
-                </>);
-            } else {
-                return (
-                    <>
-                        <Button 
+                </>
+            );
+        } else {
+            return (
+                <>
+                    <Button 
                         variant="outlined" 
                         startIcon={ <Person/> }
-                        disabled
                         href="/login" >
-                            Login or Create account
-                        </Button>
-                        <Button variant="contained" 
-                            endIcon={ <Search/> }
-                            size="small"
-                            href="/Search/Places" >
-                            Search Places
-                        </Button>
-
-                    </>
-                );
-            }
+                        Login
+                    </Button>
+                    <Button variant="contained" 
+                        endIcon={ <Search/> }
+                        size="small"
+                        href="/Search/Places" >
+                        Search Places
+                    </Button>
+                </>
+            );
+        }
     }
-
-export default function MainPlaces() {
-    const [isUser, setIsUser] = useState(false);
-    const [isAdmin, setIsAdmin] = useState(false);
-    const [UserSection, setUserSection] = useState(null);
     
-
-    useEffect(()=> {
-        setUserSection(GenerateUserSection());
-    },[]);
+    useEffect(() => {
+        if (!loading) {
+            setUserSection(GenerateUserSection());
+        }
+    }, [loading, isLogged]);
 
     return (
         <CenteredTemplate>
@@ -74,6 +75,7 @@ export default function MainPlaces() {
             align="center">
                 Places
             </Typography>
+            
             <ButtonGroup variant="contained" 
             color="primary"
             aria-label="text button group" 

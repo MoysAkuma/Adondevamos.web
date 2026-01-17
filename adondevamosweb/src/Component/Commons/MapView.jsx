@@ -23,9 +23,10 @@ function MapView({
   const [mapUrl, setMapUrl] = useState('');
 
   useEffect(() => {
-    // Generate static map URL using OpenStreetMap tiles
-    // We'll use staticmap.openstreetmap.de or similar service
-    // Alternative: Use OpenStreetMap tiles directly
+    if (!latitude || !longitude) {
+      setMapUrl('');
+      return;
+    }
     const centerLat = latitude;
     const centerLon = longitude;
     const z = zoom;
