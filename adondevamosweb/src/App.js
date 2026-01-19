@@ -29,11 +29,11 @@ function AppContent() {
           <Route path="/Places" element={ <MainPlaces/>}/>
           <Route path="/ManageSite" element={<ProtectedRoute 
           requiredRole="admin"><ManageSite/></ProtectedRoute>}/>
-          <Route path="/Create/:opt" element={<Create />}/>
-          <Route path="/Edit/:opt/:id" element={<ProtectedRoute> <Edit /> </ProtectedRoute>}/>
+          <Route path="/Create/:opt" requiredRole="user" element={<Create />}/>
+          <Route path="/Edit/:opt/:id" requiredRole="user" element={<ProtectedRoute> <Edit /> </ProtectedRoute>}/>
           <Route path="/Search/:opt" element={<Search/>}/>
           <Route path="/View/:opt/:id" element={<View/>}/>
-          <Route path="/Profile" element={<ProtectedRoute> <Profile/> </ProtectedRoute>}/>
+          <Route path="/Profile" requiredRole="user" element={<ProtectedRoute> <Profile/> </ProtectedRoute>}/>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
     </> );
