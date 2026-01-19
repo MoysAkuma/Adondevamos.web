@@ -22,6 +22,7 @@ import config from "../../Resources/config";
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import FormTrips from './FormTrips';
 import { useAuth } from "../../context/AuthContext";
+import ImageUploader from '../Commons/ImageUploader';
 
 function EditTrip(){
     const { isLogged, loading } = useAuth();
@@ -51,6 +52,9 @@ function EditTrip(){
       memberlist : false
     });
 
+    //addedImages
+    const [addedImages, setAddedImages] = useState([]);
+
     // trip info
     const [formTrip, setFormTrip] = useState({
         name : '',
@@ -63,7 +67,6 @@ function EditTrip(){
         },
         itinerary:[],
         members:[]
-        
     });
 
     //copy of original trip info for comparison
@@ -119,6 +122,7 @@ function EditTrip(){
           // 'Authorization': 'Bearer your-token-here' // Add if needed
         }
       });
+
       if(response.status == 201 
         || response.status == 200){
         setMessageStack("Trip info was updated.");
@@ -142,6 +146,9 @@ function EditTrip(){
         != JSON.stringify(formTrip.members) ){
         setMessageStack("Saving member list...");
         saveMemberlist();
+      }
+      if (addedImages.length > 0 ){
+        addPhotosToGallery();
       }
       setTimeout(() => {
         navigate('/View/Trip/' + id )}, 
@@ -181,11 +188,100 @@ function EditTrip(){
         const rq = {
           "Itinerary" : lst
         };
+
         axios.put(URLsCatalogService.Trips+'/' + id + '/Itinerary', rq )
         .then(resp => {
             setMessageStack("Itinerary was saved.");
         })
         .catch(error => console.error("Error getting catalogue of countries"));
+    };
+
+    const addPhotosToGallery = async () => {
+      
+      // Convert images to base64
+      const convertToBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = (error) => reject(error);
+        });
+      };
+
+      try {
+        const photos = await Promise.all(
+          addedImages.map(async (photo) => {
+            let base64Data;
+            let mimetype;
+            let extension;
+
+            // If photo has a file property (ImageUploader format: {file: File, preview: string, name: string})
+            if (photo.file && photo.file instanceof File) {
+              base64Data = await convertToBase64(photo.file);
+              mimetype = photo.file.type || "image/jpeg";
+              extension = photo.name ? photo.name.split('.').pop() : "jpg";
+            }
+            // If it's a File object directly
+            else if (photo instanceof File) {
+              base64Data = await convertToBase64(photo);
+              mimetype = photo.type || "image/jpeg";
+              extension = photo.name ? photo.name.split('.').pop() : "jpg";
+            }
+            // If it's a Blob
+            else if (photo instanceof Blob) {
+              base64Data = await convertToBase64(photo);
+              mimetype = photo.type || "image/jpeg";
+              extension = "jpg";
+            }
+            // If photo is already a data URL (base64)
+            else if (typeof photo === 'string' && photo.startsWith('data:')) {
+              base64Data = photo;
+              mimetype = photo.substring(photo.indexOf(':') + 1, photo.indexOf(';'));
+              extension = mimetype.split('/')[1];
+            }
+            // If photo has a data property that's already base64
+            else if (photo.data && typeof photo.data === 'string' && photo.data.startsWith('data:')) {
+              base64Data = photo.data;
+              mimetype = photo.mimetype || photo.data.substring(photo.data.indexOf(':') + 1, photo.data.indexOf(';'));
+              extension = photo.extension || mimetype.split('/')[1];
+            }
+            // Default fallback
+            else {
+              console.warn("Unknown image format:", photo);
+              base64Data = photo.data || photo;
+              mimetype = photo.mimetype || "image/jpeg";
+              extension = photo.extension || "jpg";
+            }
+
+            return {
+              data: base64Data,
+              mimetype: mimetype,
+              extension: extension
+            };
+          })
+        );
+
+        const rq = {
+          "images" : photos
+        };
+        
+        const response = await axios.post(
+          URLsCatalogService.Trips + '/' + id + '/Images',
+          rq,
+          {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+        
+        if (response.status === 200 || response.status === 201) {
+          setMessageStack("Photos were added to gallery.");
+        }
+      } catch (error) {
+        setMessageStack(`Error adding photos: ${error.message}`);
+        console.error('Error adding photos to gallery:', error);
+      }
     };
 
   const handlePlaceAdd = (item) => {
@@ -370,6 +466,12 @@ const handleRemoveUser = (event) => {
             showDuplicateError={errors.duplicateduser}
           />
 
+          <ImageUploader
+            images={addedImages || []}
+            onChange={(newImages) => setAddedImages(newImages)}
+            maxImages={10}
+          />
+
           <Button 
             type="submit" 
             disabled={isSubmitting}
@@ -378,6 +480,7 @@ const handleRemoveUser = (event) => {
             >
             Save changes
           </Button>
+
 
           <SnackbarNotification
             open={submitSuccess}

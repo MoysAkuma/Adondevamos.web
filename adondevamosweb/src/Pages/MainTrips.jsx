@@ -5,59 +5,66 @@ import
 {
     Stack, 
     Button,
-    Tooltip,
+    CircularProgress,
     Typography,
-    Box,ButtonGroup
+    Box,
+    ButtonGroup,
+    Collapse
 } from '@mui/material';
 import { Flight, Search, Person } from '@mui/icons-material';
 import TripCard from "../Component/Trips/TripCard";
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
+import { useAuth } from "../context/AuthContext";
 
-const GenerateBottonSection = () => { 
-    if( localStorage.getItem('userid') != null ){
-        return (
-            <>
-                
-                <Button 
-                    variant="contained"
-                    startIcon={ <Flight/> }
-                    href="/Create/Trip" 
-                    disabled
-                    >
-                    Add new trip
-                </Button>
-                <Button variant="outlined"
-                    endIcon={ <Search/> }
-                    href="/Search/Trips" >
-                    Search for trips
-                </Button>
-            </>
-        );
-    } else {
-        return (
-            <>  
-                <Button 
-                    variant="contained" 
-                    startIcon={ <Person/> }
-                    disabled
-                    href="/login" >
-                    Login or Create account
-                </Button>
-                <Button variant="outlined"
-                    endIcon={ <Search/> }
-                    href="/Search/Trips" >
-                    Search for trips
-                </Button>
-            </>
-        );
-    }
-}
  const MainTrips = () => {
-    const [isUser, setIsUser] = useState(false);
-    
+    const { isLogged, loading, hasRole, role } = useAuth();
+    const [UserSection, setUserSection] = useState(null);
+
+    const GenerateBottonSection = () => { 
+        if( hasRole('admin') ) {
+            return (
+                <>
+                    
+                    <Button 
+                        variant="contained"
+                        startIcon={ <Flight/> }
+                        href="/Create/Trip" 
+                        disabled
+                        >
+                        Add new trip
+                    </Button>
+                    <Button variant="outlined"
+                        endIcon={ <Search/> }
+                        href="/Search/Trips" >
+                        Search for trips
+                    </Button>
+                </>
+            );
+        } else {
+            return (
+                <>  
+                    <Button 
+                        variant="contained" 
+                        startIcon={ <Person/> }
+                        disabled
+                        href="/login" >
+                        Login or Create account
+                    </Button>
+                    <Button variant="outlined"
+                        endIcon={ <Search/> }
+                        href="/Search/Trips" >
+                        Search for trips
+                    </Button>
+                </>
+            );
+        }
+    }
+
     useEffect(()=> {
-        setIsUser( (localStorage.getItem('userid') != null) );
-    },[]);
+        if (!loading) {
+            setUserSection(GenerateBottonSection());
+        }
+    },[loading]);
 
     return (
         <CenteredTemplate>
@@ -77,48 +84,54 @@ const GenerateBottonSection = () => {
                 width: '100%'
                 }}
             >
-            
                 <ButtonGroup 
                     variant="contained" 
                     color="primary" 
                     fullWidth sx={{ mt: 2, mb: 4 }}>
                         {
-                            GenerateBottonSection()
+                           UserSection
                         }
                 </ButtonGroup>
             
-            <Typography variant="h6" align="left">
-                What is a Trip in AdondeVamos?
-            </Typography>
-            <Typography variant="body1" align="right">
-                A trip is a list of places you want to visit with your friends.
-            </Typography>
+                <Typography variant="h6" align="left">
+                    What is a Trip in AdondeVamos?
+                </Typography>
+                <Typography variant="body1" align="right">
+                    A trip is a list of places you want to visit with your friends.
+                </Typography>
 
-            <Box sx={{ backgroundColor: 'white', borderRadius: 2, boxShadow: 2 }}>
-                <TripCard
-                    tripinfo={
-                        {
-                        name : "Trip Name Example",
-                        description : "Trip Description Example",
-                        owner : { tag: "User_Tag" },
-                        statics : { Votes: { Total : 0 } },
-                        initialdate : null,
-                        finaldate : null,
-                        id : 0,
-                        itinerary : [
-                            { 
-                                id: 0, 
-                                name: "Place Name Example", 
-                                location: "Location 1",
-                                initialdate : null,
-                                finaldate : null,
-                                Ubication : { Country : { acronym : "MX" } }
-                            }
-                        ],
-                    }}
-                />
-            </Box>
-
+                <Box sx={{ backgroundColor: 'white', borderRadius: 2, boxShadow: 2 }}>
+                    <TripCard
+                        tripinfo={
+                            {
+                            name : "Trip Name Example",
+                            description : "Trip Description Example",
+                            owner : { tag: "User_Tag" },
+                            statics : { Votes: { Total : 0 } },
+                            initialdate : null,
+                            finaldate : null,
+                            id : 0,
+                            itinerary : [
+                                { 
+                                    id: 0, 
+                                    name: "Place Name Example", 
+                                    location: "Location 1",
+                                    initialdate : null,
+                                    finaldate : null,
+                                    Ubication : { Country : { acronym : "MX" } }
+                                }
+                            ],
+                        }}
+                    />
+                </Box>
+                
+                <Typography variant="h6" align="left">
+                    Discover Trips
+                </Typography>
+                <Typography variant="body1" align="right">
+                    Explore trips created by other users and get inspired for your next adventure!
+                </Typography>
+                
             </Box>
         </>
         </CenteredTemplate>

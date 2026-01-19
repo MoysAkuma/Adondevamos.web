@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from 'axios';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import 
     {
         TextField, 
@@ -23,16 +23,22 @@ import { useAuth }  from '../context/AuthContext'
 import config from '../Resources/config';
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 import RecoverPassword from "../Component/Users/RecoverPassword";
+
 function Login(){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const location = useLocation();
+    
     // UI state
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
     const [submitSuccess, setSubmitSuccess] = useState(false);
     //showpassword
     const [showPassword, setShowPassword] = useState(false);
-    const {login} = useAuth();
+    const { login, authError } = useAuth();
+    
+    // Get redirect location from state, or default to home
+    const from = location.state?.from?.pathname || "/";
     //Urls
     const [URLsCatalogService, setURLsCatalogService] = useState(
         {
@@ -59,6 +65,8 @@ function Login(){
         e.preventDefault();
         setIsSubmitting(true);
         setSubmitError('');
+        setErrors({ login: false });
+        
         try {
             //Validate email or tag
             if (!formLogIn.email.trim()) {
@@ -67,16 +75,21 @@ function Login(){
             if (!formLogIn.password.trim()) {
                 throw new Error('Password is required');
             }
+            
             //call backend to log in
-            const response = 
-                await login(formLogIn.email.trim(), 
-                formLogIn.password.trim());
+            const response = await login(
+                formLogIn.email.trim(), 
+                formLogIn.password.trim()
+            );
+            
             if(response.success){
-                navigate("/");
-            } else (
-                setErrors(prev => ( {...prev, login : true} ))
-            )
-            setSubmitSuccess(true);
+                setSubmitSuccess(true);
+                // Redirect to the page they tried to visit or home
+                navigate(from, { replace: true });
+            } else {
+                setErrors(prev => ({ ...prev, login: true }));
+                setSubmitError(response.message || 'Login failed. Please check your credentials.');
+            }
         }
         catch(err){
             switch(err.status){

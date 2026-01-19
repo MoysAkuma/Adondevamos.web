@@ -20,7 +20,7 @@ function CountriesSelectList({ val, onChangecall, catCountries}){
             >
                 <MenuItem value={0}>-- Select Country --</MenuItem>
             {
-                catCountries.map(
+                catCountries?.map(
                     (option) => (
                         <MenuItem 
                         key={option.id} 
