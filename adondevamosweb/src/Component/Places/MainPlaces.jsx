@@ -2,16 +2,20 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Typography, Button, ButtonGroup } from "@mui/material";
-import { LocationCity, Search, Person } from '@mui/icons-material';
+import { Typography, Button, ButtonGroup, 
+    Collapse, Box } from "@mui/material";
+import { LocationCity, Search, Person,
+    ExpandLess, ExpandMore
+ } from '@mui/icons-material';
 import PlaceCard from "./PlaceCard";
+import NewPlaces from "./NewPlaces";
 import CenteredTemplate from "../Commons/CenteredTemplate";
 import { useAuth } from "../../context/AuthContext";
 
 export default function MainPlaces() {
     const [UserSection, setUserSection] = useState(null);
     const { isLogged, loading, hasRole, role } = useAuth();
-    
+    const [showNewPlaces, setShowNewPlaces] = useState(true);
     
     const GenerateUserSection = () => { 
         if (hasRole('admin')) {
@@ -90,17 +94,22 @@ export default function MainPlaces() {
             <Typography variant="body1" align="right">
                 A place is a location that you want to visit with your friends
             </Typography>
-            <Typography variant="h6" align="left">
-                What can i see in a Place in AdondeVamos?
-            </Typography>
-            <PlaceCard placeinfo={{
-                name: "Place Name",
-                address: "Address of place",
-                description: "Place Description",
-                facilities: "Wc, Parking, Wifi",
-                statics: {Votes: {Total: '0'}},
-                id: 0
-            }} />
+            
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Typography variant="h6" align="left">
+                    New Trips
+                </Typography>
+                <Button 
+                    onClick={() => setShowNewPlaces(!showNewPlaces)}
+                    endIcon={showNewPlaces ? <ExpandLess /> : <ExpandMore />}
+                    size="small"
+                >
+                    {showNewPlaces ? 'Hide' : 'Show'}
+                </Button>
+            </Box>
+            <Collapse in={showNewPlaces}>
+                <NewPlaces />
+            </Collapse>
         </>
         </CenteredTemplate>
     );

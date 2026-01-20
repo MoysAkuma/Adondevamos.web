@@ -179,7 +179,6 @@ export const AuthProvider = ({ children }) => {
           setUserTag(storedTag);
           setLoading(false);
           resetSessionTimeout();
-          console.log('Auth valid (304) - Using stored values:', { storedUserId, storedRole, storedTag });
           return { success: true };
         }
       }
@@ -210,7 +209,6 @@ export const AuthProvider = ({ children }) => {
           setUserTag(backendTag);
           setLoading(false);
           resetSessionTimeout();
-          console.log('Auth successful (with backend data):', { backendUserId, backendRole, backendTag });
           return { success: true };
         } else {
           // Backend only confirms auth, use stored values
@@ -221,11 +219,11 @@ export const AuthProvider = ({ children }) => {
             setUserTag(storedTag);
             setLoading(false);
             resetSessionTimeout();
-            console.log('Auth successful (using stored data):', { storedUserId, storedRole, storedTag });
+            
             return { success: true };
           } else {
             // No stored data available
-            console.log('Authenticated but no user data available');
+            
             clearAllState();
             setLoading(false);
             return { success: false, message: 'No user data available' };
@@ -233,13 +231,13 @@ export const AuthProvider = ({ children }) => {
         }
       } else {
         // Backend says not authenticated, clear local storage
-        console.log('Backend says not authenticated, clearing state');
+        
         clearAllState();
         setLoading(false);
         return { success: false };
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
+      
       const errorMessage = error.response?.data?.message || error.message || 'Auth check failed';
       setAuthError(errorMessage);
       
@@ -302,8 +300,6 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('tag', userTag);
         localStorage.setItem('role', userRole);
         
-        console.log('Login successful - Stored values:', { userId, userTag, userRole });
-        
         // Update state
         setUser(userId);
         setUserTag(userTag);
@@ -318,7 +314,6 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
       return { success: false, message: 'Login failed' };
     } catch (error) {
-      console.error('Login failed:', error);
       const errorMessage = error.response?.data?.message || error.message || 'Login failed';
       setAuthError(errorMessage);
       setLoading(false);
@@ -338,7 +333,6 @@ export const AuthProvider = ({ children }) => {
         }
       );
     } catch (error) {
-      console.error('Logout API call failed:', error);
       // Continue with local logout even if API fails
     } finally {
       // Clear everything regardless of API response
@@ -356,7 +350,6 @@ export const AuthProvider = ({ children }) => {
   // Role-based access control helpers
   const hasRole = useCallback((requiredRole) => {
     if (!isLogged || !role) {
-      console.log('hasRole check:', { requiredRole, isLogged, role, result: false });
       return false;
     }
     
@@ -372,14 +365,7 @@ export const AuthProvider = ({ children }) => {
     const requiredRoleLevel = roleHierarchy[requiredRole.toLowerCase()] || 0;
     
     const result = userRoleLevel >= requiredRoleLevel;
-    console.log('hasRole check:', { 
-      requiredRole, 
-      role, 
-      userRoleLevel, 
-      requiredRoleLevel, 
-      result 
-    });
-    
+  
     return result;
   }, [isLogged, role]);
 

@@ -30,7 +30,7 @@ function NewTrips(){
     
     //getNewTrips
     const getNewTrips = async( item ) =>{
-        axios.get( URLsCatalogService.Trips + '/View/News' )
+        axios.get( URLsCatalogService.Trips + '/lasted/3' )
         .then(resp => {
             setNewTripsList(resp.data.info);
         })
@@ -43,22 +43,13 @@ function NewTrips(){
         mounted = false
       }
     }, []);
-
+    if( NewTripsList.length === 0 ) return (<CircularProgress />);
     return (<>
       <Paper
         elevation={1}
         sx={{ p : 2, borderRadius : 2, backgroundColor : "rgba(255, 255, 255, 0.9)"}}
       >
-        <Box sx={{ display : "flex", justifyContent: "space-between", mb : 1, alignItems : "center"}} >
-          <Typography variant="h6" component="h6" gutterBottom align="left">
-            New Trips!
-          </Typography>
-          <Typography variant="span" component="span" gutterBottom align="right">
-            Trips created by users like you
-          </Typography>
-          </Box>
-      </Paper>
-      <Stack spacing={2} 
+        <Stack spacing={2} 
       divider={<Divider />}
       sx={{ overflowX: 'auto', padding: 1, marginTop: 1 }}>
         {
@@ -71,6 +62,8 @@ function NewTrips(){
               </Typography>)
         }
         </Stack>
+      </Paper>
+      
     </>
     );
 }

@@ -11,14 +11,16 @@ import
     ButtonGroup,
     Collapse
 } from '@mui/material';
-import { Flight, Search, Person } from '@mui/icons-material';
+import { Flight, Search, Person, ExpandMore, ExpandLess } from '@mui/icons-material';
 import TripCard from "../Component/Trips/TripCard";
+import NewTrips from "../Component/Trips/NewTrips";
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 import { useAuth } from "../context/AuthContext";
 
  const MainTrips = () => {
     const { isLogged, loading, hasRole, role } = useAuth();
     const [UserSection, setUserSection] = useState(null);
+    const [showNewTrips, setShowNewTrips] = useState(true);
 
     const GenerateBottonSection = () => { 
         if( hasRole('admin') ) {
@@ -29,7 +31,6 @@ import { useAuth } from "../context/AuthContext";
                         variant="contained"
                         startIcon={ <Flight/> }
                         href="/Create/Trip" 
-                        disabled
                         >
                         Add new trip
                     </Button>
@@ -46,9 +47,8 @@ import { useAuth } from "../context/AuthContext";
                     <Button 
                         variant="contained" 
                         startIcon={ <Person/> }
-                        disabled
                         href="/login" >
-                        Login or Create account
+                        Login
                     </Button>
                     <Button variant="outlined"
                         endIcon={ <Search/> }
@@ -99,31 +99,6 @@ import { useAuth } from "../context/AuthContext";
                 <Typography variant="body1" align="right">
                     A trip is a list of places you want to visit with your friends.
                 </Typography>
-
-                <Box sx={{ backgroundColor: 'white', borderRadius: 2, boxShadow: 2 }}>
-                    <TripCard
-                        tripinfo={
-                            {
-                            name : "Trip Name Example",
-                            description : "Trip Description Example",
-                            owner : { tag: "User_Tag" },
-                            statics : { Votes: { Total : 0 } },
-                            initialdate : null,
-                            finaldate : null,
-                            id : 0,
-                            itinerary : [
-                                { 
-                                    id: 0, 
-                                    name: "Place Name Example", 
-                                    location: "Location 1",
-                                    initialdate : null,
-                                    finaldate : null,
-                                    Ubication : { Country : { acronym : "MX" } }
-                                }
-                            ],
-                        }}
-                    />
-                </Box>
                 
                 <Typography variant="h6" align="left">
                     Discover Trips
@@ -131,7 +106,21 @@ import { useAuth } from "../context/AuthContext";
                 <Typography variant="body1" align="right">
                     Explore trips created by other users and get inspired for your next adventure!
                 </Typography>
-                
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Typography variant="h6" align="left">
+                        New Trips
+                    </Typography>
+                    <Button 
+                        onClick={() => setShowNewTrips(!showNewTrips)}
+                        endIcon={showNewTrips ? <ExpandLess /> : <ExpandMore />}
+                        size="small"
+                    >
+                        {showNewTrips ? 'Hide' : 'Show'}
+                    </Button>
+                </Box>
+                <Collapse in={showNewTrips}>
+                    <NewTrips />
+                </Collapse>
             </Box>
         </>
         </CenteredTemplate>
