@@ -1,264 +1,337 @@
-import { useState, useEffect, use } from "react";
-import { Navigate, useNavigate, useLocation } from 'react-router-dom';
-import 
-  {
-    Avatar,
-    Typography,
-    Card,
-    CardHeader,
-    CardActions,
-    CardContent,
-    CardMedia,
-    IconButton,
-    Badge,
-    Collapse,
-    Tooltip,
-    Chip,
-    Divider
-  } from '@mui/material';
-import { CalendarToday, Visibility, FlightLand, 
-  FlightTakeoff, Place, Edit } 
-from "@mui/icons-material";
-
-import { red,grey, common } from '@mui/material/colors';
-import FavoriteIcon from '@mui/icons-material/Favorite';
-import ShareIcon from '@mui/icons-material/Share';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from 'react-router-dom';
+import {
+  Avatar,
+  Typography,
+  Card,
+  CardHeader,
+  CardActions,
+  CardContent,
+  CardMedia,
+  IconButton,
+  Badge,
+  Collapse,
+  Tooltip,
+  Chip,
+  Box,
+  Stack
+} from '@mui/material';
+import { 
+  CalendarToday, 
+  Visibility, 
+  FavoriteBorder,
+  Favorite,
+  Share,
+  ExpandMore,
+  ExpandLess
+} from "@mui/icons-material";
 import { styled } from '@mui/material/styles';
 import Itinerary from "./Itinerary/Itinerary";
-import { Stack } from "@mui/system";
-import utils from "../../Resources/utils";
 
-function TripCard (
-  {
-    tripinfo
-  }
-) 
-{
-    const ExpandMore = styled((props) => {
-      const { expand, ...other } = props;
-      return <IconButton {...other} />;
-    })
-    (({ theme }) => ({
-        marginLeft: 'auto',
-        transition: theme.transitions.create('transform', {
-        duration: theme.transitions.duration.shortest,
-      }),
-      variants: [
-        {
-          props: ({ expand }) => !expand,
-          style: {
-            transform: 'rotate(0deg)',
-          },
-        },
-        {
-          props: ({ expand }) => !!expand,
-          style: {
-            transform: 'rotate(180deg)',
-          },
-        },
-      ],
-    }));
-    const location = useLocation();
+// Styled components for clean, mobile-first design
+const StyledCard = styled(Card)(({ theme }) => ({
+  maxWidth: '100%',
+  borderRadius: 16,
+  boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+  transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+  '&:hover': {
+    transform: 'translateY(-4px)',
+    boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+  },
+  [theme.breakpoints.up('sm')]: {
+    maxWidth: 400,
+  },
+}));
 
-    const navigate = useNavigate();
+const StyledCardHeader = styled(CardHeader)(({ theme }) => ({
+  padding: theme.spacing(2),
+  [theme.breakpoints.up('sm')]: {
+    padding: theme.spacing(2.5),
+  },
+}));
 
-    const [expanded, setExpanded] = useState(false);
+const StyledCardMedia = styled(CardMedia)({
+  height: 200,
+  cursor: 'pointer',
+  objectFit: 'cover',
+  transition: 'opacity 0.3s ease',
+  '&:hover': {
+    opacity: 0.9,
+  },
+});
 
-    const [showSnackBar, setshowSnackBar] = useState(false);
+const StyledCardContent = styled(CardContent)(({ theme }) => ({
+  padding: theme.spacing(2),
+  [theme.breakpoints.up('sm')]: {
+    padding: theme.spacing(2.5),
+  },
+}));
 
-    const [acronyms, setAcronyms] = useState("");
+const StyledCardActions = styled(CardActions)(({ theme }) => ({
+  padding: theme.spacing(1, 2),
+  backgroundColor: '#fafafa',
+  borderTop: '1px solid #f0f0f0',
+}));
 
-    const[placeHolderImageJP, setPlaceHolderImageJP] = useState("/PlaceHolder_JP.jpg");
-    const[placeHolderImageMX, setPlaceHolderImageMX] = useState("/PlaceHolder_MX.jpg");
+const ExpandButton = styled(IconButton)(({ theme, expand }) => ({
+  transform: expand ? 'rotate(180deg)' : 'rotate(0deg)',
+  marginLeft: 'auto',
+  transition: theme.transitions.create('transform', {
+    duration: theme.transitions.duration.shortest,
+  }),
+}));
 
-    const handleExpandClick = () => {
-      setExpanded(!expanded);
-    };
+function TripCard({ tripinfo }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [expanded, setExpanded] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
 
-    const getFullURL = () => {
-      // For SPA with React Router
-      return window.location.origin + location.pathname + location.search;
-    };
+  const [placeHolderImageJP] = useState("/PlaceHolder_JP.jpg");
+  const [placeHolderImageMX] = useState("/PlaceHolder_MX.jpg");
 
-    const gotoViewTrip = (trip) => {
-      if( !trip.id ) return;
-      navigate('/View/Trip/' + trip.id);
-    };
+  const handleExpandClick = () => {
+    setExpanded(!expanded);
+  };
 
-    const gotoEditTrip = (trip) => {
-      if( !trip.id ) return; 
-      navigate('/Edit/Trip/' + trip.id);
-    };
+  const handleLikeClick = () => {
+    setIsLiked(!isLiked);
+    // Add your vote logic here
+  };
 
-    const getShareLocation = (id) => {
-        const url = getFullURL() + 'ViewTrip/' + id;
-        navigator.clipboard.writeText(url);
-        setshowSnackBar(true);
-    };
-  
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        return new Intl.DateTimeFormat('en-US', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric'
-        }).format(date);
-    };
 
-    const generateOptions = (creatorid) => {
-      return (
-        <>
-          <IconButton aria-label="view">
-            <Tooltip title="View Trip">
-              <Visibility 
-                onClick={ (x) => gotoViewTrip(tripinfo) } 
-                sx={{color: grey[500]}}
-              />
-            </Tooltip>
-          </IconButton>
-        </>
-      );
+  const getFullURL = () => {
+    return window.location.origin + location.pathname + location.search;
+  };
+
+  const gotoViewTrip = (trip) => {
+    if (!trip.id) return;
+    navigate('/View/Trip/' + trip.id);
+  };
+
+  const getShareLocation = (id) => {
+    const url = getFullURL() + 'ViewTrip/' + id;
+    navigator.clipboard.writeText(url);
+    // Show a toast notification here
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-US', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    }).format(date);
+  };
+
+  const getPlaceholderImage = () => {
+    if(tripinfo.gallery && tripinfo.gallery.length > 0) {
+      return tripinfo.gallery[0].completeurl;
     }
+    if (tripinfo.itinerary.length > 0) {
+      return tripinfo.itinerary[0].place.Country.acronym === "JP" 
+        ? placeHolderImageJP 
+        : placeHolderImageMX;
+    }
+    return placeHolderImageMX;
+  };
 
-    const generateSubHeader = (initialdate, finaldate) => {
-      return (
-        <>
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Tooltip title="Initial Date">
-              <CalendarToday 
-                fontSize="small"
-                sx={{ color: grey[500] }}
-              />
-            </Tooltip>
-            <Typography 
-              variant="body2" 
-              sx={{ color: grey[500] }}
+  // Get unique country acronyms
+  const uniqueCountries = [...new Set(
+    tripinfo.itinerary.map((x) => x.place.Country.acronym).filter(Boolean)
+  )];
+
+  return (
+    <StyledCard>
+      <StyledCardHeader
+        avatar={
+          <Avatar 
+            sx={{ 
+              bgcolor: '#6366f1',
+              width: 40,
+              height: 40,
+              fontSize: '1rem'
+            }}
+          >
+            {tripinfo.owner.tag[0]}
+          </Avatar>
+        }
+        action={
+          <Tooltip title="View Trip">
+            <IconButton 
+              aria-label="view" 
+              onClick={() => gotoViewTrip(tripinfo)}
+              size="small"
             >
-              { formatDate(initialdate) }
+              <Visibility />
+            </IconButton>
+          </Tooltip>
+        }
+        title={
+          <Typography 
+            variant="h6" 
+            component="h2"
+            sx={{ 
+              fontSize: { xs: '1rem', sm: '1.125rem' },
+              fontWeight: 600,
+              color: '#1f2937'
+            }}
+          >
+            {tripinfo.name}
+          </Typography>
+        }
+        subheader={
+          <Stack 
+            direction="row" 
+            spacing={0.5} 
+            alignItems="center"
+            flexWrap="wrap"
+            sx={{ mt: 0.5 }}
+          >
+            <CalendarToday sx={{ fontSize: 14, color: '#6b7280' }} />
+            <Typography 
+              variant="caption" 
+              sx={{ color: '#6b7280', fontSize: '0.75rem' }}
+            >
+              {formatDate(tripinfo.initialdate)}
             </Typography>
-            <Tooltip title="Final Date">
-              <CalendarToday 
-                fontSize="small"
-                sx={{ color: grey[500] }}
-              />
-            </Tooltip>
+            <Typography variant="caption" sx={{ color: '#6b7280', mx: 0.5 }}>
+              •
+            </Typography>
             <Typography 
-              variant="body2" 
-              sx={{ color: grey[500] }}
+              variant="caption" 
+              sx={{ color: '#6b7280', fontSize: '0.75rem' }}
             >
-              { formatDate(finaldate) }
+              {formatDate(tripinfo.finaldate)}
             </Typography>
           </Stack>
-        </>
-      );
-    }
+        }
+      />
 
-    const handleCloseSnackBarShare= () => {
-      setshowSnackBar(false);
-    };
+      <StyledCardMedia
+        component="img"
+        image={getPlaceholderImage()}
+        alt="Trip image"
+        onClick={() => gotoViewTrip(tripinfo)}
+      />
 
+      <StyledCardContent>
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            color: '#4b5563',
+            lineHeight: 1.6,
+            mb: 2,
+            display: '-webkit-box',
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden'
+          }}
+        >
+          {tripinfo.description}
+        </Typography>
 
-    useEffect( ()=>{
-      
-    }, [tripinfo]);
-    return(
-        <Card>
-          <CardHeader
-            sx={{ bgcolor: "#184029", 
-                  '& .MuiCardHeader-title': { color: '#ffffffff' },
-                  '& .MuiCardHeader-subheader': { color: '#d0d0d0ff' }
-            }}
-            avatar={
-              <Avatar sx={{ bgcolor: "#6934BF" }} aria-label="creator">
-                {tripinfo.owner.tag[0]}
-              </Avatar>
-            }
-            action={generateOptions(tripinfo.owner.id)}
-            title={tripinfo.name}
-            subheader={generateSubHeader(tripinfo.initialdate, tripinfo.finaldate)}
-          />
-          <CardMedia
-            component="img"
-            image={tripinfo.itinerary.length > 0 ? tripinfo.itinerary[0].Ubication.Country.acronym == "JP" ? placeHolderImageJP : placeHolderImageMX : placeHolderImageMX}
-            height="140"
-            alt="Trip image"
-            onClick={ (x) => gotoViewTrip(tripinfo) }
-            sx={{ cursor: 'pointer' }} 
-            object-fit="cover"
-          />
-          <CardContent
-          sx={{ bgcolor: "#F9E1D4" }}
+        {uniqueCountries.length > 0 && (
+          <Stack 
+            direction="row" 
+            spacing={1} 
+            flexWrap="wrap"
+            gap={0.5}
           >
-            <Typography component="b" sx={{ color: '#000000ff' }}>
-              {
-                tripinfo.description
-              }
-            </Typography>
-
-            <Divider sx={{ marginTop: '5px', marginBottom: '5px' }}/>
-            
-            <Stack direction="row" spacing={1} alignItems="right">
-              {
-                tripinfo.itinerary
-                  .map((x) => x.Ubication.Country.acronym || "")
-                  .map((acronym, index) => 
-                    <Chip  
-                      key={`${acronym}-${index}`}
-                      variant="outlined"
-                      size="small"
-                      label={acronym}  
-                    />
-                  )
-              }
-            </Stack>
-          </CardContent>
-          <CardActions disableSpacing 
-            sx={{ bgcolor: "#C9C1F8" }}>
-            <Tooltip title="Vote Trip not implemented yet">
-              <IconButton aria-label="vote">
-                <Badge 
-                  color="secondary" 
-                  badgeContent={tripinfo.statics.Votes.Total} max={999}>
-                  <FavoriteIcon />
-                </Badge>
-              </IconButton>
-            </Tooltip>
-            <IconButton aria-label="share">
-              <ShareIcon
-                onClick={ (x) => getShareLocation(tripinfo.id)  }
+            {uniqueCountries.map((acronym, index) => (
+              <Chip
+                key={`${acronym}-${index}`}
+                label={acronym}
+                size="small"
+                sx={{
+                  bgcolor: '#f3f4f6',
+                  color: '#374151',
+                  fontWeight: 500,
+                  fontSize: '0.75rem',
+                  height: 24,
+                  '&:hover': {
+                    bgcolor: '#e5e7eb',
+                  }
+                }}
               />
-            </IconButton>
-            
-            <ExpandMore
-              expand={expanded}
-              onClick={handleExpandClick}
-              aria-expanded={expanded}
-              aria-label="show more"
-              sx={{ marginLeft: 'auto' }}
+            ))}
+          </Stack>
+        )}
+      </StyledCardContent>
+
+      <StyledCardActions disableSpacing>
+        <Tooltip title={isLiked ? "Unlike" : "Like"}>
+          <IconButton 
+            aria-label="vote" 
+            onClick={handleLikeClick}
+            size="small"
+          >
+            <Badge 
+              badgeContent={tripinfo.statics.Votes.Total} 
+              max={999}
+              color="error"
             >
-              { expanded ? <ExpandLessIcon /> : <ExpandMoreIcon /> }
-            </ExpandMore>
-          </CardActions>
-          <Collapse in={expanded} timeout="auto" unmountOnExit>
-            <CardContent sx={{ bgcolor: "#edeba6ff" }}>
-              <Typography gutterBottom component="p" >
-                Itinerary
-              </Typography>
-              {
-                (tripinfo.itinerary.length == 0) ?
-                <Typography component="p" sx={{ color: 'text.secondary' }}>
-                No places added yet.
-                </Typography>
-                : 
-                <Itinerary 
-                  tripinfo={tripinfo} 
-                />
-                }
-              </CardContent>
-            </Collapse>
-      </Card>
-    );
+              {isLiked ? (
+                <Favorite sx={{ color: '#ef4444' }} />
+              ) : (
+                <FavoriteBorder />
+              )}
+            </Badge>
+          </IconButton>
+        </Tooltip>
+
+        <Tooltip title="Share">
+          <IconButton 
+            aria-label="share" 
+            onClick={() => getShareLocation(tripinfo.id)}
+            size="small"
+          >
+            <Share />
+          </IconButton>
+        </Tooltip>
+
+        <ExpandButton
+          expand={expanded}
+          onClick={handleExpandClick}
+          aria-expanded={expanded}
+          aria-label="show more"
+          size="small"
+        >
+          {expanded ? <ExpandLess /> : <ExpandMore />}
+        </ExpandButton>
+      </StyledCardActions>
+
+      <Collapse in={expanded} timeout="auto" unmountOnExit>
+        <CardContent 
+          sx={{ 
+            bgcolor: '#fafafa',
+            borderTop: '1px solid #f0f0f0',
+            p: 2
+          }}
+        >
+          <Typography 
+            variant="subtitle2" 
+            sx={{ 
+              fontWeight: 600, 
+              color: '#1f2937',
+              mb: 1.5 
+            }}
+          >
+            Itinerary
+          </Typography>
+          {tripinfo.itinerary.length === 0 ? (
+            <Typography 
+              variant="body2" 
+              sx={{ color: '#9ca3af', fontStyle: 'italic' }}
+            >
+              No places added yet.
+            </Typography>
+          ) : (
+            <Itinerary tripinfo={tripinfo} />
+          )}
+        </CardContent>
+      </Collapse>
+    </StyledCard>
+  );
 }
 export default TripCard;

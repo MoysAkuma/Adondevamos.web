@@ -27,13 +27,12 @@ import ImageCarousel from "../Commons/ImageCarousel";
 function ViewPlace(){
     //Get id
     const { id } = useParams();
-    const { isLogged, user, loading: authLoading, role } = useAuth();
+    const { isLogged, user, loading: authLoading, role, hasRole } = useAuth();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [placeInfo, setPlaceInfo] = useState(null);
     const [liked, setLiked] = useState(false);
-    const [isAdmin, setIsAdmin] = useState(false);
 
     //URLS
     const URLsCatalogService = {
@@ -154,8 +153,6 @@ function ViewPlace(){
                 width: '100%'
             }}
         >
-            
-            
             <Typography variant="h4" component="h4" align="center">
                 {
                     placeInfo.name
@@ -295,7 +292,7 @@ function ViewPlace(){
                 </Tooltip>
                 
                 {
-                role == "Admin" && (
+                hasRole('admin') && (
                     <Tooltip title="Edit trip">
                         <IconButton 
                             color="primary"

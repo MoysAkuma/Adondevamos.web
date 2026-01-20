@@ -28,29 +28,29 @@ import {
 
 function Itinerary ({
     tripinfo = {
-        itinerary : [
-        { 
-            place : {
-                id : 0,
-                name : "Place Name",
-                Country: {
-                    id: 0,
-                    name: "Country Name",
-                    acronym: "CN"
-                },
-                State : {
-                    id: 0,
-                    name: "State Name"
-                },
-                City:{
-                    id: 0,
-                    name: "City Name"
+        itinerary: [
+                {
+                    "initialdate": "2025-09-21",
+                    "finaldate": "2025-09-21",
+                    "place": {
+                        "id": 10,
+                        "name": "Playa gaviotas",
+                        "Country": {
+                            "id": 1,
+                            "name": "Mexico",
+                            "acronym": "MX"
+                        },
+                        "State": {
+                            "id": 1,
+                            "name": "Sinaloa"
+                        },
+                        "City": {
+                            "id": 7,
+                            "name": "Mazatlan"
+                        }
+                    }
                 }
-            },
-            initialdate : "2024-03-23",
-            finaldate : "2025-02-17"
-        }
-        ]
+            ],
     },
     callBackView = function(item){}
 })
@@ -182,7 +182,7 @@ function Itinerary ({
                                     primary={
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                             <Typography variant="subtitle1" fontWeight={600}>
-                                                {visit.name}
+                                                {visit.place.name}
                                             </Typography>
                                             {days && (
                                                 <Chip 
