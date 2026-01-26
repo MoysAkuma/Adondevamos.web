@@ -73,7 +73,9 @@ const StyledCardActions = styled(CardActions)(({ theme }) => ({
   borderTop: '1px solid #f0f0f0',
 }));
 
-const ExpandButton = styled(IconButton)(({ theme, expand }) => ({
+const ExpandButton = styled(IconButton, {
+  shouldForwardProp: (prop) => prop !== 'expand',
+})(({ theme, expand }) => ({
   transform: expand ? 'rotate(180deg)' : 'rotate(0deg)',
   marginLeft: 'auto',
   transition: theme.transitions.create('transform', {
@@ -109,11 +111,18 @@ function TripCard({ tripinfo }) {
     navigate('/View/Trip/' + trip.id);
   };
 
+  const goToViewPlace = (placeId) => {
+    console.log('Navigating to place with ID:', placeId);
+    if (!placeId) return;
+    navigate('/View/Place/' + placeId);
+  };
+
   const getShareLocation = (id) => {
     const url = getFullURL() + 'ViewTrip/' + id;
     navigator.clipboard.writeText(url);
     // Show a toast notification here
   };
+
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -140,6 +149,12 @@ function TripCard({ tripinfo }) {
   const uniqueCountries = [...new Set(
     tripinfo.itinerary.map((x) => x.place.Country.acronym).filter(Boolean)
   )];
+
+  //get locations name from itinerary
+  const locations =  [...new Set(
+     tripinfo.itinerary.map((item) => `${item.place.City.name},${item.place.State.name},${item.place.Country.name}`)
+  )];
+
 
   return (
     <StyledCard>
@@ -257,6 +272,36 @@ function TripCard({ tripinfo }) {
             ))}
           </Stack>
         )}
+        {
+          locations.length > 0 && (
+            <Box sx={{ mt: 2 }}>
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  fontWeight: 600,
+                  color: '#1f2937',
+                  mb: 1
+                }}
+              >
+                Locations
+              </Typography>
+              <Stack 
+                direction="column" 
+                spacing={0.5}
+              >
+                {locations.map((loc, index) => (
+                  <Typography
+                    key={`loc-${index}`}
+                    variant="body2"
+                    sx={{ color: '#6b7280', fontSize: '0.875rem' }}
+                  >
+                    {loc} 
+                  </Typography>
+                ))}
+              </Stack>
+            </Box>
+          )
+        }
       </StyledCardContent>
 
       <StyledCardActions disableSpacing>
@@ -327,7 +372,9 @@ function TripCard({ tripinfo }) {
               No places added yet.
             </Typography>
           ) : (
-            <Itinerary tripinfo={tripinfo} />
+            <Itinerary tripinfo={tripinfo}
+            callBackView={goToViewPlace}
+             />
           )}
         </CardContent>
       </Collapse>

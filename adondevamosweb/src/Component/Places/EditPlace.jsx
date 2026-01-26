@@ -24,6 +24,7 @@ import LocationPicker from '../Commons/LocationPicker';
 import config from "../../Resources/config";
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from "../../context/AuthContext";
+import GalleryListManager from '../Commons/GalleryListManager';
 
 function EditPlace({
     catCountries,
@@ -248,7 +249,7 @@ function EditPlace({
       facilityid: Number(key),
       value: checkedFacilities[key]
     }));
-    console.log("Facilities to save:", checkedFacilitiesToSave);
+    
     const formSaveFacilities = {  
       Facilities: checkedFacilitiesToSave
     };
@@ -263,6 +264,25 @@ function EditPlace({
         console.error("Error updating facilities");
         setMessageSnack("Error updating facilities.");
       });
+  };
+
+  const removePhoto = async (item) => {
+    try {
+      const response = await axios.delete(
+        URLsCatalogService.Places + '/' + id + '/Images/' + item.id
+      );
+      if (response.status === 200 || response.status === 204) {
+        setMessageSnack("Photo was removed from gallery.");
+        // Update originalPlace state to reflect removal
+        setOriginalPlace(prev => ({
+          ...prev,
+          gallery: prev.gallery.filter(img => img.id !== item.id)
+        }));
+      }
+    } catch (error) {
+      setMessageSnack(`Error removing photo: ${error.message}`);
+      console.error('Error removing photo from gallery:', error);
+    }
   };
 
   // Add photos to gallery
@@ -504,7 +524,9 @@ function EditPlace({
           ) : <>Please, select a state.<br/></>
         }
 
-        <Typography variant="h6" component="h6" gutterBottom align="left">
+        <Typography variant="h6" 
+        component="h6" 
+        gutterBottom align="left">
           Map Location
         </Typography>
 
@@ -514,8 +536,8 @@ function EditPlace({
           onChange={(lat, lng) => {
             setFormEditPlace(prev => ({
               ...prev,
-              latitude: lat,
-              longitude: lng
+              latitude: parseFloat(lat),
+              longitude: parseFloat(lng)
             }));
           }}
           zoom={13}
@@ -547,6 +569,12 @@ function EditPlace({
         <Typography variant="h6" component="h6" gutterBottom align="left">
           Gallery
         </Typography>
+
+
+        <GalleryListManager 
+          items={originalPlace?.gallery || []} 
+          onRemove={removePhoto}
+        />
 
         <ImageUploader
           images={addedImages || []}

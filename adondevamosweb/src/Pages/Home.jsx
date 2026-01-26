@@ -20,6 +20,7 @@ import {
   WhereToVote
 } from '@mui/icons-material';
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
+import MushaShugyo from '../Component/Trips/MushaShugyo';
 
 const StepCard = ({ icon: Icon, title, subtitle }) => (
   <Paper
@@ -127,6 +128,11 @@ function Home() {
             />
           </Grid>
         </Grid>
+        <Typography variant="body1" 
+        align="left" sx={{ mt: 2, mb: 2 }}>
+          The trip that changed my life and main reason to create AdondeVamos
+        </Typography>
+        <MushaShugyo />
 
         
       </Box>

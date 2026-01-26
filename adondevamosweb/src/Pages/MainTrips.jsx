@@ -22,47 +22,43 @@ import { useAuth } from "../context/AuthContext";
     const [UserSection, setUserSection] = useState(null);
     const [showNewTrips, setShowNewTrips] = useState(true);
 
-    const GenerateBottonSection = () => { 
-        if( hasRole('admin') ) {
+    const generateUserSection = () => {
+        if (hasRole('user')) {
             return (
                 <>
-                    
-                    <Button 
-                        variant="contained"
-                        startIcon={ <Flight/> }
-                        href="/Create/Trip" 
-                        >
-                        Add new trip
-                    </Button>
-                    <Button variant="outlined"
-                        endIcon={ <Search/> }
-                        href="/Search/Trips" >
-                        Search for trips
-                    </Button>
-                </>
-            );
-        } else {
-            return (
-                <>  
-                    <Button 
-                        variant="contained" 
-                        startIcon={ <Person/> }
-                        href="/login" >
-                        Login
-                    </Button>
-                    <Button variant="outlined"
-                        endIcon={ <Search/> }
-                        href="/Search/Trips" >
-                        Search for trips
-                    </Button>
+                    <Typography variant="h6" align="left">
+                    See your Trips
+                    </Typography>
+                    <Box sx={{ display: 'flex', 
+                    justifyContent: 'flex-end', mt: 2, mb: 2 }}>
+                        <Button
+                            variant="contained"
+                            endIcon={ <Person/> }
+                            size="small"
+                            href="/My/Trips" >
+                            My Trips
+                        </Button>   
+                    </Box>
+                    <Typography variant="h6" align="left">
+                    Create a New Trip
+                    </Typography>
+                    <Box sx={{ display: 'flex',
+                    justifyContent: 'flex-end', mt: 2, mb: 2 }}>
+                        <Button 
+                            variant="contained"
+                            endIcon={ <Flight/> }
+                            size="small"
+                            href="/New/Trip" >
+                            New Trip
+                        </Button>   
+                    </Box>
                 </>
             );
         }
     }
-
     useEffect(()=> {
         if (!loading) {
-            setUserSection(GenerateBottonSection());
+           
         }
     },[loading]);
 
@@ -84,15 +80,6 @@ import { useAuth } from "../context/AuthContext";
                 width: '100%'
                 }}
             >
-                <ButtonGroup 
-                    variant="contained" 
-                    color="primary" 
-                    fullWidth sx={{ mt: 2, mb: 4 }}>
-                        {
-                           UserSection
-                        }
-                </ButtonGroup>
-            
                 <Typography variant="h6" align="left">
                     What is a Trip in AdondeVamos?
                 </Typography>
@@ -106,6 +93,24 @@ import { useAuth } from "../context/AuthContext";
                 <Typography variant="body1" align="right">
                     Explore trips created by other users and get inspired for your next adventure!
                 </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, mb: 2 }}>
+                        <Button 
+                            variant="outlined"
+                            endIcon={ <Search/> }
+                            size="small"
+                            href="/Search/Trips" >
+                            Search for trips
+                        </Button>
+                </Box>
+
+                {
+                    hasRole('user') &&
+                    (
+                        generateUserSection()
+                    )
+                }
+                
+
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Typography variant="h6" align="left">
                         New Trips
