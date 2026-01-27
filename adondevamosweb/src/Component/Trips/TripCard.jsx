@@ -286,17 +286,27 @@ function TripCard({ tripinfo }) {
                 Locations
               </Typography>
               <Stack 
-                direction="column" 
-                spacing={0.5}
+                direction="row" 
+                spacing={1}
+                flexWrap="wrap"
+                gap={0.5}
               >
                 {locations.map((loc, index) => (
-                  <Typography
+                  <Chip
                     key={`loc-${index}`}
-                    variant="body2"
-                    sx={{ color: '#6b7280', fontSize: '0.875rem' }}
-                  >
-                    {loc} 
-                  </Typography>
+                    label={loc}
+                    size="small"
+                    sx={{
+                      bgcolor: '#f3f4f6',
+                      color: '#374151',
+                      fontWeight: 500,
+                      fontSize: '0.75rem',
+                      height: 24,
+                      '&:hover': {
+                        bgcolor: '#e5e7eb',
+                      }
+                    }}
+                  />
                 ))}
               </Stack>
             </Box>
