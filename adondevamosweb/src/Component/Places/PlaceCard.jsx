@@ -24,6 +24,7 @@ import {
   LocationOn
 } from "@mui/icons-material";
 import { styled } from '@mui/material/styles';
+import MapView from "../Commons/MapView";
 
 // Styled components for clean, mobile-first design
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -273,12 +274,17 @@ function PlaceCard({ placeinfo }) {
             p: 2
           }}
         >
-          <Typography
-            variant="body2"
-            sx={{ color: '#6b7280', fontStyle: 'italic' }}
-          >
-            Additional details coming soon...
-          </Typography>
+           <MapView
+            height={300}
+            latitude={ parseFloat(placeinfo?.latitude) || 0}
+            longitude={parseFloat(placeinfo?.longitude) || 0}
+            markers={[{
+              latitude: parseFloat(placeinfo?.latitude) || 0,
+              longitude: parseFloat(placeinfo?.longitude) || 0,
+              title: placeName,
+            }]}
+          />
+          
         </CardContent>
       </Collapse>
     </StyledCard>

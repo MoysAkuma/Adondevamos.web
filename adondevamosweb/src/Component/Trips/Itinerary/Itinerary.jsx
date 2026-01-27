@@ -89,33 +89,12 @@ function Itinerary ({
         
         return (
             <Box sx={{ display: 'flex', gap: 0.5 }}>
-                {index != 0 && (
-                    <IconButton 
-                        edge="end" 
-                        aria-label="move up" 
-                        size="small"
-                        color="primary"
-                    >
-                        <ArrowCircleUp />
-                    </IconButton>
-                )}
-
-                {index != (tripinfo.itinerary.length - 1) && (
-                    <IconButton 
-                        edge="end" 
-                        aria-label="move down" 
-                        size="small"
-                        color="primary"
-                    >
-                        <ArrowCircleDown />
-                    </IconButton>
-                )}
                 
                 <IconButton 
                     edge="end" 
                     aria-label="view" 
                     size="small"
-                    onClick={() => callBackView(visit.id)}
+                    onClick={() => callBackView(visit.place.id)}
                 >
                     <Visibility />
                 </IconButton>
@@ -155,7 +134,7 @@ function Itinerary ({
                     const days = calculateDays(visit.initialdate, visit.finaldate);
                     
                     return (
-                        <Box key={visit.id}>
+                        <Box key={visit.place.id}>
                             <ListItem
                                 sx={{
                                     py: 2,

@@ -46,6 +46,10 @@ function ViewTrip(){
         }
     );
 
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     useEffect(()=> {
         const fetchTrip = async () => {
             if(!id) {

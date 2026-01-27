@@ -25,7 +25,7 @@ function NewPlaces() {
         axios.get( placesURL )
         .then(resp => {
             setNewPlacesList(resp.data.info);
-            console.log(resp.data.info);
+            setIsLoading(false);
         }
         )
         .catch(error => console.error("Error getting last created places"));
@@ -37,7 +37,7 @@ function NewPlaces() {
         mounted = false
       }
     }, []);
-    if( NewPlacesList.length === 0 ) return (<CircularProgress />);
+    if( isLoading ) return (<CircularProgress />);
     return (
         <>
         <Paper

@@ -23,6 +23,7 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom';
 import FormTrips from './FormTrips';
 import { useAuth } from "../../context/AuthContext";
 import ImageUploader from '../Commons/ImageUploader';
+import GalleryListManager from '../Commons/GalleryListManager';
 
 function EditTrip(){
     const { isLogged, loading } = useAuth();
@@ -74,7 +75,7 @@ function EditTrip(){
     // UI state
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitSuccess, setSubmitSuccess] = useState(false);
-    const [messageSnack, setMessageStack] = useState('');
+    const [messageSnack, setMessageSnack] = useState('');
     //update request
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -125,26 +126,26 @@ function EditTrip(){
 
       if(response.status == 201 
         || response.status == 200){
-        setMessageStack("Trip info was updated.");
+        setMessageSnack("Trip info was updated.");
       } 
 
       // Handle success
       setSubmitSuccess(true);
     
     } catch (error) {
-      setMessageStack(`Error updating trip: ${error.message}`);
+      setMessageSnack(`Error updating trip: ${error.message}`);
       console.error('Error updating trip:', error);
     } finally {
       setIsSubmitting(false);
       //compare original trip with form trip and save changes
       if ( JSON.stringify(originalTrip.itinerary) 
         != JSON.stringify(formTrip.itinerary) ){
-        setMessageStack("Saving itinerary...");
+        setMessageSnack("Saving itinerary...");
         saveItinerary();
       }
       if ( JSON.stringify(originalTrip.members) 
         != JSON.stringify(formTrip.members) ){
-        setMessageStack("Saving member list...");
+        setMessageSnack("Saving member list...");
         saveMemberlist();
       }
       if (addedImages.length > 0 ){
@@ -172,7 +173,7 @@ function EditTrip(){
         axios.put(
           URLsCatalogService.Trips +'/' + id+ '/Members', rq)
         .then(resp => {
-            setMessageStack("Member list was saved.");
+            setMessageSnack("Member list was saved.");
         })
         .catch(error => console.error("Error getting catalogue of countries"));
     };
@@ -191,7 +192,7 @@ function EditTrip(){
 
         axios.put(URLsCatalogService.Trips+'/' + id + '/Itinerary', rq )
         .then(resp => {
-            setMessageStack("Itinerary was saved.");
+            setMessageSnack("Itinerary was saved.");
         })
         .catch(error => console.error("Error getting catalogue of countries"));
     };
@@ -276,10 +277,10 @@ function EditTrip(){
         );
         
         if (response.status === 200 || response.status === 201) {
-          setMessageStack("Photos were added to gallery.");
+          setMessageSnack("Photos were added to gallery.");
         }
       } catch (error) {
-        setMessageStack(`Error adding photos: ${error.message}`);
+        setMessageSnack(`Error adding photos: ${error.message}`);
         console.error('Error adding photos to gallery:', error);
       }
     };
@@ -321,6 +322,25 @@ function EditTrip(){
         setFormTrip( prev => ({...prev, itinerary : filteredList } ));
     } 
   }
+
+  const removePhoto = async (item) => {
+    try {
+      const response = await axios.delete(
+        URLsCatalogService.Trips + '/' + id + '/Images/' + item.id
+      );
+      if (response.status === 200 || response.status === 204) {
+        setMessageSnack("Photo was removed from gallery.");
+        // Update originalPlace state to reflect removal
+        setOriginalTrip(prev => ({
+          ...prev,
+          gallery: prev.gallery.filter(img => img.id !== item.id)
+        }));
+      }
+    } catch (error) {
+      setMessageSnack(`Error removing photo: ${error.message}`);
+      console.error('Error removing photo from gallery:', error);
+    }
+  };
 
   const handleUserAdd = (item) => {debugger
     console.log("Adding user to member list:", item);
@@ -464,6 +484,11 @@ const handleRemoveUser = (event) => {
             onRemoveMember={handleRemoveUser}
             onResetMembers={resetMembers}
             showDuplicateError={errors.duplicateduser}
+          />
+
+          <GalleryListManager
+            items={originalTrip && originalTrip.gallery ? originalTrip.gallery : []}
+            onRemove={removePhoto}
           />
 
           <ImageUploader
