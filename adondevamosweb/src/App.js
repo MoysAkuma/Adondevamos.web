@@ -13,6 +13,7 @@ import Profile from "./Pages/Profile";
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from "./Component/Commons/ProtectedRoute";
 import SessionWarning from "./Component/Commons/SessionWarning";
+import MVPBanner from "./Component/Commons/MVPBanner";
 import { Navigate } from 'react-router-dom';
 import AppBar from "./Component/Commons/AppBar";
 
@@ -20,6 +21,7 @@ function AppContent() {
   
   return (
     <>
+      <MVPBanner />
       <AppBar/>
       <SessionWarning />
         <Routes>

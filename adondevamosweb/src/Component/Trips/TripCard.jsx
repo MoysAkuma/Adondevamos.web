@@ -187,7 +187,8 @@ function TripCard({ tripinfo }) {
             variant="h6" 
             component="h2"
             sx={{ 
-              fontSize: { xs: '1rem', sm: '1.125rem' },
+              fontSize: { xs: '.9rem', sm: '1rem' },
+              fontFamily: "'Press Start 2P', cursive",
               fontWeight: 600,
               color: '#1f2937'
             }}
@@ -240,7 +241,9 @@ function TripCard({ tripinfo }) {
             display: '-webkit-box',
             WebkitLineClamp: 3,
             WebkitBoxOrient: 'vertical',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            fontSize: { xs: '.6rem', sm: '0.7rem' },
+            fontFamily: "'Press Start 2P', cursive"
           }}
         >
           {tripinfo.description}

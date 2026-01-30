@@ -25,7 +25,7 @@ export default function AppBarComp() {
 
     return (
         <>
-        <AppBar position="fixed" color="default" sx={{ mb: 2 }}>
+        <AppBar position="fixed" color="default" sx={{ mb: 2, top: '48px' }}>
             <Container maxWidth="lg">
                 <Toolbar disableGutters>
                     <NotListedLocation sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />

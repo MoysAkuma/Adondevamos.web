@@ -86,7 +86,8 @@ const FormUser = ({
 
     return (
         <>
-            <Typography variant="h6" component="h1" gutterBottom align="center">
+            <Typography variant="h6" 
+            component="h1" gutterBottom align="center" sx={{ fontFamily: "'Press Start 2P', cursive" }}>
                 Unique as You
             </Typography>
             { 
@@ -168,7 +169,10 @@ const FormUser = ({
                         </Alert>) :
                         <></>
                 }
-                <Typography variant="h6" component="h1" gutterBottom align="center">
+                <Typography variant="h6" 
+                component="h1" 
+                gutterBottom align="center" 
+                sx={{ fontFamily: "'Press Start 2P', cursive" }}>
                     Security
                 </Typography>
 
@@ -221,7 +225,9 @@ const FormUser = ({
 
             
 
-            <Typography variant="h6" component="h1" gutterBottom align="center">
+            <Typography variant="h6" 
+            component="h1" gutterBottom 
+            align="center" sx={{ fontFamily: "'Press Start 2P', cursive" }}>
                 Your name
             </Typography>
             <TextField

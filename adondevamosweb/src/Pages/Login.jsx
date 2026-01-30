@@ -13,10 +13,11 @@ import
         InputAdornment,
         IconButton,
         Alert,
-        AlertTitle
+        AlertTitle,
+        Divider
     } from '@mui/material';
 
-import {  Visibility, VisibilityOff, AccountCircle, PersonAdd } from '@mui/icons-material';
+import {  Visibility, VisibilityOff, AccountCircle, PersonAdd, Gamepad } from '@mui/icons-material';
 import LoginIcon  from '@mui/icons-material/Login';
 import { useAuth }  from '../context/AuthContext'
 
@@ -129,51 +130,80 @@ function Login(){
     return (
         <CenteredTemplate>
             <>
-                <Typography variant={isMobile ? "h3" : "h4"} gutterBottom align="center">
-                    AdondeVamos
+                <Typography 
+                    variant={isMobile ? "h4" : "h3"} 
+                    align="center"
+                    sx={{
+                        fontFamily: "'Press Start 2P', cursive",
+                        color: '#2c3e50',
+                        fontSize: isMobile ? '1.2rem' : '1.5rem',
+                        lineHeight: 1.6,
+                        mb: 1,
+                        textShadow: '2px 2px 0px rgba(0,0,0,0.1)'
+                    }}
+                >
+                    AdondeVamos.net
                 </Typography>
+
+                <Divider sx={{ width: '100%', mb: 3 }} />
                 
                 <Box
                     component="form"
                     onSubmit={handleSubmit}
-                    sx={
-                        {
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 3,
-                            width: '100%',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                        }
-                    }
+                    sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 2.5,
+                        width: '100%',
+                    }}
                 >
-                    <Typography variant={ "h4" } gutterBottom align="center">
-                        Log in
-                    </Typography>
+                    <Box sx={{ textAlign: 'center', mb: 1 }}>
+                        <Typography 
+                            variant="h5" 
+                            sx={{
+                                fontFamily: "'Press Start 2P', cursive",
+                                fontSize: isMobile ? '0.9rem' : '1.1rem',
+                                color: '#34495e',
+                                lineHeight: 1.6
+                            }}
+                        >
+                            Log in
+                        </Typography>
+                    </Box>
                     
+
                     <TextField
                         id="email"
                         name="email"
-                        label="Email"
-                        placeholder="Email or Tag"
-                        variant="standard"
+                        label="Email or Tag"
+                        placeholder="Enter your email or tag"
+                        variant="outlined"
                         onChange={handleChange}
-                        size={ isMobile ? 'small' : 'medium' }
+                        size={isMobile ? 'small' : 'medium'}
                         value={formLogIn.email}
                         fullWidth
                         required
-                        InputLabelProps={{
-                                shrink: true,
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                borderRadius: 2,
+                                backgroundColor: 'rgba(255,255,255,0.9)',
+                                '&:hover fieldset': {
+                                    borderColor: '#3498db',
+                                },
+                                '&.Mui-focused fieldset': {
+                                    borderColor: '#2980b9',
+                                    borderWidth: 2
+                                }
+                            },
+                            '& .MuiInputLabel-root': {
+                                fontWeight: 500
+                            }
                         }}
                         slotProps={{
                             input: {
                                 endAdornment: (
                                     <InputAdornment position="end">
-                                        <IconButton
-                                            edge="end"
-                                        >
-                                        { <AccountCircle /> }
-                                        </IconButton>
+                                        <AccountCircle sx={{ color: '#95a5a6' }} />
                                     </InputAdornment>
                                 )
                             }
@@ -185,13 +215,29 @@ function Login(){
                         name="password"
                         label="Password"
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="Password"
-                        variant="standard"
+                        placeholder="Enter your password"
+                        variant="outlined"
                         onChange={handleChange}
                         size={isMobile ? 'small' : 'medium'}
                         value={formLogIn.password}
                         fullWidth
                         required
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                borderRadius: 2,
+                                backgroundColor: 'rgba(255,255,255,0.9)',
+                                '&:hover fieldset': {
+                                    borderColor: '#3498db',
+                                },
+                                '&.Mui-focused fieldset': {
+                                    borderColor: '#2980b9',
+                                    borderWidth: 2
+                                }
+                            },
+                            '& .MuiInputLabel-root': {
+                                fontWeight: 500
+                            }
+                        }}
                         slotProps={{
                             input: {
                                 endAdornment: (
@@ -203,45 +249,94 @@ function Login(){
                                             onClick={handleClickShowPassword}
                                             edge="end"
                                         >
-                                        {showPassword ? <VisibilityOff /> : <Visibility />}
-                                    </IconButton>
-                                </InputAdornment>
+                                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                                        </IconButton>
+                                    </InputAdornment>
                                 )
                             }
                         }}
                     />
+
                     {
-                        errors.login ? 
-                        (<>
-                            <Alert severity="error">
-                            <AlertTitle>Login failed! </AlertTitle>
-                            Credentials not valid
+                        errors.login && (
+                            <Alert 
+                                severity="error"
+                                sx={{ 
+                                    borderRadius: 2,
+                                    fontWeight: 500 
+                                }}
+                            >
+                                <AlertTitle sx={{ fontWeight: 600 }}>Login Failed!</AlertTitle>
+                                Invalid credentials. Please try again.
                             </Alert>
-                        </>
-                        ) : (<></>)
+                        )
                     }
+
                     <Button 
                         type="submit" 
                         disabled={isSubmitting}
-                        variant="text"
-                        size="small"
-                        endIcon={ <LoginIcon/> }
-                        >
-                        Log In
+                        variant="contained"
+                        size="large"
+                        endIcon={<LoginIcon />}
+                        sx={{
+                            fontFamily: "'Press Start 2P', cursive",
+                            fontSize: isMobile ? '0.6rem' : '0.7rem',
+                            py: 1.5,
+                            borderRadius: 2,
+                            backgroundColor: '#3498db',
+                            boxShadow: '0 4px 0 #2980b9',
+                            transition: 'all 0.1s',
+                            '&:hover': {
+                                backgroundColor: '#2980b9',
+                                boxShadow: '0 2px 0 #21618c',
+                                transform: 'translateY(2px)'
+                            },
+                            '&:active': {
+                                boxShadow: '0 0 0 #21618c',
+                                transform: 'translateY(4px)'
+                            },
+                            '&:disabled': {
+                                backgroundColor: '#bdc3c7',
+                                boxShadow: '0 4px 0 #95a5a6'
+                            }
+                        }}
+                    >
+                        {isSubmitting ? 'Loading...' : 'Log In'}
                     </Button>
 
-                    <RecoverPassword />
+                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                        <RecoverPassword />
+                    </Box>
+
+                    <Divider sx={{ my: 1 }}>
+                        <Typography variant="caption" sx={{ color: '#7f8c8d', fontWeight: 500 }}>
+                            Don't have an account?
+                        </Typography>
+                    </Divider>
                     
                     <Button 
                         type="button" 
                         disabled={isSubmitting}
-                        variant="text"
-                        size="small"
-                        startIcon={ <PersonAdd/> }
-                        sx={{ color:"#000"}}
+                        variant="outlined"
+                        size="large"
+                        startIcon={<PersonAdd />}
                         href="/Create/User"
+                        sx={{
+                            fontFamily: "'Press Start 2P', cursive",
+                            fontSize: isMobile ? '0.6rem' : '0.7rem',
+                            py: 1.5,
+                            borderRadius: 2,
+                            borderWidth: 2,
+                            borderColor: '#2ecc71',
+                            color: '#27ae60',
+                            '&:hover': {
+                                borderWidth: 2,
+                                borderColor: '#27ae60',
+                                backgroundColor: 'rgba(46, 204, 113, 0.1)'
+                            }
+                        }}
                     >
-                        Create an Account
+                        Create Account
                     </Button>
                     
                 </Box>

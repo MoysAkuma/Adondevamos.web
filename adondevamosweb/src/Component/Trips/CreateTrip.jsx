@@ -4,9 +4,8 @@ import {
         Button,
         Typography,
         Box,
-        Alert,
-        AlertTitle,
-        ButtonGroup
+        useMediaQuery,
+  useTheme
 } from '@mui/material';
 
 import MemberSearch from './MembersList/MemberSearch';
@@ -26,6 +25,8 @@ import { AccountCircle,
 
 function CreateTrip( ) {
     const auth = useAuth();
+    const theme = useTheme();
+    const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
     
     //URLS ro call rest api
     const URLsCatalogService = 
@@ -341,8 +342,19 @@ function CreateTrip( ) {
           width: '100%'
         }}
       >
-        <Typography variant="h5" align="center">
-          Create Trip
+        <Typography 
+            variant={isSmUp ? "h3" : "h4"} 
+            align="center"
+            sx={{
+                fontFamily: "'Press Start 2P', cursive",
+                color: '#2c3e50',
+                fontSize: isSmUp ? '1.5rem' : '1.2rem',
+                lineHeight: 1.6,
+                mb: 1,
+                textShadow: '2px 2px 0px rgba(0,0,0,0.1)'
+            }}
+        >
+            Create Trip
         </Typography>
 
         <Typography variant="body1"  align="left">

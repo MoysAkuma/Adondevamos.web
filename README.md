@@ -1,7 +1,7 @@
 # Adondevamos.web v.Alpha
 
 ## Project Overview
-Adondevamos.web is a front end project of the website Adondevamos.io made with Create React App
+Adondevamos.web is a front end project of the website Adondevamos.net made with Create React App
 
 ## Goal
 Create trips to share place recomendations and vote to help to decide ¿A donde vamos?

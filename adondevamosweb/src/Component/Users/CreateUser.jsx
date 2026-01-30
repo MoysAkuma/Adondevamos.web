@@ -228,8 +228,12 @@ function CreateUser(){
     }
     return (
         <>
-            <Typography variant="h5" component="h1" gutterBottom align="center">
-                Create User
+            <Typography variant="h5" 
+            component="h1" 
+            gutterBottom 
+            align="center" 
+            sx={{ fontFamily: "'Press Start 2P', cursive" }}>
+                Create Account
             </Typography>
             
             <Box
@@ -259,11 +263,12 @@ function CreateUser(){
                 <Button 
                     type="submit" 
                     disabled={isSubmitting}
-                    variant="text"
+                    variant="outlined"
+                    size="small"
                     onClick={handleSubmit}
                     startIcon={ <Person/> }
                 >
-                    Create User
+                    Create Account
                 </Button>
 
             </Box>

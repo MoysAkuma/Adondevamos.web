@@ -55,8 +55,19 @@ function Home() {
   return (
     <CenteredTemplate>
       <Box sx={{ width: '100%' }}>
-        <Typography variant={isSmUp ? "h3" : "h4"} gutterBottom align="center">
-          AdondeVamos
+        <Typography 
+            variant={isSmUp ? "h3" : "h4"} 
+            align="center"
+            sx={{
+                fontFamily: "'Press Start 2P', cursive",
+                color: '#2c3e50',
+                fontSize: isSmUp ? '1.5rem' : '1.2rem',
+                lineHeight: 1.6,
+                mb: 1,
+                textShadow: '2px 2px 0px rgba(0,0,0,0.1)'
+            }}
+        >
+            AdondeVamos.net
         </Typography>
 
         <Typography variant="h6"  align="center">

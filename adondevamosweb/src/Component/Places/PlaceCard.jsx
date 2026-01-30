@@ -139,6 +139,7 @@ function PlaceCard({ placeinfo }) {
             variant="h6"
             component="h2"
             sx={{
+              fontFamily: "'Press Start 2P', cursive",
               fontSize: { xs: '1rem', sm: '1.125rem' },
               fontWeight: 600,
               color: '#1f2937'
@@ -158,6 +159,7 @@ function PlaceCard({ placeinfo }) {
             <Typography
               variant="caption"
               sx={{
+                fontFamily: "'Press Start 2P', cursive",
                 color: '#6b7280',
                 fontSize: '0.75rem',
                 display: '-webkit-box',
@@ -190,7 +192,9 @@ function PlaceCard({ placeinfo }) {
             display: '-webkit-box',
             WebkitLineClamp: 3,
             WebkitBoxOrient: 'vertical',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            fontSize: { xs: '.6rem', sm: '0.7rem' },
+            fontFamily: "'Press Start 2P', cursive"
           }}
         >
           {placeDescription}
