@@ -104,7 +104,7 @@ import { useAuth } from "../context/AuthContext";
                 align="left">
                     What is a Trip in AdondeVamos?
                 </Typography>
-                <Typography variant="body1" align="right">
+                <Typography variant="body2" align="right">
                     A trip is a list of places you want to visit with your friends.
                 </Typography>
                 
@@ -120,7 +120,7 @@ import { useAuth } from "../context/AuthContext";
                 align="left">
                     Discover Trips
                 </Typography>
-                <Typography variant="body1" align="right">
+                <Typography variant="body2" align="right">
                     Explore trips created by other users and get inspired for your next adventure!
                 </Typography>
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, mb: 2 }}>

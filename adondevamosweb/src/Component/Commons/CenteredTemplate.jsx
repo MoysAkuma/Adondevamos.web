@@ -17,7 +17,7 @@ const CenteredTemplate = ({ children }) => (
   >
     
     <Container maxWidth="sm" sx={{ 
-      py : 12,
+      py : 6,
       pb : 2, 
       backgroundColor: 'white', 
       borderRadius: 3, 
