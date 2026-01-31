@@ -26,6 +26,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import utils from "../../Resources/utils";
 import config from "../../Resources/config";
 import ImageCarousel from "../Commons/ImageCarousel";
+import Itinerary from "./Itinerary/Itinerary";
 
 function ViewTrip(){
     //Get id
@@ -229,7 +230,7 @@ function ViewTrip(){
                 component="div">
                 Itinerary
             </Typography>
-            <ViewItinerary itinerary={tripInfo.itinerary} />
+            <Itinerary tripinfo={tripInfo} />
             <Divider />
             <Typography 
                 variant="h6" 

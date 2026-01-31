@@ -157,11 +157,11 @@ function PlaceCard({ placeinfo }) {
           >
             <LocationOn sx={{ fontSize: 14, color: '#6b7280' }} />
             <Typography
-              variant="caption"
+              variant="body2"
               sx={{
                 fontFamily: "'Press Start 2P', cursive",
                 color: '#6b7280',
-                fontSize: '0.75rem',
+                fontSize: '0.60rem',
                 display: '-webkit-box',
                 WebkitLineClamp: 1,
                 WebkitBoxOrient: 'vertical',

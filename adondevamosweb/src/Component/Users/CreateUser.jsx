@@ -67,7 +67,7 @@ function CreateUser(){
     };
 
     const handleChangeConfirmPassword = (e) => {
-        const { name, value } = e.target;
+        const { value } = e.target;
         setConfirmPassword(value);
     }
 
@@ -119,7 +119,7 @@ function CreateUser(){
             return;
         }
 
-        if (formCreateUser.password.trim() != confirmPassword) {
+        if (formCreateUser.password.trim() !== confirmPassword) {
             setSubmitError('confirm password required');
             return;
         }
@@ -220,7 +220,7 @@ function CreateUser(){
         };
         
         getCatalogues();
-    },[]);
+    },[URLsCatalogService.Catalogues]);
 
     if (loading) {
         setLoading(false)

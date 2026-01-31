@@ -284,7 +284,7 @@ function Itinerary ({
                                     <ListItemText 
                                         primary={
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                <Typography variant="subtitle1" fontWeight={600}>
+                                                <Typography variant="body2" fontWeight={600}>
                                                     {visit.place.name}
                                                 </Typography>
                                                 {days && (
@@ -293,6 +293,7 @@ function Itinerary ({
                                                         size="small" 
                                                         color="primary"
                                                         variant="outlined"
+                                                        sx={{ fontSize: '0.60rem' }}
                                                     />
                                                 )}
                                             </Box>

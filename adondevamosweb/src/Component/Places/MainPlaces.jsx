@@ -58,7 +58,7 @@ export default function MainPlaces() {
             align="left">
                 What is a Place in AdondeVamos?
             </Typography>
-            <Typography variant="body1" align="right">
+            <Typography variant="body2" align="right">
                 A place is a location that you want to visit with your friends
             </Typography>
             <Typography variant="h6" 
@@ -74,7 +74,7 @@ export default function MainPlaces() {
             >
                 Discover Places
             </Typography>
-            <Typography variant="body1" align="right">
+            <Typography variant="body2" align="right">
                 Explore places created by other users, locations, and attractions to add to your trips!
             </Typography>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, mb: 2 }}>

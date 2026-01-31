@@ -13,15 +13,30 @@ import Profile from "./Pages/Profile";
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from "./Component/Commons/ProtectedRoute";
 import SessionWarning from "./Component/Commons/SessionWarning";
-import MVPBanner from "./Component/Commons/MVPBanner";
 import { Navigate } from 'react-router-dom';
 import AppBar from "./Component/Commons/AppBar";
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+
+const theme = createTheme({
+  typography: {
+    fontFamily: "'Press Start 2P', cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif",
+    h1: { fontFamily: "'Press Start 2P', cursive" },
+    h2: { fontFamily: "'Press Start 2P', cursive" },
+    h3: { fontFamily: "'Press Start 2P', cursive" },
+    h4: { fontFamily: "'Press Start 2P', cursive" },
+    h5: { fontFamily: "'Press Start 2P', cursive" },
+    h6: { fontFamily: "'Press Start 2P', cursive" },
+    body1: { fontFamily: "'Press Start 2P', cursive" },
+    body2: { fontFamily: "'Press Start 2P', cursive" },
+    button: { fontFamily: "'Press Start 2P', cursive" },
+  },
+});
 
 function AppContent() {
   
   return (
     <>
-      <MVPBanner />
       <AppBar/>
       <SessionWarning />
         <Routes>
@@ -43,10 +58,13 @@ function AppContent() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-          <AppContent />
-      </AuthProvider>
-    </BrowserRouter>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <BrowserRouter>
+        <AuthProvider>
+            <AppContent />
+        </AuthProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }

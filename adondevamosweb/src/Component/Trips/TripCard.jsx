@@ -185,9 +185,9 @@ function TripCard({ tripinfo }) {
         title={
           <Typography 
             variant="h6" 
-            component="h2"
+            component="h6"
             sx={{ 
-              fontSize: { xs: '.9rem', sm: '1rem' },
+              fontSize: { xs: '0.7rem', sm: '0.8rem' },
               fontFamily: "'Press Start 2P', cursive",
               fontWeight: 600,
               color: '#1f2937'
@@ -207,7 +207,7 @@ function TripCard({ tripinfo }) {
             <CalendarToday sx={{ fontSize: 14, color: '#6b7280' }} />
             <Typography 
               variant="caption" 
-              sx={{ color: '#6b7280', fontSize: '0.75rem' }}
+              sx={{ color: '#6b7280', fontSize: '0.60rem' }}
             >
               {formatDate(tripinfo.initialdate)}
             </Typography>
@@ -216,7 +216,7 @@ function TripCard({ tripinfo }) {
             </Typography>
             <Typography 
               variant="caption" 
-              sx={{ color: '#6b7280', fontSize: '0.75rem' }}
+              sx={{ color: '#6b7280', fontSize: '0.60rem' }}
             >
               {formatDate(tripinfo.finaldate)}
             </Typography>
@@ -242,7 +242,7 @@ function TripCard({ tripinfo }) {
             WebkitLineClamp: 3,
             WebkitBoxOrient: 'vertical',
             overflow: 'hidden',
-            fontSize: { xs: '.6rem', sm: '0.7rem' },
+            fontSize: { xs: '0.6rem', sm: '0.7rem' },
             fontFamily: "'Press Start 2P', cursive"
           }}
         >
@@ -265,7 +265,7 @@ function TripCard({ tripinfo }) {
                   bgcolor: '#f3f4f6',
                   color: '#374151',
                   fontWeight: 500,
-                  fontSize: '0.75rem',
+                  fontSize: '0.60rem',
                   height: 24,
                   '&:hover': {
                     bgcolor: '#e5e7eb',
@@ -280,6 +280,7 @@ function TripCard({ tripinfo }) {
             <Box sx={{ mt: 2 }}>
               <Typography
                 variant="subtitle2"
+                component="h6"
                 sx={{
                   fontWeight: 600,
                   color: '#1f2937',
@@ -303,7 +304,7 @@ function TripCard({ tripinfo }) {
                       bgcolor: '#f3f4f6',
                       color: '#374151',
                       fontWeight: 500,
-                      fontSize: '0.75rem',
+                      fontSize: '0.60rem',
                       height: 24,
                       '&:hover': {
                         bgcolor: '#e5e7eb',
