@@ -1,8 +1,8 @@
 import React from "react";
 import { Box, IconButton, Menu, MenuItem, 
     Tooltip, Avatar, Typography, 
-    Button} from '@mui/material';
-
+    Button, ButtonGroup} from '@mui/material';
+import ChangePassword from "./ChangePassword";
 export default function ProfileDetails({ user }) {
     const userid = localStorage.getItem("userid");
     return (
@@ -13,7 +13,7 @@ export default function ProfileDetails({ user }) {
             <Typography align="right" sx={{ wordWrap: 'break-word' }}>{user.email}</Typography>
             
             <Typography align="left"><strong>Name:</strong></Typography>
-            <Typography align="right">{user.name}</Typography>
+            <Typography align="right">{user.name} {user.lastname}</Typography>
             
             {
                 user.lastName && (
@@ -30,7 +30,9 @@ export default function ProfileDetails({ user }) {
             <Typography align="left"><strong>Email:</strong></Typography>
             <Typography align="right" sx={{ wordWrap: 'break-word' }}>{user.email}</Typography>
             
-            <Typography align="left"><strong>Ubication:</strong></Typography>
+            <Typography align="left">
+                <strong>Ubication:</strong>
+            </Typography>
             <Typography align="right"> 
                 { user.City.name + ", " + 
                     user.State.name + ", " + 
@@ -38,12 +40,16 @@ export default function ProfileDetails({ user }) {
                 }
 
             </Typography>
-            <Button 
-            variant="contained"
-            sx={{ mt: 2 }} 
-            href={`/Edit/Profile/${userid}`}>
-                Edit Profile
-            </Button>
+            
+            <ButtonGroup sx={{ mt: 2, display: 'flex', gap: 1 }}>
+                <Button 
+                variant="contained"
+                href={`/Edit/Profile/${userid}`}>
+                    Edit Profile
+                </Button>
+                
+                <ChangePassword userId={userid} />
+            </ButtonGroup>
         </Box>
     );
 }
