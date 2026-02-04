@@ -167,6 +167,10 @@ function ViewUser(){
             <Typography gutterBottom variant="body1" component="div" align="right">
             {
                 UserInfo.name
+            } ,
+            {
+
+                UserInfo.lastname
             }
             </Typography>
 

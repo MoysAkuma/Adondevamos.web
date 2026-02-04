@@ -20,7 +20,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 import ViewMemberList from '../View/ViewMemberList'
-import ViewItinerary from './Itinerary/ViewItinerary'
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import utils from "../../Resources/utils";
@@ -40,18 +39,14 @@ function ViewTrip(){
     const [isOwner, setIsOwner] = useState(false);
 
     //URLS
-    const [URLsCatalogService, setURLsCatalogService] = useState(
-        {
-            Trips :`${config.api.baseUrl}${config.api.endpoints.Trips}`,
-            Votes :`${config.api.baseUrl}${config.api.endpoints.Votes}`
-        }
-    );
-
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, []);
+    const URLsCatalogService = 
+    {
+        Trips :`${config.api.baseUrl}${config.api.endpoints.Trips}`,
+        Votes :`${config.api.baseUrl}${config.api.endpoints.Votes}`
+    };
 
     useEffect(()=> {
+         window.scrollTo(0, 0);
         const fetchTrip = async () => {
             if(!id) {
                 setLoading(false);
@@ -71,8 +66,7 @@ function ViewTrip(){
                 setTripInfo( response.data.info );
                 setLiked( response.data.info.userVoted || false );
                 console.log("Owner ID:", response.data.info.owner.id, "User ID:", user);
-                setIsOwner( user && (response.data.info.owner.id === parseInt(user))  
-            );
+                setIsOwner( user && (response.data.info.owner.id === parseInt(user)));
             } catch (err) {
                 setError(err.response?.data?.message || 'Failed to fetch user');
             } finally {

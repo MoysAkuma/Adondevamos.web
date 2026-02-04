@@ -87,6 +87,7 @@ function ViewPlace(){
     };
     
     useEffect(() => {
+        window.scrollTo(0, 0);
         const fetchPlace = async () => {
             if (!id) {
                 setLoading(false);
@@ -98,7 +99,6 @@ function ViewPlace(){
             
             try {
                 const headers = {};
-                console.log("isLogged:", isLogged, "user:", user);
                 if (isLogged) {
                     headers['user-id'] = user;
                 }
