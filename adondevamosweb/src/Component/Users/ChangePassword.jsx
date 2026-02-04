@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { Close } from '@mui/icons-material';
 import config from '../../Resources/config';
+import SnackbarNotification from '../Commons/SnackbarNotification';
 
 const ChangePassword = ({ userId }) => {
     const [openModal, setOpenModal] = useState(false);
@@ -19,6 +20,7 @@ const ChangePassword = ({ userId }) => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitSuccess, setSubmitSuccess] = useState(false);
 
     const handleOpenModal = () => {
         setOpenModal(true);
@@ -64,6 +66,7 @@ const ChangePassword = ({ userId }) => {
 
             if (response.status === 200) {
                 handleCloseModal();
+                setSubmitSuccess(true);
             }
         } catch (err) {
             setError(err.response?.data?.message || 'Failed to change password');
@@ -93,6 +96,13 @@ const ChangePassword = ({ userId }) => {
             >
                 Change Password
             </Button>
+
+            <SnackbarNotification
+            open={submitSuccess}
+            onClose={() => setSubmitSuccess(false)}
+            message={"Password changed successfully!"}
+            severity="success"
+            />
 
             <Modal
                 open={openModal}

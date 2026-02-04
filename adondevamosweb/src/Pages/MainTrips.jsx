@@ -26,33 +26,29 @@ import { useAuth } from "../context/AuthContext";
     const [UserSection, setUserSection] = useState(null);
     const [showNewTrips, setShowNewTrips] = useState(true);
 
+    const styledTypography = {
+                    fontFamily: "'Press Start 2P', cursive",
+                    color: '#2c3e50',
+                    fontSize: isSmUp ? '0.8rem' : '0.9rem',
+                    lineHeight: .8,
+                    mb: 1,
+                    textShadow: '2px 2px 0px rgba(0,0,0,0.1)'
+                }
+
     const generateUserSection = () => {
         if (hasRole('user')) {
             return (
                 <>
-                    <Typography variant="h6" align="left">
-                    See your Trips
-                    </Typography>
-                    <Box sx={{ display: 'flex', 
-                    justifyContent: 'flex-end', mt: 2, mb: 2 }}>
-                        <Button
-                            variant="contained"
-                            endIcon={ <Person/> }
-                            size="small"
-                            href="/My/Trips" >
-                            My Trips
-                        </Button>   
-                    </Box>
-                    <Typography variant="h6" align="left">
+                    <Typography variant="body2" align="left" sx={styledTypography}>
                     Create a New Trip
                     </Typography>
                     <Box sx={{ display: 'flex',
                     justifyContent: 'flex-end', mt: 2, mb: 2 }}>
                         <Button 
-                            variant="contained"
+                            variant="outlined"
                             endIcon={ <Flight/> }
                             size="small"
-                            href="/New/Trip" >
+                            href="/Create/Trip" >
                             New Trip
                         </Button>   
                     </Box>

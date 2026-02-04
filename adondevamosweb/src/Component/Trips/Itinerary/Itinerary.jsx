@@ -184,7 +184,6 @@ function Itinerary ({
 
     return (
         <Box>
-            {/* Date Slider - Only show if more than one itinerary item */}
             {sortedItinerary.length > 1 && (
                 <Paper 
                     elevation={0} 
@@ -192,7 +191,8 @@ function Itinerary ({
                         p: 3, 
                         mb: 2, 
                         borderRadius: 2,
-                        bgcolor: 'grey.50'
+                        bgcolor: 'grey.50',
+                        overflow: 'visible'
                     }}
                 >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
@@ -215,33 +215,36 @@ function Itinerary ({
                             />
                         )}
                     </Box>
-                    <Slider
-                        value={sliderValue}
-                        onChange={handleSliderChange}
-                        min={0}
-                        max={sortedItinerary.length - 1}
-                        step={1}
-                        marks={sliderMarks}
-                        valueLabelDisplay="auto"
-                        slots={{
-                            valueLabel: ValueLabelComponent
-                        }}
-                        sx={{
-                            '& .MuiSlider-mark': {
-                                backgroundColor: 'primary.main',
-                                height: 8,
-                                width: 8,
-                                borderRadius: '50%',
-                                '&.MuiSlider-markActive': {
-                                    backgroundColor: 'primary.dark',
+                    <Box sx={{ px: 3, pt: 1, pb: 2 }}>
+                        <Slider
+                            value={sliderValue}
+                            onChange={handleSliderChange}
+                            min={0}
+                            max={sortedItinerary.length - 1}
+                            step={1}
+                            marks={sliderMarks}
+                            valueLabelDisplay="auto"
+                            slots={{
+                                valueLabel: ValueLabelComponent
+                            }}
+                            sx={{
+                                '& .MuiSlider-mark': {
+                                    backgroundColor: 'primary.main',
+                                    height: 8,
+                                    width: 8,
+                                    borderRadius: '50%',
+                                    '&.MuiSlider-markActive': {
+                                        backgroundColor: 'primary.dark',
+                                    }
+                                },
+                                '& .MuiSlider-markLabel': {
+                                    fontSize: '0.55rem',
+                                    color: 'text.secondary',
+                                    whiteSpace: 'nowrap'
                                 }
-                            },
-                            '& .MuiSlider-markLabel': {
-                                fontSize: '0.75rem',
-                                color: 'text.secondary'
-                            }
-                        }}
-                    />
+                            }}
+                        />
+                    </Box>
                 </Paper>
             )}
 

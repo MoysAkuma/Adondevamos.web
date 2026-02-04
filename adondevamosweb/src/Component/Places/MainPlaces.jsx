@@ -20,7 +20,37 @@ export default function MainPlaces() {
     const theme = useTheme();
     const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
     
-    
+    const generateUserSection = () => {
+        if (hasRole('user')) {
+            return (
+                <>
+                    <Typography variant="body2" 
+                    sx={{
+                        fontFamily: "'Press Start 2P', cursive",
+                        color: '#2c3e50',
+                        fontSize: isSmUp ? '0.8rem' : '0.9rem',
+                        lineHeight: .8,
+                        mb: 1,
+                        textShadow: '2px 2px 0px rgba(0,0,0,0.1)'
+                    }}
+                    align="left">
+                        Create a New Place
+                    </Typography>
+                    <Box sx={{ display: 'flex',
+                    justifyContent: 'flex-end', mt: 2, mb: 2 }}>
+                        <Button 
+                            variant="outlined"
+                            endIcon={ <LocationCity/> }
+                            size="small"
+                            href="/Create/Place" >
+                            New Place
+                        </Button>   
+                    </Box>
+                </>
+            );
+        }
+    };
+
     useEffect(() => {
         if (!loading) {
            
@@ -85,6 +115,10 @@ export default function MainPlaces() {
                     Search Places
                 </Button>
             </Box>
+
+            {
+                hasRole('user') && generateUserSection()
+            }
             
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Typography variant="h6" 
