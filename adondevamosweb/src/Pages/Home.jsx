@@ -74,12 +74,10 @@ function Home() {
           What is Adondevamos?
         </Typography>
         <Typography variant="body1" gutterBottom align="center" sx={{ mb: 4 }}>
-          AdondeVamos is a platform that helps you and your friends to decide <b>where to go</b> on your next trip.
-          You can create <b>trips</b>, add <b>places</b>, <b>invite your friends</b>, and <b>vote</b> for the best options.
-          It's easy and fun!
+          AdondeVamos is a platform designed to help you plan trips with your friends by allowing everyone to suggest and vote on places to visit.
         </Typography>
         <Typography variant="h6" align="center" sx={{ mt: 1 }}>
-          Where you want to go today?
+          Where do you want to go today?
         </Typography>
 
           <ButtonGroup
