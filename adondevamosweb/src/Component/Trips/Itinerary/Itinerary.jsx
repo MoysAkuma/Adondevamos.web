@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from 'axios';
+import utils from "../../../Resources/utils";
 
 import { 
     Typography, 
@@ -60,24 +61,14 @@ function Itinerary ({
     const [sliderValue, setSliderValue] = useState(0);
     const [showAllDates, setShowAllDates] = useState(true);
 
-    const formatDate = (dateString) => {
-        if( !dateString ) return "";
-        const date = new Date(dateString);
-        return new Intl.DateTimeFormat('en-US', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
-        }).format(date);
-    };
-
     const callBackEdite = (e) => {
         
     };
 
     const generateDateText = (initialdate, finaldate) => {
       if( !initialdate || !finaldate ) return "Initial and final dates";
-      if (initialdate == finaldate) return formatDate(initialdate);
-      return formatDate(initialdate) + " → " + formatDate(finaldate);
+      if (initialdate == finaldate) return utils.formatDate(initialdate);
+      return utils.formatDate(initialdate) + " → " + utils.formatDate(finaldate);
     }
 
     const calculateDays = (initialdate, finaldate) => {
@@ -112,17 +103,30 @@ function Itinerary ({
         new Date(a.initialdate) - new Date(b.initialdate)
     ) : [];
 
+    // Group itinerary by date (initial date)
+    const groupedByDate = sortedItinerary.reduce((acc, visit) => {
+        const dateKey = visit.initialdate;
+        if (!acc[dateKey]) {
+            acc[dateKey] = [];
+        }
+        acc[dateKey].push(visit);
+        return acc;
+    }, {});
+
+    // Get unique dates for slider marks
+    const uniqueDates = Object.keys(groupedByDate).sort((a, b) => new Date(a) - new Date(b));
+
     // Get unique date ranges for slider marks
     const getSliderMarks = () => {
-        if (!sortedItinerary.length) return [];
+        if (!uniqueDates.length) return [];
         
-        return sortedItinerary.map((visit, index) => ({
+        return uniqueDates.map((date, index) => ({
             value: index,
-            label: index === 0 || index === sortedItinerary.length - 1 
-                ? formatDate(visit.initialdate) 
+            label: index === 0 || index === uniqueDates.length - 1 
+                ? utils.formatDate(date)
                 : '',
-            date: visit.initialdate,
-            displayDate: generateDateText(visit.initialdate, visit.finaldate)
+            date: date,
+            displayDate: utils.formatDate(date)
         }));
     };
 
@@ -131,7 +135,7 @@ function Itinerary ({
     // Filter itinerary based on slider value
     const displayedItinerary = showAllDates || !sortedItinerary.length 
         ? sortedItinerary 
-        : [sortedItinerary[sliderValue]];
+        : groupedByDate[uniqueDates[sliderValue]] || [];
 
     // Handle slider change
     const handleSliderChange = (event, newValue) => {
@@ -146,6 +150,9 @@ function Itinerary ({
             setSliderValue(0);
         }
     }, [tripinfo.itinerary]);
+
+    // Update the max value for the slider based on unique dates
+    const sliderMaxValue = Math.max(0, uniqueDates.length - 1);
 
     // Custom tooltip component
     function ValueLabelComponent(props) {
@@ -220,7 +227,7 @@ function Itinerary ({
                             value={sliderValue}
                             onChange={handleSliderChange}
                             min={0}
-                            max={sortedItinerary.length - 1}
+                            max={sliderMaxValue}
                             step={1}
                             marks={sliderMarks}
                             valueLabelDisplay="auto"

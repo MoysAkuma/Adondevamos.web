@@ -26,16 +26,18 @@ import {
 import { styled } from '@mui/material/styles';
 import MapView from "../Commons/MapView";
 
-// Styled components for clean, mobile-first design
+// Styled components for 8-bit retro design
 const StyledCard = styled(Card)(({ theme }) => ({
   maxWidth: '100%',
-  borderRadius: 16,
-  boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-  transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+  borderRadius: 0,
+  border: '4px solid #2C2C2C',
+  boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
+  transition: 'transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out',
   '&:hover': {
-    transform: 'translateY(-4px)',
-    boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+    transform: 'translate(-2px, -2px)',
+    boxShadow: '10px 10px 0px rgba(0,0,0,0.4)',
   },
+  
   [theme.breakpoints.up('sm')]: {
     maxWidth: 400,
   },
@@ -45,6 +47,23 @@ const StyledCardHeader = styled(CardHeader)(({ theme }) => ({
   padding: theme.spacing(2),
   [theme.breakpoints.up('sm')]: {
     padding: theme.spacing(2.5),
+  },
+  backgroundColor: '#3D5A80',
+  borderBottom: '4px solid #2C2C2C',
+  '& .MuiCardHeader-action': {
+    marginTop: 0,
+    marginRight: 0,
+  },
+  '& .MuiIconButton-root': {
+    color: '#FFFFFF',
+    backgroundColor: '#E63946',
+    borderRadius: 0,
+    border: '2px solid #2C2C2C',
+    padding: '6px',
+    '&:hover': {
+      backgroundColor: '#F77F00',
+      transform: 'scale(1.1)',
+    },
   },
 }));
 
@@ -63,12 +82,27 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
   [theme.breakpoints.up('sm')]: {
     padding: theme.spacing(2.5),
   },
+  backgroundColor: '#E0AC69',
+  borderBottom: '4px solid #2C2C2C',
 }));
 
 const StyledCardActions = styled(CardActions)(({ theme }) => ({
   padding: theme.spacing(1, 2),
-  backgroundColor: '#fafafa',
-  borderTop: '1px solid #f0f0f0',
+  backgroundColor: '#52B788',
+  borderTop: '4px solid #2C2C2C',
+  '& .MuiIconButton-root': {
+    color: '#2C2C2C',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 0,
+    border: '2px solid #2C2C2C',
+    padding: '8px',
+    margin: '0 4px',
+    '&:hover': {
+      backgroundColor: '#F8F8F8',
+      transform: 'translateY(-2px)',
+      boxShadow: '3px 3px 0px #2C2C2C',
+    },
+  },
 }));
 
 const ExpandButton = styled(IconButton, {
@@ -140,9 +174,10 @@ function PlaceCard({ placeinfo }) {
             component="h2"
             sx={{
               fontFamily: "'Press Start 2P', cursive",
-              fontSize: { xs: '1rem', sm: '1.125rem' },
+              fontSize: { xs: '0.75rem', sm: '0.875rem' },
               fontWeight: 600,
-              color: '#1f2937'
+              color: '#FFFFFF',
+              textShadow: '2px 2px 0px #2C2C2C',
             }}
           >
             {placeName}
@@ -155,13 +190,13 @@ function PlaceCard({ placeinfo }) {
             alignItems="center"
             sx={{ mt: 0.5 }}
           >
-            <LocationOn sx={{ fontSize: 14, color: '#6b7280' }} />
+            <LocationOn sx={{ fontSize: 14, color: '#FFFFFF' }} />
             <Typography
               variant="body2"
               sx={{
                 fontFamily: "'Press Start 2P', cursive",
-                color: '#6b7280',
-                fontSize: '0.60rem',
+                color: '#E8F4FD',
+                fontSize: '0.5rem',
                 display: '-webkit-box',
                 WebkitLineClamp: 1,
                 WebkitBoxOrient: 'vertical',
@@ -186,14 +221,14 @@ function PlaceCard({ placeinfo }) {
         <Typography
           variant="body2"
           sx={{
-            color: '#4b5563',
-            lineHeight: 1.6,
+            color: '#2C2C2C',
+            lineHeight: 1.8,
             mb: hasValidFacilities ? 2 : 0,
             display: '-webkit-box',
             WebkitLineClamp: 3,
             WebkitBoxOrient: 'vertical',
             overflow: 'hidden',
-            fontSize: { xs: '.6rem', sm: '0.7rem' },
+            fontSize: { xs: '.5rem', sm: '0.6rem' },
             fontFamily: "'Press Start 2P', cursive"
           }}
         >
@@ -213,13 +248,18 @@ function PlaceCard({ placeinfo }) {
                 label={facility.name}
                 size="small"
                 sx={{
-                  bgcolor: '#f3f4f6',
-                  color: '#374151',
-                  fontWeight: 500,
-                  fontSize: '0.75rem',
+                  bgcolor: '#FFFFFF',
+                  color: '#2C2C2C',
+                  fontWeight: 600,
+                  fontSize: '0.5rem',
                   height: 24,
+                  borderRadius: 0,
+                  border: '2px solid #2C2C2C',
+                  fontFamily: "'Press Start 2P', cursive",
                   '&:hover': {
-                    bgcolor: '#e5e7eb',
+                    bgcolor: '#E63946',
+                    color: '#FFFFFF',
+                    transform: 'scale(1.05)',
                   }
                 }}
               />
@@ -273,8 +313,8 @@ function PlaceCard({ placeinfo }) {
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent
           sx={{
-            bgcolor: '#fafafa',
-            borderTop: '1px solid #f0f0f0',
+            bgcolor: '#6B5B95',
+            borderTop: '4px solid #2C2C2C',
             p: 2
           }}
         >
