@@ -32,8 +32,9 @@ function ViewTrip(){
     const { id } = useParams();
     const navigate = useNavigate();
     const { isLogged, user, loading } = useAuth();
-    const [loadingPage, setLoading] = useState(false);
+    const [loadingPage, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [notFound, setNotFound] = useState(false);
     const [tripInfo, setTripInfo] = useState(null);
     const [liked, setLiked] = useState(false);
     const [isOwner, setIsOwner] = useState(false);
@@ -54,6 +55,7 @@ function ViewTrip(){
             }
             setLoading(true);
             setError(null);
+            setNotFound(false);
             try{
                 const headers = {};
                 if (isLogged) {
@@ -68,7 +70,11 @@ function ViewTrip(){
                 console.log("Owner ID:", response.data.info.owner.id, "User ID:", user);
                 setIsOwner( user && (response.data.info.owner.id === parseInt(user)));
             } catch (err) {
-                setError(err.response?.data?.message || 'Failed to fetch user');
+                if (err.response?.status === 404) {
+                    setNotFound(true);
+                } else {
+                    setError(err.response?.data?.message || 'Failed to fetch trip');
+                }
             } finally {
                 setLoading(false);
             } 
@@ -124,11 +130,19 @@ function ViewTrip(){
 
     
 
-    if (loading) {
+    if (loadingPage) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
                 <CircularProgress />
             </Box>
+        );
+    }
+    
+    if (notFound) {
+        return (
+            <Alert severity="warning" sx={{ mt: 2 }}>
+                Trip not found
+            </Alert>
         );
     }
     
@@ -171,32 +185,17 @@ function ViewTrip(){
 
             
             <Divider />
-            <Typography variant="span" component="div">
-                Created by
-            </Typography>
-            <Typography variant="b" component="b" align="right">
-            {
-                tripInfo.owner.tag
-            }
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="body2" color="text.secondary">
+                    Created by: <strong>{tripInfo.owner.tag}</strong>
+                </Typography>
+            </Box>
 
-            <Typography variant="span" component="div">
-                Initial Date
-            </Typography>
-            <Typography variant="span" component="div" align="right">
-            {
-                utils.formatDate(tripInfo.initialdate)
-            }
-            </Typography>
-
-            <Typography variant="span" component="div">
-                Final Date
-            </Typography>
-            <Typography variant="span" component="div" align="right">
-            {
-                utils.formatDate(tripInfo.finaldate)
-            }
-            </Typography>
+            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mb: 2 }}>
+                <Typography variant="body2" color="text.secondary">
+                    {utils.formatDate(tripInfo.initialdate)} - {utils.formatDate(tripInfo.finaldate)}
+                </Typography>
+            </Box>
 
             <Typography variant="h6" component="div">
                 Members
