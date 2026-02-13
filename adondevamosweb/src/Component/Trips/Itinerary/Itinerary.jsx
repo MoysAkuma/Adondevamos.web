@@ -122,9 +122,7 @@ function Itinerary ({
         
         return uniqueDates.map((date, index) => ({
             value: index,
-            label: index === 0 || index === uniqueDates.length - 1 
-                ? utils.formatDate(date)
-                : '',
+            label: '', // No label to avoid overflow, use tooltip instead
             date: date,
             displayDate: utils.formatDate(date)
         }));
@@ -195,11 +193,10 @@ function Itinerary ({
                 <Paper 
                     elevation={0} 
                     sx={{ 
-                        p: 3, 
+                        p: 2, 
                         mb: 2, 
                         borderRadius: 2,
-                        bgcolor: 'grey.50',
-                        overflow: 'visible'
+                        bgcolor: 'grey.50'
                     }}
                 >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
@@ -222,7 +219,7 @@ function Itinerary ({
                             />
                         )}
                     </Box>
-                    <Box sx={{ px: 3, pt: 1, pb: 2 }}>
+                    <Box sx={{ px: 2, pt: 1, pb: 1 }}>
                         <Slider
                             value={sliderValue}
                             onChange={handleSliderChange}
@@ -243,11 +240,6 @@ function Itinerary ({
                                     '&.MuiSlider-markActive': {
                                         backgroundColor: 'primary.dark',
                                     }
-                                },
-                                '& .MuiSlider-markLabel': {
-                                    fontSize: '0.55rem',
-                                    color: 'text.secondary',
-                                    whiteSpace: 'nowrap'
                                 }
                             }}
                         />
