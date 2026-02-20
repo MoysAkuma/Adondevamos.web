@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext, useCallback, useRef } from 'react';
-import axios from 'axios';
-import config from "../Resources/config";
+import useLoginApi from '../hooks/useLoginApi';
+import useCheckAuthApi from '../hooks/useCheckAuthApi';
+import useLogoutApi from '../hooks/useLogoutApi';
 
 const AuthContext = createContext({
   user: null,
@@ -31,11 +32,10 @@ export const AuthProvider = ({ children }) => {
   const refreshIntervalRef = useRef(null);
   const lastActivityRef = useRef(Date.now());
   
-  axios.defaults.withCredentials = true;
-
-  const URLs = {
-    Site: `${config.api.baseUrl}`
-  };
+  // API hooks
+  const loginApi = useLoginApi();
+  const checkAuthApi = useCheckAuthApi();
+  const logoutApi = useLogoutApi();
 
   // Clear all session timers
   const clearSessionTimers = useCallback(() => {
@@ -134,6 +134,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('userid');
     localStorage.removeItem('tag');
     localStorage.removeItem('role');
+    sessionStorage.removeItem('authToken');
     setUser(null);
     setUserTag(null);
     setRole(null);
@@ -156,94 +157,15 @@ export const AuthProvider = ({ children }) => {
       return { success: false };
     }
 
-    try {
-      const response = await axios.get(
-        `${URLs.Site}/check-auth`,
-        { 
-          withCredentials: true,
-          timeout: 10000 // 10 second timeout
-        }
-      );
-      
-      // Handle 304 Not Modified - session is still valid
-      if (response.status === 304) {
-        // Use stored values since 304 means nothing changed
-        const storedUserId = localStorage.getItem('userid');
-        const storedRole = localStorage.getItem('role');
-        const storedTag = localStorage.getItem('tag');
-        
-        if (storedUserId) {
-          setIsLogged(true);
-          setUser(storedUserId);
-          setRole(storedRole);
-          setUserTag(storedTag);
-          setLoading(false);
-          resetSessionTimeout();
-          return { success: true };
-        }
-      }
-      
-      // Handle 200 OK with data
-      if (response.data && response.data.info && response.data.info.isAuthenticated) {
-        // Get stored values
-        const storedUserId = localStorage.getItem('userid');
-        const storedRole = localStorage.getItem('role');
-        const storedTag = localStorage.getItem('tag');
-        
-        // Check if backend provides user details
-        if (response.data.info.id !== undefined) {
-          // Backend provides full user data - use it
-          const backendUserId = String(response.data.info.id);
-          const backendRole = String(response.data.info.role || '');
-          const backendTag = String(response.data.info.tag || '');
-          
-          if (storedUserId !== backendUserId || storedRole !== backendRole) {
-            localStorage.setItem('userid', backendUserId);
-            localStorage.setItem('role', backendRole);
-            localStorage.setItem('tag', backendTag);
-          }
-          
-          setIsLogged(true);
-          setUser(backendUserId);
-          setRole(backendRole);
-          setUserTag(backendTag);
-          setLoading(false);
-          resetSessionTimeout();
-          return { success: true };
-        } else {
-          // Backend only confirms auth, use stored values
-          if (storedUserId) {
-            setIsLogged(true);
-            setUser(storedUserId);
-            setRole(storedRole);
-            setUserTag(storedTag);
-            setLoading(false);
-            resetSessionTimeout();
-            
-            return { success: true };
-          } else {
-            // No stored data available
-            
-            clearAllState();
-            setLoading(false);
-            return { success: false, message: 'No user data available' };
-          }
-        }
-      } else {
-        // Backend says not authenticated, clear local storage
-        
-        clearAllState();
-        setLoading(false);
-        return { success: false };
-      }
-    } catch (error) {
-      
-      const errorMessage = error.response?.data?.message || error.message || 'Auth check failed';
+    const response = await checkAuthApi.checkAuth();
+    
+    if (!response.success) {
+      const errorMessage = response.message || 'Auth check failed';
       setAuthError(errorMessage);
       
       // On network error, keep session if recently validated
       const timeSinceActivity = Date.now() - lastActivityRef.current;
-      if (error.code === 'ECONNABORTED' || error.code === 'ERR_NETWORK') {
+      if (response.errorCode === 'ECONNABORTED' || response.errorCode === 'ERR_NETWORK') {
         if (timeSinceActivity < TOKEN_REFRESH_INTERVAL && isSession) {
           // Keep session temporarily on network error
           setLoading(false);
@@ -255,6 +177,64 @@ export const AuthProvider = ({ children }) => {
       clearAllState();
       setLoading(false);
       return { success: false, message: errorMessage };
+    }
+
+    // Handle 304 Not Modified - session is still valid
+    if (response.data.status === 304) {
+      const storedUserId = localStorage.getItem('userid');
+      const storedRole = localStorage.getItem('role');
+      const storedTag = localStorage.getItem('tag');
+      
+      if (storedUserId) {
+        setIsLogged(true);
+        setUser(storedUserId);
+        setRole(storedRole);
+        setUserTag(storedTag);
+        setLoading(false);
+        resetSessionTimeout();
+        return { success: true };
+      }
+    }
+    
+    // Handle authenticated response with data
+    const storedUserId = localStorage.getItem('userid');
+    const storedRole = localStorage.getItem('role');
+    const storedTag = localStorage.getItem('tag');
+    
+    // Check if backend provides user details
+    if (response.data.id !== undefined) {
+      // Backend provides full user data - use it
+      const backendUserId = String(response.data.id);
+      const backendRole = String(response.data.role || '');
+      const backendTag = String(response.data.tag || '');
+      
+      if (storedUserId !== backendUserId || storedRole !== backendRole) {
+        localStorage.setItem('userid', backendUserId);
+        localStorage.setItem('role', backendRole);
+        localStorage.setItem('tag', backendTag);
+      }
+      
+      setIsLogged(true);
+      setUser(backendUserId);
+      setRole(backendRole);
+      setUserTag(backendTag);
+      setLoading(false);
+      resetSessionTimeout();
+      return { success: true };
+    } else if (storedUserId) {
+      // Backend only confirms auth, use stored values
+      setIsLogged(true);
+      setUser(storedUserId);
+      setRole(storedRole);
+      setUserTag(storedTag);
+      setLoading(false);
+      resetSessionTimeout();
+      return { success: true };
+    } else {
+      // No stored data available
+      clearAllState();
+      setLoading(false);
+      return { success: false, message: 'No user data available' };
     }
   };
 
@@ -270,80 +250,63 @@ export const AuthProvider = ({ children }) => {
       return { success: false, message: error };
     }
     
-    try {
-      const response = await axios.post(
-        `${URLs.Site}/Login`,
-        { 
-          id: username.trim(), 
-          password: password 
-        },
-        { 
-          withCredentials: true,
-          timeout: 10000
-        }
-      );
-
-      if (response.status === 200 && response.data.info) {
-        const { id, tag, role } = response.data.info;
-        
-        // Validate response data
-        if (!id && id !== 0) {
-          throw new Error('Invalid response from server');
-        }
-        
-        // Convert to strings and save to localStorage
-        const userId = String(id);
-        const userTag = String(tag || '');
-        const userRole = String(role || '');
-        
-        localStorage.setItem('userid', userId);
-        localStorage.setItem('tag', userTag);
-        localStorage.setItem('role', userRole);
-        
-        // Update state
-        setUser(userId);
-        setUserTag(userTag);
-        setRole(userRole);
-        setIsLogged(true);
-        setLoading(false);
-        resetSessionTimeout();
-        
-        return { success: true };
-      }
-      
-      setLoading(false);
-      return { success: false, message: 'Login failed' };
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || error.message || 'Login failed';
+    const response = await loginApi.login({ username, password });
+    console.log('Login response in context:', response);
+    if (!response.success) {
+      const errorMessage = response.message || 'Login failed';
       setAuthError(errorMessage);
       setLoading(false);
       return { success: false, message: errorMessage };
     }
+
+    console.log('Response data:', response.data);
+    const { id, tag, role } = response.data;
+    console.log('Extracted from data - id:', id, 'tag:', tag, 'role:', role);
+    
+    // Validate response data
+    if (!id && id !== 0) {
+      const error = 'Invalid response from server - missing id';
+      console.log(error, 'Full response.data:', response.data);
+      setAuthError(error);
+      setLoading(false);
+      return { success: false, message: error };
+    }
+    
+    // Convert to strings and save to localStorage
+    const userId = String(id);
+    const userTag = String(tag || '');
+    const userRole = String(role || '');
+    
+    localStorage.setItem('userid', userId);
+    localStorage.setItem('tag', userTag);
+    localStorage.setItem('role', userRole);
+    
+    // Update state
+    setUser(userId);
+    setUserTag(userTag);
+    setRole(userRole);
+    setIsLogged(true);
+    setLoading(false);
+    resetSessionTimeout();
+    
+    return { success: true };
   };
 
   const logout = async (reason = 'User logout') => {
     setLoading(true);
-    try {
-      await axios.post(
-        `${URLs.Site}/Logout`, 
-        {}, 
-        { 
-          withCredentials: true,
-          timeout: 5000
-        }
-      );
-    } catch (error) {
-      // Continue with local logout even if API fails
-    } finally {
-      // Clear everything regardless of API response
-      clearAllState();
-      
-      // Notify other tabs about logout
-      localStorage.setItem('logout-event', Date.now().toString());
-      localStorage.removeItem('logout-event');
-      
-      setLoading(false);
-    }
+    
+    // Call logout API
+    await logoutApi.logout();
+    
+    // Clear everything regardless of API response
+    clearAllState();
+    
+    // Notify other tabs about logout
+    localStorage.setItem('logout-event', Date.now().toString());
+    localStorage.removeItem('logout-event');
+    
+    setLoading(false);
+    
     return { success: true, reason };
   };
 
