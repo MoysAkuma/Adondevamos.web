@@ -1,35 +1,14 @@
-import { useState, useEffect } from "react";
 import { Box, CircularProgress, Alert, Container } from '@mui/material';
-import axios from 'axios';
-import config from "../../Resources/config";
 import TripCard from "./TripCard";
+import useTripById from "../../hooks/Trips/useTripById";
 
 function MushaShugyo() {
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [tripInfo, setTripInfo] = useState(null);
-
-    const tripsURL = `${config.api.baseUrl}${config.api.endpoints.Trips}`;
-
-    useEffect(() => {
-        const fetchTrip = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                
-                const response = await axios.get(`${tripsURL}/1`);
-                console.log('Fetched trip:', response.data);
-                setTripInfo(response.data.info);
-            } catch (err) {
-                console.error('Error fetching trip:', err);
-                setError(err.response?.data?.message || 'Failed to fetch trip information');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchTrip();
-    }, [tripsURL]);
+    const {
+        tripInfo,
+        loading,
+        error,
+        notFound
+    } = useTripById(1);
 
     if (loading) {
         return (
@@ -52,7 +31,7 @@ function MushaShugyo() {
         );
     }
 
-    if (!tripInfo) {
+    if (notFound || !tripInfo) {
         return (
             <Container maxWidth="sm" sx={{ mt: 4 }}>
                 <Alert severity="info">No trip information found</Alert>

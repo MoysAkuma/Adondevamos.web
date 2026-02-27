@@ -47,6 +47,8 @@ const FormTrips = ({
             onChange={handleChange}
             size={ 'small' }
             value={formTrip.description}
+            multiline
+            minRows={6}
             fullWidth
             required                      
         />

@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext, useCallback, useRef } from 'react';
-import useLoginApi from '../hooks/useLoginApi';
-import useCheckAuthApi from '../hooks/useCheckAuthApi';
-import useLogoutApi from '../hooks/useLogoutApi';
+import useLoginApi from '../hooks/Session/useLoginApi';
+import useCheckAuthApi from '../hooks/Session/useCheckAuthApi';
+import useLogoutApi from '../hooks/Session/useLogoutApi';
 
 const AuthContext = createContext({
   user: null,

@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import {
         Button,
         Typography,
@@ -8,32 +7,19 @@ import {
   useTheme
 } from '@mui/material';
 
-import MemberSearch from './MembersList/MemberSearch';
 import ManageItinerary from './Itinerary/ManageItinerary';
-import MemberList from './MembersList/MemberList';
 import ManageMemberList from './MembersList/ManageMemberList';
 import SnackbarNotification from '../Commons/SnackbarNotification';
-import config from "../../Resources/config";
-import { useAuth } from '../../context/AuthContext';
 import FormTrips from './FormTrips';
-import { AccountCircle, 
-  Add, 
-  Delete, 
-  FlightTakeoff, 
-  WatchLater 
-} from '@mui/icons-material'
+import { FlightTakeoff } from '@mui/icons-material';
+import useTripMutationApi from '../../hooks/Trips/useTripMutationApi';
+import useTripDetailsApi from '../../hooks/Trips/useTripDetailsApi';
 
 function CreateTrip( ) {
-    const auth = useAuth();
     const theme = useTheme();
     const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
-    
-    //URLS ro call rest api
-    const URLsCatalogService = 
-    {
-        User : `${config.api.baseUrl}${config.api.endpoints.User}`,
-        Trips : `${config.api.baseUrl}${config.api.endpoints.Trips}`
-    };
+    const { createTrip } = useTripMutationApi();
+    const { saveItinerary, saveGallery, saveMembers } = useTripDetailsApi();
 
     //Set error list to handle error messages
     const [errors, setErrors] = useState({
@@ -60,7 +46,8 @@ function CreateTrip( ) {
           tag : ''
         },
         itinerary:[],
-        memberlist:[]
+        memberlist:[],
+        gallery:[]
       }
     );
 
@@ -78,6 +65,12 @@ function CreateTrip( ) {
         ...prev,
         [name]: value
         }));
+        if (name === 'initialdate') {
+          setFormTrip(prev => ({
+            ...prev,
+            finaldate: value
+          }));
+        }
     };
 
     // Handle form submission
@@ -97,30 +90,25 @@ function CreateTrip( ) {
       }
 
       // Validate for field initialDate
-      if (!formTrip.initialdate === '') {
+      if (formTrip.initialdate === '') {
         throw new Error('set initial date');
       }
 
       // Validate for field finalDate
-      if (!formTrip.finaldate === '') {
+      if (formTrip.finaldate === '') {
         throw new Error('set final date');
       }
 
       const rq = {
         name : formTrip.name.trim(),
         description : formTrip.description.trim(),
-        initialDate : formTrip.initialdate,
-        finalDate : formTrip.finaldate,
+        initialdate : formTrip.initialdate,
+        finaldate : formTrip.finaldate,
         ownerid : formTrip.owner.id
       };
       //const response = {status : 201, data:{info: { id : 0 }}}
       // API call to create trip
-      const response = await axios.post(URLsCatalogService.Trips, rq , {
-        headers: {
-          'Content-Type': 'application/json',
-          // 'Authorization': 'Bearer your-token-here'
-        }
-      });
+      const response = await createTrip(rq);
 
       if(response.status == 201) {
         //Show message of saved countries
@@ -131,12 +119,16 @@ function CreateTrip( ) {
 
         //Save member list
         if  ( formTrip.memberlist.length > 0 ) {
-          saveMemberlist(response.data.info);
+          await saveMemberlist(response.data.info);
         }
 
         //Save itinerary
         if ( formTrip.itinerary.length > 0 ) {
-          saveItinerary(response.data.info);
+          await saveTripItinerary(response.data.info);
+        }
+
+        if (formTrip.gallery.length > 0) {
+          await saveTripGallery(response.data.info);
         }
         // Reset form after successful submission
         setFormTrip(
@@ -152,8 +144,9 @@ function CreateTrip( ) {
         );
       }       
     } catch (error) {
+      setMessageStack(`Error creating trip: ${error.message}`);
       
-      console.error('Error creating place:', error);
+      console.error('Error creating trip:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -167,28 +160,27 @@ function CreateTrip( ) {
         hide : false
       }));
       const rq = {
-        "MemberList" : lst
+        "Members" : lst
       };
 
-      axios.post(
-        URLsCatalogService.Trips +'/' + id+ '/Members', rq)
-      .then(resp => {
+      try {
+        await saveMembers(id, rq, 'post');
         setFormTrip(
           prev => (
             {
             ...prev,
-              memberlist : ''
+              memberlist : []
             }
           ) 
         );
         setMessageStack("Members were saved");
-      })
-      .catch(error => console.error("Error getting catalogue of countries"));
-      console.log(rq);
+      } catch (error) {
+        console.error("Error saving member list", error);
+      }
     };
 
     //save itinerary
-    const saveItinerary = async( item ) =>{
+    const saveTripItinerary = async( item ) =>{
       const id = item.id;
       const lst = formTrip.itinerary.map(place => ({
         "placeid" : place.id ,
@@ -199,8 +191,8 @@ function CreateTrip( ) {
       const rq = {
         "Itinerary" : lst
       };
-     axios.post(URLsCatalogService.Trips + '/' + id + '/Itinerary', rq )
-      .then(resp => {
+      try {
+        await saveItinerary(id, rq, 'post');
         setMessageStack("Itinerary was saved.");
         setFormTrip(
           prev => (
@@ -210,8 +202,23 @@ function CreateTrip( ) {
             }
           ) 
         );
-      })
-      .catch(error => console.error("Error getting catalogue of countries"));
+      } catch (error) {
+        console.error("Error saving itinerary", error);
+      }
+    };
+
+    const saveTripGallery = async (item) => {
+      const id = item.id;
+      const rq = {
+        images: formTrip.gallery
+      };
+
+      try {
+        await saveGallery(id, rq);
+        setMessageStack("Gallery was saved.");
+      } catch (error) {
+        console.error("Error saving gallery", error);
+      }
     };
 
   const handlePlaceAdd = (item) => {

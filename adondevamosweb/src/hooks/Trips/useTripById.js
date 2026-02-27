@@ -1,0 +1,69 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import axios from 'axios';
+import config from '../../Resources/config';
+
+export const useTripById = (tripId, options = {}) => {
+  const {
+    enabled = true,
+    includeUserHeader = false,
+    userId = null
+  } = options;
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [notFound, setNotFound] = useState(false);
+  const [tripInfo, setTripInfo] = useState(null);
+
+  const tripsUrl = useMemo(
+    () => `${config.api.baseUrl}${config.api.endpoints.Trips}`,
+    []
+  );
+
+  const fetchTrip = useCallback(async () => {
+    if (!enabled || !tripId) {
+      setLoading(false);
+      setError(null);
+      setNotFound(false);
+      setTripInfo(null);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setNotFound(false);
+
+    try {
+      const headers = {};
+      if (includeUserHeader && userId) {
+        headers['user-id'] = userId;
+      }
+
+      const response = await axios.get(`${tripsUrl}/${tripId}`, { headers });
+      setTripInfo(response?.data?.info || null);
+    } catch (requestError) {
+      if (requestError?.response?.status === 404) {
+        setNotFound(true);
+        setTripInfo(null);
+      } else {
+        setError(requestError?.response?.data?.message || 'Failed to fetch trip information');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [enabled, includeUserHeader, tripId, tripsUrl, userId]);
+
+  useEffect(() => {
+    fetchTrip();
+  }, [fetchTrip]);
+
+  return {
+    tripInfo,
+    setTripInfo,
+    loading,
+    error,
+    notFound,
+    refetchTrip: fetchTrip
+  };
+};
+
+export default useTripById;

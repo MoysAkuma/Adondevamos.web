@@ -18,6 +18,7 @@ import { Visibility, Edit, FavoriteBorder } from '@mui/icons-material'
 import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import useTripById from '../../hooks/Trips/useTripById';
 
 import ViewMemberList from '../View/ViewMemberList'
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -31,13 +32,19 @@ function ViewTrip(){
     //Get id
     const { id } = useParams();
     const navigate = useNavigate();
-    const { isLogged, user, loading } = useAuth();
-    const [loadingPage, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [notFound, setNotFound] = useState(false);
-    const [tripInfo, setTripInfo] = useState(null);
+    const { isLogged, user } = useAuth();
     const [liked, setLiked] = useState(false);
     const [isOwner, setIsOwner] = useState(false);
+    const {
+        tripInfo,
+        setTripInfo,
+        loading: loadingPage,
+        error,
+        notFound
+    } = useTripById(id, {
+        includeUserHeader: isLogged,
+        userId: user
+    });
 
     //URLS
     const URLsCatalogService = 
@@ -46,41 +53,20 @@ function ViewTrip(){
         Votes :`${config.api.baseUrl}${config.api.endpoints.Votes}`
     };
 
-    useEffect(()=> {
-         window.scrollTo(0, 0);
-        const fetchTrip = async () => {
-            if(!id) {
-                setLoading(false);
-                return;
-            }
-            setLoading(true);
-            setError(null);
-            setNotFound(false);
-            try{
-                const headers = {};
-                if (isLogged) {
-                    headers['user-id'] = user;
-                }
-                const response = await axios.get(
-                    URLsCatalogService.Trips + '/' + id,
-                    { headers }
-                );
-                setTripInfo( response.data.info );
-                setLiked( response.data.info.userVoted || false );
-                console.log("Owner ID:", response.data.info.owner.id, "User ID:", user);
-                setIsOwner( user && (response.data.info.owner.id === parseInt(user)));
-            } catch (err) {
-                if (err.response?.status === 404) {
-                    setNotFound(true);
-                } else {
-                    setError(err.response?.data?.message || 'Failed to fetch trip');
-                }
-            } finally {
-                setLoading(false);
-            } 
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [id]);
+
+    useEffect(() => {
+        if (!tripInfo) {
+            setLiked(false);
+            setIsOwner(false);
+            return;
         }
-        fetchTrip();  
-    },[id, user, isLogged]);
+
+        setLiked(tripInfo.userVoted || false);
+        setIsOwner(user && (tripInfo.owner.id === parseInt(user)));
+    }, [tripInfo, user]);
 
     const handleVoteTrip = () => {
         if (!user) {

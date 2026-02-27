@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import axios from 'axios';
-import config from '../Resources/config';
+import config from '../../Resources/config';
 
 const LOGOUT_ENDPOINT = `${config.api.baseUrl}/Logout`;
 

@@ -1,13 +1,9 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import 
     { 
         Button,
-        ButtonGroup,
         Typography,
         Box,
-        Alert,
-        AlertTitle,
         CircularProgress
 } from '@mui/material';
 
@@ -18,29 +14,24 @@ import ManageItinerary from './Itinerary/ManageItinerary';
 import MemberList from './MembersList/MemberList';
 import ManageMemberList from './MembersList/ManageMemberList';
 import SnackbarNotification from '../Commons/SnackbarNotification';
-import config from "../../Resources/config";
-import { Navigate, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import FormTrips from './FormTrips';
 import { useAuth } from "../../context/AuthContext";
 import ImageUploader from '../Commons/ImageUploader';
 import GalleryListManager from '../Commons/GalleryListManager';
+import useTripMutationApi from '../../hooks/Trips/useTripMutationApi';
+import useTripDetailsApi from '../../hooks/Trips/useTripDetailsApi';
 
 function EditTrip(){
-    const { isLogged, loading } = useAuth();
+  const { loading } = useAuth();
     const [isUser, setIsUser] = useState(false);
     const navigate = useNavigate();
+  const { getTrip, updateTrip } = useTripMutationApi();
+  const { saveItinerary, saveGallery, removeGalleryImage, saveMembers } = useTripDetailsApi();
 
     //Trip id
     const { id } = useParams();
     
-    //URLS
-    const URLsCatalogService = 
-    {
-        User : `${config.api.baseUrl}${config.api.endpoints.User}`,
-        Trips : `${config.api.baseUrl}${config.api.endpoints.Trips}`
-    };
-
-
     const [errors, setErrors] = useState({
       duplicatedplace : false,
       duplicateduser : false,
@@ -102,26 +93,21 @@ function EditTrip(){
       }
 
       // Validate for field initialDate
-      if (!formTrip.initialdate != "") {
+      if (formTrip.initialdate === "") {
         throw new Error('set initial date');
       }
 
       // Validate for field finalDate
-      if (!formTrip.finaldate != "") {
+      if (formTrip.finaldate === "") {
         throw new Error('set final date');
       }
       
       // API call to create trip
-      const response = await axios.put(URLsCatalogService.Trips + '/' + id, {
+      const response = await updateTrip(id, {
         name : formTrip.name.trim(),
         description : formTrip.description,
         initialdate : formTrip.initialdate,
         finaldate : formTrip.finaldate,
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          // 'Authorization': 'Bearer your-token-here' // Add if needed
-        }
       });
 
       if(response.status == 201 
@@ -129,32 +115,37 @@ function EditTrip(){
         setMessageSnack("Trip info was updated.");
       } 
 
+      if (
+        originalTrip &&
+        JSON.stringify(originalTrip.itinerary) !== JSON.stringify(formTrip.itinerary)
+      ) {
+        setMessageSnack("Saving itinerary...");
+        await saveTripItinerary();
+      }
+
+      if (
+        originalTrip &&
+        JSON.stringify(originalTrip.members) !== JSON.stringify(formTrip.members)
+      ) {
+        setMessageSnack("Saving member list...");
+        await saveMemberlist();
+      }
+
+      if (addedImages.length > 0) {
+        await addPhotosToGallery();
+      }
+
       // Handle success
       setSubmitSuccess(true);
+      setTimeout(() => {
+        navigate('/View/Trip/' + id );
+      }, 3000);
     
     } catch (error) {
       setMessageSnack(`Error updating trip: ${error.message}`);
       console.error('Error updating trip:', error);
     } finally {
       setIsSubmitting(false);
-      //compare original trip with form trip and save changes
-      if ( JSON.stringify(originalTrip.itinerary) 
-        != JSON.stringify(formTrip.itinerary) ){
-        setMessageSnack("Saving itinerary...");
-        saveItinerary();
-      }
-      if ( JSON.stringify(originalTrip.members) 
-        != JSON.stringify(formTrip.members) ){
-        setMessageSnack("Saving member list...");
-        saveMemberlist();
-      }
-      if (addedImages.length > 0 ){
-        addPhotosToGallery();
-      }
-      setTimeout(() => {
-        navigate('/View/Trip/' + id )}, 
-        3000);
-
     }
   };
 
@@ -170,16 +161,16 @@ function EditTrip(){
         const rq = {
           "Members" : lst
         };
-        axios.put(
-          URLsCatalogService.Trips +'/' + id+ '/Members', rq)
-        .then(resp => {
-            setMessageSnack("Member list was saved.");
-        })
-        .catch(error => console.error("Error getting catalogue of countries"));
+        try {
+          await saveMembers(id, rq, 'put');
+          setMessageSnack("Member list was saved.");
+        } catch (error) {
+          console.error("Error saving member list", error);
+        }
     };
 
     //save itinerary
-    const saveItinerary = async( ) =>{
+    const saveTripItinerary = async( ) =>{
         const lst = formTrip.itinerary.map(itinerary => ({
           "placeid" : itinerary.place.id ,
           "initialdate" : itinerary.initialdate,
@@ -190,11 +181,12 @@ function EditTrip(){
           "Itinerary" : lst
         };
 
-        axios.put(URLsCatalogService.Trips+'/' + id + '/Itinerary', rq )
-        .then(resp => {
-            setMessageSnack("Itinerary was saved.");
-        })
-        .catch(error => console.error("Error getting catalogue of countries"));
+        try {
+          await saveItinerary(id, rq, 'put');
+          setMessageSnack("Itinerary was saved.");
+        } catch (error) {
+          console.error("Error saving itinerary", error);
+        }
     };
 
     const addPhotosToGallery = async () => {
@@ -248,7 +240,6 @@ function EditTrip(){
             }
             // Default fallback
             else {
-              console.warn("Unknown image format:", photo);
               base64Data = photo.data || photo;
               mimetype = photo.mimetype || "image/jpeg";
               extension = photo.extension || "jpg";
@@ -266,15 +257,7 @@ function EditTrip(){
           "images" : photos
         };
         
-        const response = await axios.post(
-          URLsCatalogService.Trips + '/' + id + '/Images',
-          rq,
-          {
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          }
-        );
+        const response = await saveGallery(id, rq);
         
         if (response.status === 200 || response.status === 201) {
           setMessageSnack("Photos were added to gallery.");
@@ -325,9 +308,7 @@ function EditTrip(){
 
   const removePhoto = async (item) => {
     try {
-      const response = await axios.delete(
-        URLsCatalogService.Trips + '/' + id + '/Images/' + item.id
-      );
+      const response = await removeGalleryImage(id, item.id);
       if (response.status === 200 || response.status === 204) {
         setMessageSnack("Photo was removed from gallery.");
         // Update originalPlace state to reflect removal
@@ -342,8 +323,7 @@ function EditTrip(){
     }
   };
 
-  const handleUserAdd = (item) => {debugger
-    console.log("Adding user to member list:", item);
+  const handleUserAdd = (item) => {
     const foundInList = formTrip.members.filter( x => x.user.id == item.id );
     const memberToInsert = {
       user : {
@@ -419,13 +399,11 @@ const handleRemoveUser = (event) => {
       const fetchTrip = async () => {
           if ( !id ) return;
           try {
-            axios.get(URLsCatalogService.Trips + '/' + id)
-            .then(resp => {
-                setFormTrip( resp.data.info );
-                setOriginalTrip( resp.data.info );
-            })
-            .catch(error => console.error("Error getting trip info"));
+            const response = await getTrip(id);
+            setFormTrip(response.data.info);
+            setOriginalTrip(response.data.info);
         } catch (err) {
+          console.error("Error getting trip info", err);
           setErrors(prev => (
               {
                 ...prev,
