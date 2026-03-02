@@ -14,12 +14,14 @@ import FormTrips from './FormTrips';
 import { FlightTakeoff } from '@mui/icons-material';
 import useTripMutationApi from '../../hooks/Trips/useTripMutationApi';
 import useTripDetailsApi from '../../hooks/Trips/useTripDetailsApi';
+import useGalleryUpload from '../../hooks/useGalleryUpload';
 
 function CreateTrip( ) {
     const theme = useTheme();
     const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
     const { createTrip } = useTripMutationApi();
     const { saveItinerary, saveGallery, saveMembers } = useTripDetailsApi();
+    const { uploadImages, isUploading } = useGalleryUpload();
 
     //Set error list to handle error messages
     const [errors, setErrors] = useState({
@@ -209,12 +211,19 @@ function CreateTrip( ) {
 
     const saveTripGallery = async (item) => {
       const id = item.id;
-      const rq = {
-        images: formTrip.gallery
-      };
 
       try {
-        await saveGallery(id, rq);
+        await uploadImages({
+          images: formTrip.gallery,
+          buildPayload: (normalizedImages) => ({
+            images: normalizedImages.map((image) => ({
+              data: image.data,
+              mimetype: image.mimetype,
+              extension: image.extension
+            }))
+          }),
+          uploadRequest: (payload) => saveGallery(id, payload)
+        });
         setMessageStack("Gallery was saved.");
       } catch (error) {
         console.error("Error saving gallery", error);
@@ -388,7 +397,7 @@ function CreateTrip( ) {
 
         <Button 
           type="submit" 
-          disabled={isSubmitting}
+          disabled={isSubmitting || isUploading}
           variant="text"
           startIcon={<FlightTakeoff />}
           >

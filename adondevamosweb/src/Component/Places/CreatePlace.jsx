@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import 
     {
         TextField, 
@@ -19,11 +18,13 @@ import CountriesSelectList from "../Catalogues/CountriesSelectList";
 import StateSelect from "../Catalogues/StateSelect";
 import CitiesSelect from "../Catalogues/CitiesSelect";
 import SnackbarNotification from "../Commons/SnackbarNotification";
-import ImageUploader from '../Commons/ImageUploader';
+import GalleryListManager from '../Commons/GalleryListManager';
 import LocationPicker from '../Commons/LocationPicker';
-import config from "../../Resources/config";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../../context/AuthContext";
+import useGalleryUpload from '../../hooks/useGalleryUpload';
+import usePlaceMutationApi from '../../hooks/Places/usePlaceMutationApi';
+import usePlaceDetailsApi from '../../hooks/Places/usePlaceDetailsApi';
 
 function CreatePlace({
   catCountries,
@@ -32,16 +33,13 @@ function CreatePlace({
     catFacilities
 }) {
   const { isLogged, loading: authLoading, hasPermission } = useAuth();
+  const { uploadImages, isUploading } = useGalleryUpload();
+  const { createPlace } = usePlaceMutationApi();
+    const { saveFacilities, saveGalleryPhotos } = usePlaceDetailsApi();
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [loading, setLoading] = useState(true);
-  //URLS
-  const [URLsCatalogService, setURLsCatalogService] = useState(
-      {
-          Places:`${config.api.baseUrl}${config.api.endpoints.Places}`
-      }
-  );
   
   //filtered data
   const [filteredStates, setFilteredStates] = useState([]);
@@ -49,16 +47,6 @@ function CreatePlace({
   
   // Added images
   const [addedImages, setAddedImages] = useState([]);
-
-  const [errors, setErrors] = useState({
-    place: false,
-    facilities: false
-  });
-
-  const [responseSuceess, setResponseSuccess] = useState({
-    place: false,
-    facilities: false
-  });
 
   // State to track checked options
   const [checkedFacilities, setCheckedFacilities] = useState({});
@@ -141,24 +129,16 @@ function CreatePlace({
       }
       
       // API call to create place
-      const response = await axios.post(
-        URLsCatalogService.Places, 
-        {
-          name: formCreatePlace.name.trim(),
-          countryid: formCreatePlace.countryid,
-          stateid: formCreatePlace.stateid,
-          cityid: formCreatePlace.cityid,
-          description: formCreatePlace.description,
-          address: formCreatePlace.address,
-          ispublic: formCreatePlace.ispublic,
-          latitude: formCreatePlace.latitude,
-          longitude: formCreatePlace.longitude
-        }, 
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          // 'Authorization': 'Bearer your-token-here' // Add if needed
-        }
+      const response = await createPlace({
+        name: formCreatePlace.name.trim(),
+        countryid: formCreatePlace.countryid,
+        stateid: formCreatePlace.stateid,
+        cityid: formCreatePlace.cityid,
+        description: formCreatePlace.description,
+        address: formCreatePlace.address,
+        ispublic: formCreatePlace.ispublic,
+        latitude: formCreatePlace.latitude,
+        longitude: formCreatePlace.longitude
       });
       if (response.status === 200 || response.status === 201) {
         setMessageSnack("Place was created successfully!");
@@ -172,7 +152,20 @@ function CreatePlace({
           
           // Upload images if added
           if (addedImages.length > 0) {
-            await addPhotosToGallery(placeId);
+            await uploadImages({
+              images: addedImages,
+              context: { placeId },
+              buildPayload: (normalizedImages, uploadContext) => ({
+                Photos: normalizedImages.map((image, index) => ({
+                  name: `place_${uploadContext.placeId}_${Date.now()}_${index}`,
+                  base64: image.data,
+                  mimetype: image.mimetype,
+                  extension: image.extension
+                }))
+              }),
+              uploadRequest: (payload) => saveGalleryPhotos(placeId, payload)
+            });
+            setMessageSnack("Photos uploaded successfully!");
           }
           
           // Navigate to the new place after a short delay
@@ -223,17 +216,6 @@ function CreatePlace({
     }
   };
 
-  const handleCloseAlert = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    
-    setErrors(prev => ({
-      place: false,
-      facilities: false
-    }));
-  };
-
   const handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -254,63 +236,14 @@ function CreatePlace({
       Facilities: checkedFacilitiesToSave
     };
 
-    const url = `${URLsCatalogService.Places}/${placeId}/Facilities`;
-    
     try {
-      await axios.post(url, formSaveFacilities);
+      await saveFacilities(placeId, formSaveFacilities, 'post');
       setMessageSnack("Facilities were saved successfully.");
     } catch (error) {
       console.error("Error saving facilities", error);
       setMessageSnack("Error saving facilities.");
     }
   };
-
-  // Add photos to gallery
-  const addPhotosToGallery = async (placeId) => {
-    const convertToBase64 = (file) => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = (error) => reject(error);
-      });
-    };
-
-    try {
-      const photos = await Promise.all(
-        addedImages.map(async (photo) => {
-          let base64Data;
-          let mimetype;
-          let extension;
-
-          if (photo.file && photo.file instanceof File) {
-            base64Data = await convertToBase64(photo.file);
-            mimetype = photo.file.type || "image/jpeg";
-            extension = photo.name ? photo.name.split('.').pop() : "jpg";
-          } else if (photo instanceof File) {
-            base64Data = await convertToBase64(photo);
-            mimetype = photo.type || "image/jpeg";
-            extension = photo.name ? photo.name.split('.').pop() : "jpg";
-          }
-
-          return {
-            name: `place_${placeId}_${Date.now()}`,
-            base64: base64Data,
-            mimetype: mimetype,
-            extension: extension
-          };
-        })
-      );
-
-      const url = `${URLsCatalogService.Places}/${placeId}/Photos`;
-      await axios.post(url, { Photos: photos });
-      setMessageSnack("Photos uploaded successfully!");
-    } catch (error) {
-      console.error("Error uploading photos", error);
-      setMessageSnack("Error uploading photos.");
-    }
-  };
-    
 
   useEffect(() => {
     const loadData = async () => {
@@ -466,10 +399,12 @@ function CreatePlace({
           Images
         </Typography>
 
-        <ImageUploader
-          images={addedImages}
-          onImagesChange={setAddedImages}
-          maxImages={5}
+        <GalleryListManager
+          items={[]}
+          pendingImages={addedImages}
+          onPendingImagesChange={setAddedImages}
+          showUploader
+          maxPendingImages={5}
         />
 
         <Typography variant="h6" component="h6" 
@@ -513,13 +448,13 @@ function CreatePlace({
         
         <Button 
           type="submit" 
-          disabled={isSubmitting}
+          disabled={isSubmitting || isUploading}
           variant="contained"
-          startIcon={isSubmitting ? <CircularProgress size={20} /> : <Save />}
+          startIcon={(isSubmitting || isUploading) ? <CircularProgress size={20} /> : <Save />}
           fullWidth
           sx={{ mt: 3 }}
         >
-          {isSubmitting ? 'Creating Place...' : 'Create Place'}
+          {(isSubmitting || isUploading) ? 'Creating Place...' : 'Create Place'}
         </Button>
       </Box>
     </>

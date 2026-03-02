@@ -23,11 +23,13 @@ import FacilityIcon from "../Commons/FacilityIcon";
 import { useAuth } from '../../context/AuthContext';
 import MapView from "../Commons/MapView";
 import ImageCarousel from "../Commons/ImageCarousel";
+import usePlaceQueryApi from '../../hooks/Places/usePlaceQueryApi';
 
 function ViewPlace(){
     //Get id
     const { id } = useParams();
     const { isLogged, user, loading: authLoading, role, hasRole } = useAuth();
+    const { getPlace } = usePlaceQueryApi();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -98,14 +100,9 @@ function ViewPlace(){
             setError(null);
             
             try {
-                const headers = {};
-                if (isLogged) {
-                    headers['user-id'] = user;
-                }
-                
-                const response = 
-                await axios.get(`${URLsCatalogService.Places}/${id}`,
-                    { headers });
+                const response = await getPlace(id, {
+                    userId: isLogged ? user : null
+                });
                 setPlaceInfo(response.data.info);
                 console.log("Place info fetched:", response.data.info);
                 setLiked( response.data.info.userVote || false );
@@ -118,7 +115,7 @@ function ViewPlace(){
         };
         fetchPlace();
         
-    }, [id, user]);
+    }, [id, user, isLogged, getPlace]);
 
     if (loading) {
         return (

@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import 
     {
         TextField, 
@@ -19,12 +18,13 @@ import CountriesSelectList from "../Catalogues/CountriesSelectList";
 import StateSelect from "../Catalogues/StateSelect";
 import CitiesSelect from "../Catalogues/CitiesSelect";
 import SnackbarNotification from "../Commons/SnackbarNotification";
-import ImageUploader from '../Commons/ImageUploader';
 import LocationPicker from '../Commons/LocationPicker';
-import config from "../../Resources/config";
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from "../../context/AuthContext";
 import GalleryListManager from '../Commons/GalleryListManager';
+import useGalleryUpload from '../../hooks/useGalleryUpload';
+import usePlaceMutationApi from '../../hooks/Places/usePlaceMutationApi';
+import usePlaceDetailsApi from '../../hooks/Places/usePlaceDetailsApi';
 
 function EditPlace({
     catCountries,
@@ -32,8 +32,10 @@ function EditPlace({
     catCities,
     catFacilities
 }) {
-  const { isLogged, loading } = useAuth();
-  const [isUser, setIsUser] = useState(false);
+  const { loading } = useAuth();
+  const { uploadImages, isUploading } = useGalleryUpload();
+  const { updatePlace } = usePlaceMutationApi();
+  const { getPlace, saveFacilities, saveGalleryImages, removeGalleryImage } = usePlaceDetailsApi();
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -45,18 +47,7 @@ function EditPlace({
   const [filteredStates, setFilteredStates] = useState([]);
   const [filteredCities, setFilteredCities] = useState([]);
 
-  //urls
-    const URLsCatalogService =
-    {
-        Places :`${config.api.baseUrl}${config.api.endpoints.Places}`
-    };
-
   const [errors, setErrors] = useState({
-    place: false,
-    facilities: false
-  });
-
-  const [responseSuceess, setResponseSuccess] = useState({
     place: false,
     facilities: false
   });
@@ -144,50 +135,50 @@ function EditPlace({
       }
 
       // API call to update place
-      const response = await axios.put(
-        URLsCatalogService.Places + '/' + id, 
-        {
-          name: formEditPlace.name.trim(),
-          countryid: formEditPlace.countryid,
-          stateid: formEditPlace.stateid,
-          cityid: formEditPlace.cityid,
-          description: formEditPlace.description,
-          address: formEditPlace.address,
-          ispublic: formEditPlace.ispublic,
-          latitude: formEditPlace.latitude,
-          longitude: formEditPlace.longitude
-        }, 
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          }
-        }
-      );
+      const response = await updatePlace(id, {
+        name: formEditPlace.name.trim(),
+        countryid: formEditPlace.countryid,
+        stateid: formEditPlace.stateid,
+        cityid: formEditPlace.cityid,
+        description: formEditPlace.description,
+        address: formEditPlace.address,
+        ispublic: formEditPlace.ispublic,
+        latitude: formEditPlace.latitude,
+        longitude: formEditPlace.longitude
+      });
 
       if (response.status === 200 || response.status === 201) {
         setMessageSnack("Place info was updated.");
-        setSubmitSuccess(true);
       }
 
+      if (JSON.stringify(originalPlace?.facilities) !== JSON.stringify(checkedFacilities)) {
+        await saveSelectedFacilities();
+      }
+
+      if (addedImages.length > 0) {
+        await uploadImages({
+          images: addedImages,
+          uploadRequest: (payload) => saveGalleryImages(id, payload),
+          buildPayload: (normalizedImages) => ({
+            images: normalizedImages.map((image) => ({
+              data: image.data,
+              mimetype: image.mimetype,
+              extension: image.extension
+            }))
+          })
+        });
+        setMessageSnack("Photos were added to gallery.");
+      }
+
+      setSubmitSuccess(true);
+      setTimeout(() => {
+        navigate('/View/Place/' + id);
+      }, 3000);
     } catch (error) {
       setSubmitError(error.response?.data?.message || error.message);
       setMessageSnack(`Error updating place: ${error.message}`);
     } finally {
       setIsSubmitting(false);
-      
-      // Save facilities if changed
-      if (JSON.stringify(originalPlace?.facilities) !== JSON.stringify(checkedFacilities)) {
-        saveSelectedFacilities();
-      }
-      
-      // Upload images if added
-      if (addedImages.length > 0) {
-        addPhotosToGallery();
-      }
-      
-      setTimeout(() => {
-        navigate('/View/Place/' + id);
-      }, 3000);
     }
   };
 
@@ -224,17 +215,6 @@ function EditPlace({
     }
   };
 
-  const handleCloseAlert = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    
-    setErrors(prev => ({
-      place: false,
-      facilities: false
-    }));
-  };
-
   const handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -254,23 +234,19 @@ function EditPlace({
       Facilities: checkedFacilitiesToSave
     };
 
-    const url = URLsCatalogService.Places + '/' + id + '/Facilities';
-    
-    axios.put(url, formSaveFacilities)
-      .then(resp => {
-        setMessageSnack("Facilities were updated.");
-      })
-      .catch(error => {
-        console.error("Error updating facilities");
-        setMessageSnack("Error updating facilities.");
-      });
+    try {
+      await saveFacilities(id, formSaveFacilities, 'put');
+      setMessageSnack("Facilities were updated.");
+    } catch (error) {
+      console.error("Error updating facilities");
+      setMessageSnack("Error updating facilities.");
+      throw error;
+    }
   };
 
   const removePhoto = async (item) => {
     try {
-      const response = await axios.delete(
-        URLsCatalogService.Places + '/' + id + '/Images/' + item.id
-      );
+      const response = await removeGalleryImage(id, item.id);
       if (response.status === 200 || response.status === 204) {
         setMessageSnack("Photo was removed from gallery.");
         // Update originalPlace state to reflect removal
@@ -285,100 +261,12 @@ function EditPlace({
     }
   };
 
-  // Add photos to gallery
-  const addPhotosToGallery = async () => {
-    // Convert images to base64
-    const convertToBase64 = (file) => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = (error) => reject(error);
-      });
-    };
-
-    try {
-      const photos = await Promise.all(
-        addedImages.map(async (photo) => {
-          let base64Data;
-          let mimetype;
-          let extension;
-
-          // If photo has a file property (ImageUploader format: {file: File, preview: string, name: string})
-          if (photo.file && photo.file instanceof File) {
-            base64Data = await convertToBase64(photo.file);
-            mimetype = photo.file.type || "image/jpeg";
-            extension = photo.name ? photo.name.split('.').pop() : "jpg";
-          }
-          // If it's a File object directly
-          else if (photo instanceof File) {
-            base64Data = await convertToBase64(photo);
-            mimetype = photo.type || "image/jpeg";
-            extension = photo.name ? photo.name.split('.').pop() : "jpg";
-          }
-          // If it's a Blob
-          else if (photo instanceof Blob) {
-            base64Data = await convertToBase64(photo);
-            mimetype = photo.type || "image/jpeg";
-            extension = "jpg";
-          }
-          // If photo is already a data URL (base64)
-          else if (typeof photo === 'string' && photo.startsWith('data:')) {
-            base64Data = photo;
-            mimetype = photo.substring(photo.indexOf(':') + 1, photo.indexOf(';'));
-            extension = mimetype.split('/')[1];
-          }
-          // If photo has a data property that's already base64
-          else if (photo.data && typeof photo.data === 'string' && photo.data.startsWith('data:')) {
-            base64Data = photo.data;
-            mimetype = photo.mimetype || photo.data.substring(photo.data.indexOf(':') + 1, photo.data.indexOf(';'));
-            extension = photo.extension || mimetype.split('/')[1];
-          }
-          // Default fallback
-          else {
-            console.warn("Unknown image format:", photo);
-            base64Data = photo.data || photo;
-            mimetype = photo.mimetype || "image/jpeg";
-            extension = photo.extension || "jpg";
-          }
-
-          return {
-            data: base64Data,
-            mimetype: mimetype,
-            extension: extension
-          };
-        })
-      );
-
-      const rq = {
-        "images": photos
-      };
-      
-      const response = await axios.post(
-        URLsCatalogService.Places + '/' + id + '/Images',
-        rq,
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-      
-      if (response.status === 200 || response.status === 201) {
-        setMessageSnack("Photos were added to gallery.");
-      }
-    } catch (error) {
-      setMessageSnack(`Error adding photos: ${error.message}`);
-      console.error('Error adding photos to gallery:', error);
-    }
-  };
-
   // Fetch place data
   useEffect(() => {
     const fetchPlace = async () => {
       if (!id) return;
       try {
-        const response = await axios.get(URLsCatalogService.Places + '/' + id);
+        const response = await getPlace(id);
         const placeData = response.data.info;
         
         setFormEditPlace({
@@ -428,8 +316,7 @@ function EditPlace({
     };
     
     fetchPlace();
-    setIsUser(localStorage.getItem('userid') != null);
-  }, [id]);
+  }, [id, getPlace]);
 
   if (loading) {
     return (
@@ -574,12 +461,10 @@ function EditPlace({
         <GalleryListManager 
           items={originalPlace?.gallery || []} 
           onRemove={removePhoto}
-        />
-
-        <ImageUploader
-          images={addedImages || []}
-          onChange={(newImages) => setAddedImages(newImages)}
-          maxImages={10}
+          pendingImages={addedImages || []}
+          onPendingImagesChange={setAddedImages}
+          showUploader
+          maxPendingImages={10}
         />
         
         <SnackbarNotification
@@ -600,7 +485,7 @@ function EditPlace({
         
         <Button 
           type="submit" 
-          disabled={isSubmitting}
+          disabled={isSubmitting || isUploading}
           variant="text"
           startIcon={<Save/>}
         >

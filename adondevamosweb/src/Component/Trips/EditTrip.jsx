@@ -17,13 +17,14 @@ import SnackbarNotification from '../Commons/SnackbarNotification';
 import { useNavigate, useParams } from 'react-router-dom';
 import FormTrips from './FormTrips';
 import { useAuth } from "../../context/AuthContext";
-import ImageUploader from '../Commons/ImageUploader';
 import GalleryListManager from '../Commons/GalleryListManager';
 import useTripMutationApi from '../../hooks/Trips/useTripMutationApi';
 import useTripDetailsApi from '../../hooks/Trips/useTripDetailsApi';
+import useGalleryUpload from '../../hooks/useGalleryUpload';
 
 function EditTrip(){
   const { loading } = useAuth();
+  const { uploadImages, isUploading } = useGalleryUpload();
     const [isUser, setIsUser] = useState(false);
     const navigate = useNavigate();
   const { getTrip, updateTrip } = useTripMutationApi();
@@ -132,7 +133,18 @@ function EditTrip(){
       }
 
       if (addedImages.length > 0) {
-        await addPhotosToGallery();
+        await uploadImages({
+          images: addedImages,
+          buildPayload: (normalizedImages) => ({
+            images: normalizedImages.map((image) => ({
+              data: image.data,
+              mimetype: image.mimetype,
+              extension: image.extension
+            }))
+          }),
+          uploadRequest: (payload) => saveGallery(id, payload)
+        });
+        setMessageSnack("Photos were added to gallery.");
       }
 
       // Handle success
@@ -187,85 +199,6 @@ function EditTrip(){
         } catch (error) {
           console.error("Error saving itinerary", error);
         }
-    };
-
-    const addPhotosToGallery = async () => {
-      
-      // Convert images to base64
-      const convertToBase64 = (file) => {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = () => resolve(reader.result);
-          reader.onerror = (error) => reject(error);
-        });
-      };
-
-      try {
-        const photos = await Promise.all(
-          addedImages.map(async (photo) => {
-            let base64Data;
-            let mimetype;
-            let extension;
-
-            // If photo has a file property (ImageUploader format: {file: File, preview: string, name: string})
-            if (photo.file && photo.file instanceof File) {
-              base64Data = await convertToBase64(photo.file);
-              mimetype = photo.file.type || "image/jpeg";
-              extension = photo.name ? photo.name.split('.').pop() : "jpg";
-            }
-            // If it's a File object directly
-            else if (photo instanceof File) {
-              base64Data = await convertToBase64(photo);
-              mimetype = photo.type || "image/jpeg";
-              extension = photo.name ? photo.name.split('.').pop() : "jpg";
-            }
-            // If it's a Blob
-            else if (photo instanceof Blob) {
-              base64Data = await convertToBase64(photo);
-              mimetype = photo.type || "image/jpeg";
-              extension = "jpg";
-            }
-            // If photo is already a data URL (base64)
-            else if (typeof photo === 'string' && photo.startsWith('data:')) {
-              base64Data = photo;
-              mimetype = photo.substring(photo.indexOf(':') + 1, photo.indexOf(';'));
-              extension = mimetype.split('/')[1];
-            }
-            // If photo has a data property that's already base64
-            else if (photo.data && typeof photo.data === 'string' && photo.data.startsWith('data:')) {
-              base64Data = photo.data;
-              mimetype = photo.mimetype || photo.data.substring(photo.data.indexOf(':') + 1, photo.data.indexOf(';'));
-              extension = photo.extension || mimetype.split('/')[1];
-            }
-            // Default fallback
-            else {
-              base64Data = photo.data || photo;
-              mimetype = photo.mimetype || "image/jpeg";
-              extension = photo.extension || "jpg";
-            }
-
-            return {
-              data: base64Data,
-              mimetype: mimetype,
-              extension: extension
-            };
-          })
-        );
-
-        const rq = {
-          "images" : photos
-        };
-        
-        const response = await saveGallery(id, rq);
-        
-        if (response.status === 200 || response.status === 201) {
-          setMessageSnack("Photos were added to gallery.");
-        }
-      } catch (error) {
-        setMessageSnack(`Error adding photos: ${error.message}`);
-        console.error('Error adding photos to gallery:', error);
-      }
     };
 
   const handlePlaceAdd = (item) => {
@@ -467,17 +400,15 @@ const handleRemoveUser = (event) => {
           <GalleryListManager
             items={originalTrip && originalTrip.gallery ? originalTrip.gallery : []}
             onRemove={removePhoto}
-          />
-
-          <ImageUploader
-            images={addedImages || []}
-            onChange={(newImages) => setAddedImages(newImages)}
-            maxImages={10}
+            pendingImages={addedImages || []}
+            onPendingImagesChange={setAddedImages}
+            showUploader
+            maxPendingImages={10}
           />
 
           <Button 
             type="submit" 
-            disabled={isSubmitting}
+            disabled={isSubmitting || isUploading}
             variant="text"
             startIcon={<Save/>}
             >

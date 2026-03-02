@@ -3,26 +3,18 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import 
     {
-        TextField, 
-        Button,
-        useMediaQuery,
-        useTheme,
         Container,
         Typography,
-        Box,
-        MenuItem,
-        FormGroup,
-        FormControlLabel,
-        Checkbox 
+        Box
     } from '@mui/material';
 
 import config from "../../Resources/config";
+import usePlaceQueryApi from '../../hooks/Places/usePlaceQueryApi';
     
 function ViewUser(){
     //Get id
     const { UserID } = useParams();
-    const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const { getUbicationNames: fetchUbicationNames } = usePlaceQueryApi();
 
     const [UserInfo, setUserInfo] = useState({
         name : "",
@@ -37,51 +29,7 @@ function ViewUser(){
     });
 
     //URLS
-    const [URLsService, setURLsService] = useState(
-        {
-            Users : `${config.api.baseUrl}${config.api.endpoints.Users}`,
-            ViewUser:`${config.api.baseUrl}${config.api.site.View}${config.api.endpoints.Users}`,
-            Places:`${config.api.baseUrl}${config.api.endpoints.Places}`
-        }
-    );
-
-    //catalogues
-    const [catCountries, setCatCountries] = useState([
-        {
-            value:1,
-            label:"MEXICO"
-        }
-    ]);
-    const [catStates, setCatStates] = useState([
-        {
-            value:1,
-            label:"SINALOA"
-        }
-    ]);
-
-    const [catCities, setCatCities] = useState([
-        {
-            value:1,
-            label:"Culiacan"
-        },
-        {
-            value:2,
-            label:"Los mochis"
-        }
-    ]);
-
-    const [catFacilities, setCatFacilities] = useState([
-    {
-        value:true,
-        label:"Wi-fi",
-        code:"wifi"
-    },
-    {
-        value:false,
-        label:"Bathroom",
-        code:"bath"
-    }
-    ]);
+    const usersUrl = `${config.api.baseUrl}${config.api.endpoints.Users}`;
 
     const [ubication, setUbication] = useState({
         CountryName : "",
@@ -91,16 +39,12 @@ function ViewUser(){
 
     //getUbicationName
     const getUbicationNames = async( placeinfo ) =>{
-        console.log(URLsService.Places + 
-            '/Ubications/' + placeinfo.countryid +
-            '/' + placeinfo.stateid +
-            '/' + placeinfo.cityid);
-
-        axios.get(URLsService.Places + 
-            '/Ubications/' + placeinfo.countryid +
-            '/' + placeinfo.stateid +
-            '/' + placeinfo.cityid)
-        .then(resp => {
+        fetchUbicationNames({
+            countryid: placeinfo.countryid,
+            stateid: placeinfo.stateid,
+            cityid: placeinfo.cityid
+        })
+        .then((resp) => {
             let find = resp.data.info;
             setUbication( 
             {
@@ -115,8 +59,8 @@ function ViewUser(){
 
     //getUserInfo
     const getUserInfo = async(  ) =>{
-        console.log(URLsService.Users);
-        axios.get(URLsService.Users + '/' + UserID)
+        console.log(usersUrl);
+        axios.get(usersUrl + '/' + UserID)
         .then(resp => {
             const data = resp.data.info[0];
             setUserInfo(data);
@@ -127,7 +71,7 @@ function ViewUser(){
 
     useEffect(()=> {
             getUserInfo();
-    },[]);
+        },[UserID]);
     
     return (<Container maxWidth="sm" sx={{ py: 8 }}>
         <Box

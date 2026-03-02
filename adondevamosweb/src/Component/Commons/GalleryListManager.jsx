@@ -13,8 +13,16 @@ import {
     Paper
 } from '@mui/material';
 import { Delete, Visibility, Close } from '@mui/icons-material';
+import ImageUploader from './ImageUploader';
 
-const GalleryListManager = ({ items, onRemove }) => {
+const GalleryListManager = ({
+    items = [],
+    onRemove,
+    pendingImages = [],
+    onPendingImagesChange,
+    showUploader = false,
+    maxPendingImages = 10
+}) => {
     const [previewOpen, setPreviewOpen] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
     const [confirmOpen, setConfirmOpen] = useState(false);
@@ -53,7 +61,7 @@ const GalleryListManager = ({ items, onRemove }) => {
             <List sx={{ width: '100%' }}>
                 {items.map((item, index) => (
                     <Paper
-                        key={index}
+                        key={item.id || index}
                         elevation={1}
                         sx={{ mb: 1, p: 1 }}
                     >
@@ -87,6 +95,18 @@ const GalleryListManager = ({ items, onRemove }) => {
                 ))}
             </List>
 
+            {showUploader && (
+                <ImageUploader
+                    images={pendingImages}
+                    onChange={(newImages) => {
+                        if (onPendingImagesChange) {
+                            onPendingImagesChange(newImages);
+                        }
+                    }}
+                    maxImages={maxPendingImages}
+                />
+            )}
+
             {/* Image Preview Dialog */}
             <Dialog
                 open={previewOpen}
@@ -115,7 +135,7 @@ const GalleryListManager = ({ items, onRemove }) => {
                     {selectedImage && (
                         <Box
                             component="img"
-                            src={selectedImage.completeurl}
+                            src={selectedImage.completeurl || selectedImage.url || selectedImage.preview || selectedImage.data}
                             alt={selectedImage.filename}
                             sx={{
                                 width: '100%',

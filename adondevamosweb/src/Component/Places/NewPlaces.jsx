@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from 'axios';
-import config from "../../Resources/config";
 import PlaceCard from "./PlaceCard";
+import usePlaceQueryApi from '../../hooks/Places/usePlaceQueryApi';
 
 import 
     {
@@ -12,17 +11,15 @@ import
     } from '@mui/material';
 
 function NewPlaces() {
-    //urls
-    const placesURL = `${config.api.baseUrl}${config.api.endpoints.Places}/lasted/3`;
+    const { getLatestPlaces } = usePlaceQueryApi();
     //loading
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(false);
 
     const [NewPlacesList, setNewPlacesList] = useState([]);
     
     //getNewPlaces
-    const getNewPlaces = async( item ) =>{
-        axios.get( placesURL )
+    const getNewPlaces = async() => {
+        getLatestPlaces(3)
         .then(resp => {
             setNewPlacesList(resp.data.info);
             setIsLoading(false);
