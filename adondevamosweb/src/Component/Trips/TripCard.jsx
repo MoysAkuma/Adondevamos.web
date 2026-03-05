@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios';
 import {
   Avatar,
   Typography,
@@ -28,8 +27,9 @@ import {
 } from "@mui/icons-material";
 import { styled } from '@mui/material/styles';
 import Itinerary from "./Itinerary/Itinerary";
-import config from "../../Resources/config";
 import { useAuth } from '../../context/AuthContext';
+import useVoteApi from '../../hooks/Votes/useVoteApi';
+import SnackbarNotification from '../Commons/SnackbarNotification';
 
 // Styled components for 8-bit retro design
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -130,10 +130,16 @@ function TripCard({ tripinfo }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { voteTrip } = useVoteApi();
   const [expanded, setExpanded] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [isVoting, setIsVoting] = useState(false);
   const [voteCount, setVoteCount] = useState(tripinfo?.statics?.Votes?.Total || 0);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'info'
+  });
 
   const [placeHolderImageJP] = useState("/PlaceHolder_JP.jpg");
   const [placeHolderImageMX] = useState("/PlaceHolder_MX.jpg");
@@ -150,9 +156,17 @@ function TripCard({ tripinfo }) {
     setExpanded(!expanded);
   };
 
+  const showSnackbar = (message, severity = 'info') => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar((prev) => ({ ...prev, open: false }));
+  };
+
   const handleLikeClick = async () => {
     if (!user) {
-      alert('You must be logged in to like a trip.');
+      showSnackbar('You must be logged in to vote.', 'warning');
       return;
     }
 
@@ -170,17 +184,12 @@ function TripCard({ tripinfo }) {
     setVoteCount(nextCount);
 
     try {
-      const token = sessionStorage.getItem('authToken');
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-      await axios.post(
-        `${config.api.baseUrl}${config.api.endpoints.Votes}/${user}`,
-        { tripid: tripinfo.id },
-        { headers }
-      );
+      await voteTrip(tripinfo.id, user);
+      showSnackbar(nextLiked ? 'Trip added to favorites' : 'Trip removed from favorites', 'success');
     } catch (error) {
       setIsLiked(previousLiked);
       setVoteCount(previousCount);
+      showSnackbar('Could not update vote. Please try again.', 'error');
       console.error('There was an error voting the trip!', error);
     } finally {
       setIsVoting(false);
@@ -499,6 +508,12 @@ function TripCard({ tripinfo }) {
           )}
         </CardContent>
       </Collapse>
+      <SnackbarNotification
+        open={snackbar.open}
+        onClose={handleCloseSnackbar}
+        message={snackbar.message}
+        severity={snackbar.severity}
+      />
     </StyledCard>
   );
 }
