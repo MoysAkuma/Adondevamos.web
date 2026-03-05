@@ -24,6 +24,7 @@ import { useAuth }  from '../context/AuthContext'
 import config from '../Resources/config';
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 import RecoverPassword from "../Component/Users/RecoverPassword";
+import SnackbarNotification from "../Component/Commons/SnackbarNotification";
 
 function Login(){
     const theme = useTheme();
@@ -34,6 +35,11 @@ function Login(){
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
     const [submitSuccess, setSubmitSuccess] = useState(false);
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: '',
+        severity: 'info'
+    });
     //showpassword
     const [showPassword, setShowPassword] = useState(false);
     const { login, authError } = useAuth();
@@ -61,6 +67,18 @@ function Login(){
     //navigate
     const navigate = useNavigate();
 
+    const showSnackbar = (message, severity = 'info') => {
+        setSnackbar({
+            open: true,
+            message,
+            severity
+        });
+    };
+
+    const handleCloseSnackbar = () => {
+        setSnackbar(prev => ({ ...prev, open: false }));
+    };
+
     // Handle form submission
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -71,10 +89,16 @@ function Login(){
         try {
             //Validate email or tag
             if (!formLogIn.email.trim()) {
-                throw new Error('User email or tag is required');
+                setErrors(prev => ({ ...prev, login: true }));
+                setSubmitError('User email or tag is required');
+                showSnackbar('User email or tag is required', 'warning');
+                return;
             }
             if (!formLogIn.password.trim()) {
-                throw new Error('Password is required');
+                setErrors(prev => ({ ...prev, login: true }));
+                setSubmitError('Password is required');
+                showSnackbar('Password is required', 'warning');
+                return;
             }
             
             //call backend to log in
@@ -85,21 +109,21 @@ function Login(){
             
             if(response.success){
                 setSubmitSuccess(true);
+                showSnackbar('Login successful', 'success');
                 // Redirect to the page they tried to visit or home
                 navigate(from, { replace: true });
             } else {
                 setErrors(prev => ({ ...prev, login: true }));
-                setSubmitError(response.message || 'Login failed. Please check your credentials.');
+                const message = response.message || 'Login failed. Please check your credentials.';
+                setSubmitError(message);
+                showSnackbar(message, 'error');
             }
         }
         catch(err){
-            switch(err.status){
-                case 409:
-                    console.log("loging failed");
-                    //show message of login failed
-                    setErrors(prev => ( {...prev, login : true} ));
-                break;
-            }
+            setErrors(prev => ({ ...prev, login: true }));
+            const message = err?.response?.data?.message || err?.message || 'Unexpected error during login';
+            setSubmitError(message);
+            showSnackbar(message, 'error');
         } 
         finally {
         setIsSubmitting(false);
@@ -257,21 +281,6 @@ function Login(){
                         }}
                     />
 
-                    {
-                        errors.login && (
-                            <Alert 
-                                severity="error"
-                                sx={{ 
-                                    borderRadius: 2,
-                                    fontWeight: 500 
-                                }}
-                            >
-                                <AlertTitle sx={{ fontWeight: 600 }}>Login Failed!</AlertTitle>
-                                Invalid credentials. Please try again.
-                            </Alert>
-                        )
-                    }
-
                     <Button 
                         type="submit" 
                         disabled={isSubmitting}
@@ -340,6 +349,12 @@ function Login(){
                     </Button>
                     
                 </Box>
+                <SnackbarNotification
+                    open={snackbar.open}
+                    onClose={handleCloseSnackbar}
+                    message={snackbar.message}
+                    severity={snackbar.severity}
+                />
             </>
         </CenteredTemplate>
     );

@@ -251,7 +251,7 @@ export const AuthProvider = ({ children }) => {
     }
     
     const response = await loginApi.login({ username, password });
-    console.log('Login response in context:', response);
+    
     if (!response.success) {
       const errorMessage = response.message || 'Login failed';
       setAuthError(errorMessage);
@@ -259,14 +259,11 @@ export const AuthProvider = ({ children }) => {
       return { success: false, message: errorMessage };
     }
 
-    console.log('Response data:', response.data);
     const { id, tag, role } = response.data;
-    console.log('Extracted from data - id:', id, 'tag:', tag, 'role:', role);
     
     // Validate response data
     if (!id && id !== 0) {
       const error = 'Invalid response from server - missing id';
-      console.log(error, 'Full response.data:', response.data);
       setAuthError(error);
       setLoading(false);
       return { success: false, message: error };
@@ -337,9 +334,7 @@ export const AuthProvider = ({ children }) => {
     
     // Define permissions by role
     const rolePermissions = {
-      'superadmin': ['read', 'write', 'delete', 'manage_users', 'manage_site'],
-      'admin': ['read', 'write', 'delete', 'manage_users'],
-      'moderator': ['read', 'write', 'delete'],
+      'admin': ['read', 'write', 'delete', 'management'],
       'user': ['read', 'write']
     };
     

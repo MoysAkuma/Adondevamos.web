@@ -82,7 +82,7 @@ function ViewPlace(){
                     Votes: { Total: response.data.info.summary }
                 }
             }));
-            console.log("Place info updated with new votes.", placeInfo);
+            
         }).catch( (error) => {
             console.error("There was an error fetching the votes!", error);
         });
@@ -104,7 +104,6 @@ function ViewPlace(){
                     userId: isLogged ? user : null
                 });
                 setPlaceInfo(response.data.info);
-                console.log("Place info fetched:", response.data.info);
                 setLiked( response.data.info.userVote || false );
             } catch (err) {
                 console.error("Error getting place info:", err);

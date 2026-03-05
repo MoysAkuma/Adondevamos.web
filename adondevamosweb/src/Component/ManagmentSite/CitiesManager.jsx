@@ -93,7 +93,7 @@ function CitiesManager({id,
     };
 
     const generateUbicationName = ( countryid , stateid ) => {
-        console.log('Generating ubication name for countryid:', countryid, 'stateid:', stateid);
+        
         let countryName = countries.find(c => c.id === countryid)?.name || '';
         let stateName = states.find(s => s.id === stateid)?.name || '';
         return `${stateName}, ${countryName}`;

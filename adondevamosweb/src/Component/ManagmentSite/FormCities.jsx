@@ -138,8 +138,6 @@ function FormCities({formData, callback, countries = [], states = []}){
 
     useEffect(()=> {
         if (formData && formData.id){
-            console.log('FormCities: Loading data for edit:', formData);
-            //Edit mode
             setisEdit(true);
             setFormCities({
                 name : formData.name || '',

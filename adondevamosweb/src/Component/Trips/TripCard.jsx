@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
 import {
   Avatar,
   Typography,
@@ -27,6 +28,8 @@ import {
 } from "@mui/icons-material";
 import { styled } from '@mui/material/styles';
 import Itinerary from "./Itinerary/Itinerary";
+import config from "../../Resources/config";
+import { useAuth } from '../../context/AuthContext';
 
 // Styled components for 8-bit retro design
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -126,19 +129,62 @@ const ExpandButton = styled(IconButton, {
 function TripCard({ tripinfo }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [expanded, setExpanded] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [isVoting, setIsVoting] = useState(false);
+  const [voteCount, setVoteCount] = useState(tripinfo?.statics?.Votes?.Total || 0);
 
   const [placeHolderImageJP] = useState("/PlaceHolder_JP.jpg");
   const [placeHolderImageMX] = useState("/PlaceHolder_MX.jpg");
+
+  useEffect(() => {
+    setIsLiked(!!tripinfo?.userVoted);
+  }, [tripinfo?.userVoted]);
+
+  useEffect(() => {
+    setVoteCount(tripinfo?.statics?.Votes?.Total || 0);
+  }, [tripinfo?.statics?.Votes?.Total]);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
-  const handleLikeClick = () => {
-    setIsLiked(!isLiked);
-    // Add your vote logic here
+  const handleLikeClick = async () => {
+    if (!user) {
+      alert('You must be logged in to like a trip.');
+      return;
+    }
+
+    if (!tripinfo?.id || isVoting) {
+      return;
+    }
+
+    const previousLiked = isLiked;
+    const previousCount = voteCount;
+    const nextLiked = !previousLiked;
+    const nextCount = Math.max(0, previousCount + (nextLiked ? 1 : -1));
+
+    setIsVoting(true);
+    setIsLiked(nextLiked);
+    setVoteCount(nextCount);
+
+    try {
+      const token = sessionStorage.getItem('authToken');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      await axios.post(
+        `${config.api.baseUrl}${config.api.endpoints.Votes}/${user}`,
+        { tripid: tripinfo.id },
+        { headers }
+      );
+    } catch (error) {
+      setIsLiked(previousLiked);
+      setVoteCount(previousCount);
+      console.error('There was an error voting the trip!', error);
+    } finally {
+      setIsVoting(false);
+    }
   };
 
 
@@ -152,7 +198,6 @@ function TripCard({ tripinfo }) {
   };
 
   const goToViewPlace = (placeId) => {
-    console.log('Navigating to place with ID:', placeId);
     if (!placeId) return;
     navigate('/View/Place/' + placeId);
   };
@@ -376,10 +421,11 @@ function TripCard({ tripinfo }) {
           <IconButton 
             aria-label="vote" 
             onClick={handleLikeClick}
+            disabled={isVoting}
             size="small"
           >
             <Badge 
-              badgeContent={tripinfo.statics.Votes.Total} 
+              badgeContent={voteCount} 
               max={999}
               color="error"
             >

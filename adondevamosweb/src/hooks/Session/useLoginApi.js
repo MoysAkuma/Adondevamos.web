@@ -52,7 +52,6 @@ export const useLoginApi = () => {
       }
 
       const message = 'Login failed - no user info in response';
-      console.log('Login failed:', message, 'Response data:', response.data);
       setError(message);
       return { success: false, message };
     } catch (requestError) {

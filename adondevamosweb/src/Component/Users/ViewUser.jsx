@@ -59,7 +59,6 @@ function ViewUser(){
 
     //getUserInfo
     const getUserInfo = async(  ) =>{
-        console.log(usersUrl);
         axios.get(usersUrl + '/' + UserID)
         .then(resp => {
             const data = resp.data.info[0];

@@ -97,9 +97,8 @@ function ViewTrip(){
                     Votes: { Total: response.data.info.summary }
                 }
             }));
-            console.log("Trip info updated with new votes.", tripInfo);
         }).catch( (error) => {
-            console.error("There was an error fetching the votes!", error);
+            
         });
     };
 

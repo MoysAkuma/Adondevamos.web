@@ -21,22 +21,29 @@ function MapView({
   height = 300 
 }) {
   const [mapUrl, setMapUrl] = useState('');
+  const [currentZoom, setCurrentZoom] = useState(zoom);
+
+  useEffect(() => {
+    setCurrentZoom(zoom);
+  }, [zoom]);
 
   useEffect(() => {
     if (!latitude || !longitude) {
       setMapUrl('');
       return;
     }
-    const centerLat = latitude;
-    const centerLon = longitude;
-    const z = zoom;
-    
-    // Using OpenStreetMap Static Map API
-    // Note: For production, consider using a proper mapping library like Leaflet or react-leaflet
-    const url = `https://www.openstreetmap.org/export/embed.html?bbox=${centerLon - 0.01},${centerLat - 0.01},${centerLon + 0.01},${centerLat + 0.01}&layer=mapnik&marker=${centerLat},${centerLon}`;
-    
+
+    // Static visual map using OSM embed; user interaction disabled via pointer-events.
+    const safeZoom = Math.max(3, Math.min(19, currentZoom));
+    const halfSpan = 0.01 * Math.pow(2, 15 - safeZoom);
+    const minLon = longitude - halfSpan;
+    const minLat = latitude - halfSpan;
+    const maxLon = longitude + halfSpan;
+    const maxLat = latitude + halfSpan;
+    const url = `https://www.openstreetmap.org/export/embed.html?bbox=${minLon},${minLat},${maxLon},${maxLat}&layer=mapnik`;
+
     setMapUrl(url);
-  }, [latitude, longitude, zoom]);
+  }, [latitude, longitude, currentZoom]);
 
   return (
     <Paper 
@@ -56,17 +63,100 @@ function MapView({
         }}
       >
         {/* OpenStreetMap iframe */}
-        <iframe
-          width="100%"
-          height="100%"
-          frameBorder="0"
-          scrolling="no"
-          marginHeight="0"
-          marginWidth="0"
+        <Box
+          component="iframe"
           src={mapUrl}
-          style={{ border: 0 }}
           title="Location Map"
+          sx={{
+            width: '100%',
+            height: '100%',
+            border: 0,
+            pointerEvents: 'none'
+          }}
         />
+
+        {/* Fixed center marker */}
+        <LocationOn
+          color="error"
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -100%)',
+            fontSize: 40,
+            zIndex: 2,
+            filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.3))'
+          }}
+        />
+
+        {/* Zoom controls */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 12,
+            right: 12,
+            zIndex: 3,
+            display: 'flex',
+            flexDirection: 'column',
+            border: '1px solid rgba(0, 0, 0, 0.2)',
+            borderRadius: 1,
+            overflow: 'hidden',
+            bgcolor: 'background.paper'
+          }}
+        >
+          <Box
+            component="button"
+            type="button"
+            onClick={() => setCurrentZoom((prev) => Math.min(prev + 1, 19))}
+            sx={{
+              width: 34,
+              height: 34,
+              border: 0,
+              bgcolor: 'background.paper',
+              cursor: 'pointer',
+              fontSize: 22,
+              lineHeight: 1
+            }}
+          >
+            +
+          </Box>
+          <Box
+            component="button"
+            type="button"
+            onClick={() => setCurrentZoom((prev) => Math.max(prev - 1, 3))}
+            sx={{
+              width: 34,
+              height: 34,
+              border: 0,
+              borderTop: '1px solid rgba(0, 0, 0, 0.2)',
+              bgcolor: 'background.paper',
+              cursor: 'pointer',
+              fontSize: 22,
+              lineHeight: 1
+            }}
+          >
+            -
+          </Box>
+        </Box>
+
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 12,
+            left: 12,
+            zIndex: 3,
+            bgcolor: 'rgba(255, 255, 255, 0.95)',
+            px: 1,
+            py: 0.5,
+            borderRadius: 1,
+            border: '1px solid rgba(0, 0, 0, 0.1)',
+            fontSize: 12,
+            fontWeight: 600,
+            color: 'text.secondary'
+          }}
+        >
+          Zoom: {currentZoom}
+        </Box>
         
         {/* Address overlay */}
         {address && (

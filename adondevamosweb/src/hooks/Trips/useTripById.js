@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import axios from 'axios';
-import config from '../../Resources/config';
+import useTripApiClient from './useTripApiClient';
 
 export const useTripById = (tripId, options = {}) => {
   const {
@@ -13,11 +13,7 @@ export const useTripById = (tripId, options = {}) => {
   const [error, setError] = useState(null);
   const [notFound, setNotFound] = useState(false);
   const [tripInfo, setTripInfo] = useState(null);
-
-  const tripsUrl = useMemo(
-    () => `${config.api.baseUrl}${config.api.endpoints.Trips}`,
-    []
-  );
+  const { tripsUrl, buildAuthHeaders } = useTripApiClient();
 
   const fetchTrip = useCallback(async () => {
     if (!enabled || !tripId) {
@@ -38,7 +34,9 @@ export const useTripById = (tripId, options = {}) => {
         headers['user-id'] = userId;
       }
 
-      const response = await axios.get(`${tripsUrl}/${tripId}`, { headers });
+      const response = await axios.get(`${tripsUrl}/${tripId}`, {
+        headers: buildAuthHeaders(headers)
+      });
       setTripInfo(response?.data?.info || null);
     } catch (requestError) {
       if (requestError?.response?.status === 404) {
@@ -50,7 +48,7 @@ export const useTripById = (tripId, options = {}) => {
     } finally {
       setLoading(false);
     }
-  }, [enabled, includeUserHeader, tripId, tripsUrl, userId]);
+  }, [enabled, includeUserHeader, tripId, tripsUrl, userId, buildAuthHeaders]);
 
   useEffect(() => {
     fetchTrip();

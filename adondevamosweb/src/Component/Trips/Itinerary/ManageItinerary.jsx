@@ -30,10 +30,8 @@ function ManageItinerary({
     const [duplicateError, setDuplicateError] = useState(false);
 
     const handlePlaceAdd = (item) => {
-        console.log("Adding place to itinerary:", item);
         // Search if exists in itinerary
         const foundInList = itinerary.filter(x => x.place.id === item.id);
-        console.log("Found in itinerary:", foundInList);
         // If not found, add to itinerary
         if (foundInList.length === 0) {
             onPlaceAdd({

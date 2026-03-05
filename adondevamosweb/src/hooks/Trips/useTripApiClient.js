@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import config from '../../Resources/config';
 
 export const useTripApiClient = () => {
@@ -7,7 +7,7 @@ export const useTripApiClient = () => {
     []
   );
 
-  const buildAuthHeaders = (headers = {}) => {
+  const buildAuthHeaders = useCallback((headers = {}) => {
     const token = sessionStorage.getItem('authToken');
 
     if (!token) {
@@ -18,7 +18,7 @@ export const useTripApiClient = () => {
       ...headers,
       Authorization: `Bearer ${token}`
     };
-  };
+  }, []);
 
   return {
     tripsUrl,
