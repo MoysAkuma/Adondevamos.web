@@ -39,8 +39,9 @@ export const useLoginApi = () => {
       const token = response?.data?.info?.token;
 
       if (response.status === 200 && userInfo) {
-        // Store JWT token in session storage if provided
+        // Store JWT token persistently to survive tab/session lifecycle
         if (token) {
+          localStorage.setItem('authToken', token);
           sessionStorage.setItem('authToken', token);
         }
         

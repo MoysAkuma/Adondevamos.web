@@ -13,8 +13,8 @@ export const useLogoutApi = () => {
     setError(null);
 
     try {
-      // Get JWT token from session storage
-      const token = sessionStorage.getItem('authToken');
+      // Get JWT token from persistent storage first (fallback to session storage)
+      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
       const headers = {};
       
       if (token) {
@@ -31,7 +31,8 @@ export const useLogoutApi = () => {
         }
       );
 
-      // Clear JWT token from session storage on successful logout
+      // Clear JWT token from both storages on successful logout
+      localStorage.removeItem('authToken');
       sessionStorage.removeItem('authToken');
 
       return {
@@ -41,6 +42,7 @@ export const useLogoutApi = () => {
       const message = requestError?.response?.data?.message || requestError?.message || 'Logout failed';
       setError(message);
       // Clear JWT token even if logout API fails
+      localStorage.removeItem('authToken');
       sessionStorage.removeItem('authToken');
       // Still return success for logout since we'll clear local state anyway
       return {

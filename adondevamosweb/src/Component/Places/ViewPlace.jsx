@@ -172,7 +172,7 @@ function ViewPlace(){
             )}
             <Typography 
                 variant="body1" 
-                component="body1" 
+                component="p" 
                 align="left">
                 Description
             </Typography>
@@ -188,7 +188,7 @@ function ViewPlace(){
 
             <Typography 
                 variant="body1" 
-                component="body1" 
+                component="p" 
                 align="left">
                 Address
             </Typography>
@@ -239,9 +239,9 @@ function ViewPlace(){
                         {
                             placeInfo.facilities.map((facility) => (
                                 <Tooltip 
+                                    key={facility.code}
                                     title={facility.name} >
                                     <FacilityIcon 
-                                        key={facility.code} 
                                         code={facility.code} 
                                         titleAccess={facility.name}
                                         color="white"

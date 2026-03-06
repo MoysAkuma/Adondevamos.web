@@ -65,7 +65,7 @@ function MapView({
         {/* OpenStreetMap iframe */}
         <Box
           component="iframe"
-          src={mapUrl}
+          src={mapUrl || null}
           title="Location Map"
           sx={{
             width: '100%',
