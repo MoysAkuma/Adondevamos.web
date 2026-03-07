@@ -35,7 +35,7 @@ function CreatePlace({
   const { isLogged, loading: authLoading, hasPermission } = useAuth();
   const { uploadImages, isUploading } = useGalleryUpload();
   const { createPlace } = usePlaceMutationApi();
-    const { saveFacilities, saveGalleryPhotos } = usePlaceDetailsApi();
+    const { saveFacilities, saveGalleryImages } = usePlaceDetailsApi();
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -144,8 +144,9 @@ function CreatePlace({
         setMessageSnack("Place was created successfully!");
         setSubmitSuccess(true);
         
-        const placeId = response.data.info[0]?.id;
-        
+        const placeId = response.data.info?.id;
+        console.log("Created place with ID:", placeId);
+        console.log("Check response:", response);
         // Save facilities
         if (placeId) {
           await saveSelectedFacilities(placeId);
@@ -163,7 +164,7 @@ function CreatePlace({
                   extension: image.extension
                 }))
               }),
-              uploadRequest: (payload) => saveGalleryPhotos(placeId, payload)
+              uploadRequest: (payload) => saveGalleryImages(placeId, payload)
             });
             setMessageSnack("Photos uploaded successfully!");
           }
@@ -322,6 +323,8 @@ function CreatePlace({
           id="description"
           label="Description"
           variant="standard"
+          multiline
+          minRows={3}
           placeholder="About this place"
           align="left"
           onChange={handleChange}
