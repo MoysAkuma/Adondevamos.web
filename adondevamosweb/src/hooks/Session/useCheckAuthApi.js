@@ -13,8 +13,8 @@ export const useCheckAuthApi = () => {
     setError(null);
 
     try {
-      // Get JWT token from session storage
-      const token = sessionStorage.getItem('authToken');
+      // Get JWT token from persistent storage first (fallback to session storage)
+      const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
       const headers = {};
       
       if (token) {

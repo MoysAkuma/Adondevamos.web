@@ -16,6 +16,7 @@ const AuthContext = createContext({
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 const SESSION_WARNING_TIME = 5 * 60 * 1000; // 5 minutes before timeout
 const TOKEN_REFRESH_INTERVAL = 15 * 60 * 1000; // 15 minutes
+const MIN_AUTH_CHECK_INTERVAL = 10000; // 10 seconds
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -31,11 +32,16 @@ export const AuthProvider = ({ children }) => {
   const sessionWarningRef = useRef(null);
   const refreshIntervalRef = useRef(null);
   const lastActivityRef = useRef(Date.now());
+  const isCheckingAuthRef = useRef(false);
+  const lastAuthCheckRef = useRef(0);
+  const checkAuthStatusRef = useRef(null);
+  const clearAllStateRef = useRef(null);
+  const hasInitializedRef = useRef(false);
   
   // API hooks
-  const loginApi = useLoginApi();
-  const checkAuthApi = useCheckAuthApi();
-  const logoutApi = useLogoutApi();
+  const { login: loginRequest } = useLoginApi();
+  const { checkAuth: checkAuthRequest } = useCheckAuthApi();
+  const { logout: logoutRequest } = useLogoutApi();
 
   // Clear all session timers
   const clearSessionTimers = useCallback(() => {
@@ -93,47 +99,13 @@ export const AuthProvider = ({ children }) => {
     };
   }, [isLogged, resetSessionTimeout]);
 
-  // Token refresh interval
-  useEffect(() => {
-    if (isLogged) {
-      refreshIntervalRef.current = setInterval(() => {
-        checkAuthStatus();
-      }, TOKEN_REFRESH_INTERVAL);
-    }
-    
-    return () => {
-      if (refreshIntervalRef.current) {
-        clearInterval(refreshIntervalRef.current);
-      }
-    };
-  }, [isLogged]);
-
-  useEffect(() => {
-    checkAuthStatus();
-    
-    // Listen for session changes in other tabs
-    const handleStorage = (e) => {
-      if (["userid", "role", "tag"].includes(e.key)) {
-        checkAuthStatus();
-      }
-      // Handle logout in other tabs
-      if (e.key === 'logout-event') {
-        clearAllState();
-      }
-    };
-    window.addEventListener("storage", handleStorage);
-    
-    return () => {
-      window.removeEventListener("storage", handleStorage);
-      clearSessionTimers();
-    };
-  }, []);
-
   // Clear all authentication state
   const clearAllState = useCallback(() => {
     localStorage.removeItem('userid');
     localStorage.removeItem('tag');
     localStorage.removeItem('role');
+    localStorage.removeItem('localSession');
+    localStorage.removeItem('authToken');
     sessionStorage.removeItem('authToken');
     setUser(null);
     setUserTag(null);
@@ -143,21 +115,47 @@ export const AuthProvider = ({ children }) => {
     clearSessionTimers();
   }, [clearSessionTimers]);
 
-  const checkAuthStatus = async () => {
+  const checkAuthStatus = useCallback(async (force = false) => {
+    const now = Date.now();
+
+    // Always respect in-progress check - even with force
+    if (isCheckingAuthRef.current) {
+      return { success: false, message: 'Auth check already in progress' };
+    }
+
+    // Cooldown check - force bypasses time check but not in-progress
+    if (!force && now - lastAuthCheckRef.current < MIN_AUTH_CHECK_INTERVAL) {
+      return { success: true, skipped: true };
+    }
+
+    lastAuthCheckRef.current = now;
+    isCheckingAuthRef.current = true;
     setLoading(true);
     setAuthError(null);
+    const storedToken = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
     const isSession = localStorage.getItem('userid');
+    const localSessionRaw = localStorage.getItem('localSession');
+    let parsedLocalSession = null;
 
-    if (!isSession) {
+    if (localSessionRaw) {
+      try {
+        parsedLocalSession = JSON.parse(localSessionRaw);
+      } catch (_) {
+        parsedLocalSession = null;
+      }
+    }
+
+    if (!isSession && !storedToken) {
       setIsLogged(false);
       setRole(null);
       setUserTag(null);
       setUser(null);
       setLoading(false);
+      isCheckingAuthRef.current = false;
       return { success: false };
     }
 
-    const response = await checkAuthApi.checkAuth();
+    const response = await checkAuthRequest();
     
     if (!response.success) {
       const errorMessage = response.message || 'Auth check failed';
@@ -169,6 +167,7 @@ export const AuthProvider = ({ children }) => {
         if (timeSinceActivity < TOKEN_REFRESH_INTERVAL && isSession) {
           // Keep session temporarily on network error
           setLoading(false);
+          isCheckingAuthRef.current = false;
           return { success: true, warning: 'Network error - using cached session' };
         }
       }
@@ -176,6 +175,7 @@ export const AuthProvider = ({ children }) => {
       // Clear session on auth error
       clearAllState();
       setLoading(false);
+      isCheckingAuthRef.current = false;
       return { success: false, message: errorMessage };
     }
 
@@ -185,13 +185,24 @@ export const AuthProvider = ({ children }) => {
       const storedRole = localStorage.getItem('role');
       const storedTag = localStorage.getItem('tag');
       
-      if (storedUserId) {
+      if (storedUserId || parsedLocalSession?.userid) {
+        const hydratedUserId = storedUserId || String(parsedLocalSession.userid);
+        const hydratedRole = storedRole || String(parsedLocalSession.role || '');
+        const hydratedTag = storedTag || String(parsedLocalSession.tag || '');
+
+        if (!storedUserId && hydratedUserId) {
+          localStorage.setItem('userid', hydratedUserId);
+          localStorage.setItem('role', hydratedRole);
+          localStorage.setItem('tag', hydratedTag);
+        }
+
         setIsLogged(true);
-        setUser(storedUserId);
-        setRole(storedRole);
-        setUserTag(storedTag);
+        setUser(hydratedUserId);
+        setRole(hydratedRole);
+        setUserTag(hydratedTag);
         setLoading(false);
         resetSessionTimeout();
+        isCheckingAuthRef.current = false;
         return { success: true };
       }
     }
@@ -213,6 +224,12 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('role', backendRole);
         localStorage.setItem('tag', backendTag);
       }
+
+      localStorage.setItem('localSession', JSON.stringify({
+        userid: backendUserId,
+        role: backendRole,
+        tag: backendTag
+      }));
       
       setIsLogged(true);
       setUser(backendUserId);
@@ -220,6 +237,7 @@ export const AuthProvider = ({ children }) => {
       setUserTag(backendTag);
       setLoading(false);
       resetSessionTimeout();
+      isCheckingAuthRef.current = false;
       return { success: true };
     } else if (storedUserId) {
       // Backend only confirms auth, use stored values
@@ -229,16 +247,65 @@ export const AuthProvider = ({ children }) => {
       setUserTag(storedTag);
       setLoading(false);
       resetSessionTimeout();
+      isCheckingAuthRef.current = false;
       return { success: true };
     } else {
       // No stored data available
       clearAllState();
       setLoading(false);
+      isCheckingAuthRef.current = false;
       return { success: false, message: 'No user data available' };
     }
-  };
+  }, [checkAuthRequest, clearAllState, resetSessionTimeout]);
 
-  const login = async (username, password) => {
+  useEffect(() => {
+    checkAuthStatusRef.current = checkAuthStatus;
+    clearAllStateRef.current = clearAllState;
+  }, [checkAuthStatus, clearAllState]);
+
+  // Token refresh interval - use ref to avoid recreating interval on callback changes
+  useEffect(() => {
+    if (isLogged) {
+      refreshIntervalRef.current = setInterval(() => {
+        checkAuthStatusRef.current?.(); // Use ref for stable reference
+      }, TOKEN_REFRESH_INTERVAL);
+    }
+    
+    return () => {
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+      }
+    };
+  }, [isLogged]); // Only depend on isLogged, not the callback
+
+  useEffect(() => {
+    // Guard against double initialization (React StrictMode)
+    if (hasInitializedRef.current) {
+      return;
+    }
+    hasInitializedRef.current = true;
+    
+    checkAuthStatusRef.current?.(true);
+    
+    // Listen for session changes in other tabs
+    const handleStorage = (e) => {
+      if (["userid", "role", "tag"].includes(e.key)) {
+        checkAuthStatusRef.current?.(); // Don't force on storage events
+      }
+      // Handle logout in other tabs
+      if (e.key === 'logout-event') {
+        clearAllStateRef.current?.();
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      clearSessionTimers();
+    };
+  }, [clearSessionTimers]);
+
+  const login = useCallback(async (username, password) => {
     setLoading(true);
     setAuthError(null);
     
@@ -250,7 +317,7 @@ export const AuthProvider = ({ children }) => {
       return { success: false, message: error };
     }
     
-    const response = await loginApi.login({ username, password });
+    const response = await loginRequest({ username, password });
     
     if (!response.success) {
       const errorMessage = response.message || 'Login failed';
@@ -277,6 +344,11 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('userid', userId);
     localStorage.setItem('tag', userTag);
     localStorage.setItem('role', userRole);
+    localStorage.setItem('localSession', JSON.stringify({
+      userid: userId,
+      tag: userTag,
+      role: userRole
+    }));
     
     // Update state
     setUser(userId);
@@ -287,13 +359,13 @@ export const AuthProvider = ({ children }) => {
     resetSessionTimeout();
     
     return { success: true };
-  };
+  }, [loginRequest, resetSessionTimeout]);
 
-  const logout = async (reason = 'User logout') => {
+  const logout = useCallback(async (reason = 'User logout') => {
     setLoading(true);
     
     // Call logout API
-    await logoutApi.logout();
+    await logoutRequest();
     
     // Clear everything regardless of API response
     clearAllState();
@@ -305,7 +377,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
     
     return { success: true, reason };
-  };
+  }, [logoutRequest, clearAllState]);
 
   // Role-based access control helpers
   const hasRole = useCallback((requiredRole) => {
