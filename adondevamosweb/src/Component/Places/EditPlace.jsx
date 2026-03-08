@@ -364,6 +364,8 @@ function EditPlace({
           id="description"
           label="Description"
           variant="standard"
+          multiline
+          minRows={3}
           placeholder="About this place"
           align="left"
           onChange={handleChange}

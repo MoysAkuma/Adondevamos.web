@@ -1,6 +1,5 @@
 import React from "react";
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import 
     {
         TextField, 
@@ -16,6 +15,7 @@ import
 
 import config from '../../Resources/config';
 import CountriesSelectList from "../Catalogues/CountriesSelectList";
+import useAuthenticatedApi from '../../hooks/useAuthenticatedApi';
 
 function FormStates({ formData, callback, countries}){
     const theme = useTheme();
@@ -30,6 +30,7 @@ function FormStates({ formData, callback, countries}){
     const [submitSuccess,setSubmitSuccess] = useState(false);
     
     const [submitError, setSubmitError] = useState('');
+    const { post, patch, isAdmin } = useAuthenticatedApi();
     
     const URLsCatalogService = 
     {
@@ -56,6 +57,10 @@ function FormStates({ formData, callback, countries}){
 
     const handleSubmit = async (e) =>{
         e.preventDefault();
+        if (!isAdmin) {
+            setSubmitError('Only administrators can create or modify records.');
+            return;
+        }
         setIsSubmitting(true);
         setSubmitError('');
         setSubmitSuccess(false);
@@ -69,10 +74,10 @@ function FormStates({ formData, callback, countries}){
             }
             if(isEdit){
                 //Edit mode
-                await axios.patch(`${URLsCatalogService.State}/${formData.id}`, 
+                await patch(`${URLsCatalogService.State}/${formData.id}`, 
                     formStates )
             } else {
-                await axios.post(URLsCatalogService.State, formStates )
+                await post(URLsCatalogService.State, formStates )
             }
             setLoading(false);
             //empty form
@@ -169,10 +174,20 @@ function FormStates({ formData, callback, countries}){
         
                 <Button 
                     type="submit" 
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !isAdmin}
                     variant="contained"
                 > { (isEdit) ? "Save Changes" : "Create State" } 
                 </Button>
+                {!isAdmin && (
+                    <Typography variant="body2" color="error">
+                        Only administrators can create or modify records.
+                    </Typography>
+                )}
+                {submitError && (
+                    <Typography variant="body2" color="error">
+                        {submitError}
+                    </Typography>
+                )}
               </Box>
     </>);
 }

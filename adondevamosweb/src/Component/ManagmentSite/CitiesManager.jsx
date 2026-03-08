@@ -37,6 +37,7 @@ function CitiesManager({id,
     const [infoToEdit, setInfoToEdit] = useState(null);
     
     const editCity = (item) => {
+        setCityID(item.id);
         setInfoToEdit(item);
         setOpenModal(true);
     };
@@ -45,10 +46,12 @@ function CitiesManager({id,
         setOpenModal(false);
         setShowForm(false);
         setCityID(null);
+        setInfoToEdit(null);
     };
 
     const toggleFormVisibility = () => {
         setCityID(null);
+        setInfoToEdit(null);
         setShowForm(true);
         setOpenModal(true);
     };
@@ -57,6 +60,7 @@ function CitiesManager({id,
         setShowForm(false);
         setOpenModal(false);
         setCityID(null);
+        setInfoToEdit(null);
         reloadCities();
     };
     const reloadCities = async() => {
@@ -142,6 +146,7 @@ function CitiesManager({id,
                     </IconButton>
                 </Box>
                 { (<FormCities 
+                key={infoToEdit?.id || 'new-city'}
                 formData={infoToEdit} callback={formSuccess} 
                 countries={countries} 
                 states={states} />)}
