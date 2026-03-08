@@ -7,7 +7,6 @@ import
         useTheme,
         Typography,
         Box,
-        FormGroup,
         FormControlLabel,
         Checkbox,
         CircularProgress
@@ -19,6 +18,7 @@ import StateSelect from "../Catalogues/StateSelect";
 import CitiesSelect from "../Catalogues/CitiesSelect";
 import SnackbarNotification from "../Commons/SnackbarNotification";
 import LocationPicker from '../Commons/LocationPicker';
+import FacilityIcon from '../Commons/FacilityIcon';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from "../../context/AuthContext";
 import GalleryListManager from '../Commons/GalleryListManager';
@@ -435,23 +435,59 @@ function EditPlace({
           Facilities
         </Typography>
 
-        <FormGroup>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: 'repeat(2, minmax(0, 1fr))',
+              sm: 'repeat(3, minmax(0, 1fr))',
+              md: 'repeat(4, minmax(0, 1fr))'
+            },
+            gap: 1.5
+          }}
+        >
           {
             catFacilities?.map((opt) => (
               <FormControlLabel
                 key={opt.id}
-                label={opt.name}
+                sx={{
+                  m: 0,
+                  p: 1,
+                  border: 1,
+                  borderColor: 'divider',
+                  borderRadius: 1,
+                  bgcolor: checkedFacilities[opt.id] ? 'action.selected' : 'background.paper',
+                  alignItems: 'flex-start'
+                }}
                 control={
-                  <Checkbox 
-                    name={opt.id}  
-                    checked={checkedFacilities[opt.id] || false} 
-                    onChange={facilitiesChange} 
+                  <Checkbox
+                    name={opt.id}
+                    checked={checkedFacilities[opt.id] || false}
+                    onChange={facilitiesChange}
+                    size="small"
                   />
-                } 
+                }
+                label={
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 0.5,
+                      minHeight: 74,
+                      minWidth: 72,
+                      textAlign: 'center'
+                    }}
+                  >
+                    <FacilityIcon code={opt.code} fontSize="small" />
+                    <Typography variant="caption">{opt.name}</Typography>
+                  </Box>
+                }
               />
             ))
           }
-        </FormGroup>
+        </Box>
 
         <Typography variant="h6" component="h6" gutterBottom align="left">
           Gallery
