@@ -122,11 +122,6 @@ function CreatePlace({
       if (!formCreatePlace.cityid) {
         throw new Error('cityID is required');
       }
-
-      //Validate for facilities of place
-      if(Object.keys(checkedFacilities || {}).length === 0){
-        throw new Error('select at least a facility is required');
-      }
       
       // API call to create place
       const response = await createPlace({
@@ -326,6 +321,20 @@ function CreatePlace({
           align="left"
           onChange={handleChange}
           value={formCreatePlace.description}
+        />
+
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="ispublic"
+              checked={formCreatePlace.ispublic}
+              onChange={(e) => setformCreatePlace(prev => ({
+                ...prev,
+                ispublic: e.target.checked
+              }))}
+            />
+          }
+          label="Is a Public place?"
         />
 
         <Typography variant="h6" component="h6" gutterBottom align="left">
