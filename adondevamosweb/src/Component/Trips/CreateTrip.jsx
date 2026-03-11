@@ -11,14 +11,17 @@ import ManageItinerary from './Itinerary/ManageItinerary';
 import ManageMemberList from './MembersList/ManageMemberList';
 import SnackbarNotification from '../Commons/SnackbarNotification';
 import FormTrips from './FormTrips';
+import GalleryListManager from '../Commons/GalleryListManager';
 import { FlightTakeoff } from '@mui/icons-material';
 import useTripMutationApi from '../../hooks/Trips/useTripMutationApi';
 import useTripDetailsApi from '../../hooks/Trips/useTripDetailsApi';
 import useGalleryUpload from '../../hooks/useGalleryUpload';
+import { useNavigate } from 'react-router-dom';
 
 function CreateTrip( ) {
     const theme = useTheme();
     const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
+    const navigate = useNavigate();
     const { createTrip } = useTripMutationApi();
     const { saveItinerary, saveGallery, saveMembers } = useTripDetailsApi();
     const { uploadImages, isUploading } = useGalleryUpload();
@@ -105,14 +108,15 @@ function CreateTrip( ) {
         name : formTrip.name.trim(),
         description : formTrip.description.trim(),
         initialdate : formTrip.initialdate,
-        finaldate : formTrip.finaldate,
-        ownerid : formTrip.owner.id
+        finaldate : formTrip.finaldate
       };
-      //const response = {status : 201, data:{info: { id : 0 }}}
+
       // API call to create trip
       const response = await createTrip(rq);
 
       if(response.status == 201) {
+        //created trip id
+        const tripId = response.data.info.id;
         //Show message of saved countries
         setMessageStack("Trip was saved.");
 
@@ -121,29 +125,21 @@ function CreateTrip( ) {
 
         //Save member list
         if  ( formTrip.memberlist.length > 0 ) {
-          await saveMemberlist(response.data.info);
+          await saveMemberlist({ id: tripId });
         }
 
         //Save itinerary
         if ( formTrip.itinerary.length > 0 ) {
-          await saveTripItinerary(response.data.info);
+          await saveTripItinerary({ id: tripId });
         }
 
         if (formTrip.gallery.length > 0) {
-          await saveTripGallery(response.data.info);
+          await saveTripGallery({ id: tripId });
         }
-        // Reset form after successful submission
-        setFormTrip(
-          prev => (
-            {
-            ...prev,
-              name : '',
-              description : '',
-              initialdate : '',
-              finaldate : ''
-            }
-          ) 
-        );
+        // Navigate to the new place after a short delay
+          setTimeout(() => {
+            navigate('/View/Trip/' + tripId);
+          }, 2000);
       }       
     } catch (error) {
       setMessageStack(`Error creating trip: ${error.message}`);
@@ -211,19 +207,29 @@ function CreateTrip( ) {
 
     const saveTripGallery = async (item) => {
       const id = item.id;
+      const batchSize = 3;
+      const images = formTrip.gallery;
 
       try {
-        await uploadImages({
-          images: formTrip.gallery,
-          buildPayload: (normalizedImages) => ({
-            images: normalizedImages.map((image) => ({
-              data: image.data,
-              mimetype: image.mimetype,
-              extension: image.extension
-            }))
-          }),
-          uploadRequest: (payload) => saveGallery(id, payload)
-        });
+        // Upload images in batches of 3
+        for (let i = 0; i < images.length; i += batchSize) {
+          const batch = images.slice(i, i + batchSize);
+          
+          await uploadImages({
+            images: batch,
+            buildPayload: (normalizedImages) => ({
+              images: normalizedImages.map((image) => ({
+                data: image.data,
+                mimetype: image.mimetype,
+                extension: image.extension
+              }))
+            }),
+            uploadRequest: (payload) => saveGallery(id, payload)
+          });
+          
+          setMessageStack(`Uploaded ${Math.min(i + batchSize, images.length)} of ${images.length} images...`);
+        }
+        
         setMessageStack("Gallery was saved.");
       } catch (error) {
         console.error("Error saving gallery", error);
@@ -259,10 +265,10 @@ function CreateTrip( ) {
 
   const handleRemove = (event) => {
     //Item exist in list
-    const foundInList = formTrip.itinerary.filter( x => x.id == event);
+    const foundInList = formTrip.itinerary.filter( x => x.place.id == event);
     // if found, filter list and set to form itinerary
     if ( foundInList.length == 1 ){
-        const filteredList = formTrip.itinerary.filter(item => item.id !== event )
+        const filteredList = formTrip.itinerary.filter(item => item.place.id !== event )
         setFormTrip( prev => ({...prev, itinerary : filteredList } ));
     } 
   }
@@ -393,6 +399,15 @@ function CreateTrip( ) {
           onRemoveMember={handleRemoveUser}
           onResetMembers={resetMembers}
           showDuplicateError={errors.duplicateduser}
+        />
+
+        <GalleryListManager
+          items={[]}
+          onRemove={() => {}}
+          pendingImages={formTrip.gallery}
+          onPendingImagesChange={(images) => setFormTrip(prev => ({ ...prev, gallery: images }))}
+          showUploader
+          maxPendingImages={10}
         />
 
         <Button 
