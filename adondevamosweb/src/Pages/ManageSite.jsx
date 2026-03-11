@@ -75,7 +75,7 @@ import { useAuth } from '../context/AuthContext';
             <Typography variant="h4" component="h1" gutterBottom align="center">
                 Site Management
             </Typography>
-            <Typography variant="body1" component="body1" gutterBottom align="center" sx={{ mb: 4 }}>
+            <Typography variant="body1" component="p" gutterBottom align="center" sx={{ mb: 4 }}>
                 Welcome, {auth.usertag} 
             </Typography>
 

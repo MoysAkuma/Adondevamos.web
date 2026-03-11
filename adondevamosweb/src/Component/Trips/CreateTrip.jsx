@@ -181,7 +181,7 @@ function CreateTrip( ) {
     const saveTripItinerary = async( item ) =>{
       const id = item.id;
       const lst = formTrip.itinerary.map(place => ({
-        "placeid" : place.id ,
+        "placeid" : place.place.id ,
         "initialdate" : place.initialdate,
         "finaldate" : place.finaldate,
         "hide" : false
@@ -238,7 +238,7 @@ function CreateTrip( ) {
 
   const handlePlaceAdd = (item) => {
     //Search if exist in itinerary
-    const foundInList = formTrip.itinerary.filter( x => x.id == item.id );
+    const foundInList = formTrip.itinerary.filter( x => x.place.id == item.place.id );
     
     //if not found, add to itinerary
     if ( foundInList.length == 0 ){

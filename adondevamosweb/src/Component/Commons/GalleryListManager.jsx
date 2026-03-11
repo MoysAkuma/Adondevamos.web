@@ -58,6 +58,9 @@ const GalleryListManager = ({
 
     return (
         <>
+            <Typography variant="h6" gutterBottom>
+                Gallery
+            </Typography>
             <List sx={{ width: '100%' }}>
                 {items.map((item, index) => (
                     <Paper
