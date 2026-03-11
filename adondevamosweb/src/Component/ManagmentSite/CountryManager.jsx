@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import axios from 'axios';
 import FormCountry from './FormCountry';
 import 
@@ -138,8 +138,8 @@ function CountryManager({ countries = [], callback: onCountryUpdate }){
             <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
                 {
                     countries.length > 0 ? countries.map(
-                        (x)=>(<>
-                            <ListItem key={x.id}>
+                        (x)=>(<Fragment key={x.id}>
+                            <ListItem>
                                 <ListItemText 
                                     primary={x.name} 
                                     secondary={x.acronym} />
@@ -161,7 +161,7 @@ function CountryManager({ countries = [], callback: onCountryUpdate }){
                                 </IconButton>
                             </ListItem>
                             <Divider />
-                            </>
+                            </Fragment>
                     )): <ListItem> 
                         <ListItemText primary="No countries added" ></ListItemText>
                     </ListItem>

@@ -28,7 +28,7 @@ import
         Divider
 } from '@mui/material';
 
-import { Delete, Visibility, VisibilityOff, Close, Edit } from '@mui/icons-material';
+import { Delete, Visibility, VisibilityOff, Close, Edit, FilterList } from '@mui/icons-material';
 
 import config from '../../Resources/config';
 
@@ -39,10 +39,32 @@ function StatesManager({ states = [], countries = [], callback }){
     const [submitSuccess,setSubmitSuccess] = useState(false);
     const [showForm, setShowForm] = useState(false);
     const [openModal, setOpenModal] = useState(false);
+    const [openFilterModal, setOpenFilterModal] = useState(false);
     const [countryidfilter, setCountryIDFilter]= useState(null);
     const [stateid, setStateID]= useState(null);
     const [infoToEdit, setInfoToEdit] = useState(null);
     const URLStates = `${config.api.baseUrl}${config.api.endpoints.Catalogues}`;
+    
+    // Filter states by country
+    const filteredStates = countryidfilter 
+        ? states.filter(s => s.countryid === countryidfilter)
+        : states;
+    
+    const getSelectedCountryName = () => {
+        if (!countryidfilter) return null;
+        const country = countries.find(c => c.id === countryidfilter);
+        return country ? country.name : null;
+    };
+    
+    const handleApplyFilter = (countryId) => {
+        setCountryIDFilter(countryId);
+        setOpenFilterModal(false);
+    };
+    
+    const handleClearFilter = () => {
+        setCountryIDFilter(null);
+        setOpenFilterModal(false);
+    };
     
     
     const realoadStates = async() => {
@@ -104,7 +126,74 @@ function StatesManager({ states = [], countries = [], callback }){
         >
         <ButtonGroup variant="outlined" aria-label="Basic button group">
             <Button onClick={() => setOpenModal(true)} >Add</Button>
+            <Button 
+                onClick={() => setOpenFilterModal(true)} 
+                startIcon={<FilterList />}
+                color={countryidfilter ? "primary" : "inherit"}
+            >
+                Filter {countryidfilter && `(${getSelectedCountryName()})`}
+            </Button>
+            {countryidfilter && (
+                <Button onClick={handleClearFilter} color="error">
+                    Clear
+                </Button>
+            )}
         </ButtonGroup>
+        
+        {/* Filter Modal */}
+        <Modal
+            open={openFilterModal}
+            onClose={() => setOpenFilterModal(false)}
+            aria-labelledby="filter-modal-title"
+        >
+            <Box sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: { xs: '90%', sm: '400px' },
+                bgcolor: 'background.paper',
+                boxShadow: 24,
+                borderRadius: 2,
+                p: 3,
+                maxHeight: '80vh',
+                overflow: 'auto'
+            }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography id="filter-modal-title" variant="h6" component="h2">
+                        Filter by Country
+                    </Typography>
+                    <IconButton onClick={() => setOpenFilterModal(false)} size="small">
+                        <Close />
+                    </IconButton>
+                </Box>
+                <TextField
+                    select
+                    fullWidth
+                    label="Select Country"
+                    value={countryidfilter || ''}
+                    onChange={(e) => handleApplyFilter(e.target.value || null)}
+                    sx={{ mb: 2 }}
+                >
+                    <MenuItem value="">
+                        <em>All Countries</em>
+                    </MenuItem>
+                    {countries.map((country) => (
+                        <MenuItem key={country.id} value={country.id}>
+                            {country.name} ({country.acronym})
+                        </MenuItem>
+                    ))}
+                </TextField>
+                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                    <Button onClick={handleClearFilter} variant="outlined">
+                        Clear Filter
+                    </Button>
+                    <Button onClick={() => setOpenFilterModal(false)} variant="contained">
+                        Close
+                    </Button>
+                </Box>
+            </Box>
+        </Modal>
         
         <Modal
             open={openModal}
@@ -140,7 +229,7 @@ function StatesManager({ states = [], countries = [], callback }){
         
         <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
             {
-                !loading && states.length > 0 ? states.map(
+                !loading && filteredStates.length > 0 ? filteredStates.map(
                     (x)=>(
                         <>
                         <ListItem key={x.id}>
@@ -169,7 +258,7 @@ function StatesManager({ states = [], countries = [], callback }){
                         </>
                 )): <ListItem> 
                     <ListItemText 
-                    primary="No states added yet" ></ListItemText>
+                    primary={countryidfilter ? "No states for selected country" : "No states added yet"} ></ListItemText>
                 </ListItem>
             }
         </List>

@@ -51,7 +51,6 @@ const FormUser = ({
             setTagWasVerify(true);
             axios.get(URLsCatalogService.Users + '/Verify/tag/' + item)
                 .then(resp => {
-                    console.log(resp);
                     setTagistaken((resp.status == 200));
                 })
                 .catch(error => {

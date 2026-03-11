@@ -27,6 +27,9 @@ import {
 } from "@mui/icons-material";
 import { styled } from '@mui/material/styles';
 import Itinerary from "./Itinerary/Itinerary";
+import { useAuth } from '../../context/AuthContext';
+import useVoteApi from '../../hooks/Votes/useVoteApi';
+import SnackbarNotification from '../Commons/SnackbarNotification';
 
 // Styled components for 8-bit retro design
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -126,19 +129,71 @@ const ExpandButton = styled(IconButton, {
 function TripCard({ tripinfo }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { voteTrip } = useVoteApi();
   const [expanded, setExpanded] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [isVoting, setIsVoting] = useState(false);
+  const [voteCount, setVoteCount] = useState(tripinfo?.statics?.Votes?.Total || 0);
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'info'
+  });
 
   const [placeHolderImageJP] = useState("/PlaceHolder_JP.jpg");
   const [placeHolderImageMX] = useState("/PlaceHolder_MX.jpg");
+
+  useEffect(() => {
+    setIsLiked(!!tripinfo?.userVoted);
+  }, [tripinfo?.userVoted]);
+
+  useEffect(() => {
+    setVoteCount(tripinfo?.statics?.Votes?.Total || 0);
+  }, [tripinfo?.statics?.Votes?.Total]);
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
   };
 
-  const handleLikeClick = () => {
-    setIsLiked(!isLiked);
-    // Add your vote logic here
+  const showSnackbar = (message, severity = 'info') => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar((prev) => ({ ...prev, open: false }));
+  };
+
+  const handleLikeClick = async () => {
+    if (!user) {
+      showSnackbar('You must be logged in to vote.', 'warning');
+      return;
+    }
+
+    if (!tripinfo?.id || isVoting) {
+      return;
+    }
+
+    const previousLiked = isLiked;
+    const previousCount = voteCount;
+    const nextLiked = !previousLiked;
+    const nextCount = Math.max(0, previousCount + (nextLiked ? 1 : -1));
+
+    setIsVoting(true);
+    setIsLiked(nextLiked);
+    setVoteCount(nextCount);
+
+    try {
+      await voteTrip(tripinfo.id, user);
+      showSnackbar(nextLiked ? 'Trip added to favorites' : 'Trip removed from favorites', 'success');
+    } catch (error) {
+      setIsLiked(previousLiked);
+      setVoteCount(previousCount);
+      showSnackbar('Could not update vote. Please try again.', 'error');
+      console.error('There was an error voting the trip!', error);
+    } finally {
+      setIsVoting(false);
+    }
   };
 
 
@@ -152,7 +207,6 @@ function TripCard({ tripinfo }) {
   };
 
   const goToViewPlace = (placeId) => {
-    console.log('Navigating to place with ID:', placeId);
     if (!placeId) return;
     navigate('/View/Place/' + placeId);
   };
@@ -376,10 +430,11 @@ function TripCard({ tripinfo }) {
           <IconButton 
             aria-label="vote" 
             onClick={handleLikeClick}
+            disabled={isVoting}
             size="small"
           >
             <Badge 
-              badgeContent={tripinfo.statics.Votes.Total} 
+              badgeContent={voteCount} 
               max={999}
               color="error"
             >
@@ -453,6 +508,12 @@ function TripCard({ tripinfo }) {
           )}
         </CardContent>
       </Collapse>
+      <SnackbarNotification
+        open={snackbar.open}
+        onClose={handleCloseSnackbar}
+        message={snackbar.message}
+        severity={snackbar.severity}
+      />
     </StyledCard>
   );
 }

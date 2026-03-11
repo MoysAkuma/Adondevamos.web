@@ -1,6 +1,5 @@
 import React from "react";
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import 
     {
         TextField, 
@@ -20,6 +19,7 @@ import config from '../../Resources/config';
 import CountriesSelectList from "../Catalogues/CountriesSelectList";
 import StateSelect from "../Catalogues/StateSelect";
 import CitiesSelect from "../Catalogues/CitiesSelect";
+import useAuthenticatedApi from '../../hooks/useAuthenticatedApi';
 
 function FormCities({formData, callback, countries = [], states = []}){
     const theme = useTheme();
@@ -34,6 +34,7 @@ function FormCities({formData, callback, countries = [], states = []}){
     const [submitSuccess,setSubmitSuccess] = useState(false);
     
     const [submitError, setSubmitError] = useState('');
+    const { post, patch, isAdmin } = useAuthenticatedApi();
 
     const [filteredStates, setFilteredStates] = useState([]);
     
@@ -74,6 +75,10 @@ function FormCities({formData, callback, countries = [], states = []}){
 
     const handleSubmit = async (e) =>{
         e.preventDefault();
+        if (!isAdmin) {
+            setSubmitError('Only administrators can create or modify records.');
+            return;
+        }
         setIsSubmitting(true);
         setSubmitError('');
         setSubmitSuccess(false);
@@ -95,51 +100,39 @@ function FormCities({formData, callback, countries = [], states = []}){
         }
         if(isEdit){
             //Edit mode
-            await axios.patch(`${URLCity}/city/${formData.id}`, 
-                formCities ).then(resp => {
-                    if (resp.status === 200){
-                        setSubmitSuccess(true);
-                    }
-                    
-                }
-            );
+            const resp = await patch(`${URLCity}/city/${formData.id}`, formCities);
+            if (resp.status === 200){
+                setSubmitSuccess(true);
+            }
 
         } else {
-            axios.post(URLCity + '/city', formCities )
-            .then(resp => {
-                    if (resp.status === 201){
-                        setSubmitSuccess(true);
-                    }
-            })
-            .catch(error => console.error("Error creating a city"));
+            const resp = await post(`${URLCity}/city`, formCities);
+            if (resp.status === 201){
+                setSubmitSuccess(true);
+            }
         }
+
+        setLoading(false);
+        setFormCities({
+            name: '',
+            originalname:'',
+            countryid : null,
+            stateid:null,
+            enabled:true,
+            hide:false
+        });
+        callback();
         
         } catch (error) {
             setSubmitError(error.response?.data?.message || error.message);
             console.error('Error creating city:', error);
         } finally {
-            //Stop loading form
-            setLoading(false);
-            
             setIsSubmitting(false);
-            //empty form
-            setFormCities({
-                name: '',
-                originalname:'',
-                countryid : null,
-                stateid:null,
-                enabled:true,
-                hide:false
-            });
-            //callback
-            callback();
         }
     };
 
     useEffect(()=> {
         if (formData && formData.id){
-            console.log('FormCities: Loading data for edit:', formData);
-            //Edit mode
             setisEdit(true);
             setFormCities({
                 name : formData.name || '',
@@ -152,8 +145,17 @@ function FormCities({formData, callback, countries = [], states = []}){
         } else {
             //Create mode
             setisEdit(false);
+            setFormCities({
+                name : '',
+                originalname : '',
+                countryid : 0,
+                stateid : 0,
+                enabled : true,
+                hide : false
+            });
+            setFilteredStates([]);
         }
-    },[formData]);
+    },[formData, states]);
 
     return (<>
     <Box
@@ -230,10 +232,20 @@ function FormCities({formData, callback, countries = [], states = []}){
         
                 <Button 
                     type="submit" 
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !isAdmin}
                     variant="contained"
                 > { (isEdit) ? "Save Changes" : "Create City" } 
                 </Button>
+                {!isAdmin && (
+                    <Typography variant="body2" color="error">
+                        Only administrators can create or modify records.
+                    </Typography>
+                )}
+                {submitError && (
+                    <Typography variant="body2" color="error">
+                        {submitError}
+                    </Typography>
+                )}
               </Box>
     </>);
 }

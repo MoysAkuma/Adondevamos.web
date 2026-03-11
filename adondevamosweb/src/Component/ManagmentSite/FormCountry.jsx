@@ -1,6 +1,5 @@
 import React from "react";
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import 
     {
         TextField, 
@@ -15,6 +14,7 @@ import
     } from '@mui/material';
 
 import config from '../../Resources/config';
+import useAuthenticatedApi from '../../hooks/useAuthenticatedApi';
 
 function FormCountry({formData = null, callback}){
     //Init variables
@@ -32,6 +32,7 @@ function FormCountry({formData = null, callback}){
     const [submitError, setSubmitError] = useState('');
     
     const URLCountry = `${config.api.baseUrl}${config.api.endpoints.Catalogues}/country`;
+    const { post, patch, isAdmin } = useAuthenticatedApi();
 
     const [formCountry,setFormCountry] = useState({
         name: '',
@@ -51,6 +52,10 @@ function FormCountry({formData = null, callback}){
 
     const handleSubmit = async (e) =>{
         e.preventDefault();
+        if (!isAdmin) {
+            setSubmitError('Only administrators can create or modify records.');
+            return;
+        }
         setIsSubmitting(true);
         setSubmitError('');
         setSubmitSuccess(false);
@@ -63,44 +68,26 @@ function FormCountry({formData = null, callback}){
             throw new Error('Acronym is required');
         }
         if(isEdit){
-            axios.patch(URLCountry + '/' + 
-                formData.id, formCountry )
-            .then(resp => {
-                if (resp.status === 200){
-                    setSubmitSuccess(true);
-                }
-
-                //Stop loading form
-                setLoading(false);
-                //empty form
-                setFormCountry({
-                    name: '',
-                    originalname:'',
-                    acronym:'',
-                    enabled:true,
-                    hide:false
-                });
-                callback();
-            })
-            .catch(error => console.error("Error creating a country"));
+            const resp = await patch(`${URLCountry}/${formData.id}`, formCountry);
+            if (resp.status === 200){
+                setSubmitSuccess(true);
+            }
         } else {
-            axios.post(URLCountry, formCountry )
-            .then(resp => {
-                //Stop loading form
-                setLoading(false);
-                //empty form
-                setFormCountry({
-                    name: '',
-                    originalname:'',
-                    acronym:'',
-                    enabled:true,
-                    hide:false
-                });
-                //call to show new facilities
-                callback();
-            })
-            .catch(error => console.error("Error creating a country"));
+            const resp = await post(URLCountry, formCountry);
+            if (resp.status === 201){
+                setSubmitSuccess(true);
+            }
         }
+
+        setLoading(false);
+        setFormCountry({
+            name: '',
+            originalname:'',
+            acronym:'',
+            enabled:true,
+            hide:false
+        });
+        callback();
         
         
         } catch (error) {
@@ -187,10 +174,20 @@ function FormCountry({formData = null, callback}){
     
             <Button 
                 type="submit" 
-                disabled={isSubmitting}
+                disabled={isSubmitting || !isAdmin}
                 variant="contained"
             > { (isEdit) ? "Save Changes" : "Create Country" } 
             </Button>
+            {!isAdmin && (
+                <Typography variant="body2" color="error">
+                    Only administrators can create or modify records.
+                </Typography>
+            )}
+            {submitError && (
+                <Typography variant="body2" color="error">
+                    {submitError}
+                </Typography>
+            )}
           </Box>
     </>);
 }

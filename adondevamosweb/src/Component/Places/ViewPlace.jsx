@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 
 import 
     {
@@ -18,44 +17,57 @@ import
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import { FavoriteBorder, Edit } from '@mui/icons-material';
-import config from "../../Resources/config";
 import FacilityIcon from "../Commons/FacilityIcon";
 import { useAuth } from '../../context/AuthContext';
 import MapView from "../Commons/MapView";
 import ImageCarousel from "../Commons/ImageCarousel";
+import usePlaceQueryApi from '../../hooks/Places/usePlaceQueryApi';
+import useVoteApi from '../../hooks/Votes/useVoteApi';
+import SnackbarNotification from '../Commons/SnackbarNotification';
 
 function ViewPlace(){
     //Get id
     const { id } = useParams();
     const { isLogged, user, loading: authLoading, role, hasRole } = useAuth();
+    const { getPlace } = usePlaceQueryApi();
+    const { votePlace, getPlaceVotesSummary } = useVoteApi();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [placeInfo, setPlaceInfo] = useState(null);
     const [liked, setLiked] = useState(false);
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: '',
+        severity: 'info'
+    });
 
-    //URLS
-    const URLsCatalogService = {
-        Places:`${config.api.baseUrl}${config.api.endpoints.Places}`,
-        Votes:`${config.api.baseUrl}${config.api.endpoints.Votes}`
+    const showSnackbar = (message, severity = 'info') => {
+        setSnackbar({ open: true, message, severity });
+    };
+
+    const handleCloseSnackbar = () => {
+        setSnackbar(prev => ({ ...prev, open: false }));
     };
 
     const handleVotePlace = async () => {
         if (!user) {
-            alert('You must be logged in to like a trip.');
+            showSnackbar('You must be logged in to vote.', 'warning');
             return;
         }
-        axios.post(
-            `${URLsCatalogService.Votes}/${user}`,
-            {
-                "placeid": id
-            },
-        ).then( (response) => {
-            updateVotes();
-            setLiked( prevLiked => !prevLiked );
-        }).catch( (error) => {
+
+        try {
+            await votePlace(id, user);
+            await updateVotes();
+            setLiked(prevLiked => {
+                const nextLiked = !prevLiked;
+                showSnackbar(nextLiked ? 'Place added to favorites' : 'Place removed from favorites', 'success');
+                return nextLiked;
+            });
+        } catch (error) {
+            showSnackbar('Could not update vote. Please try again.', 'error');
             console.error("There was an error liking the trip!", error);
-        });
+        }
     };
 
     const handleShare = () => {
@@ -69,21 +81,20 @@ function ViewPlace(){
         navigate(`/Edit/Place/${id}`);
     };
 
-    const updateVotes = () => {
-        axios.get(
-            URLsCatalogService.Votes + '/Place/' + id
-        ).then( (response) => {
+    const updateVotes = async () => {
+        try {
+            const votesTotal = await getPlaceVotesSummary(id);
             setPlaceInfo( prevPlaceInfo => ({
                 ...prevPlaceInfo,
                 statics: {
                     ...prevPlaceInfo.statics,
-                    Votes: { Total: response.data.info.summary }
+                    Votes: { Total: votesTotal }
                 }
             }));
-            console.log("Place info updated with new votes.", placeInfo);
-        }).catch( (error) => {
+            
+        } catch (error) {
             console.error("There was an error fetching the votes!", error);
-        });
+        }
     };
     
     useEffect(() => {
@@ -98,16 +109,10 @@ function ViewPlace(){
             setError(null);
             
             try {
-                const headers = {};
-                if (isLogged) {
-                    headers['user-id'] = user;
-                }
-                
-                const response = 
-                await axios.get(`${URLsCatalogService.Places}/${id}`,
-                    { headers });
+                const response = await getPlace(id, {
+                    userId: isLogged ? user : null
+                });
                 setPlaceInfo(response.data.info);
-                console.log("Place info fetched:", response.data.info);
                 setLiked( response.data.info.userVote || false );
             } catch (err) {
                 console.error("Error getting place info:", err);
@@ -118,7 +123,7 @@ function ViewPlace(){
         };
         fetchPlace();
         
-    }, [id, user]);
+    }, [id, user, isLogged, getPlace]);
 
     if (loading) {
         return (
@@ -176,7 +181,7 @@ function ViewPlace(){
             )}
             <Typography 
                 variant="body1" 
-                component="body1" 
+                component="p" 
                 align="left">
                 Description
             </Typography>
@@ -192,7 +197,7 @@ function ViewPlace(){
 
             <Typography 
                 variant="body1" 
-                component="body1" 
+                component="p" 
                 align="left">
                 Address
             </Typography>
@@ -243,9 +248,9 @@ function ViewPlace(){
                         {
                             placeInfo.facilities.map((facility) => (
                                 <Tooltip 
+                                    key={facility.code}
                                     title={facility.name} >
                                     <FacilityIcon 
-                                        key={facility.code} 
                                         code={facility.code} 
                                         titleAccess={facility.name}
                                         color="white"
@@ -305,6 +310,12 @@ function ViewPlace(){
                     </Tooltip>
                 )}
             </Paper>
+            <SnackbarNotification
+                open={snackbar.open}
+                onClose={handleCloseSnackbar}
+                message={snackbar.message}
+                severity={snackbar.severity}
+            />
 
         </Box>
     );

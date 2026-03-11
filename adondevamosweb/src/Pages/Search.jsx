@@ -1,7 +1,6 @@
-import React from "react";
 import { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
-import { Container, Box, Typography } from "@mui/material";
+import { Typography, Snackbar, Alert } from "@mui/material";
 import axios from 'axios';
 
 import config from "../Resources/config";
@@ -10,12 +9,15 @@ import PlaceFilter from "../Component/Places/PlaceFilter";
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 import TripsResultSearch from "../Component/Trips/TripsResultSearch";
 import PlacesResultSearch from "../Component/Places/PlacesResultSearch";
+import usePlaceQueryApi from '../hooks/Places/usePlaceQueryApi';
 
 
 export default function Search() {
     //Module to show the search page
     const { opt } = useParams();
     const [searchResults, setSearchResults] = useState([]);
+    const { searchPlaces } = usePlaceQueryApi();
+    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'error' });
     const [catalogues, setCatalogues] = useState({
         countries: [],
         states: [],
@@ -79,33 +81,60 @@ export default function Search() {
                 filters : filters
             }
         ).then( (response) => {
+
             setSearchResults( response.data.info );
         }).catch( (error) => {
-            console.error("There was an error searching trips by filters!", error);
+            if (error.response?.status === 404) {
+                setSearchResults([]);
+                setSnackbar({ open: true, message: 'No data was found', severity: 'warning' });
+            } else {
+                console.error("There was an error searching trips by filters!", error);
+                setSnackbar({ open: true, message: 'Error searching trips', severity: 'error' });
+            }
         });    
     }
 
     const searchPlacessByFilters = async (filters) => {
-        axios.post(
-            `${config.api.baseUrl}${config.api.endpoints.Places}/Search`,
-            {
-                filters : filters
-            }
-        ).then( (response) => {
-            setSearchResults( response.data.info );
-        }).catch( (error) => {
-            console.error("There was an error searching trips by filters!", error);
-        });    
+        searchPlaces(filters)
+            .then((response) => {
+                
+                setSearchResults(response.data.info);
+            })
+            .catch((error) => {
+                if (error.response?.status === 404) {
+                    setSearchResults([]);
+                    setSnackbar({ open: true, message: 'No data was found', severity: 'warning' });
+                } else {
+                    console.error("There was an error searching places by filters!", error);
+                    setSnackbar({ open: true, message: 'Error searching places', severity: 'error' });
+                }
+            });
     }
 
+    const handleCloseSnackbar = () => {
+        setSnackbar(prev => ({ ...prev, open: false }));
+    };
+
     return (
-        <CenteredTemplate>
-            <>
-                <Typography variant="h5" align="center">
-                    Discover {opt}
-                </Typography>
-                {controlViewOption(opt)}
-            </>
-        </CenteredTemplate>
+        <>
+            <CenteredTemplate>
+                <>
+                    <Typography variant="h5" align="center">
+                        Discover {opt}
+                    </Typography>
+                    {controlViewOption(opt)}
+                </>
+            </CenteredTemplate>
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={4000}
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
+        </>
     );
 }

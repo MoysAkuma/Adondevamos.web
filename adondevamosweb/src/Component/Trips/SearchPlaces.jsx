@@ -1,9 +1,7 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useState } from 'react';
 import 
     {
         TextField, 
-        Button,
         useMediaQuery,
         useTheme,
         InputAdornment,
@@ -17,13 +15,14 @@ import { FlightTakeoff,
     Delete } 
     from '@mui/icons-material';
 
-import config from '../../Resources/config';
 import PlaceListFound from '../View/PlaceListFound';
+import usePlaceQueryApi from '../../hooks/Places/usePlaceQueryApi';
 
 function SearchPlaces({ callback, itinerary }){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [loading, setLoading] = useState(false);
+    const { searchPlacesByName } = usePlaceQueryApi();
 
     //var param to search places with a given name
     const [placename, setPlaceName] = useState('');
@@ -34,14 +33,6 @@ function SearchPlaces({ callback, itinerary }){
     //Callback object
     const [initialDate, setInitialDate] = useState("");
     const [finalDate, setFinalDate] = useState("");
-    //Urls
-    const [URLsCatalogService, setURLsCatalogService] = useState(
-        {
-            Trips : `${config.api.baseUrl}${config.api.endpoints.Trips}`,
-            Places : `${config.api.baseUrl}${config.api.endpoints.Places}`
-        }
-    );
-
     //place list
     const [findedPlaces, setFindedPlaces] = useState([
         {
@@ -75,7 +66,7 @@ function SearchPlaces({ callback, itinerary }){
 
     //request to get place list
     const searchPlaceList = async( item ) =>{
-        axios.get(URLsCatalogService.Places+'/Search/name/'+item)
+        searchPlacesByName(item)
         .then(resp => {
             setFindedPlaces(resp.data.info);
             if(resp.data.info.length > 0){
@@ -109,10 +100,6 @@ function SearchPlaces({ callback, itinerary }){
         //Return response
         callback(resp);
     }
-
-    useEffect(()=> {
-        
-    },[]);
 
     return (<>
         <Typography variant="body1"  gutterBottom align="left">

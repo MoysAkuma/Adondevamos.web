@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext, useCallback, useRef } from 'react';
-import axios from 'axios';
-import config from "../Resources/config";
+import useLoginApi from '../hooks/Session/useLoginApi';
+import useCheckAuthApi from '../hooks/Session/useCheckAuthApi';
+import useLogoutApi from '../hooks/Session/useLogoutApi';
 
 const AuthContext = createContext({
   user: null,
@@ -15,6 +16,7 @@ const AuthContext = createContext({
 const SESSION_TIMEOUT = 30 * 60 * 1000; // 30 minutes
 const SESSION_WARNING_TIME = 5 * 60 * 1000; // 5 minutes before timeout
 const TOKEN_REFRESH_INTERVAL = 15 * 60 * 1000; // 15 minutes
+const MIN_AUTH_CHECK_INTERVAL = 10000; // 10 seconds
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -30,12 +32,16 @@ export const AuthProvider = ({ children }) => {
   const sessionWarningRef = useRef(null);
   const refreshIntervalRef = useRef(null);
   const lastActivityRef = useRef(Date.now());
+  const isCheckingAuthRef = useRef(false);
+  const lastAuthCheckRef = useRef(0);
+  const checkAuthStatusRef = useRef(null);
+  const clearAllStateRef = useRef(null);
+  const hasInitializedRef = useRef(false);
   
-  axios.defaults.withCredentials = true;
-
-  const URLs = {
-    Site: `${config.api.baseUrl}`
-  };
+  // API hooks
+  const { login: loginRequest } = useLoginApi();
+  const { checkAuth: checkAuthRequest } = useCheckAuthApi();
+  const { logout: logoutRequest } = useLogoutApi();
 
   // Clear all session timers
   const clearSessionTimers = useCallback(() => {
@@ -93,47 +99,14 @@ export const AuthProvider = ({ children }) => {
     };
   }, [isLogged, resetSessionTimeout]);
 
-  // Token refresh interval
-  useEffect(() => {
-    if (isLogged) {
-      refreshIntervalRef.current = setInterval(() => {
-        checkAuthStatus();
-      }, TOKEN_REFRESH_INTERVAL);
-    }
-    
-    return () => {
-      if (refreshIntervalRef.current) {
-        clearInterval(refreshIntervalRef.current);
-      }
-    };
-  }, [isLogged]);
-
-  useEffect(() => {
-    checkAuthStatus();
-    
-    // Listen for session changes in other tabs
-    const handleStorage = (e) => {
-      if (["userid", "role", "tag"].includes(e.key)) {
-        checkAuthStatus();
-      }
-      // Handle logout in other tabs
-      if (e.key === 'logout-event') {
-        clearAllState();
-      }
-    };
-    window.addEventListener("storage", handleStorage);
-    
-    return () => {
-      window.removeEventListener("storage", handleStorage);
-      clearSessionTimers();
-    };
-  }, []);
-
   // Clear all authentication state
   const clearAllState = useCallback(() => {
     localStorage.removeItem('userid');
     localStorage.removeItem('tag');
     localStorage.removeItem('role');
+    localStorage.removeItem('localSession');
+    localStorage.removeItem('authToken');
+    sessionStorage.removeItem('authToken');
     setUser(null);
     setUserTag(null);
     setRole(null);
@@ -142,111 +115,59 @@ export const AuthProvider = ({ children }) => {
     clearSessionTimers();
   }, [clearSessionTimers]);
 
-  const checkAuthStatus = async () => {
+  const checkAuthStatus = useCallback(async (force = false) => {
+    const now = Date.now();
+
+    // Always respect in-progress check - even with force
+    if (isCheckingAuthRef.current) {
+      return { success: false, message: 'Auth check already in progress' };
+    }
+
+    // Cooldown check - force bypasses time check but not in-progress
+    if (!force && now - lastAuthCheckRef.current < MIN_AUTH_CHECK_INTERVAL) {
+      return { success: true, skipped: true };
+    }
+
+    lastAuthCheckRef.current = now;
+    isCheckingAuthRef.current = true;
     setLoading(true);
     setAuthError(null);
+    const storedToken = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
     const isSession = localStorage.getItem('userid');
+    const localSessionRaw = localStorage.getItem('localSession');
+    let parsedLocalSession = null;
 
-    if (!isSession) {
+    if (localSessionRaw) {
+      try {
+        parsedLocalSession = JSON.parse(localSessionRaw);
+      } catch (_) {
+        parsedLocalSession = null;
+      }
+    }
+
+    if (!isSession && !storedToken) {
       setIsLogged(false);
       setRole(null);
       setUserTag(null);
       setUser(null);
       setLoading(false);
+      isCheckingAuthRef.current = false;
       return { success: false };
     }
 
-    try {
-      const response = await axios.get(
-        `${URLs.Site}/check-auth`,
-        { 
-          withCredentials: true,
-          timeout: 10000 // 10 second timeout
-        }
-      );
-      
-      // Handle 304 Not Modified - session is still valid
-      if (response.status === 304) {
-        // Use stored values since 304 means nothing changed
-        const storedUserId = localStorage.getItem('userid');
-        const storedRole = localStorage.getItem('role');
-        const storedTag = localStorage.getItem('tag');
-        
-        if (storedUserId) {
-          setIsLogged(true);
-          setUser(storedUserId);
-          setRole(storedRole);
-          setUserTag(storedTag);
-          setLoading(false);
-          resetSessionTimeout();
-          return { success: true };
-        }
-      }
-      
-      // Handle 200 OK with data
-      if (response.data && response.data.info && response.data.info.isAuthenticated) {
-        // Get stored values
-        const storedUserId = localStorage.getItem('userid');
-        const storedRole = localStorage.getItem('role');
-        const storedTag = localStorage.getItem('tag');
-        
-        // Check if backend provides user details
-        if (response.data.info.id !== undefined) {
-          // Backend provides full user data - use it
-          const backendUserId = String(response.data.info.id);
-          const backendRole = String(response.data.info.role || '');
-          const backendTag = String(response.data.info.tag || '');
-          
-          if (storedUserId !== backendUserId || storedRole !== backendRole) {
-            localStorage.setItem('userid', backendUserId);
-            localStorage.setItem('role', backendRole);
-            localStorage.setItem('tag', backendTag);
-          }
-          
-          setIsLogged(true);
-          setUser(backendUserId);
-          setRole(backendRole);
-          setUserTag(backendTag);
-          setLoading(false);
-          resetSessionTimeout();
-          return { success: true };
-        } else {
-          // Backend only confirms auth, use stored values
-          if (storedUserId) {
-            setIsLogged(true);
-            setUser(storedUserId);
-            setRole(storedRole);
-            setUserTag(storedTag);
-            setLoading(false);
-            resetSessionTimeout();
-            
-            return { success: true };
-          } else {
-            // No stored data available
-            
-            clearAllState();
-            setLoading(false);
-            return { success: false, message: 'No user data available' };
-          }
-        }
-      } else {
-        // Backend says not authenticated, clear local storage
-        
-        clearAllState();
-        setLoading(false);
-        return { success: false };
-      }
-    } catch (error) {
-      
-      const errorMessage = error.response?.data?.message || error.message || 'Auth check failed';
+    const response = await checkAuthRequest();
+    
+    if (!response.success) {
+      const errorMessage = response.message || 'Auth check failed';
       setAuthError(errorMessage);
       
       // On network error, keep session if recently validated
       const timeSinceActivity = Date.now() - lastActivityRef.current;
-      if (error.code === 'ECONNABORTED' || error.code === 'ERR_NETWORK') {
+      if (response.errorCode === 'ECONNABORTED' || response.errorCode === 'ERR_NETWORK') {
         if (timeSinceActivity < TOKEN_REFRESH_INTERVAL && isSession) {
           // Keep session temporarily on network error
           setLoading(false);
+          isCheckingAuthRef.current = false;
           return { success: true, warning: 'Network error - using cached session' };
         }
       }
@@ -254,11 +175,137 @@ export const AuthProvider = ({ children }) => {
       // Clear session on auth error
       clearAllState();
       setLoading(false);
+      isCheckingAuthRef.current = false;
       return { success: false, message: errorMessage };
     }
-  };
 
-  const login = async (username, password) => {
+    // Handle 304 Not Modified - session is still valid
+    if (response.data.status === 304) {
+      const storedUserId = localStorage.getItem('userid');
+      const storedRole = localStorage.getItem('role');
+      const storedTag = localStorage.getItem('tag');
+      
+      if (storedUserId || parsedLocalSession?.userid) {
+        const hydratedUserId = storedUserId || String(parsedLocalSession.userid);
+        const hydratedRole = storedRole || String(parsedLocalSession.role || '');
+        const hydratedTag = storedTag || String(parsedLocalSession.tag || '');
+
+        if (!storedUserId && hydratedUserId) {
+          localStorage.setItem('userid', hydratedUserId);
+          localStorage.setItem('role', hydratedRole);
+          localStorage.setItem('tag', hydratedTag);
+        }
+
+        setIsLogged(true);
+        setUser(hydratedUserId);
+        setRole(hydratedRole);
+        setUserTag(hydratedTag);
+        setLoading(false);
+        resetSessionTimeout();
+        isCheckingAuthRef.current = false;
+        return { success: true };
+      }
+    }
+    
+    // Handle authenticated response with data
+    const storedUserId = localStorage.getItem('userid');
+    const storedRole = localStorage.getItem('role');
+    const storedTag = localStorage.getItem('tag');
+    
+    // Check if backend provides user details
+    if (response.data.id !== undefined) {
+      // Backend provides full user data - use it
+      const backendUserId = String(response.data.id);
+      const backendRole = String(response.data.role || '');
+      const backendTag = String(response.data.tag || '');
+      
+      if (storedUserId !== backendUserId || storedRole !== backendRole) {
+        localStorage.setItem('userid', backendUserId);
+        localStorage.setItem('role', backendRole);
+        localStorage.setItem('tag', backendTag);
+      }
+
+      localStorage.setItem('localSession', JSON.stringify({
+        userid: backendUserId,
+        role: backendRole,
+        tag: backendTag
+      }));
+      
+      setIsLogged(true);
+      setUser(backendUserId);
+      setRole(backendRole);
+      setUserTag(backendTag);
+      setLoading(false);
+      resetSessionTimeout();
+      isCheckingAuthRef.current = false;
+      return { success: true };
+    } else if (storedUserId) {
+      // Backend only confirms auth, use stored values
+      setIsLogged(true);
+      setUser(storedUserId);
+      setRole(storedRole);
+      setUserTag(storedTag);
+      setLoading(false);
+      resetSessionTimeout();
+      isCheckingAuthRef.current = false;
+      return { success: true };
+    } else {
+      // No stored data available
+      clearAllState();
+      setLoading(false);
+      isCheckingAuthRef.current = false;
+      return { success: false, message: 'No user data available' };
+    }
+  }, [checkAuthRequest, clearAllState, resetSessionTimeout]);
+
+  useEffect(() => {
+    checkAuthStatusRef.current = checkAuthStatus;
+    clearAllStateRef.current = clearAllState;
+  }, [checkAuthStatus, clearAllState]);
+
+  // Token refresh interval - use ref to avoid recreating interval on callback changes
+  useEffect(() => {
+    if (isLogged) {
+      refreshIntervalRef.current = setInterval(() => {
+        checkAuthStatusRef.current?.(); // Use ref for stable reference
+      }, TOKEN_REFRESH_INTERVAL);
+    }
+    
+    return () => {
+      if (refreshIntervalRef.current) {
+        clearInterval(refreshIntervalRef.current);
+      }
+    };
+  }, [isLogged]); // Only depend on isLogged, not the callback
+
+  useEffect(() => {
+    // Guard against double initialization (React StrictMode)
+    if (hasInitializedRef.current) {
+      return;
+    }
+    hasInitializedRef.current = true;
+    
+    checkAuthStatusRef.current?.(true);
+    
+    // Listen for session changes in other tabs
+    const handleStorage = (e) => {
+      if (["userid", "role", "tag"].includes(e.key)) {
+        checkAuthStatusRef.current?.(); // Don't force on storage events
+      }
+      // Handle logout in other tabs
+      if (e.key === 'logout-event') {
+        clearAllStateRef.current?.();
+      }
+    };
+    window.addEventListener("storage", handleStorage);
+    
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      clearSessionTimers();
+    };
+  }, [clearSessionTimers]);
+
+  const login = useCallback(async (username, password) => {
     setLoading(true);
     setAuthError(null);
     
@@ -270,82 +317,67 @@ export const AuthProvider = ({ children }) => {
       return { success: false, message: error };
     }
     
-    try {
-      const response = await axios.post(
-        `${URLs.Site}/Login`,
-        { 
-          id: username.trim(), 
-          password: password 
-        },
-        { 
-          withCredentials: true,
-          timeout: 10000
-        }
-      );
-
-      if (response.status === 200 && response.data.info) {
-        const { id, tag, role } = response.data.info;
-        
-        // Validate response data
-        if (!id && id !== 0) {
-          throw new Error('Invalid response from server');
-        }
-        
-        // Convert to strings and save to localStorage
-        const userId = String(id);
-        const userTag = String(tag || '');
-        const userRole = String(role || '');
-        
-        localStorage.setItem('userid', userId);
-        localStorage.setItem('tag', userTag);
-        localStorage.setItem('role', userRole);
-        
-        // Update state
-        setUser(userId);
-        setUserTag(userTag);
-        setRole(userRole);
-        setIsLogged(true);
-        setLoading(false);
-        resetSessionTimeout();
-        
-        return { success: true };
-      }
-      
-      setLoading(false);
-      return { success: false, message: 'Login failed' };
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || error.message || 'Login failed';
+    const response = await loginRequest({ username, password });
+    
+    if (!response.success) {
+      const errorMessage = response.message || 'Login failed';
       setAuthError(errorMessage);
       setLoading(false);
       return { success: false, message: errorMessage };
     }
-  };
 
-  const logout = async (reason = 'User logout') => {
-    setLoading(true);
-    try {
-      await axios.post(
-        `${URLs.Site}/Logout`, 
-        {}, 
-        { 
-          withCredentials: true,
-          timeout: 5000
-        }
-      );
-    } catch (error) {
-      // Continue with local logout even if API fails
-    } finally {
-      // Clear everything regardless of API response
-      clearAllState();
-      
-      // Notify other tabs about logout
-      localStorage.setItem('logout-event', Date.now().toString());
-      localStorage.removeItem('logout-event');
-      
+    const { id, tag, role } = response.data;
+    
+    // Validate response data
+    if (!id && id !== 0) {
+      const error = 'Invalid response from server - missing id';
+      setAuthError(error);
       setLoading(false);
+      return { success: false, message: error };
     }
+    
+    // Convert to strings and save to localStorage
+    const userId = String(id);
+    const userTag = String(tag || '');
+    const userRole = String(role || '');
+    
+    localStorage.setItem('userid', userId);
+    localStorage.setItem('tag', userTag);
+    localStorage.setItem('role', userRole);
+    localStorage.setItem('localSession', JSON.stringify({
+      userid: userId,
+      tag: userTag,
+      role: userRole
+    }));
+    
+    // Update state
+    setUser(userId);
+    setUserTag(userTag);
+    setRole(userRole);
+    setIsLogged(true);
+    setLoading(false);
+    resetSessionTimeout();
+    
+    return { success: true };
+  }, [loginRequest, resetSessionTimeout]);
+
+  const logout = useCallback(async (reason = 'User logout') => {
+    setLoading(true);
+    
+    // Call logout API
+    await logoutRequest();
+    
+    // Clear everything regardless of API response
+    clearAllState();
+    
+    // Notify other tabs about logout
+    localStorage.setItem('logout-event', Date.now().toString());
+    localStorage.removeItem('logout-event');
+    
+    setLoading(false);
+    
     return { success: true, reason };
-  };
+  }, [logoutRequest, clearAllState]);
 
   // Role-based access control helpers
   const hasRole = useCallback((requiredRole) => {
@@ -374,9 +406,7 @@ export const AuthProvider = ({ children }) => {
     
     // Define permissions by role
     const rolePermissions = {
-      'superadmin': ['read', 'write', 'delete', 'manage_users', 'manage_site'],
-      'admin': ['read', 'write', 'delete', 'manage_users'],
-      'moderator': ['read', 'write', 'delete'],
+      'admin': ['read', 'write', 'delete', 'management'],
       'user': ['read', 'write']
     };
     

@@ -199,7 +199,6 @@ function EditUser() {
                     stateid: userData.State.id || 0,
                     cityid: userData.City.id || 0
                 });
-                console.log(userData);
                 setLocationValues({
                     countryid: userData.Country.id || 0,
                     stateid: userData.State.id || 0,
@@ -208,7 +207,6 @@ function EditUser() {
 
                 setLoading(false);
             } catch (error) {
-                console.error('Error loading data:', error);
                 setSubmitError('Failed to load user data');
                 setLoading(false);
             }

@@ -1,49 +1,37 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import TripCard from "./TripCard";
-import axios from 'axios';
-import config from "../../Resources/config";
-import { Link as RouterLink } from "react-router-dom"
+import { useAuth } from '../../context/AuthContext';
+import useLastedTrips from '../../hooks/Trips/useLastedTrips';
 import 
     {
         Typography,
-        Box,
         Stack,
         Divider,
         Paper,
         CircularProgress,
-        Grid
+        Alert
     } from '@mui/material';
 
 function NewTrips(){
-    //URLS
-    const [URLsCatalogService, setURLsCatalogService] = useState(
-        {
-            Trips : `${config.api.baseUrl}${config.api.endpoints.Trips}`
-        }
-    );
+    const { isLogged, user } = useAuth();
+    const {
+      trips: NewTripsList,
+      loading: isLoading,
+      error
+    } = useLastedTrips(3, {
+      includeUserHeader: isLogged,
+      userId: user
+    });
 
-    //loading
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(false);
+    if (isLoading) return (<CircularProgress />);
+    if (error) {
+      return (
+        <Alert severity="error">
+          {error}
+        </Alert>
+      );
+    }
 
-    const [NewTripsList, setNewTripsList] = useState([]);
-    
-    //getNewTrips
-    const getNewTrips = async( item ) =>{
-        axios.get( URLsCatalogService.Trips + '/lasted/3' )
-        .then(resp => {
-            setNewTripsList(resp.data.info);
-        })
-        .catch(error => console.error("Error getting last created trips"));
-    };
-    useEffect(() => {
-      let mounted = true;
-      if (mounted) getNewTrips();
-      return () => {
-        mounted = false
-      }
-    }, []);
-    if( NewTripsList.length === 0 ) return (<CircularProgress />);
     return (<>
       <Paper
         elevation={1}

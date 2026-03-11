@@ -13,10 +13,12 @@ import
         ListItemText,
         ButtonGroup,
         Modal,
-        Divider
+        Divider,
+        TextField,
+        MenuItem
 } from '@mui/material';
 
-import { Delete, Visibility, VisibilityOff, Close, Edit } from '@mui/icons-material';
+import { Delete, Visibility, VisibilityOff, Close, Edit, FilterList } from '@mui/icons-material';
 
 import config from '../../Resources/config';
 
@@ -32,11 +34,61 @@ function CitiesManager({id,
     const [submitSuccess,setSubmitSuccess] = useState(false);
     const [showForm, setShowForm] = useState(false);
     const [openModal, setOpenModal] = useState(false);
+    const [openFilterModal, setOpenFilterModal] = useState(false);
     const [countryid, setCountryID] = useState(null);
     const [cityid, setCityID] = useState(null);
     const [infoToEdit, setInfoToEdit] = useState(null);
+    const [countryIdFilter, setCountryIdFilter] = useState(null);
+    const [stateIdFilter, setStateIdFilter] = useState(null);
+    
+    // Filter cities by country and/or state
+    const filteredCities = cities.filter(city => {
+        if (countryIdFilter && city.countryid !== countryIdFilter) return false;
+        if (stateIdFilter && city.stateid !== stateIdFilter) return false;
+        return true;
+    });
+    
+    // Get states filtered by selected country
+    const filteredStatesForFilter = countryIdFilter 
+        ? states.filter(s => s.countryid === countryIdFilter)
+        : states;
+    
+    const getSelectedCountryName = () => {
+        if (!countryIdFilter) return null;
+        const country = countries.find(c => c.id === countryIdFilter);
+        return country ? country.name : null;
+    };
+    
+    const getSelectedStateName = () => {
+        if (!stateIdFilter) return null;
+        const state = states.find(s => s.id === stateIdFilter);
+        return state ? state.name : null;
+    };
+    
+    const getFilterLabel = () => {
+        const parts = [];
+        if (countryIdFilter) parts.push(getSelectedCountryName());
+        if (stateIdFilter) parts.push(getSelectedStateName());
+        return parts.length > 0 ? `(${parts.join(' / ')})` : '';
+    };
+    
+    const handleCountryFilterChange = (countryId) => {
+        setCountryIdFilter(countryId || null);
+        setStateIdFilter(null); // Reset state filter when country changes
+    };
+    
+    const handleStateFilterChange = (stateId) => {
+        setStateIdFilter(stateId || null);
+    };
+    
+    const handleClearFilter = () => {
+        setCountryIdFilter(null);
+        setStateIdFilter(null);
+        setOpenFilterModal(false);
+    };
     
     const editCity = (item) => {
+        setCityID(item.id);
         setInfoToEdit(item);
         setOpenModal(true);
     };
@@ -45,10 +97,12 @@ function CitiesManager({id,
         setOpenModal(false);
         setShowForm(false);
         setCityID(null);
+        setInfoToEdit(null);
     };
 
     const toggleFormVisibility = () => {
         setCityID(null);
+        setInfoToEdit(null);
         setShowForm(true);
         setOpenModal(true);
     };
@@ -57,6 +111,7 @@ function CitiesManager({id,
         setShowForm(false);
         setOpenModal(false);
         setCityID(null);
+        setInfoToEdit(null);
         reloadCities();
     };
     const reloadCities = async() => {
@@ -93,7 +148,7 @@ function CitiesManager({id,
     };
 
     const generateUbicationName = ( countryid , stateid ) => {
-        console.log('Generating ubication name for countryid:', countryid, 'stateid:', stateid);
+        
         let countryName = countries.find(c => c.id === countryid)?.name || '';
         let stateName = states.find(s => s.id === stateid)?.name || '';
         return `${stateName}, ${countryName}`;
@@ -112,7 +167,92 @@ function CitiesManager({id,
         >
         <ButtonGroup variant="outlined" aria-label="Basic button group">
             <Button onClick={toggleFormVisibility} >Add</Button>
+            <Button 
+                onClick={() => setOpenFilterModal(true)} 
+                startIcon={<FilterList />}
+                color={(countryIdFilter || stateIdFilter) ? "primary" : "inherit"}
+            >
+                Filter {getFilterLabel()}
+            </Button>
+            {(countryIdFilter || stateIdFilter) && (
+                <Button onClick={handleClearFilter} color="error">
+                    Clear
+                </Button>
+            )}
         </ButtonGroup>
+        
+        {/* Filter Modal */}
+        <Modal
+            open={openFilterModal}
+            onClose={() => setOpenFilterModal(false)}
+            aria-labelledby="filter-modal-title"
+        >
+            <Box sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: { xs: '90%', sm: '400px' },
+                bgcolor: 'background.paper',
+                boxShadow: 24,
+                borderRadius: 2,
+                p: 3,
+                maxHeight: '80vh',
+                overflow: 'auto'
+            }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography id="filter-modal-title" variant="h6" component="h2">
+                        Filter Cities
+                    </Typography>
+                    <IconButton onClick={() => setOpenFilterModal(false)} size="small">
+                        <Close />
+                    </IconButton>
+                </Box>
+                <TextField
+                    select
+                    fullWidth
+                    label="Select Country"
+                    value={countryIdFilter || ''}
+                    onChange={(e) => handleCountryFilterChange(e.target.value)}
+                    sx={{ mb: 2 }}
+                >
+                    <MenuItem value="">
+                        <em>All Countries</em>
+                    </MenuItem>
+                    {countries.map((country) => (
+                        <MenuItem key={country.id} value={country.id}>
+                            {country.name} ({country.acronym})
+                        </MenuItem>
+                    ))}
+                </TextField>
+                <TextField
+                    select
+                    fullWidth
+                    label="Select State"
+                    value={stateIdFilter || ''}
+                    onChange={(e) => handleStateFilterChange(e.target.value)}
+                    disabled={!countryIdFilter}
+                    sx={{ mb: 2 }}
+                >
+                    <MenuItem value="">
+                        <em>All States</em>
+                    </MenuItem>
+                    {filteredStatesForFilter.map((state) => (
+                        <MenuItem key={state.id} value={state.id}>
+                            {state.name}
+                        </MenuItem>
+                    ))}
+                </TextField>
+                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                    <Button onClick={handleClearFilter} variant="outlined">
+                        Clear Filter
+                    </Button>
+                    <Button onClick={() => setOpenFilterModal(false)} variant="contained">
+                        Close
+                    </Button>
+                </Box>
+            </Box>
+        </Modal>
         
         <Modal
             open={openModal}
@@ -142,6 +282,7 @@ function CitiesManager({id,
                     </IconButton>
                 </Box>
                 { (<FormCities 
+                key={infoToEdit?.id || 'new-city'}
                 formData={infoToEdit} callback={formSuccess} 
                 countries={countries} 
                 states={states} />)}
@@ -150,10 +291,10 @@ function CitiesManager({id,
         
         <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
             {
-                !loading && cities.length > 0 ? cities.map(
+                !loading && filteredCities.length > 0 ? filteredCities.map(
                     (x)=>(
-                        <>
-                        <ListItem key={x.id}>
+                        <React.Fragment key={x.id}>
+                        <ListItem>
                             <ListItemText 
                                 primary={x.name} 
                                 secondary={generateUbicationName(x.countryid, x.stateid)}
@@ -177,9 +318,9 @@ function CitiesManager({id,
                             
                         </ListItem>
                         <Divider />
-                        </>
+                        </React.Fragment>
                 )): <ListItem> 
-                    <ListItemText primary="No cities added yet" ></ListItemText>
+                    <ListItemText primary={(countryIdFilter || stateIdFilter) ? "No cities for selected filters" : "No cities added yet"} ></ListItemText>
                 </ListItem>
             }
         </List>

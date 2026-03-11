@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import 
     {
         TextField, 
@@ -8,7 +7,6 @@ import
         useTheme,
         Typography,
         Box,
-        FormGroup,
         FormControlLabel,
         Checkbox,
         CircularProgress
@@ -19,11 +17,14 @@ import CountriesSelectList from "../Catalogues/CountriesSelectList";
 import StateSelect from "../Catalogues/StateSelect";
 import CitiesSelect from "../Catalogues/CitiesSelect";
 import SnackbarNotification from "../Commons/SnackbarNotification";
-import ImageUploader from '../Commons/ImageUploader';
+import GalleryListManager from '../Commons/GalleryListManager';
 import LocationPicker from '../Commons/LocationPicker';
-import config from "../../Resources/config";
+import FacilityIcon from '../Commons/FacilityIcon';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../../context/AuthContext";
+import useGalleryUpload from '../../hooks/useGalleryUpload';
+import usePlaceMutationApi from '../../hooks/Places/usePlaceMutationApi';
+import usePlaceDetailsApi from '../../hooks/Places/usePlaceDetailsApi';
 
 function CreatePlace({
   catCountries,
@@ -32,16 +33,13 @@ function CreatePlace({
     catFacilities
 }) {
   const { isLogged, loading: authLoading, hasPermission } = useAuth();
+  const { uploadImages, isUploading } = useGalleryUpload();
+  const { createPlace } = usePlaceMutationApi();
+    const { saveFacilities, saveGalleryImages } = usePlaceDetailsApi();
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [loading, setLoading] = useState(true);
-  //URLS
-  const [URLsCatalogService, setURLsCatalogService] = useState(
-      {
-          Places:`${config.api.baseUrl}${config.api.endpoints.Places}`
-      }
-  );
   
   //filtered data
   const [filteredStates, setFilteredStates] = useState([]);
@@ -49,16 +47,6 @@ function CreatePlace({
   
   // Added images
   const [addedImages, setAddedImages] = useState([]);
-
-  const [errors, setErrors] = useState({
-    place: false,
-    facilities: false
-  });
-
-  const [responseSuceess, setResponseSuccess] = useState({
-    place: false,
-    facilities: false
-  });
 
   // State to track checked options
   const [checkedFacilities, setCheckedFacilities] = useState({});
@@ -134,45 +122,45 @@ function CreatePlace({
       if (!formCreatePlace.cityid) {
         throw new Error('cityID is required');
       }
-
-      //Validate for facilities of place
-      if(Object.keys(checkedFacilities || {}).length === 0){
-        throw new Error('select at least a facility is required');
-      }
       
       // API call to create place
-      const response = await axios.post(
-        URLsCatalogService.Places, 
-        {
-          name: formCreatePlace.name.trim(),
-          countryid: formCreatePlace.countryid,
-          stateid: formCreatePlace.stateid,
-          cityid: formCreatePlace.cityid,
-          description: formCreatePlace.description,
-          address: formCreatePlace.address,
-          ispublic: formCreatePlace.ispublic,
-          latitude: formCreatePlace.latitude,
-          longitude: formCreatePlace.longitude
-        }, 
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          // 'Authorization': 'Bearer your-token-here' // Add if needed
-        }
+      const response = await createPlace({
+        name: formCreatePlace.name.trim(),
+        countryid: formCreatePlace.countryid,
+        stateid: formCreatePlace.stateid,
+        cityid: formCreatePlace.cityid,
+        description: formCreatePlace.description,
+        address: formCreatePlace.address,
+        ispublic: formCreatePlace.ispublic,
+        latitude: formCreatePlace.latitude,
+        longitude: formCreatePlace.longitude
       });
       if (response.status === 200 || response.status === 201) {
         setMessageSnack("Place was created successfully!");
         setSubmitSuccess(true);
         
-        const placeId = response.data.info[0]?.id;
-        
+        const placeId = response.data.info?.id;
+
         // Save facilities
         if (placeId) {
           await saveSelectedFacilities(placeId);
           
           // Upload images if added
           if (addedImages.length > 0) {
-            await addPhotosToGallery(placeId);
+            await uploadImages({
+              images: addedImages,
+              context: { placeId },
+              buildPayload: (normalizedImages, uploadContext) => ({
+                images: normalizedImages.map((image, index) => ({
+                  name: `place_${uploadContext.placeId}_${Date.now()}_${index}`,
+                  data: image.data,
+                  mimetype: image.mimetype,
+                  extension: image.extension
+                }))
+              }),
+              uploadRequest: (payload) => saveGalleryImages(placeId, payload)
+            });
+            setMessageSnack("Photos uploaded successfully!");
           }
           
           // Navigate to the new place after a short delay
@@ -223,17 +211,6 @@ function CreatePlace({
     }
   };
 
-  const handleCloseAlert = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    
-    setErrors(prev => ({
-      place: false,
-      facilities: false
-    }));
-  };
-
   const handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -254,63 +231,14 @@ function CreatePlace({
       Facilities: checkedFacilitiesToSave
     };
 
-    const url = `${URLsCatalogService.Places}/${placeId}/Facilities`;
-    
     try {
-      await axios.post(url, formSaveFacilities);
+      await saveFacilities(placeId, formSaveFacilities, 'post');
       setMessageSnack("Facilities were saved successfully.");
     } catch (error) {
       console.error("Error saving facilities", error);
       setMessageSnack("Error saving facilities.");
     }
   };
-
-  // Add photos to gallery
-  const addPhotosToGallery = async (placeId) => {
-    const convertToBase64 = (file) => {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = (error) => reject(error);
-      });
-    };
-
-    try {
-      const photos = await Promise.all(
-        addedImages.map(async (photo) => {
-          let base64Data;
-          let mimetype;
-          let extension;
-
-          if (photo.file && photo.file instanceof File) {
-            base64Data = await convertToBase64(photo.file);
-            mimetype = photo.file.type || "image/jpeg";
-            extension = photo.name ? photo.name.split('.').pop() : "jpg";
-          } else if (photo instanceof File) {
-            base64Data = await convertToBase64(photo);
-            mimetype = photo.type || "image/jpeg";
-            extension = photo.name ? photo.name.split('.').pop() : "jpg";
-          }
-
-          return {
-            name: `place_${placeId}_${Date.now()}`,
-            base64: base64Data,
-            mimetype: mimetype,
-            extension: extension
-          };
-        })
-      );
-
-      const url = `${URLsCatalogService.Places}/${placeId}/Photos`;
-      await axios.post(url, { Photos: photos });
-      setMessageSnack("Photos uploaded successfully!");
-    } catch (error) {
-      console.error("Error uploading photos", error);
-      setMessageSnack("Error uploading photos.");
-    }
-  };
-    
 
   useEffect(() => {
     const loadData = async () => {
@@ -389,10 +317,26 @@ function CreatePlace({
           id="description"
           label="Description"
           variant="standard"
+          multiline
+          minRows={3}
           placeholder="About this place"
           align="left"
           onChange={handleChange}
           value={formCreatePlace.description}
+        />
+
+        <FormControlLabel
+          control={
+            <Checkbox
+              name="ispublic"
+              checked={formCreatePlace.ispublic}
+              onChange={(e) => setformCreatePlace(prev => ({
+                ...prev,
+                ispublic: e.target.checked
+              }))}
+            />
+          }
+          label="Is a Public place?"
         />
 
         <Typography variant="h6" component="h6" gutterBottom align="left">
@@ -452,11 +396,11 @@ function CreatePlace({
         <LocationPicker
           latitude={formCreatePlace.latitude}
           longitude={formCreatePlace.longitude}
-          onLocationChange={(lat, lng) => {
+          onChange={(lat, lng) => {
             setformCreatePlace(prev => ({
               ...prev,
-              latitude: lat,
-              longitude: lng
+              latitude: Number(lat),
+              longitude: Number(lng)
             }));
           }}
         />
@@ -466,10 +410,12 @@ function CreatePlace({
           Images
         </Typography>
 
-        <ImageUploader
-          images={addedImages}
-          onImagesChange={setAddedImages}
-          maxImages={5}
+        <GalleryListManager
+          items={[]}
+          pendingImages={addedImages}
+          onPendingImagesChange={setAddedImages}
+          showUploader
+          maxPendingImages={5}
         />
 
         <Typography variant="h6" component="h6" 
@@ -477,25 +423,59 @@ function CreatePlace({
           Facilities
         </Typography>
 
-        <FormGroup>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: 'repeat(2, minmax(0, 1fr))',
+              sm: 'repeat(3, minmax(0, 1fr))',
+              md: 'repeat(4, minmax(0, 1fr))'
+            },
+            gap: 1.5
+          }}
+        >
           {
-            catFacilities?.map((opt)=>(
+            catFacilities?.map((opt) => (
               <FormControlLabel
                 key={opt.id}
-                label={opt.name}
+                sx={{
+                  m: 0,
+                  p: 1,
+                  border: 1,
+                  borderColor: 'divider',
+                  borderRadius: 1,
+                  bgcolor: checkedFacilities[opt.id] ? 'action.selected' : 'background.paper',
+                  alignItems: 'flex-start'
+                }}
                 control={
-                  <Checkbox 
-                    name={opt.id}  
-                    checked={checkedFacilities[opt.id] || false} 
-                    onChange={facilitiesChange} 
+                  <Checkbox
+                    name={opt.id}
+                    checked={checkedFacilities[opt.id] || false}
+                    onChange={facilitiesChange}
+                    size="small"
                   />
-                } 
+                }
+                label={
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 0.5,
+                      minHeight: 74,
+                      minWidth: 72,
+                      textAlign: 'center'
+                    }}
+                  >
+                    <FacilityIcon code={opt.code} fontSize="small" />
+                    <Typography variant="caption">{opt.name}</Typography>
+                  </Box>
+                }
               />
-            )
-          )
+            ))
           }
-
-        </FormGroup>
+        </Box>
         
         <SnackbarNotification
           open={submitSuccess}
@@ -513,13 +493,13 @@ function CreatePlace({
         
         <Button 
           type="submit" 
-          disabled={isSubmitting}
+          disabled={isSubmitting || isUploading}
           variant="contained"
-          startIcon={isSubmitting ? <CircularProgress size={20} /> : <Save />}
+          startIcon={(isSubmitting || isUploading) ? <CircularProgress size={20} /> : <Save />}
           fullWidth
           sx={{ mt: 3 }}
         >
-          {isSubmitting ? 'Creating Place...' : 'Create Place'}
+          {(isSubmitting || isUploading) ? 'Creating Place...' : 'Create Place'}
         </Button>
       </Box>
     </>

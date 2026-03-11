@@ -1,34 +1,62 @@
 import React, { useState, useEffect } from "react";
-import axios from 'axios';
-import config from "../../Resources/config";
 import PlaceCard from "./PlaceCard";
+import usePlaceQueryApi from '../../hooks/Places/usePlaceQueryApi';
 
 import 
     {
         Stack,
         Paper,
         Divider,
-        CircularProgress
+        Card,
+        CardHeader,
+        CardContent,
+        CardActions,
+        Skeleton
     } from '@mui/material';
 
 function NewPlaces() {
-    //urls
-    const placesURL = `${config.api.baseUrl}${config.api.endpoints.Places}/lasted/3`;
+    const { getLatestPlaces } = usePlaceQueryApi();
     //loading
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState(false);
 
     const [NewPlacesList, setNewPlacesList] = useState([]);
+
+    const renderPlaceCardSkeleton = (key) => (
+        <Card key={key} sx={{ borderRadius: 1 }}>
+            <CardHeader
+                title={<Skeleton variant="text" width="60%" />}
+                subheader={<Skeleton variant="text" width="40%" />}
+                action={<Skeleton variant="circular" width={32} height={32} />}
+            />
+            <Skeleton variant="rectangular" height={200} />
+            <CardContent>
+                <Skeleton variant="text" width="100%" />
+                <Skeleton variant="text" width="90%" />
+                <Skeleton variant="text" width="75%" />
+            </CardContent>
+            <CardActions sx={{ gap: 1, px: 2, pb: 2 }}>
+                <Skeleton variant="circular" width={28} height={28} />
+                <Skeleton variant="circular" width={28} height={28} />
+                <Skeleton variant="circular" width={28} height={28} />
+            </CardActions>
+        </Card>
+    );
     
     //getNewPlaces
-    const getNewPlaces = async( item ) =>{
-        axios.get( placesURL )
-        .then(resp => {
+    const getNewPlaces = async() => {
+        setIsLoading(true);
+
+        try {
+            const resp = await getLatestPlaces(3);
             setNewPlacesList(resp.data.info);
+        }
+        catch(error) {
+            console.error("Error getting last created places", error);
+            setNewPlacesList([]);
+        }
+        finally {
             setIsLoading(false);
         }
-        )
-        .catch(error => console.error("Error getting last created places"));
     };
     useEffect(() => {
       let mounted = true;
@@ -37,7 +65,7 @@ function NewPlaces() {
         mounted = false
       }
     }, []);
-    if( isLoading ) return (<CircularProgress />);
+
     return (
         <>
         <Paper
@@ -47,7 +75,9 @@ function NewPlaces() {
             <Stack spacing={2} 
             divider={<Divider />}
             sx={{ overflowX: 'auto', padding: 1, marginTop: 1 }}>
-                {
+                {isLoading ? (
+                    [1, 2, 3].map((skeletonId) => renderPlaceCardSkeleton(skeletonId))
+                ) : (
                     NewPlacesList.length > 0 ? NewPlacesList.map(
                         (place) => (
                             <PlaceCard key={place.id} 
@@ -55,7 +85,7 @@ function NewPlaces() {
                         )
                     ) :
                     (<></>)
-                }
+                )}
             </Stack>
       </Paper>
       </>

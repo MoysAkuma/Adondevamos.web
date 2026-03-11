@@ -23,13 +23,21 @@ function LocationPicker({
   const [mapUrl, setMapUrl] = useState('');
 
   useEffect(() => {
-    setLat(latitude);
-    setLng(longitude);
+    setLat(Number(latitude));
+    setLng(Number(longitude));
   }, [latitude, longitude]);
 
   useEffect(() => {
+    const parsedLat = Number(lat);
+    const parsedLng = Number(lng);
+
+    if (!Number.isFinite(parsedLat) || !Number.isFinite(parsedLng)) {
+      setMapUrl('');
+      return;
+    }
+
     // Generate OpenStreetMap embed URL with marker
-    const url = `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.02},${lat - 0.02},${lng + 0.02},${lat + 0.02}&layer=mapnik&marker=${lat},${lng}`;
+    const url = `https://www.openstreetmap.org/export/embed.html?bbox=${parsedLng - 0.02},${parsedLat - 0.02},${parsedLng + 0.02},${parsedLat + 0.02}&layer=mapnik&marker=${parsedLat},${parsedLng}`;
     setMapUrl(url);
   }, [lat, lng]);
 
@@ -151,7 +159,7 @@ function LocationPicker({
             scrolling="no"
             marginHeight="0"
             marginWidth="0"
-            src={mapUrl}
+            src={mapUrl || null}
             style={{ border: 0 }}
             title="Location Picker Map"
           />
