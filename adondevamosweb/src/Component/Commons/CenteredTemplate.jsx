@@ -40,7 +40,17 @@ const CenteredTemplate = ({ children }) => (
       </a>
       {children}
     </Container>
-    <Box sx={{ mt: 1, mb: 0, textAlign: 'center', color: 'white' }}>
+    <Box
+      sx={{
+        mt: 1,
+        mb: 0,
+        textAlign: 'center',
+        color: 'white',
+        '& a, & a:visited, & a:hover, & a:active': {
+          color: 'white'
+        }
+      }}
+    >
       Site made by <a href='https://github.com/MoysAkuma'>@MoysAkuma</a>
     </Box>
   </Box>

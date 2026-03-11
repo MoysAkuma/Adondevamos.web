@@ -15,26 +15,32 @@ import
         Tooltip
     } from '@mui/material';
 import { Visibility, Edit, FavoriteBorder } from '@mui/icons-material'
-import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import useTripById from '../../hooks/Trips/useTripById';
+import useVoteApi from '../../hooks/Votes/useVoteApi';
 
 import ViewMemberList from '../View/ViewMemberList'
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import utils from "../../Resources/utils";
-import config from "../../Resources/config";
 import ImageCarousel from "../Commons/ImageCarousel";
 import Itinerary from "./Itinerary/Itinerary";
+import SnackbarNotification from '../Commons/SnackbarNotification';
 
 function ViewTrip(){
     //Get id
     const { id } = useParams();
     const navigate = useNavigate();
     const { isLogged, user } = useAuth();
+    const { voteTrip, getTripVotesSummary } = useVoteApi();
     const [liked, setLiked] = useState(false);
     const [isOwner, setIsOwner] = useState(false);
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: '',
+        severity: 'info'
+    });
     const {
         tripInfo,
         setTripInfo,
@@ -45,13 +51,6 @@ function ViewTrip(){
         includeUserHeader: isLogged,
         userId: user
     });
-
-    //URLS
-    const URLsCatalogService = 
-    {
-        Trips :`${config.api.baseUrl}${config.api.endpoints.Trips}`,
-        Votes :`${config.api.baseUrl}${config.api.endpoints.Votes}`
-    };
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -68,38 +67,47 @@ function ViewTrip(){
         setIsOwner(user && (tripInfo.owner.id === parseInt(user)));
     }, [tripInfo, user]);
 
-    const handleVoteTrip = () => {
-        if (!user) {
-            alert('You must be logged in to like a trip.');
-            return;
-        }
-        axios.post(
-            `${URLsCatalogService.Votes}/${user}`,
-            {
-                "tripid": id
-            },
-        ).then( (response) => {
-            updateVotes();
-            setLiked( prevLiked => !prevLiked );
-        }).catch( (error) => {
-            console.error("There was an error liking the trip!", error);
-        });
+    const showSnackbar = (message, severity = 'info') => {
+        setSnackbar({ open: true, message, severity });
     };
 
-    const updateVotes = () => {
-        axios.get(
-            URLsCatalogService.Votes + '/Trip/' + id
-        ).then( (response) => {
+    const handleCloseSnackbar = () => {
+        setSnackbar(prev => ({ ...prev, open: false }));
+    };
+
+    const handleVoteTrip = async () => {
+        if (!user) {
+            showSnackbar('You must be logged in to vote.', 'warning');
+            return;
+        }
+
+        try {
+            await voteTrip(id, user);
+            await updateVotes();
+            setLiked(prevLiked => {
+                const nextLiked = !prevLiked;
+                showSnackbar(nextLiked ? 'Trip added to favorites' : 'Trip removed from favorites', 'success');
+                return nextLiked;
+            });
+        } catch (error) {
+            showSnackbar('Could not update vote. Please try again.', 'error');
+            console.error("There was an error liking the trip!", error);
+        }
+    };
+
+    const updateVotes = async () => {
+        try {
+            const votesTotal = await getTripVotesSummary(id);
             setTripInfo( prevTripInfo => ({
                 ...prevTripInfo,
                 statics: {
                     ...prevTripInfo.statics,
-                    Votes: { Total: response.data.info.summary }
+                    Votes: { Total: votesTotal }
                 }
             }));
-        }).catch( (error) => {
+        } catch (error) {
             
-        });
+        }
     };
 
     const handleEdit = () => {
@@ -260,7 +268,12 @@ function ViewTrip(){
                     </Tooltip>
                 )}
             </Paper>
-            
+            <SnackbarNotification
+                open={snackbar.open}
+                onClose={handleCloseSnackbar}
+                message={snackbar.message}
+                severity={snackbar.severity}
+            />
         </Box>);
 }
 

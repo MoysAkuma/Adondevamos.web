@@ -7,7 +7,6 @@ import
         useTheme,
         Typography,
         Box,
-        FormGroup,
         FormControlLabel,
         Checkbox,
         CircularProgress
@@ -20,6 +19,7 @@ import CitiesSelect from "../Catalogues/CitiesSelect";
 import SnackbarNotification from "../Commons/SnackbarNotification";
 import GalleryListManager from '../Commons/GalleryListManager';
 import LocationPicker from '../Commons/LocationPicker';
+import FacilityIcon from '../Commons/FacilityIcon';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from "../../context/AuthContext";
 import useGalleryUpload from '../../hooks/useGalleryUpload';
@@ -35,7 +35,7 @@ function CreatePlace({
   const { isLogged, loading: authLoading, hasPermission } = useAuth();
   const { uploadImages, isUploading } = useGalleryUpload();
   const { createPlace } = usePlaceMutationApi();
-    const { saveFacilities, saveGalleryPhotos } = usePlaceDetailsApi();
+    const { saveFacilities, saveGalleryImages } = usePlaceDetailsApi();
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -139,8 +139,8 @@ function CreatePlace({
         setMessageSnack("Place was created successfully!");
         setSubmitSuccess(true);
         
-        const placeId = response.data.info[0]?.id;
-        
+        const placeId = response.data.info?.id;
+
         // Save facilities
         if (placeId) {
           await saveSelectedFacilities(placeId);
@@ -151,14 +151,14 @@ function CreatePlace({
               images: addedImages,
               context: { placeId },
               buildPayload: (normalizedImages, uploadContext) => ({
-                Photos: normalizedImages.map((image, index) => ({
+                images: normalizedImages.map((image, index) => ({
                   name: `place_${uploadContext.placeId}_${Date.now()}_${index}`,
-                  base64: image.data,
+                  data: image.data,
                   mimetype: image.mimetype,
                   extension: image.extension
                 }))
               }),
-              uploadRequest: (payload) => saveGalleryPhotos(placeId, payload)
+              uploadRequest: (payload) => saveGalleryImages(placeId, payload)
             });
             setMessageSnack("Photos uploaded successfully!");
           }
@@ -317,6 +317,8 @@ function CreatePlace({
           id="description"
           label="Description"
           variant="standard"
+          multiline
+          minRows={3}
           placeholder="About this place"
           align="left"
           onChange={handleChange}
@@ -394,11 +396,11 @@ function CreatePlace({
         <LocationPicker
           latitude={formCreatePlace.latitude}
           longitude={formCreatePlace.longitude}
-          onLocationChange={(lat, lng) => {
+          onChange={(lat, lng) => {
             setformCreatePlace(prev => ({
               ...prev,
-              latitude: lat,
-              longitude: lng
+              latitude: Number(lat),
+              longitude: Number(lng)
             }));
           }}
         />
@@ -421,25 +423,59 @@ function CreatePlace({
           Facilities
         </Typography>
 
-        <FormGroup>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: 'repeat(2, minmax(0, 1fr))',
+              sm: 'repeat(3, minmax(0, 1fr))',
+              md: 'repeat(4, minmax(0, 1fr))'
+            },
+            gap: 1.5
+          }}
+        >
           {
-            catFacilities?.map((opt)=>(
+            catFacilities?.map((opt) => (
               <FormControlLabel
                 key={opt.id}
-                label={opt.name}
+                sx={{
+                  m: 0,
+                  p: 1,
+                  border: 1,
+                  borderColor: 'divider',
+                  borderRadius: 1,
+                  bgcolor: checkedFacilities[opt.id] ? 'action.selected' : 'background.paper',
+                  alignItems: 'flex-start'
+                }}
                 control={
-                  <Checkbox 
-                    name={opt.id}  
-                    checked={checkedFacilities[opt.id] || false} 
-                    onChange={facilitiesChange} 
+                  <Checkbox
+                    name={opt.id}
+                    checked={checkedFacilities[opt.id] || false}
+                    onChange={facilitiesChange}
+                    size="small"
                   />
-                } 
+                }
+                label={
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 0.5,
+                      minHeight: 74,
+                      minWidth: 72,
+                      textAlign: 'center'
+                    }}
+                  >
+                    <FacilityIcon code={opt.code} fontSize="small" />
+                    <Typography variant="caption">{opt.name}</Typography>
+                  </Box>
+                }
               />
-            )
-          )
+            ))
           }
-
-        </FormGroup>
+        </Box>
         
         <SnackbarNotification
           open={submitSuccess}
