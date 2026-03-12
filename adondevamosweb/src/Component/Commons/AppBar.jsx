@@ -56,6 +56,9 @@ export default function AppBarComp() {
                                         <Button color="inherit" component={Link} to="/Places">
                                             Places
                                         </Button>
+                                        <Button color="inherit" component={Link} to="/Ranking">
+                                            Ranking
+                                        </Button>
                                         <Button color="inherit" component={Link} to="/FAQ">
                                             FAQ
                                         </Button>
@@ -68,6 +71,9 @@ export default function AppBarComp() {
                                         </Button>
                                         <Button color="inherit" component={Link} to="/Places">
                                             Places
+                                        </Button>
+                                        <Button color="inherit" component={Link} to="/Ranking">
+                                            Ranking
                                         </Button>
                                         <Button color="inherit" component={Link} to="/FAQ">
                                             FAQ
@@ -129,6 +135,11 @@ export default function AppBarComp() {
                                 </ListItemButton>
                             </ListItem>
                             <ListItem disablePadding>
+                                <ListItemButton component={Link} to="/Ranking">
+                                    <ListItemText primary="Ranking" />
+                                </ListItemButton>
+                            </ListItem>
+                            <ListItem disablePadding>
                                 <ListItemButton component={Link} to="/FAQ">
                                     <ListItemText primary="FAQ" />
                                 </ListItemButton>
@@ -155,6 +166,11 @@ export default function AppBarComp() {
                             <ListItem disablePadding>
                                 <ListItemButton component={Link} to="/Places">
                                     <ListItemText primary="Places" />
+                                </ListItemButton>
+                            </ListItem>
+                            <ListItem disablePadding>
+                                <ListItemButton component={Link} to="/Ranking">
+                                    <ListItemText primary="Ranking" />
                                 </ListItemButton>
                             </ListItem>
                             <ListItem disablePadding>

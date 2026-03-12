@@ -10,6 +10,7 @@ import { LocationCity, Search, Person,
  } from '@mui/icons-material';
 import PlaceCard from "./PlaceCard";
 import NewPlaces from "./NewPlaces";
+import Ranking from "../Ranking/Ranking";
 import CenteredTemplate from "../Commons/CenteredTemplate";
 import { useAuth } from "../../context/AuthContext";
 
@@ -17,6 +18,7 @@ export default function MainPlaces() {
     const [UserSection, setUserSection] = useState(null);
     const { isLogged, loading, hasRole, role } = useAuth();
     const [showNewPlaces, setShowNewPlaces] = useState(true);
+    const [showRanking, setShowRanking] = useState(true);
     const theme = useTheme();
     const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
     
@@ -143,6 +145,31 @@ export default function MainPlaces() {
             </Box>
             <Collapse in={showNewPlaces}>
                 <NewPlaces />
+            </Collapse>
+
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 3 }}>
+                <Typography variant="h6" 
+                sx={{
+                    fontFamily: "'Press Start 2P', cursive",
+                    color: '#2c3e50',
+                    fontSize: isSmUp ? '0.8rem' : '0.9rem',
+                    lineHeight: .8,
+                    mb: 1,
+                    textShadow: '2px 2px 0px rgba(0,0,0,0.1)'
+                }}
+                align="left">
+                    Most Voted Places
+                </Typography>
+                <Button 
+                    onClick={() => setShowRanking(!showRanking)}
+                    endIcon={showRanking ? <ExpandLess /> : <ExpandMore />}
+                    size="small"
+                >
+                    {showRanking ? 'Hide' : 'Show'}
+                </Button>
+            </Box>
+            <Collapse in={showRanking}>
+                <Ranking defaultEntityType="places" showSelector={false} />
             </Collapse>
         </>
         </CenteredTemplate>

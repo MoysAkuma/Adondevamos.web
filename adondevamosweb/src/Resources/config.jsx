@@ -11,7 +11,8 @@ const config = {
         Users: '/Users',
         Places: '/Places',
         Trips: '/Trips',
-        Votes: '/Votes'
+        Votes: '/Votes',
+        Ranking: '/ranking'
       }
     }
   },
@@ -27,7 +28,8 @@ const config = {
         Users: '/Users',
         Places: '/Places',
         Trips: '/Trips',
-        Votes: '/Votes'
+        Votes: '/Votes',
+        Ranking: '/ranking'
       }
     }
   }
