@@ -16,6 +16,7 @@ import { Flight, Search, Person,
     ExpandMore, ExpandLess } from '@mui/icons-material';
 import TripCard from "../Component/Trips/TripCard";
 import NewTrips from "../Component/Trips/NewTrips";
+import Ranking from "../Component/Ranking/Ranking";
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 import { useAuth } from "../context/AuthContext";
 
@@ -25,15 +26,16 @@ import { useAuth } from "../context/AuthContext";
     const { isLogged, loading, hasRole, role } = useAuth();
     const [UserSection, setUserSection] = useState(null);
     const [showNewTrips, setShowNewTrips] = useState(true);
+    const [showRanking, setShowRanking] = useState(true);
 
     const styledTypography = {
-                    fontFamily: "'Press Start 2P', cursive",
-                    color: '#2c3e50',
-                    fontSize: isSmUp ? '0.8rem' : '0.9rem',
-                    lineHeight: .8,
-                    mb: 1,
-                    textShadow: '2px 2px 0px rgba(0,0,0,0.1)'
-                }
+        fontFamily: "'Press Start 2P', cursive",
+        color: '#2c3e50',
+        fontSize: isSmUp ? '0.8rem' : '0.9rem',
+        lineHeight: .8,
+        mb: 1,
+        textShadow: '2px 2px 0px rgba(0,0,0,0.1)'
+    }
 
     const generateUserSection = () => {
         if (hasRole('user')) {
@@ -160,6 +162,31 @@ import { useAuth } from "../context/AuthContext";
                 </Box>
                 <Collapse in={showNewTrips}>
                     <NewTrips />
+                </Collapse>
+
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 3 }}>
+                    <Typography variant="h6" 
+                    sx={{
+                    fontFamily: "'Press Start 2P', cursive",
+                    color: '#2c3e50',
+                    fontSize: isSmUp ? '0.8rem' : '0.9rem',
+                    lineHeight: .8,
+                    mb: 1,
+                    textShadow: '2px 2px 0px rgba(0,0,0,0.1)'
+                }}
+                    align="left">
+                        Most Voted Trips
+                    </Typography>
+                    <Button 
+                        onClick={() => setShowRanking(!showRanking)}
+                        endIcon={showRanking ? <ExpandLess /> : <ExpandMore />}
+                        size="small"
+                    >
+                        {showRanking ? 'Hide' : 'Show'}
+                    </Button>
+                </Box>
+                <Collapse in={showRanking}>
+                    <Ranking defaultEntityType="trips" showSelector={false} />
                 </Collapse>
             </Box>
         </>

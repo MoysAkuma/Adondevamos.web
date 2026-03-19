@@ -11,6 +11,7 @@ import View from "./Pages/View"
 import Edit from "./Pages/Edit"
 import Profile from "./Pages/Profile";
 import FAQ from "./Pages/FAQ";
+import RankingPage from "./Pages/Ranking";
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from "./Component/Commons/ProtectedRoute";
 import SessionWarning from "./Component/Commons/SessionWarning";
@@ -51,6 +52,8 @@ function AppContent() {
           <Route path="/Edit/:opt/:id" requiredRole="user" element={<ProtectedRoute> <Edit /> </ProtectedRoute>}/>
           <Route path="/Search/:opt" element={<Search/>}/>
           <Route path="/View/:opt/:id" element={<View/>}/>
+          <Route path="/Ranking" element={<RankingPage/>}/>
+          <Route path="/Ranking/:entityType" element={<RankingPage/>}/>
           <Route path="/Profile" requiredRole="user" element={<ProtectedRoute> <Profile/> </ProtectedRoute>}/>
           <Route path="/FAQ" element={<FAQ/>}/>
           <Route path="*" element={<Navigate to="/" replace />} />
