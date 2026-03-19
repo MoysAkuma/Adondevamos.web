@@ -82,7 +82,6 @@ const EntityName = styled(Typography)(({ theme }) => ({
     marginBottom: theme.spacing(0.5),
     wordBreak: 'break-word',
     lineHeight: 1.3,
-    textShadow: '1px 1px 0px #FCFCFC',
     [theme.breakpoints.down('sm')]: {
         fontSize: '0.4rem',
     }
@@ -114,7 +113,6 @@ const SectionTitle = styled(Typography)(({ theme }) => ({
     gap: theme.spacing(1),
     marginBottom: theme.spacing(1),
     color: '#000000',
-    textShadow: '2px 2px 0px #FCFC54',
     [theme.breakpoints.down('sm')]: {
         fontSize: '0.6rem',
     }
