@@ -17,7 +17,18 @@ function RankingPage() {
 
     return (
         <CenteredTemplate>
-            <Box sx={{ width: '100%', py: 2 }}>
+            <Box sx={{ 
+                width: '100%', 
+                py: 2, 
+                px: 2, 
+                maxWidth: 900, 
+                mx: 'auto', 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center',
+                justifyContent: 'center',
+                textAlign: 'center'
+            }}>
                 <Typography 
                     variant={isSmUp ? "h4" : "h5"} 
                     align="center"
@@ -37,11 +48,13 @@ function RankingPage() {
                     Rankings
                 </Typography>
 
-                {showMulti ? (
-                    <MultiRanking />
-                ) : (
-                    <Ranking defaultEntityType={entityType} showSelector={true} />
-                )}
+                <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+                    {showMulti ? (
+                        <MultiRanking />
+                    ) : (
+                        <Ranking defaultEntityType={entityType} showSelector={true} />
+                    )}
+                </Box>
             </Box>
         </CenteredTemplate>
     );

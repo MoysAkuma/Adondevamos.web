@@ -12,8 +12,12 @@ import
         Divider,
         Paper,
         IconButton,
-        Badge
+        Badge,
+        Card,
+        CardContent,
+        CardMedia
     } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import { FavoriteBorder, Edit } from '@mui/icons-material';
@@ -24,6 +28,104 @@ import ImageCarousel from "../Commons/ImageCarousel";
 import usePlaceQueryApi from '../../hooks/Places/usePlaceQueryApi';
 import useVoteApi from '../../hooks/Votes/useVoteApi';
 import SnackbarNotification from '../Commons/SnackbarNotification';
+
+// 8-bit Styled Components
+const StyledContainer = styled(Box)(({ theme }) => ({
+    maxWidth: '800px',
+    margin: '0 auto',
+    padding: theme.spacing(2),
+}));
+
+const StyledBanner = styled(CardMedia)(({ theme }) => ({
+    height: 300,
+    borderRadius: 0,
+    border: '4px solid #2C2C2C',
+    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
+    marginBottom: theme.spacing(3),
+    objectFit: 'cover',
+    [theme.breakpoints.down('sm')]: {
+        height: 200,
+    },
+}));
+
+const StyledHeaderCard = styled(Card)(({ theme }) => ({
+    borderRadius: 0,
+    border: '4px solid #2C2C2C',
+    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
+    marginBottom: theme.spacing(3),
+    backgroundColor: '#3D5A80',
+}));
+
+const StyledHeaderContent = styled(CardContent)(({ theme }) => ({
+    backgroundColor: '#3D5A80',
+    color: '#FFFFFF',
+    padding: theme.spacing(3),
+    textAlign: 'center',
+}));
+
+const StyledSectionCard = styled(Card)(({ theme }) => ({
+    borderRadius: 0,
+    border: '4px solid #2C2C2C',
+    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
+    marginBottom: theme.spacing(3),
+}));
+
+const StyledSectionHeader = styled(Box)(({ theme }) => ({
+    backgroundColor: '#52B788',
+    padding: theme.spacing(2),
+    borderBottom: '4px solid #2C2C2C',
+}));
+
+const StyledSectionContent = styled(CardContent)(({ theme }) => ({
+    backgroundColor: '#E0AC69',
+    padding: theme.spacing(2),
+    '&:last-child': {
+        paddingBottom: theme.spacing(2),
+    },
+}));
+
+const StyledActionsCard = styled(Card)(({ theme }) => ({
+    borderRadius: 0,
+    border: '4px solid #2C2C2C',
+    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
+    backgroundColor: '#52B788',
+    padding: theme.spacing(2),
+}));
+
+const StyledActionButton = styled(IconButton)(({ theme }) => ({
+    color: '#2C2C2C',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 0,
+    border: '2px solid #2C2C2C',
+    padding: theme.spacing(1.5),
+    margin: theme.spacing(0, 1),
+    '&:hover': {
+        backgroundColor: '#F8F8F8',
+        transform: 'translateY(-2px)',
+        boxShadow: '3px 3px 0px #2C2C2C',
+    },
+}));
+
+const PixelTypography = styled(Typography)(({ theme }) => ({
+    fontFamily: "'Press Start 2P', cursive",
+    textShadow: '2px 2px 0px #2C2C2C',
+}));
+
+const StyledMapCard = styled(Card)(({ theme }) => ({
+    borderRadius: 0,
+    border: '4px solid #2C2C2C',
+    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
+    overflow: 'hidden',
+}));
+
+const StyledFacilityCard = styled(Card)(({ theme }) => ({
+    borderRadius: 0,
+    border: '4px solid #2C2C2C',
+    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
+    backgroundColor: '#E0AC69',
+    padding: theme.spacing(2),
+    textAlign: 'center',
+}));
 
 function ViewPlace(){
     //Get id
@@ -150,174 +252,250 @@ function ViewPlace(){
     }
     
     return (
-        <Box
-            sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2,
-                width: '100%'
-            }}
-        >
-            <Typography variant="h4" component="h4" align="center">
-                {
-                    placeInfo.name
-                }
-            </Typography>
-            <Divider />
+        <StyledContainer>
+            {/* Banner Image */}
             {placeInfo.gallery && placeInfo.gallery.length > 0 && (
-                <Box
+                <StyledBanner
                     component="img"
-                    src={placeInfo.gallery[0].completeurl}
+                    image={placeInfo.gallery[0].completeurl}
                     alt={placeInfo.name}
-                    sx={{
-                        width: '100%',
-                        height: '250px',
-                        maxHeight: '400px',
-                        objectFit: 'cover',
-                        borderRadius: 2,
-                        mb: 2
-                    }}
                 />
             )}
-            <Typography 
-                variant="body1" 
-                component="p" 
-                align="left">
-                Description
-            </Typography>
-            
-            <Typography 
-                variant="b" 
-                component="b" 
-                align="right">
-                {
-                    placeInfo.description
-                }
-            </Typography>
 
-            <Typography 
-                variant="body1" 
-                component="p" 
-                align="left">
-                Address
-            </Typography>
-            <Typography 
-                variant="b" 
-                component="b" 
-                align="right">
-                {placeInfo.address}
-            </Typography>
-            <Typography gutterBottom variant="h6" component="div" align="left">
-                Ubication
-            </Typography>
-            <MapView
-                address={placeInfo.address}
-                latitude={parseFloat(placeInfo.latitude)}
-                longitude={parseFloat(placeInfo.longitude)}
-                height={300}
-                width="100%"
-                zoom={15}
-            />
+            {/* Header Section */}
+            <StyledHeaderCard>
+                <StyledHeaderContent>
+                    <PixelTypography 
+                        variant="h3" 
+                        component="h1" 
+                        sx={{ 
+                            fontSize: { xs: '1.2rem', sm: '1.8rem', md: '2.2rem' },
+                            color: '#FFFFFF',
+                            mb: 2,
+                            lineHeight: 1.4
+                        }}
+                    >
+                        {placeInfo.name}
+                    </PixelTypography>
+                    
+                    <PixelTypography 
+                        variant="body1" 
+                        sx={{ 
+                            fontSize: { xs: '0.6rem', sm: '0.8rem' },
+                            color: '#E8F4FD',
+                            mb: 2,
+                            lineHeight: 1.6
+                        }}
+                    >
+                        {placeInfo.description}
+                    </PixelTypography>
 
-            <Typography gutterBottom variant="body1" component="div" align="right">
-                {placeInfo.City.name}, {placeInfo.State.name}, {placeInfo.Country.name}
-            </Typography>
+                    <PixelTypography 
+                        variant="body2" 
+                        sx={{ 
+                            fontSize: { xs: '0.5rem', sm: '0.6rem' },
+                            color: '#E8F4FD'
+                        }}
+                    >
+                        {placeInfo.City.name}, {placeInfo.State.name}, {placeInfo.Country.name}
+                    </PixelTypography>
+                </StyledHeaderContent>
+            </StyledHeaderCard>
 
-            
-            <Typography 
-                variant="h6" 
-                component="div">
-                Gallery
-            </Typography>
-            <ImageCarousel images={placeInfo.gallery} />
-            <Divider />
-            <Typography variant="h6" component="div" align="center">
-                Facilities
-            </Typography>
-            <Divider />
-            {
-                placeInfo.facilities.length !== 0 ? 
-                (
-                    <Stack 
-                        direction="row" 
-                        spacing={2} 
-                        flexWrap="wrap" 
-                        useFlexGap 
-                        alignSelf="center"
+            {/* Address Section */}
+            <StyledSectionCard>
+                <StyledSectionHeader>
+                    <PixelTypography 
+                        variant="h5" 
+                        sx={{ 
+                            fontSize: { xs: '0.8rem', sm: '1rem' },
+                            color: '#FFFFFF'
+                        }}
+                    >
+                        Address
+                    </PixelTypography>
+                </StyledSectionHeader>
+                <StyledSectionContent>
+                    <PixelTypography 
+                        variant="body2" 
+                        sx={{ 
+                            fontSize: { xs: '0.6rem', sm: '0.7rem' },
+                            color: '#2C2C2C',
+                            lineHeight: 1.6
+                        }}
+                    >
+                        {placeInfo.address}
+                    </PixelTypography>
+                </StyledSectionContent>
+            </StyledSectionCard>
+
+            {/* Map Section */}
+            <StyledSectionCard>
+                <StyledSectionHeader>
+                    <PixelTypography 
+                        variant="h5" 
+                        sx={{ 
+                            fontSize: { xs: '0.8rem', sm: '1rem' },
+                            color: '#FFFFFF'
+                        }}
+                    >
+                        Location
+                    </PixelTypography>
+                </StyledSectionHeader>
+                <StyledSectionContent>
+                    <StyledMapCard>
+                        <MapView
+                            address={placeInfo.address}
+                            latitude={parseFloat(placeInfo.latitude)}
+                            longitude={parseFloat(placeInfo.longitude)}
+                            height={300}
+                            width="100%"
+                            zoom={15}
+                        />
+                    </StyledMapCard>
+                </StyledSectionContent>
+            </StyledSectionCard>
+
+            {/* Gallery Section */}
+            <StyledSectionCard>
+                <StyledSectionHeader>
+                    <PixelTypography 
+                        variant="h5" 
+                        sx={{ 
+                            fontSize: { xs: '0.8rem', sm: '1rem' },
+                            color: '#FFFFFF'
+                        }}
+                    >
+                        Gallery
+                    </PixelTypography>
+                </StyledSectionHeader>
+                <StyledSectionContent>
+                    <ImageCarousel images={placeInfo.gallery} />
+                </StyledSectionContent>
+            </StyledSectionCard>
+
+            {/* Facilities Section */}
+            <StyledSectionCard>
+                <StyledSectionHeader>
+                    <PixelTypography 
+                        variant="h5" 
+                        sx={{ 
+                            fontSize: { xs: '0.8rem', sm: '1rem' },
+                            color: '#FFFFFF'
+                        }}
+                    >
+                        Facilities
+                    </PixelTypography>
+                </StyledSectionHeader>
+                <StyledSectionContent>
+                    {placeInfo.facilities.length !== 0 ? (
+                        <Stack 
+                            direction="row" 
+                            spacing={2} 
+                            flexWrap="wrap" 
+                            useFlexGap 
+                            justifyContent="center"
                         >
-                        {
-                            placeInfo.facilities.map((facility) => (
+                            {placeInfo.facilities.map((facility) => (
                                 <Tooltip 
                                     key={facility.code}
-                                    title={facility.name} >
-                                    <FacilityIcon 
-                                        code={facility.code} 
-                                        titleAccess={facility.name}
-                                        color="white"
-                                        fontSize="x-large"
-                                    />
-                            </Tooltip>
-                        ))}
-                    </Stack>
-                ) : (
-                    <Alert severity="info" sx={{ mt: 2 }}>
-                        No facilities to show.
-                    </Alert>
-                )
-            }
-            <Divider />
-            <Paper 
-                elevation={2} 
-                sx={{ 
-                    display: 'flex', 
-                    justifyContent: 'center',
-                    gap: 1
-                }}
-            >
-                <Tooltip title={liked ? "Unlike" : "Vote this trip"}>
-                    <IconButton 
-                        color={liked ? "error" : "default"}
-                        onClick={handleVotePlace}
-                        size="medium"
-                    >
-                        <Badge badgeContent={placeInfo.statics.Votes.Total} color="primary">
-                            {liked ? <FavoriteIcon /> : <FavoriteBorder />}
-                        </Badge>
-                    </IconButton>
-                </Tooltip>
-
-                <Tooltip title="Share trip">
-                    <IconButton 
-                        color="default"
-                        onClick={handleShare}
-                        size="medium"
-                    >
-                        <ShareIcon />
-                    </IconButton>
-                </Tooltip>
-                
-                {
-                hasRole('admin') && (
-                    <Tooltip title="Edit trip">
-                        <IconButton 
-                            color="primary"
-                            onClick={handleEdit}
-                            size="medium"
-                            
+                                    title={facility.name}
+                                >
+                                    <Box
+                                        sx={{
+                                            backgroundColor: '#FFFFFF',
+                                            border: '2px solid #2C2C2C',
+                                            padding: 2,
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            gap: 1,
+                                            '&:hover': {
+                                                transform: 'translateY(-2px)',
+                                                boxShadow: '3px 3px 0px #2C2C2C',
+                                            },
+                                            transition: 'all 0.2s ease-in-out',
+                                        }}
+                                    >
+                                        <FacilityIcon 
+                                            code={facility.code} 
+                                            titleAccess={facility.name}
+                                            color="#2C2C2C"
+                                            fontSize="large"
+                                        />
+                                        <PixelTypography
+                                            variant="caption"
+                                            sx={{
+                                                fontSize: '0.4rem',
+                                                color: '#2C2C2C',
+                                                textAlign: 'center',
+                                            }}
+                                        >
+                                            {facility.name}
+                                        </PixelTypography>
+                                    </Box>
+                                </Tooltip>
+                            ))}
+                        </Stack>
+                    ) : (
+                        <Alert 
+                            severity="info"
+                            sx={{
+                                borderRadius: 0,
+                                border: '2px solid #2C2C2C',
+                                fontFamily: "'Press Start 2P', cursive",
+                                fontSize: '0.6rem'
+                            }}
                         >
-                            <Edit />
-                        </IconButton>
+                            No facilities to show.
+                        </Alert>
+                    )}
+                </StyledSectionContent>
+            </StyledSectionCard>
+
+            {/* Actions Section */}
+            <StyledActionsCard>
+                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+                    <Tooltip title={liked ? "Unlike" : "Vote this place"}>
+                        <StyledActionButton
+                            onClick={handleVotePlace}
+                            size="medium"
+                        >
+                            <Badge badgeContent={placeInfo.statics.Votes.Total} color="primary">
+                                {liked ? <FavoriteIcon sx={{ color: '#ef4444' }} /> : <FavoriteBorder />}
+                            </Badge>
+                        </StyledActionButton>
                     </Tooltip>
-                )}
-            </Paper>
+
+                    <Tooltip title="Share place">
+                        <StyledActionButton
+                            onClick={handleShare}
+                            size="medium"
+                        >
+                            <ShareIcon />
+                        </StyledActionButton>
+                    </Tooltip>
+                    
+                    {hasRole('admin') && (
+                        <Tooltip title="Edit place">
+                            <StyledActionButton
+                                onClick={handleEdit}
+                                size="medium"
+                            >
+                                <Edit />
+                            </StyledActionButton>
+                        </Tooltip>
+                    )}
+                </Box>
+            </StyledActionsCard>
+
             <SnackbarNotification
                 open={snackbar.open}
                 onClose={handleCloseSnackbar}
                 message={snackbar.message}
                 severity={snackbar.severity}
             />
-
-        </Box>
+        </StyledContainer>
     );
 }
 export default ViewPlace;

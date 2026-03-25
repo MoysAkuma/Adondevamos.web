@@ -14,7 +14,8 @@ import {
   Tooltip,
   Chip,
   Box,
-  Stack
+  Stack,
+  Divider
 } from '@mui/material';
 import { 
   CalendarToday, 
@@ -325,6 +326,7 @@ function TripCard({ tripinfo }) {
         alt="Trip image"
         onClick={() => gotoViewTrip(tripinfo)}
       />
+      
 
       <StyledCardContent>
         <Typography 
@@ -343,6 +345,7 @@ function TripCard({ tripinfo }) {
         >
           {tripinfo.description}
         </Typography>
+        <Divider sx={{ my: 1, borderColor: '#2C2C2C' }} />
 
         {uniqueCountries.length > 0 && (
           <Stack 
@@ -391,6 +394,7 @@ function TripCard({ tripinfo }) {
               >
                 Locations
               </Typography>
+              
               <Stack 
                 direction="row" 
                 spacing={1}
