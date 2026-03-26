@@ -68,7 +68,6 @@ const StyledActionButton = styled(IconButton)(({ theme }) => ({
 
 const PixelTypography = styled(Typography)(({ theme }) => ({
     fontFamily: "'Press Start 2P', cursive",
-    textShadow: '2px 2px 0px #2C2C2C',
     color: '#2C2C2C',
 }));
 
@@ -106,8 +105,7 @@ function Memberlist({ members}){
                                                         variant="body2"
                                                         sx={{ 
                                                             fontSize: { xs: '0.5rem', sm: '0.6rem' },
-                                                            color: '#5A5A5A',
-                                                            textShadow: 'none'
+                                                            color: '#5A5A5A'
                                                         }}
                                                     >
                                                         {x.description}

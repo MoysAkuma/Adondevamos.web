@@ -240,11 +240,6 @@ function TripCard({ tripinfo }) {
     return placeHolderImageMX;
   };
 
-  // Get unique country acronyms
-  const uniqueCountries = [...new Set(
-    tripinfo.itinerary.map((x) => x.place.Country.acronym).filter(Boolean)
-  )];
-
   //get locations name from itinerary
   const locations =  [...new Set(
      tripinfo.itinerary.map((item) => `${item.place.City.name},${item.place.State.name},${item.place.Country.name}`)
@@ -286,7 +281,6 @@ function TripCard({ tripinfo }) {
               fontFamily: "'Press Start 2P', cursive",
               fontWeight: 600,
               color: '#FFFFFF',
-              textShadow: '2px 2px 0px #2C2C2C',
             }}
           >
             {tripinfo.name}
@@ -327,7 +321,6 @@ function TripCard({ tripinfo }) {
         onClick={() => gotoViewTrip(tripinfo)}
       />
       
-
       <StyledCardContent>
         <Typography 
           variant="body2" 
@@ -345,88 +338,7 @@ function TripCard({ tripinfo }) {
         >
           {tripinfo.description}
         </Typography>
-        <Divider sx={{ my: 1, borderColor: '#2C2C2C' }} />
-
-        {uniqueCountries.length > 0 && (
-          <Stack 
-            direction="row" 
-            spacing={1} 
-            flexWrap="wrap"
-            gap={0.5}
-          >
-            {uniqueCountries.map((acronym, index) => (
-              <Chip
-                key={`${acronym}-${index}`}
-                label={acronym}
-                size="small"
-                sx={{
-                  bgcolor: '#FFFFFF',
-                  color: '#2C2C2C',
-                  fontWeight: 600,
-                  fontSize: '0.5rem',
-                  height: 24,
-                  borderRadius: 0,
-                  border: '2px solid #2C2C2C',
-                  fontFamily: "'Press Start 2P', cursive",
-                  '&:hover': {
-                    bgcolor: '#E63946',
-                    color: '#FFFFFF',
-                    transform: 'scale(1.05)',
-                  }
-                }}
-              />
-            ))}
-          </Stack>
-        )}
-        {
-          locations.length > 0 && (
-            <Box sx={{ mt: 2 }}>
-              <Typography
-                variant="subtitle2"
-                component="h6"
-                sx={{
-                  fontWeight: 600,
-                  color: '#2C2C2C',
-                  mb: 1,
-                  fontSize: '0.65rem',
-                  fontFamily: "'Press Start 2P', cursive",
-                }}
-              >
-                Locations
-              </Typography>
-              
-              <Stack 
-                direction="row" 
-                spacing={1}
-                flexWrap="wrap"
-                gap={0.5}
-              >
-                {locations.map((loc, index) => (
-                  <Chip
-                    key={`loc-${index}`}
-                    label={loc}
-                    size="small"
-                    sx={{
-                      bgcolor: '#FFFFFF',
-                      color: '#2C2C2C',
-                      fontWeight: 600,
-                      fontSize: '0.5rem',
-                      height: 24,
-                      borderRadius: 0,
-                      border: '2px solid #2C2C2C',
-                      fontFamily: "'Press Start 2P', cursive",
-                      '&:hover': {
-                        bgcolor: '#E63946',
-                        color: '#FFFFFF',
-                        transform: 'scale(1.05)',
-                      }
-                    }}
-                  />
-                ))}
-              </Stack>
-            </Box>
-          )
-        }
+        
       </StyledCardContent>
 
       <StyledCardActions disableSpacing>
@@ -488,7 +400,6 @@ function TripCard({ tripinfo }) {
               mb: 1.5,
               fontSize: '0.65rem',
               fontFamily: "'Press Start 2P', cursive",
-              textShadow: '2px 2px 0px #2C2C2C',
             }}
           >
             Itinerary

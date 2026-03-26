@@ -108,7 +108,6 @@ const StyledActionButton = styled(IconButton)(({ theme }) => ({
 
 const PixelTypography = styled(Typography)(({ theme }) => ({
     fontFamily: "'Press Start 2P', cursive",
-    textShadow: '2px 2px 0px #2C2C2C',
 }));
 
 const StyledMapCard = styled(Card)(({ theme }) => ({

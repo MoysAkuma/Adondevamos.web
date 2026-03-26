@@ -73,7 +73,6 @@ const StyledResultsContent = styled(CardContent)(({ theme }) => ({
 
 const PixelTypography = styled(Typography)(({ theme }) => ({
     fontFamily: "'Press Start 2P', cursive",
-    textShadow: '2px 2px 0px #2C2C2C',
 }));
 
 

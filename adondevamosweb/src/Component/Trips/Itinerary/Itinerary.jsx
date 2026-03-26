@@ -30,7 +30,8 @@ import {
     MenuItem,
     Collapse,
     Card,
-    CardContent
+    CardContent,
+    Badge
 } from '@mui/material';
 
 import { 
@@ -54,7 +55,6 @@ import {
 const StyledNoDataCard = styled(Paper)(({ theme }) => ({
     borderRadius: 0,
     border: '4px solid #2C2C2C',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
     backgroundColor: '#E0AC69',
     padding: theme.spacing(4),
     textAlign: 'center',
@@ -71,7 +71,6 @@ const StyledFilterButton = styled(Button)(({ theme }) => ({
     '&:hover': {
         backgroundColor: '#F8F8F8',
         transform: 'translateY(-2px)',
-        boxShadow: '3px 3px 0px #2C2C2C',
     },
     transition: 'all 0.2s ease-in-out',
 }));
@@ -79,20 +78,17 @@ const StyledFilterButton = styled(Button)(({ theme }) => ({
 const StyledMainCard = styled(Paper)(({ theme }) => ({
     borderRadius: 0,
     border: '4px solid #2C2C2C',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
     backgroundColor: '#E0AC69',
     overflow: 'hidden',
 }));
 
 const PixelTypography = styled(Typography)(({ theme }) => ({
     fontFamily: "'Press Start 2P', cursive",
-    textShadow: '2px 2px 0px #2C2C2C',
 }));
 
 const StyledFilterCard = styled(Card)(({ theme }) => ({
     borderRadius: 0,
     border: '4px solid #2C2C2C',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
     marginBottom: theme.spacing(2),
     overflow: 'visible',
 }));
@@ -139,7 +135,6 @@ const StyledActionButton = styled(IconButton)(({ theme }) => ({
     '&:hover': {
         backgroundColor: '#F8F8F8',
         transform: 'translateY(-2px)',
-        boxShadow: '3px 3px 0px #2C2C2C',
     },
     transition: 'all 0.2s ease-in-out',
 }));
@@ -171,7 +166,6 @@ const StyledPagination = styled(Pagination)(({ theme }) => ({
         '&:hover': {
             backgroundColor: '#F8F8F8',
             transform: 'translateY(-2px)',
-            boxShadow: '3px 3px 0px #2C2C2C',
         },
         '&.Mui-selected': {
             backgroundColor: '#3D5A80',
@@ -444,7 +438,6 @@ function Itinerary ({
                                 p: 2, 
                                 borderRadius: 0,
                                 border: '4px solid #2C2C2C',
-                                boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
                                 bgcolor: '#E0AC69'
                             }}
                         >
@@ -528,7 +521,24 @@ function Itinerary ({
                                                     })
                                                 }}
                                             >
-                                                {favoriteItems.has(visit.place.id) ? <Favorite /> : <FavoriteBorder />}
+                                                <Badge 
+                                                    badgeContent={visit.votes?.total || 0} 
+                                                    color="error"
+                                                    sx={{
+                                                        '& .MuiBadge-badge': {
+                                                            fontSize: '0.6rem',
+                                                            minWidth: '18px',
+                                                            height: '18px',
+                                                            padding: '0 4px',
+                                                            fontFamily: '"Press Start 2P", cursive'
+                                                        }
+                                                    }}
+                                                >
+                                                    {favoriteItems.has(visit.place.id) ? 
+                                                        <Favorite sx={{ color: favoriteItems.has(visit.place.id) ? '#FFFFFF' : '#2C2C2C' }} /> : 
+                                                        <FavoriteBorder sx={{ color: '#2C2C2C' }} />
+                                                    }
+                                                </Badge>
                                             </StyledActionButton>
                                         )}
                                         
@@ -588,6 +598,10 @@ function Itinerary ({
                                             >
                                                 {visit.place.name}
                                             </PixelTypography>
+                                        </Box>
+                                    }
+                                    secondary={
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                                             {days && (
                                                 <StyledChip
                                                     label={`${days} day${days > 1 ? 's' : ''}`} 
@@ -595,20 +609,17 @@ function Itinerary ({
                                                     sx={{ fontSize: '0.5rem' }}
                                                 />
                                             )}
-                                            {visit.votes && (
-                                                <StyledChip
-                                                    label={`${visit.votes.total} vote${visit.votes.total > 1 ? 's' : ''}`} 
-                                                    size="small" 
-                                                    sx={{ 
-                                                        fontSize: '0.5rem',
-                                                        backgroundColor: '#52B788',
-                                                        color: '#FFFFFF' 
-                                                    }}
-                                                />
-                                            )}
-                                        </Box>
-                                    }
-                                    secondary={
+                                            
+                                            <StyledChip
+                                                label={`${visit.place.Country.acronym} `} 
+                                                size="small" 
+                                                sx={{ 
+                                                    fontSize: '0.5rem',
+                                                    backgroundColor: '#52B788',
+                                                    color: '#FFFFFF' 
+                                                }}
+                                            />
+                                            
                                         <PixelTypography 
                                             variant="body2" 
                                             sx={{ 
@@ -619,6 +630,7 @@ function Itinerary ({
                                         >
                                             {generateDateText(visit.initialdate, visit.finaldate)}
                                         </PixelTypography>
+                                        </Box>
                                     }
                                 />
                             </StyledListItem>

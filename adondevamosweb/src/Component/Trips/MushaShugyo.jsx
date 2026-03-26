@@ -8,7 +8,9 @@ function MushaShugyo() {
         loading,
         error,
         notFound
-    } = useTripById(1);
+    } = useTripById(1, {
+        fields : ['owner', 'itinerary', 'gallery', 'statics', 'userVoted']
+    });
 
     if (loading) {
         return (

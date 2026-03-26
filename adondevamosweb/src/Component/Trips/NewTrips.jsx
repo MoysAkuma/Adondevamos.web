@@ -12,6 +12,9 @@ import
         Alert
     } from '@mui/material';
 
+// Define fields outside component to keep reference stable
+const TRIP_CARD_FIELDS = ['owner', 'itinerary', 'gallery', 'statics', 'userVoted'];
+
 function NewTrips(){
     const { isLogged, user } = useAuth();
     const {
@@ -20,7 +23,8 @@ function NewTrips(){
       error
     } = useLastedTrips(3, {
       includeUserHeader: isLogged,
-      userId: user
+      userId: user,
+      fields: TRIP_CARD_FIELDS // Optimized for TripCard
     });
 
     if (isLoading) return (<CircularProgress />);
