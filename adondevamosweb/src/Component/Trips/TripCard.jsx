@@ -31,6 +31,7 @@ import Itinerary from "./Itinerary/Itinerary";
 import { useAuth } from '../../context/AuthContext';
 import useVoteApi from '../../hooks/Votes/useVoteApi';
 import SnackbarNotification from '../Commons/SnackbarNotification';
+import UserAvatar from '../Commons/UserAvatar';
 
 // Styled components for 8-bit retro design
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -67,14 +68,15 @@ const StyledCardHeader = styled(CardHeader)(({ theme }) => ({
     marginRight: 0,
   },
   '& .MuiIconButton-root': {
-    color: '#FFFFFF',
-    backgroundColor: '#E63946',
+    color: '#2C2C2C',
+    backgroundColor: '#FFFFFF',
     borderRadius: 0,
     border: '2px solid #2C2C2C',
     padding: '6px',
     '&:hover': {
-      backgroundColor: '#F77F00',
-      transform: 'scale(1.1)',
+      backgroundColor: '#F8F8F8',
+      transform: 'translateY(-2px)',
+      boxShadow: '3px 3px 0px #2C2C2C',
     },
   },
 }));
@@ -212,6 +214,11 @@ function TripCard({ tripinfo }) {
     navigate('/View/Place/' + placeId);
   };
 
+  const goToViewProfile = (userId) => {
+    if (!userId) return;
+    navigate('/View/User/' + userId);
+  };
+
   const getShareLocation = (id) => {
     const url = getFullURL() + 'ViewTrip/' + id;
     navigator.clipboard.writeText(url);
@@ -232,7 +239,7 @@ function TripCard({ tripinfo }) {
     if(tripinfo.gallery && tripinfo.gallery.length > 0) {
       return tripinfo.gallery[0].completeurl;
     }
-    if (tripinfo.itinerary.length > 0) {
+    if (tripinfo.itinerary && tripinfo.itinerary.length > 0) {
       return tripinfo.itinerary[0].place.Country.acronym === "JP" 
         ? placeHolderImageJP 
         : placeHolderImageMX;
@@ -241,25 +248,27 @@ function TripCard({ tripinfo }) {
   };
 
   //get locations name from itinerary
-  const locations =  [...new Set(
-     tripinfo.itinerary.map((item) => `${item.place.City.name},${item.place.State.name},${item.place.Country.name}`)
-  )];
+  const locations = tripinfo.itinerary && tripinfo.itinerary.length > 0
+    ? [...new Set(
+        tripinfo.itinerary.map((item) => `${item.place.City.name},${item.place.State.name},${item.place.Country.name}`)
+      )]
+    : [];
 
 
   return (
     <StyledCard>
       <StyledCardHeader
         avatar={
-          <Avatar 
-            sx={{ 
-              bgcolor: '#6366f1',
-              width: 40,
-              height: 40,
-              fontSize: '1rem'
-            }}
+          <Box 
+            onClick={() => goToViewProfile(tripinfo.owner.id)}
+            sx={{ cursor: 'pointer' }}
           >
-            {tripinfo.owner.tag[0]}
-          </Avatar>
+            <UserAvatar
+              name={tripinfo.owner.name || tripinfo.owner.lastname}
+              tag={tripinfo.owner.tag}
+              size="medium"
+            />
+          </Box>
         }
         action={
           <Tooltip title="View Trip">
@@ -404,7 +413,7 @@ function TripCard({ tripinfo }) {
           >
             Itinerary
           </Typography>
-          {tripinfo.itinerary.length === 0 ? (
+          {!tripinfo.itinerary || tripinfo.itinerary.length === 0 ? (
             <Typography 
               variant="body2" 
               sx={{ 
@@ -428,6 +437,7 @@ function TripCard({ tripinfo }) {
         onClose={handleCloseSnackbar}
         message={snackbar.message}
         severity={snackbar.severity}
+        autoHideDuration={3000}
       />
     </StyledCard>
   );

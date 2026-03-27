@@ -8,6 +8,7 @@ import config from "../Resources/config";
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 import ViewTrip from "../Component/Trips/ViewTrip";
 import ViewPlace from "../Component/Places/ViewPlace";
+import ViewProfile from "../Component/Users/ViewProfile";
 
 export default function View() {
     //Module to show the search page
@@ -23,6 +24,11 @@ export default function View() {
         if (opt === "Place") {
             return <>
                 <ViewPlace />
+            </>;
+        }
+        if (opt === "User") {
+            return <>
+                <ViewProfile />
             </>;
         }
     }

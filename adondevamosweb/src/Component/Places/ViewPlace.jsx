@@ -493,6 +493,7 @@ function ViewPlace(){
                 onClose={handleCloseSnackbar}
                 message={snackbar.message}
                 severity={snackbar.severity}
+                autoHideDuration={3000}
             />
         </StyledContainer>
     );

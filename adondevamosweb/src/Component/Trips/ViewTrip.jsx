@@ -18,7 +18,7 @@ import
         CardMedia,
         Stack
     } from '@mui/material';
-import { Visibility, Edit, FavoriteBorder } from '@mui/icons-material'
+import { Visibility, Edit, FavoriteBorder, EditLocation } from '@mui/icons-material'
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import useTripById from '../../hooks/Trips/useTripById';
@@ -139,6 +139,7 @@ function ViewTrip(){
     const { voteTrip, getTripVotesSummary, voteItineraryPlace } = useVoteApi();
     const [liked, setLiked] = useState(false);
     const [isOwner, setIsOwner] = useState(false);
+    const [isVotingPlace, setIsVotingPlace] = useState(false); // Prevent multiple votes
     const [snackbar, setSnackbar] = useState({
         open: false,
         message: '',
@@ -230,11 +231,18 @@ function ViewTrip(){
         navigate(`/Edit/Trip/${id}`);
     };
 
+    const handleEditItinerary = () => {
+        navigate(`/Edit/Itinerary/${id}`);
+    };
+
+    const goToViewProfile = (userId) => {
+        if (!userId) return;
+        navigate('/View/User/' + userId);
+    };
+
     const handleShare = () => {
         const tripUrl = window.location.href;
-        navigator.clipboard.writeText(tripUrl).then(() => {
-            
-        });
+        navigator.clipboard.writeText(tripUrl).then(() => { });
     };
 
     const getBannerImage = () => {
@@ -327,9 +335,15 @@ function ViewTrip(){
                     >
                         <PixelTypography 
                             variant="body2" 
+                            onClick={() => goToViewProfile(tripInfo.owner.id)}
                             sx={{ 
                                 fontSize: { xs: '0.5rem', sm: '0.6rem' },
-                                color: '#E8F4FD'
+                                color: '#E8F4FD',
+                                cursor: 'pointer',
+                                '&:hover': {
+                                    color: '#FFFFFF',
+                                    textDecoration: 'underline'
+                                }
                             }}
                         >
                             By: {tripInfo.owner.tag}
@@ -394,10 +408,18 @@ function ViewTrip(){
                 <StyledSectionContent>
                     <Itinerary 
                         tripinfo={tripInfo}
+                        isOwnerOrMember={isOwnerOrMember()}
                         callBackView={(placeId) => {
                             if (!placeId) return;
                             navigate('/View/Place/' + placeId);
-                            console.log("View place:", placeId);
+                        }}
+                        callBackAddPlace={() => {
+                            // Navigate to appropriate edit page based on user role
+                            if (isOwner) {
+                                navigate(`/Edit/Trip/${id}`);
+                            } else {
+                                navigate(`/Edit/Itinerary/${id}`);
+                            }
                         }}
                         callBackFavorite={isOwnerOrMember() ? async (placeId, tripId) => {
                             if (!user) {
@@ -405,13 +427,20 @@ function ViewTrip(){
                                 return;
                             }
                             
+                            if (isVotingPlace) {
+                                return; // Prevent multiple simultaneous votes
+                            }
+                            
+                            setIsVotingPlace(true);
+                            
                             try {
                                 await voteItineraryPlace(placeId, tripId, user);
                                 showSnackbar('Vote updated successfully', 'success');
-                                console.log("Favorite place:", placeId, "in trip:", tripId);
                             } catch (error) {
                                 showSnackbar('Could not update vote. Please try again.', 'error');
                                 console.error("There was an error voting for the place!", error);
+                            } finally {
+                                setIsVotingPlace(false);
                             }
                         } : null}
                     />
@@ -436,7 +465,7 @@ function ViewTrip(){
             </StyledSectionCard>
             {/* Actions Section */}
             <StyledActionsCard>
-                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, flexWrap: 'wrap' }}>
                     <Tooltip title={liked ? "Unlike" : "Vote this trip"}>
                         <StyledActionButton
                             onClick={handleVoteTrip}
@@ -467,6 +496,17 @@ function ViewTrip(){
                             </StyledActionButton>
                         </Tooltip>
                     )}
+
+                    {isOwnerOrMember() && !isOwner && (
+                        <Tooltip title="Edit itinerary">
+                            <StyledActionButton
+                                onClick={handleEditItinerary}
+                                size="medium"
+                            >
+                                <EditLocation />
+                            </StyledActionButton>
+                        </Tooltip>
+                    )}
                 </Box>
             </StyledActionsCard>
 
@@ -475,6 +515,7 @@ function ViewTrip(){
                 onClose={handleCloseSnackbar}
                 message={snackbar.message}
                 severity={snackbar.severity}
+                autoHideDuration={3000}
             />
         </StyledContainer>
     );

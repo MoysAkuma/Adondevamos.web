@@ -48,7 +48,9 @@ import {
     Edit,
     FilterList,
     ExpandMore,
-    ExpandLess
+    ExpandLess,
+    Sort,
+    AddLocation
 } from '@mui/icons-material';
 
 // 8-bit Styled Components
@@ -202,7 +204,9 @@ function Itinerary ({
     },
     callBackView = null,
     callBackEdit = null,
-    callBackFavorite = null
+    callBackFavorite = null,
+    callBackAddPlace = null,
+    isOwnerOrMember = false
 })
 {
     const [sliderValue, setSliderValue] = useState(0);
@@ -211,7 +215,10 @@ function Itinerary ({
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [favoriteItems, setFavoriteItems] = useState(new Map()); // Changed to Map to store vote state from API
+    const [voteCounts, setVoteCounts] = useState(new Map()); // Track vote counts separately
     const [filterVisible, setFilterVisible] = useState(false);
+    const [showOnlyWithVotes, setShowOnlyWithVotes] = useState(false);
+    const [sortByVotes, setSortByVotes] = useState(false);
     const itemsPerPage = 5;
 
     const callBackEdite = (e) => {
@@ -243,9 +250,21 @@ function Itinerary ({
     // Handle favorites
     const toggleFavorite = (placeId) => {
         const newFavorites = new Map(favoriteItems);
+        const newVoteCounts = new Map(voteCounts);
+        
         const currentState = newFavorites.get(placeId) || false;
-        newFavorites.set(placeId, !currentState);
+        const currentCount = newVoteCounts.get(placeId) || 0;
+        
+        // Toggle the favorite state
+        const newState = !currentState;
+        newFavorites.set(placeId, newState);
+        
+        // Update vote count: increment if adding favorite, decrement if removing
+        const newCount = Math.max(0, currentCount + (newState ? 1 : -1));
+        newVoteCounts.set(placeId, newCount);
+        
         setFavoriteItems(newFavorites);
+        setVoteCounts(newVoteCounts);
         
         if (callBackFavorite) {
             callBackFavorite(placeId, tripinfo.id);
@@ -273,9 +292,8 @@ function Itinerary ({
 
     const generateOptions = ( visit, index) => {
         const isOwner = (tripinfo?.owner?.id == localStorage.getItem('userid'));
-        const isFavorite = favoriteItems.get(visit.place.id) !== undefined 
-            ? favoriteItems.get(visit.place.id) 
-            : visit.userVoted || false;
+        const isFavorite = favoriteItems.get(visit.place.id) || false;
+        const currentVoteCount = voteCounts.get(visit.place.id) || 0;
         
         return (
             <Box sx={{ display: 'flex', gap: 0.5 }}>
@@ -343,9 +361,26 @@ function Itinerary ({
         ? sortedItinerary 
         : groupedByDate[uniqueDates[sliderValue]] || [];
     
+    // Apply vote filter
+    const voteFilteredItinerary = showOnlyWithVotes
+        ? filteredItinerary.filter(visit => {
+            const voteCount = voteCounts.get(visit.place.id) || 0;
+            return voteCount > 0;
+        })
+        : filteredItinerary;
+    
+    // Apply sorting by votes if enabled
+    const sortedByVotesItinerary = sortByVotes
+        ? [...voteFilteredItinerary].sort((a, b) => {
+            const votesA = voteCounts.get(a.place.id) || 0;
+            const votesB = voteCounts.get(b.place.id) || 0;
+            return votesB - votesA; // Descending order (most voted first)
+        })
+        : voteFilteredItinerary;
+    
     // Apply pagination
-    const totalPages = Math.ceil(filteredItinerary.length / itemsPerPage);
-    const paginatedItinerary = filteredItinerary.slice(
+    const totalPages = Math.ceil(sortedByVotesItinerary.length / itemsPerPage);
+    const paginatedItinerary = sortedByVotesItinerary.slice(
         (page - 1) * itemsPerPage,
         page * itemsPerPage
     );
@@ -365,16 +400,23 @@ function Itinerary ({
         }
     }, [tripinfo.itinerary]);
 
-    // Initialize favorite states from API response
+    // Initialize favorite states and vote counts from API response
     useEffect(() => {
         if (tripinfo.itinerary) {
             const initialFavorites = new Map();
+            const initialVoteCounts = new Map();
+            
             tripinfo.itinerary.forEach(item => {
-                if (item.userVoted !== undefined) {
-                    initialFavorites.set(item.place.id, item.userVoted);
-                }
+                // Set favorite state (default to false if undefined)
+                initialFavorites.set(item.place.id, item.userVoted || false);
+                
+                // Set vote count (default to 0 if undefined)
+                const voteCount = item.votes?.total || 0;
+                initialVoteCounts.set(item.place.id, voteCount);
             });
+            
             setFavoriteItems(initialFavorites);
+            setVoteCounts(initialVoteCounts);
         }
     }, [tripinfo.itinerary]);
 
@@ -418,6 +460,25 @@ function Itinerary ({
 
     return (
         <Box>
+            {/* Add Place Button */}
+            {isOwnerOrMember && callBackAddPlace && (
+                <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                    <StyledFilterButton
+                        startIcon={<AddLocation />}
+                        onClick={callBackAddPlace}
+                        sx={{ 
+                            backgroundColor: '#52B788',
+                            color: '#FFFFFF',
+                            '&:hover': {
+                                backgroundColor: '#3D5A80',
+                            }
+                        }}
+                    >
+                        Add Place
+                    </StyledFilterButton>
+                </Box>
+            )}
+
             {sortedItinerary.length > 1 && (
                 <Box sx={{ mb: 2 }}>
                     {/* Filter Toggle Button */}
@@ -427,7 +488,7 @@ function Itinerary ({
                         onClick={() => setFilterVisible(!filterVisible)}
                         sx={{ mb: filterVisible ? 2 : 0 }}
                     >
-                        {filterVisible ? 'Hide Filter' : 'Show Filter'}
+                        {filterVisible ? 'Hide Filters' : 'Show Filters'}
                     </StyledFilterButton>
                     
                     {/* Collapsible Filter */}
@@ -441,6 +502,52 @@ function Itinerary ({
                                 bgcolor: '#E0AC69'
                             }}
                         >
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
+                                <PixelTypography variant="subtitle2" sx={{ color: '#2C2C2C', fontSize: '0.6rem' }}>
+                                    Filters & Sorting
+                                </PixelTypography>
+                            </Box>
+
+                            {/* Vote Filters */}
+                            <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
+                                <StyledChip
+                                    icon={<Favorite />}
+                                    label={showOnlyWithVotes ? "Only With Votes" : "Show All"}
+                                    onClick={() => {
+                                        setShowOnlyWithVotes(!showOnlyWithVotes);
+                                        setPage(1);
+                                    }}
+                                    sx={{
+                                        ...(showOnlyWithVotes && {
+                                            backgroundColor: '#E63946',
+                                            color: '#FFFFFF',
+                                            '&:hover': {
+                                                backgroundColor: '#C53030',
+                                            }
+                                        })
+                                    }}
+                                />
+                                <StyledChip
+                                    icon={<Sort />}
+                                    label={sortByVotes ? "Sorted by Votes" : "Sort by Votes"}
+                                    onClick={() => {
+                                        setSortByVotes(!sortByVotes);
+                                        setPage(1);
+                                    }}
+                                    sx={{
+                                        ...(sortByVotes && {
+                                            backgroundColor: '#3D5A80',
+                                            color: '#FFFFFF',
+                                            '&:hover': {
+                                                backgroundColor: '#2C4560',
+                                            }
+                                        })
+                                    }}
+                                />
+                            </Box>
+
+                            {/* Date Filter Section */}
+                            <Divider sx={{ mb: 2, borderColor: '#2C2C2C', borderWidth: 2 }} />
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1 }}>
                                 <PixelTypography variant="subtitle2" sx={{ color: '#2C2C2C', fontSize: '0.6rem' }}>
                                     Filter by Date
@@ -512,7 +619,7 @@ function Itinerary ({
                                                 size="small"
                                                 onClick={() => toggleFavorite(visit.place.id)}
                                                 sx={{
-                                                    ...(favoriteItems.has(visit.place.id) && {
+                                                    ...((favoriteItems.get(visit.place.id) === true) && {
                                                         backgroundColor: '#E63946',
                                                         color: '#FFFFFF',
                                                         '&:hover': {
@@ -522,7 +629,7 @@ function Itinerary ({
                                                 }}
                                             >
                                                 <Badge 
-                                                    badgeContent={visit.votes?.total || 0} 
+                                                    badgeContent={voteCounts.get(visit.place.id) || 0} 
                                                     color="error"
                                                     sx={{
                                                         '& .MuiBadge-badge': {
@@ -534,8 +641,8 @@ function Itinerary ({
                                                         }
                                                     }}
                                                 >
-                                                    {favoriteItems.has(visit.place.id) ? 
-                                                        <Favorite sx={{ color: favoriteItems.has(visit.place.id) ? '#FFFFFF' : '#2C2C2C' }} /> : 
+                                                    {(favoriteItems.get(visit.place.id) === true) ? 
+                                                        <Favorite sx={{ color: '#FFFFFF' }} /> : 
                                                         <FavoriteBorder sx={{ color: '#2C2C2C' }} />
                                                     }
                                                 </Badge>
@@ -579,6 +686,7 @@ function Itinerary ({
                                     primary={
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                                             <PixelTypography
+                                                component="span"
                                                 variant="body2" 
                                                 sx={{
                                                     fontSize: { xs: '0.6rem', sm: '0.8rem' },
@@ -600,6 +708,7 @@ function Itinerary ({
                                             </PixelTypography>
                                         </Box>
                                     }
+                                    primaryTypographyProps={{ component: 'div' }}
                                     secondary={
                                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                                             {days && (
@@ -619,8 +728,9 @@ function Itinerary ({
                                                     color: '#FFFFFF' 
                                                 }}
                                             />
-                                            
+                                        <Divider orientation="vertical" flexItem sx={{ borderColor: '#2C2C2C' }} />
                                         <PixelTypography 
+                                            component="span"
                                             variant="body2" 
                                             sx={{ 
                                                 color: '#000000', 
@@ -632,12 +742,33 @@ function Itinerary ({
                                         </PixelTypography>
                                         </Box>
                                     }
+                                    secondaryTypographyProps={{ component: 'div' }}
                                 />
                             </StyledListItem>
                         );
                     })}
                 </List>
             </StyledMainCard>
+            
+            {/* Results Counter */}
+            {(showOnlyWithVotes || sortByVotes) && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                    <PixelTypography 
+                        variant="body2" 
+                        sx={{ 
+                            fontSize: '0.6rem',
+                            color: '#2C2C2C',
+                            backgroundColor: '#E0AC69',
+                            padding: '8px 16px',
+                            border: '2px solid #2C2C2C'
+                        }}
+                    >
+                        Showing {sortedByVotesItinerary.length} of {sortedItinerary.length} places
+                        {showOnlyWithVotes && ' with votes'}
+                        {sortByVotes && ' (sorted by votes)'}
+                    </PixelTypography>
+                </Box>
+            )}
             
             {/* Pagination */}
             {totalPages > 1 && (
