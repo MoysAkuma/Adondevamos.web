@@ -27,16 +27,6 @@ import { TextField,
 export default function TripFilters( { searchMethod } ) {
     const { isLogged, loading } = useAuth();
 
-    const formatDate = (dateString) => {
-        if( !dateString ) return "";
-        const date = new Date(dateString);
-        return new Intl.DateTimeFormat('en-US', {
-            day: '2-digit',
-            month: 'long',
-            year: 'numeric'
-        }).format(date);
-    };
-
     const [filters, setFilters] = useState({
         name: null,
         initialdate: null,
@@ -62,114 +52,120 @@ export default function TripFilters( { searchMethod } ) {
     });
 
     const [showInput, setShowInput] = useState({
-        name: false,
-        initialdate: false,
-        finaldate: false,
-        cityid: false,
-        countryid: false,
-        stateid: false,
-        creatorid: false,
-        mytrips: false,
-        membertrips: false
+        name: null,
+        initialdate: null,
+        finaldate: null,
+        cityid: null,
+        countryid: null,
+        stateid: null,
+        creatorid: null,
+        mytrips: null,
+        membertrips: null
     });
 
     const [showFilters, setShowFilters] = useState(true);
     const [filtered, setFiltered] = useState(false);
 
-    const filterOptionHandler = (field, name, type) => {
-        if (type === "checkbox") {
+    const formatDate = (dateString) => {
+        if( !dateString ) return "";
+        const date = new Date(dateString);
+        return new Intl.DateTimeFormat('en-US', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        }).format(date);
+    };
+
+    const inputController = (name, field, type) => {
+        if (type === "text" || type === "date") {
             return (
-                <>
-                    <b>{name}: </b>
-                    {showInput[field] ? (
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={filters[field] || false}
-                                    onChange={(e) => {
-                                        const checked = e.target.checked;
-                                        setFilters((prev) => ({ ...prev, [field]: checked }));
+                <TextField
+                    variant="outlined"
+                    type={type || "text"}
+                    name={field}
+                    value={filters[field] || ''}
+                    onChange={handleChange}
+                    size="small"
+                    slotProps={{
+                        input: {
+                            endAdornment: (
+                                <InputAdornment 
+                                    position="end"
+                                    style={{ cursor: 'pointer', marginLeft: '5px' }}
+                                    onClick={(e) => { 
+                                        e.preventDefault(); 
+                                        setSelectedFilters((prev) => ({...prev, [field]: filters[field]})); 
+                                        changeShowInput(field)(); 
                                     }}
-                                    size="small"
-                                />
-                            }
-                            label=""
-                        />
-                    ) : (
-                        <>
-                            <span>{selectedFilters[field] ? "Yes" : "No"}</span>
-                            <IconButton 
-                                size="small"
-                                onClick={changeShowInput(field)}
-                                sx={{ ml: 0.5, p: 0.25 }}
-                            >
-                                <Edit fontSize="inherit" />
-                            </IconButton>
-                        </>
-                    )}
-                    {showInput[field] && (
-                        <IconButton
-                            size="small"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                setSelectedFilters((prev) => ({ ...prev, [field]: filters[field] }));
-                                changeShowInput(field)();
-                            }}
-                            sx={{ ml: 0.5, p: 0.25 }}
-                        >
-                            <Check fontSize="inherit" />
-                        </IconButton>
-                    )}
-                </>
+                                >
+                                    <Check />
+                                </InputAdornment>
+                            )
+                        }
+                    }}
+                /> 
             );
         }
         
-        return (<>
-            <b>{name}: </b>
-            { showInput[field] ? (
-                    <TextField
-                        variant="outlined"
-                        type={type || "text"}
-                        name={field}
-                        value={filters[field]}
-                        onChange={handleChange}
+        if (type === "checkbox") {
+            return (
+                <>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={filters[field] || false}
+                                onChange={(e) => {
+                                    const checked = e.target.checked;
+                                    setFilters((prev) => ({ ...prev, [field]: checked }));
+                                }}
+                                size="small"
+                            />
+                        }
+                        label=""
+                    />
+                    <IconButton 
                         size="small"
-                        slotProps={{
-                            input: {
-                                endAdornment: (
-                                    <InputAdornment 
-                                    position="end"
-                                    style={{ cursor: 'pointer', marginLeft: '5px' }}
-                                    onClick={ (e) => { e.preventDefault(); setSelectedFilters((prev) => ({...prev, [field]: filters[field]})); changeShowInput(field)(); } }>
-                                        <Check />
-                                    </InputAdornment>
-                                )
-                            }
+                        onClick={(e) => { 
+                            e.preventDefault(); 
+                            setSelectedFilters((prev) => ({...prev, [field]: filters[field]})); 
+                            changeShowInput(field)(); 
                         }}
-                    /> 
-            ) : 
-            (
+                    >
+                        <Check />
+                    </IconButton>
+                </>
+            );
+        }
+    };
+
+    const filterOptionHandler = (field, name, type) => {
+        return (
             <>
-                {  ( selectedFilters[field] ) ? (
-                    field.includes("date") ? 
-                    formatDate(selectedFilters[field]) :
-                            selectedFilters[field]
-                    ) : (
-                    <span> 
-                        None 
-                    </span>
+                <b>{name}: </b>
+                { showInput[field] ? (
+                    inputController(name, field, type)
+                ) : (
+                    <>
+                        {selectedFilters[field] !== null && selectedFilters[field] !== undefined && selectedFilters[field] !== '' ? (
+                            field.includes("date") ? 
+                                formatDate(selectedFilters[field]) :
+                            type === "checkbox" ?
+                                (selectedFilters[field] ? "Yes" : "No") :
+                                selectedFilters[field]
+                        ) : (
+                            <span> 
+                                None 
+                            </span>
+                        )}
+                        <IconButton 
+                            size="small"
+                            onClick={changeShowInput(field)}
+                            sx={{ ml: 0.5, p: 0.25 }}
+                        >
+                            <Edit fontSize="inherit" />
+                        </IconButton>
+                    </>
                 )}
-                <IconButton 
-                    size="small"
-                    onClick={ changeShowInput(field)}
-                    sx={{ ml: 0.5, p: 0.25 }}
-                >
-                    <Edit fontSize="inherit" />
-                </IconButton>
-            </>
-            )
-            }
-            
             </>
         );
     }
@@ -179,6 +175,10 @@ export default function TripFilters( { searchMethod } ) {
         const { name, value } = e.target;
         setFilters((prevFilters) => ({
             ...prevFilters,
+            [name]: value,
+        }));
+        setSelectedFilters((prevSelected) => ({
+            ...prevSelected,
             [name]: value,
         }));
         
@@ -210,20 +210,17 @@ export default function TripFilters( { searchMethod } ) {
     };  
 
     const clearFilters = () => {
-        setFilters(
-            {
-                name: null,
-                initialdate: null,
-                finaldate: null,
-                cityid: null,
-                countryid: null,
-                stateid: null,
-                creatorid: null,
-                mytrips: false,
-                membertrips: false
-            }
-        );
-
+        setFilters({
+            name: null,
+            initialdate: null,
+            finaldate: null,
+            cityid: null,
+            countryid: null,
+            stateid: null,
+            creatorid: null,
+            mytrips: false,
+            membertrips: false
+        });
         setSelectedFilters({
             name: null,
             initialdate: null,
@@ -235,7 +232,6 @@ export default function TripFilters( { searchMethod } ) {
             mytrips: false,
             membertrips: false
         });
-        
         setFiltered(false);
     };
 
@@ -256,14 +252,14 @@ export default function TripFilters( { searchMethod } ) {
             <Collapse in={showFilters}>
                 <Divider sx={{ mb: 2 }} />
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                    <Box>{ filterOptionHandler("name", "Trip Name") }</Box>
+                    <Box>{ filterOptionHandler("name", "Trip Name", "text") }</Box>
                     <Box>{ filterOptionHandler("initialdate", "Initial Date", "date") }</Box>
                     <Box>{ filterOptionHandler("finaldate", "Final Date", "date") }</Box>
                     {
                         loading || !isLogged ? null : (
                             <>
-                                <Box>{ filterOptionHandler("mytrips", "My Trips","checkbox") }</Box>
-                                <Box>{ filterOptionHandler("membertrips", "Trips I'm In","checkbox") }</Box>
+                                <Box>{ filterOptionHandler("mytrips", "My Trips", "checkbox") }</Box>
+                                <Box>{ filterOptionHandler("membertrips", "Trips I'm In", "checkbox") }</Box>
                             </>
                         )
                     }
@@ -282,16 +278,21 @@ export default function TripFilters( { searchMethod } ) {
                     onClick={ 
                         (e) => { 
                             e.preventDefault(); 
-                            searchMethod(filters); 
-                        } 
-                    }
+                            searchMethod(filters);
+                        }
+                    } 
                 >
-                    {filtered ? "Search with Filters" : "Search"}
+                    {
+                        filtered ? "Search with Filters" : "Search"
+                    }
                 </Button>
                 <Button 
                     variant="outlined"  
                     startIcon={ <Delete /> }
-                    onClick={ (e) => { e.preventDefault(); clearFilters(); } }
+                    onClick={ (e) => { 
+                        e.preventDefault(); 
+                        clearFilters(); 
+                    }}
                 >
                     Clear
                 </Button>

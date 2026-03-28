@@ -4,10 +4,14 @@ import
         Button,
         Typography,
         Box,
-        CircularProgress
+        CircularProgress,
+        useMediaQuery,
+        useTheme,
+        Collapse,
+        IconButton
 } from '@mui/material';
 
-import { Save
+import { Save, ExpandMore, ExpandLess
 } from '@mui/icons-material'
 import MemberSearch from './MembersList/MemberSearch';
 import ManageItinerary from './Itinerary/ManageItinerary';
@@ -23,6 +27,8 @@ import useTripDetailsApi from '../../hooks/Trips/useTripDetailsApi';
 import useGalleryUpload from '../../hooks/useGalleryUpload';
 
 function EditTrip(){
+  const theme = useTheme();
+  const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
   const { loading } = useAuth();
   const { uploadImages, isUploading } = useGalleryUpload();
     const [isUser, setIsUser] = useState(false);
@@ -42,7 +48,8 @@ function EditTrip(){
     //Show managers of sections
     const [showManager, setShowManager] = useState({
       itinerary : false,
-      memberlist : false
+      memberlist : false,
+      gallery: false
     });
 
     //addedImages
@@ -302,12 +309,11 @@ const handleRemoveUser = (event) => {
     setErrors(prev => ({ ...prev, duplicateduser: false }));
   };
 
-  const showSearch = (item) => {
-    if ( item == 1 ) {
-      setShowManager( prev => ( { ...prev, itinerary : true } ) );
-    } else {
-      setShowManager( prev => ( { ...prev, members : true } ) );
-    }
+  const toggleSection = (section) => {
+    setShowManager(prev => ({ 
+      ...prev, 
+      [section]: !prev[section] 
+    }));
   };
 
    const clearItinerary = () => {
@@ -370,7 +376,17 @@ const handleRemoveUser = (event) => {
           width: '100%'
         }}
       >
-          <Typography variant="h5" align="center">
+          <Typography 
+            variant={isSmUp ? "h3" : "h4"} 
+            align="center"
+            sx={{
+                fontFamily: "'Press Start 2P', cursive",
+                color: '#2c3e50',
+                fontSize: isSmUp ? '1.5rem' : '1.2rem',
+                lineHeight: 1.6,
+                mb: 1
+            }}
+          >
             Edit Trip 
           </Typography>
           
@@ -382,36 +398,106 @@ const handleRemoveUser = (event) => {
             formTrip={formTrip}
             handleChange={handleChange} />
           
-          <ManageItinerary
-            itinerary={formTrip.itinerary}
-            onPlaceAdd={handlePlaceAdd}
-            onPlaceRemove={handleRemove}
-            onClearItinerary={clearItinerary}
-          />
+          <Box sx={{ mt: 2 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                cursor: 'pointer',
+                '&:hover': { opacity: 0.8 }
+              }}
+              onClick={() => toggleSection('itinerary')}
+            >
+              <Typography variant="body1">
+                Manage Itinerary {formTrip.itinerary && formTrip.itinerary.length > 0 && `(${formTrip.itinerary.length})`}
+              </Typography>
+              <IconButton size="small">
+                {showManager.itinerary ? <ExpandLess /> : <ExpandMore />}
+              </IconButton>
+            </Box>
+            <Collapse in={showManager.itinerary}>
+              <Box sx={{ mt: 2 }}>
+                <ManageItinerary
+                  itinerary={formTrip.itinerary}
+                  onPlaceAdd={handlePlaceAdd}
+                  onPlaceRemove={handleRemove}
+                  onClearItinerary={clearItinerary}
+                />
+              </Box>
+            </Collapse>
+          </Box>
 
-          <ManageMemberList
-            memberlist={formTrip.members}
-            onAddMember={handleUserAdd}
-            onRemoveMember={handleRemoveUser}
-            onResetMembers={resetMembers}
-            showDuplicateError={errors.duplicateduser}
-          />
+          <Box sx={{ mt: 2 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                cursor: 'pointer',
+                '&:hover': { opacity: 0.8 }
+              }}
+              onClick={() => toggleSection('memberlist')}
+            >
+              <Typography variant="body1">
+                Manage Members {formTrip.members && formTrip.members.length > 0 && `(${formTrip.members.length})`}
+              </Typography>
+              <IconButton size="small">
+                {showManager.memberlist ? <ExpandLess /> : <ExpandMore />}
+              </IconButton>
+            </Box>
+            <Collapse in={showManager.memberlist}>
+              <Box sx={{ mt: 2 }}>
+                <ManageMemberList
+                  memberlist={formTrip.members}
+                  onAddMember={handleUserAdd}
+                  onRemoveMember={handleRemoveUser}
+                  onResetMembers={resetMembers}
+                  showDuplicateError={errors.duplicateduser}
+                />
+              </Box>
+            </Collapse>
+          </Box>
 
-          <GalleryListManager
-            items={originalTrip && originalTrip.gallery ? originalTrip.gallery : []}
-            onRemove={removePhoto}
-            pendingImages={addedImages || []}
-            onPendingImagesChange={setAddedImages}
-            showUploader
-            maxPendingImages={10}
-          />
+          <Box sx={{ mt: 2 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                cursor: 'pointer',
+                '&:hover': { opacity: 0.8 }
+              }}
+              onClick={() => toggleSection('gallery')}
+            >
+              <Typography variant="body1">
+                Manage Gallery {originalTrip && originalTrip.gallery && originalTrip.gallery.length > 0 && `(${originalTrip.gallery.length})`}
+              </Typography>
+              <IconButton size="small">
+                {showManager.gallery ? <ExpandLess /> : <ExpandMore />}
+              </IconButton>
+            </Box>
+            <Collapse in={showManager.gallery}>
+              <Box sx={{ mt: 2 }}>
+                <GalleryListManager
+                  items={originalTrip && originalTrip.gallery ? originalTrip.gallery : []}
+                  onRemove={removePhoto}
+                  pendingImages={addedImages || []}
+                  onPendingImagesChange={setAddedImages}
+                  showUploader
+                  maxPendingImages={10}
+                />
+              </Box>
+            </Collapse>
+          </Box>
 
           <Button 
             type="submit" 
             disabled={isSubmitting || isUploading}
             variant="text"
             startIcon={<Save/>}
-            >
+            sx={{ mt: 2 }}
+          >
             Save changes
           </Button>
 

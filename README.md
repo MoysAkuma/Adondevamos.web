@@ -464,10 +464,9 @@ Targets specified in `package.json`:
 - [x] Map integration for locations
 - [x] Image gallery and upload
 - [x] Jwt validation
-
+- [x] Ranking pages by votes
 ### In Progress 🚧
 - [ ] Migration to Google Cloud Platform
-- [ ] Ranking pages by votes
 - [ ] Google Maps API
 - [ ] Show trips and places by Users and Ubications
 - [ ] Comments

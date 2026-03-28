@@ -63,6 +63,20 @@ export const useVoteApi = () => {
     );
   }, [ensureAuthContext, votesUrl, buildAuthHeaders]);
 
+  const voteItineraryPlace = useCallback(async (placeId, tripId, userId) => {
+    ensureAuthContext(userId);
+
+    return axios.post(
+      `${votesUrl}/${userId}`,
+      { placeid: placeId, tripid: tripId },
+      {
+        headers: buildAuthHeaders({
+          'Content-Type': 'application/json'
+        })
+      }
+    );
+  }, [ensureAuthContext, votesUrl, buildAuthHeaders]);
+
   const getTripVotesSummary = useCallback(async (tripId) => {
     const response = await axios.get(`${votesUrl}/Trip/${tripId}`);
     return response?.data?.info?.summary || 0;
@@ -76,6 +90,7 @@ export const useVoteApi = () => {
   return {
     voteTrip,
     votePlace,
+    voteItineraryPlace,
     getTripVotesSummary,
     getPlaceVotesSummary,
     buildAuthHeaders,

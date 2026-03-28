@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import useTripApiClient from './useTripApiClient';
 
@@ -6,13 +6,20 @@ export const useLastedTrips = (limit = 3, options = {}) => {
   const {
     enabled = true,
     includeUserHeader = false,
-    userId = null
+    userId = null,
+    fields = null // Optional: array of fields to fetch ['owner', 'itinerary', 'gallery', 'statics', 'userVoted']
   } = options;
 
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { tripsUrl, buildAuthHeaders } = useTripApiClient();
+
+  // Stabilize fields array to prevent infinite loops
+  const fieldsString = useMemo(() => {
+    if (!fields || !Array.isArray(fields) || fields.length === 0) return null;
+    return fields.sort().join(','); // Sort to ensure consistent string even if order changes
+  }, [JSON.stringify(fields)]);
 
   const fetchLastedTrips = useCallback(async () => {
     if (!enabled) {
@@ -32,7 +39,13 @@ export const useLastedTrips = (limit = 3, options = {}) => {
         headers['user-id'] = userId;
       }
 
-      const response = await axios.get(`${tripsUrl}/lasted/${limit}`, {
+      // Build query params
+      let url = `${tripsUrl}/lasted/${limit}`;
+      if (fieldsString) {
+        url += `?fields=${fieldsString}`;
+      }
+
+      const response = await axios.get(url, {
         headers: buildAuthHeaders(headers)
       });
 
@@ -43,7 +56,7 @@ export const useLastedTrips = (limit = 3, options = {}) => {
     } finally {
       setLoading(false);
     }
-  }, [enabled, includeUserHeader, userId, tripsUrl, limit, buildAuthHeaders]);
+  }, [enabled, includeUserHeader, userId, tripsUrl, limit, fieldsString, buildAuthHeaders]);
 
   useEffect(() => {
     fetchLastedTrips();

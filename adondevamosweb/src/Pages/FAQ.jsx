@@ -19,22 +19,43 @@ import {
 import { styled } from '@mui/material/styles';
 import CenteredTemplate from '../Component/Commons/CenteredTemplate';
 
+const StyledContainer = styled(Box)(({ theme }) => ({
+  maxWidth: '800px',
+  margin: '0 auto',
+  padding: theme.spacing(2),
+}));
+
+const StyledHeaderCard = styled(Box)(({ theme }) => ({
+  borderRadius: 0,
+  border: '4px solid #2C2C2C',
+  boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
+  marginBottom: theme.spacing(3),
+  backgroundColor: '#6B5B95',
+  padding: theme.spacing(3),
+  textAlign: 'center',
+}));
+
 const StyledAccordion = styled(Accordion)(({ theme }) => ({
   borderRadius: 0,
-  border: '3px solid #2C2C2C',
+  border: '4px solid #2C2C2C',
   marginBottom: theme.spacing(2),
-  boxShadow: '4px 4px 0px rgba(0,0,0,0.2)',
+  boxShadow: '6px 6px 0px rgba(0,0,0,0.3)',
   '&:before': {
     display: 'none',
   },
   '&.Mui-expanded': {
     margin: `0 0 ${theme.spacing(2)} 0`,
   },
+  '&:hover': {
+    transform: 'translateY(-2px)',
+    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
+  },
+  transition: 'all 0.2s ease-in-out',
 }));
 
 const StyledAccordionSummary = styled(AccordionSummary)(({ theme }) => ({
   backgroundColor: '#3D5A80',
-  borderBottom: '3px solid #2C2C2C',
+  borderBottom: '4px solid #2C2C2C',
   minHeight: 64,
   '&.Mui-expanded': {
     minHeight: 64,
@@ -48,19 +69,31 @@ const StyledAccordionSummary = styled(AccordionSummary)(({ theme }) => ({
 }));
 
 const StyledAccordionDetails = styled(AccordionDetails)(({ theme }) => ({
-  backgroundColor: '#FFFFFF',
+  backgroundColor: '#E8F4FD',
   padding: theme.spacing(3),
 }));
 
 const CategoryChip = styled(Chip)(({ theme }) => ({
   borderRadius: 0,
-  border: '2px solid #2C2C2C',
+  border: '3px solid #2C2C2C',
   fontFamily: "'Press Start 2P', cursive",
   fontSize: '0.5rem',
-  height: 28,
+  height: 32,
+  boxShadow: '3px 3px 0px rgba(0,0,0,0.2)',
   '&:hover': {
-    transform: 'scale(1.05)',
+    transform: 'translateY(-2px)',
+    boxShadow: '4px 4px 0px rgba(0,0,0,0.3)',
   },
+  transition: 'all 0.2s ease-in-out',
+}));
+
+const CategorySection = styled(Box)(({ theme }) => ({
+  borderRadius: 0,
+  border: '4px solid #2C2C2C',
+  boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
+  marginBottom: theme.spacing(3),
+  backgroundColor: '#F5F5F5',
+  padding: theme.spacing(2),
 }));
 
 const faqs = [
@@ -155,17 +188,18 @@ export default function FAQ() {
 
   return (
     <CenteredTemplate maxWidth="lg" showLogo={false}>
-      <Box sx={{ textAlign: 'center', mb: 4 }}>
+      <StyledContainer>
+        {/* Header Section */}
+        <StyledHeaderCard>
           <Typography
             variant="h3"
             component="h1"
-            gutterBottom
             sx={{
               fontFamily: "'Press Start 2P', cursive",
-              fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
-              color: '#2C2C2C',
-              textShadow: '3px 3px 0px #FFFFFF',
-              mb: 2
+              fontSize: { xs: '1.5rem', sm: '1.8rem' },
+              color: '#FFFFFF',
+              mb: 2,
+              lineHeight: 1.4
             }}
           >
             FAQ
@@ -174,27 +208,28 @@ export default function FAQ() {
             variant="body1"
             sx={{
               fontFamily: "'Press Start 2P', cursive",
-              fontSize: { xs: '0.6rem', sm: '0.7rem' },
-              color: '#2C2C2C',
+              fontSize: { xs: '0.5rem', sm: '0.6rem' },
+              color: '#E8F4FD',
               lineHeight: 2
             }}
           >
             Frequently Asked Questions
           </Typography>
-        </Box>
+        </StyledHeaderCard>
 
         {faqs.map((category, categoryIndex) => (
-          <Box key={category.category} sx={{ mb: 4 }}>
+          <CategorySection key={category.category}>
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
               <Box
                 sx={{
                   backgroundColor: category.color,
                   color: '#FFFFFF',
-                  p: 1,
-                  border: '2px solid #2C2C2C',
+                  p: 1.5,
+                  border: '3px solid #2C2C2C',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  boxShadow: '3px 3px 0px rgba(0,0,0,0.2)',
                 }}
               >
                 {category.icon}
@@ -245,15 +280,16 @@ export default function FAQ() {
                 </StyledAccordionDetails>
               </StyledAccordion>
             ))}
-          </Box>
+          </CategorySection>
         ))}
 
+        {/* Contact Section */}
         <Box
           sx={{
-            mt: 6,
             p: 3,
-            backgroundColor: '#6B5B95',
-            border: '3px solid #2C2C2C',
+            backgroundColor: '#52B788',
+            border: '4px solid #2C2C2C',
+            boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
             textAlign: 'center'
           }}
         >
@@ -263,8 +299,7 @@ export default function FAQ() {
               fontFamily: "'Press Start 2P', cursive",
               fontSize: { xs: '0.7rem', sm: '0.8rem' },
               color: '#FFFFFF',
-              mb: 2,
-              textShadow: '2px 2px 0px #2C2C2C'
+              mb: 2
             }}
           >
             Still have questions?
@@ -274,13 +309,14 @@ export default function FAQ() {
             sx={{
               fontFamily: "'Press Start 2P', cursive",
               fontSize: { xs: '0.5rem', sm: '0.6rem' },
-              color: '#E8F4FD',
+              color: '#FFFFFF',
               lineHeight: 2
             }}
           >
-            Contact me at <a href="mailto:moises.moran.dev@gmail.com">moises.moran.dev@gmail.com</a>
+            Contact me at <a href="mailto:moises.moran.dev@gmail.com" style={{ color: '#2C2C2C', textDecoration: 'none' }}>moises.moran.dev@gmail.com</a>
           </Typography>
         </Box>
+      </StyledContainer>
     </CenteredTemplate>
   );
 }

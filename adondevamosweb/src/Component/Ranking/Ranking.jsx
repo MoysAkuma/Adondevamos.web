@@ -84,7 +84,6 @@ const EntityName = styled(Typography)(({ theme }) => ({
     marginBottom: theme.spacing(1),
     wordBreak: 'break-word',
     lineHeight: 1.4,
-    textShadow: '1px 1px 0px #FCFCFC',
     [theme.breakpoints.down('sm')]: {
         fontSize: '0.5rem',
     }
@@ -217,8 +216,7 @@ function Ranking({ defaultEntityType = 'places', showSelector = true }) {
                     alignItems: 'center', 
                     justifyContent: 'center',
                     gap: 1,
-                    color: '#000000',
-                    textShadow: '2px 2px 0px #14678d'
+                    color: '#000000'
                 }}
             >
                 <EmojiEvents sx={{ color: '#FCFC00' }} />

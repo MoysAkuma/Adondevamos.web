@@ -7,6 +7,7 @@ import axios from 'axios';
 import config from "../Resources/config";
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 import EditTrip from "../Component/Trips/EditTrip";
+import EditItinerary from "../Component/Trips/EditItinerary";
 import EditUser from "../Component/Users/EditUser";
 import EditPlace from "../Component/Places/EditPlace";
 import { useAuth } from '../context/AuthContext';
@@ -32,6 +33,11 @@ export default function Edit() {
         if (opt === "Trip") {
             return <>
                 <EditTrip />
+            </>;
+        }
+        if (opt === "Itinerary") {
+            return <>
+                <EditItinerary />
             </>;
         }
         if (opt === "Place") {

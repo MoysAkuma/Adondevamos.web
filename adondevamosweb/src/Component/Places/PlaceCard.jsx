@@ -177,7 +177,6 @@ function PlaceCard({ placeinfo }) {
               fontSize: { xs: '0.75rem', sm: '0.875rem' },
               fontWeight: 600,
               color: '#FFFFFF',
-              textShadow: '2px 2px 0px #2C2C2C',
             }}
           >
             {placeName}

@@ -14,7 +14,8 @@ import {
   Tooltip,
   Chip,
   Box,
-  Stack
+  Stack,
+  Divider
 } from '@mui/material';
 import { 
   CalendarToday, 
@@ -30,6 +31,7 @@ import Itinerary from "./Itinerary/Itinerary";
 import { useAuth } from '../../context/AuthContext';
 import useVoteApi from '../../hooks/Votes/useVoteApi';
 import SnackbarNotification from '../Commons/SnackbarNotification';
+import UserAvatar from '../Commons/UserAvatar';
 
 // Styled components for 8-bit retro design
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -66,14 +68,15 @@ const StyledCardHeader = styled(CardHeader)(({ theme }) => ({
     marginRight: 0,
   },
   '& .MuiIconButton-root': {
-    color: '#FFFFFF',
-    backgroundColor: '#E63946',
+    color: '#2C2C2C',
+    backgroundColor: '#FFFFFF',
     borderRadius: 0,
     border: '2px solid #2C2C2C',
     padding: '6px',
     '&:hover': {
-      backgroundColor: '#F77F00',
-      transform: 'scale(1.1)',
+      backgroundColor: '#F8F8F8',
+      transform: 'translateY(-2px)',
+      boxShadow: '3px 3px 0px #2C2C2C',
     },
   },
 }));
@@ -211,6 +214,11 @@ function TripCard({ tripinfo }) {
     navigate('/View/Place/' + placeId);
   };
 
+  const goToViewProfile = (userId) => {
+    if (!userId) return;
+    navigate('/View/User/' + userId);
+  };
+
   const getShareLocation = (id) => {
     const url = getFullURL() + 'ViewTrip/' + id;
     navigator.clipboard.writeText(url);
@@ -231,7 +239,7 @@ function TripCard({ tripinfo }) {
     if(tripinfo.gallery && tripinfo.gallery.length > 0) {
       return tripinfo.gallery[0].completeurl;
     }
-    if (tripinfo.itinerary.length > 0) {
+    if (tripinfo.itinerary && tripinfo.itinerary.length > 0) {
       return tripinfo.itinerary[0].place.Country.acronym === "JP" 
         ? placeHolderImageJP 
         : placeHolderImageMX;
@@ -239,31 +247,28 @@ function TripCard({ tripinfo }) {
     return placeHolderImageMX;
   };
 
-  // Get unique country acronyms
-  const uniqueCountries = [...new Set(
-    tripinfo.itinerary.map((x) => x.place.Country.acronym).filter(Boolean)
-  )];
-
   //get locations name from itinerary
-  const locations =  [...new Set(
-     tripinfo.itinerary.map((item) => `${item.place.City.name},${item.place.State.name},${item.place.Country.name}`)
-  )];
+  const locations = tripinfo.itinerary && tripinfo.itinerary.length > 0
+    ? [...new Set(
+        tripinfo.itinerary.map((item) => `${item.place.City.name},${item.place.State.name},${item.place.Country.name}`)
+      )]
+    : [];
 
 
   return (
     <StyledCard>
       <StyledCardHeader
         avatar={
-          <Avatar 
-            sx={{ 
-              bgcolor: '#6366f1',
-              width: 40,
-              height: 40,
-              fontSize: '1rem'
-            }}
+          <Box 
+            onClick={() => goToViewProfile(tripinfo.owner.id)}
+            sx={{ cursor: 'pointer' }}
           >
-            {tripinfo.owner.tag[0]}
-          </Avatar>
+            <UserAvatar
+              name={tripinfo.owner.name || tripinfo.owner.lastname}
+              tag={tripinfo.owner.tag}
+              size="medium"
+            />
+          </Box>
         }
         action={
           <Tooltip title="View Trip">
@@ -285,7 +290,6 @@ function TripCard({ tripinfo }) {
               fontFamily: "'Press Start 2P', cursive",
               fontWeight: 600,
               color: '#FFFFFF',
-              textShadow: '2px 2px 0px #2C2C2C',
             }}
           >
             {tripinfo.name}
@@ -325,7 +329,7 @@ function TripCard({ tripinfo }) {
         alt="Trip image"
         onClick={() => gotoViewTrip(tripinfo)}
       />
-
+      
       <StyledCardContent>
         <Typography 
           variant="body2" 
@@ -343,86 +347,7 @@ function TripCard({ tripinfo }) {
         >
           {tripinfo.description}
         </Typography>
-
-        {uniqueCountries.length > 0 && (
-          <Stack 
-            direction="row" 
-            spacing={1} 
-            flexWrap="wrap"
-            gap={0.5}
-          >
-            {uniqueCountries.map((acronym, index) => (
-              <Chip
-                key={`${acronym}-${index}`}
-                label={acronym}
-                size="small"
-                sx={{
-                  bgcolor: '#FFFFFF',
-                  color: '#2C2C2C',
-                  fontWeight: 600,
-                  fontSize: '0.5rem',
-                  height: 24,
-                  borderRadius: 0,
-                  border: '2px solid #2C2C2C',
-                  fontFamily: "'Press Start 2P', cursive",
-                  '&:hover': {
-                    bgcolor: '#E63946',
-                    color: '#FFFFFF',
-                    transform: 'scale(1.05)',
-                  }
-                }}
-              />
-            ))}
-          </Stack>
-        )}
-        {
-          locations.length > 0 && (
-            <Box sx={{ mt: 2 }}>
-              <Typography
-                variant="subtitle2"
-                component="h6"
-                sx={{
-                  fontWeight: 600,
-                  color: '#2C2C2C',
-                  mb: 1,
-                  fontSize: '0.65rem',
-                  fontFamily: "'Press Start 2P', cursive",
-                }}
-              >
-                Locations
-              </Typography>
-              <Stack 
-                direction="row" 
-                spacing={1}
-                flexWrap="wrap"
-                gap={0.5}
-              >
-                {locations.map((loc, index) => (
-                  <Chip
-                    key={`loc-${index}`}
-                    label={loc}
-                    size="small"
-                    sx={{
-                      bgcolor: '#FFFFFF',
-                      color: '#2C2C2C',
-                      fontWeight: 600,
-                      fontSize: '0.5rem',
-                      height: 24,
-                      borderRadius: 0,
-                      border: '2px solid #2C2C2C',
-                      fontFamily: "'Press Start 2P', cursive",
-                      '&:hover': {
-                        bgcolor: '#E63946',
-                        color: '#FFFFFF',
-                        transform: 'scale(1.05)',
-                      }
-                    }}
-                  />
-                ))}
-              </Stack>
-            </Box>
-          )
-        }
+        
       </StyledCardContent>
 
       <StyledCardActions disableSpacing>
@@ -484,12 +409,11 @@ function TripCard({ tripinfo }) {
               mb: 1.5,
               fontSize: '0.65rem',
               fontFamily: "'Press Start 2P', cursive",
-              textShadow: '2px 2px 0px #2C2C2C',
             }}
           >
             Itinerary
           </Typography>
-          {tripinfo.itinerary.length === 0 ? (
+          {!tripinfo.itinerary || tripinfo.itinerary.length === 0 ? (
             <Typography 
               variant="body2" 
               sx={{ 
@@ -513,6 +437,7 @@ function TripCard({ tripinfo }) {
         onClose={handleCloseSnackbar}
         message={snackbar.message}
         severity={snackbar.severity}
+        autoHideDuration={3000}
       />
     </StyledCard>
   );
