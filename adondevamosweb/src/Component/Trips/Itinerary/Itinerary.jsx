@@ -728,18 +728,18 @@ function Itinerary ({
                                                     color: '#FFFFFF' 
                                                 }}
                                             />
-                                        <Divider orientation="vertical" flexItem sx={{ borderColor: '#2C2C2C' }} />
-                                        <PixelTypography 
-                                            component="span"
-                                            variant="body2" 
-                                            sx={{ 
-                                                color: '#000000', 
-                                                mt: 0.5,
-                                                fontSize: { xs: '0.5rem', sm: '0.6rem' }
-                                            }}
-                                        >
-                                            {generateDateText(visit.initialdate, visit.finaldate)}
-                                        </PixelTypography>
+                                            <Divider flexItem sx={{ borderColor: '#2C2C2C' }} />
+                                            <PixelTypography 
+                                                component="span"
+                                                variant="body2" 
+                                                sx={{ 
+                                                    color: '#000000', 
+                                                    mt: 0.5,
+                                                    fontSize: { xs: '0.5rem', sm: '0.6rem' }
+                                                }}
+                                            >
+                                                {generateDateText(visit.initialdate, visit.finaldate)}
+                                            </PixelTypography>
                                         </Box>
                                     }
                                     secondaryTypographyProps={{ component: 'div' }}

@@ -225,7 +225,7 @@ function ViewProfile() {
                                     color: '#E63946'
                                 }}
                             >
-                                {createdTrips?.length || 0}
+                                {voteCounts?.trips + voteCounts?.places || 0}
                             </PixelTypography>
                             <PixelTypography 
                                 variant="body2" 
@@ -236,7 +236,7 @@ function ViewProfile() {
                                     mt: 1
                                 }}
                             >
-                                Trips Created
+                                Votes
                             </PixelTypography>
                         </Box>
                         <Box sx={{ textAlign: 'center', minWidth: '100px' }}>
