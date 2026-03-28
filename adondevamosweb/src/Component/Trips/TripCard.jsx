@@ -18,8 +18,7 @@ import {
   Divider
 } from '@mui/material';
 import { 
-  CalendarToday, 
-  Visibility, 
+  CalendarToday,
   FavoriteBorder,
   Favorite,
   Share,
@@ -270,26 +269,21 @@ function TripCard({ tripinfo }) {
             />
           </Box>
         }
-        action={
-          <Tooltip title="View Trip">
-            <IconButton 
-              aria-label="view" 
-              onClick={() => gotoViewTrip(tripinfo)}
-              size="small"
-            >
-              <Visibility />
-            </IconButton>
-          </Tooltip>
-        }
         title={
           <Typography 
             variant="h6" 
             component="h6"
+            onClick={() => gotoViewTrip(tripinfo)}
             sx={{ 
               fontSize: { xs: '0.7rem', sm: '0.8rem' },
               fontFamily: "'Press Start 2P', cursive",
               fontWeight: 600,
               color: '#FFFFFF',
+              cursor: 'pointer',
+              '&:hover': {
+                color: '#98C1D9',
+                textDecoration: 'underline',
+              }
             }}
           >
             {tripinfo.name}

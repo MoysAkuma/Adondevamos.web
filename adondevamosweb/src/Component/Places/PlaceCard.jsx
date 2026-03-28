@@ -15,7 +15,6 @@ import {
   Stack
 } from '@mui/material';
 import {
-  Visibility,
   FavoriteBorder,
   Favorite,
   Share,
@@ -157,26 +156,21 @@ function PlaceCard({ placeinfo }) {
   return (
     <StyledCard>
       <StyledCardHeader
-        action={
-          <Tooltip title="View Place">
-            <IconButton 
-              aria-label="view" 
-              onClick={() => gotoViewPlace(placeinfo)}
-              size="small"
-            >
-              <Visibility />
-            </IconButton>
-          </Tooltip>
-        }
         title={
           <Typography
             variant="h6"
             component="h2"
+            onClick={() => gotoViewPlace(placeinfo)}
             sx={{
               fontFamily: "'Press Start 2P', cursive",
               fontSize: { xs: '0.75rem', sm: '0.875rem' },
               fontWeight: 600,
               color: '#FFFFFF',
+              cursor: 'pointer',
+              '&:hover': {
+                color: '#98C1D9',
+                textDecoration: 'underline',
+              }
             }}
           >
             {placeName}
