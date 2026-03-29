@@ -12,7 +12,8 @@ import { Typography, List, ListItem, ListItemText,
     Button
  } from '@mui/material';
 import { Chat, FlightTakeoff, Add, Delete, Edit, ArrowCircleUp, 
-    ArrowCircleDown, AccountCircle, ExpandMore, ExpandLess } from '@mui/icons-material';
+    ArrowCircleDown, AccountCircle, ExpandMore, ExpandLess, 
+    Visibility} from '@mui/icons-material';
 import UserAvatar from '../Commons/UserAvatar';
 
 // Styled components for 8-bit retro design
@@ -29,7 +30,7 @@ const StyledListItem = styled(ListItem)(({ theme }) => ({
     padding: theme.spacing(2),
     transition: 'background-color 0.2s ease',
     '&:hover': {
-        backgroundColor: '#D4A05E',
+        backgroundColor: '#cf9ada',
     },
     '&:last-child': {
         borderBottom: 'none',
@@ -117,13 +118,18 @@ function ViewMemberList ({
                     key={member.user.id}
                     secondaryAction={
                         <>
-                            <Tooltip title="Send Message" arrow>
-                              <span>
-                                <StyledIconButton disabled aria-label="chat" edge="end">
-                                  <Chat />
-                                </StyledIconButton>
-                              </span>
-                            </Tooltip>
+                            <Box 
+                                onClick={() => goToViewProfile(member.user.id)} 
+                                sx={{ cursor: 'pointer' }}
+                            >
+                                <Tooltip title="View profile" arrow>
+                                <span>
+                                    <StyledIconButton disabled aria-label="view profile" edge="end" >
+                                    <Visibility />
+                                    </StyledIconButton>
+                                </span>
+                                </Tooltip>
+                            </Box>
                             {
                                 actualIndex !== 0 && 
                                 ( <StyledIconButton aria-label="move up" edge="end">
@@ -158,7 +164,7 @@ function ViewMemberList ({
                                 sx={{ 
                                     fontFamily: "'Press Start 2P', cursive",
                                     fontSize: '0.7rem',
-                                    color: '#2C2C2C',
+                                    color: '#000000',
                                     fontWeight: 600
                                 }}
                             >
@@ -170,7 +176,7 @@ function ViewMemberList ({
                                 component="span" 
                                 variant="body2" 
                                 sx={{ 
-                                    color: '#4A4A4A', 
+                                    color: '#000000', 
                                     display: 'inline',
                                     fontSize: '0.7rem'
                                 }} 

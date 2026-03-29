@@ -23,6 +23,7 @@ import NewTrips from "../Component/Trips/NewTrips";
 import Ranking from "../Component/Ranking/Ranking";
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 import { useAuth } from "../context/AuthContext";
+import useRankingApi from "../hooks/Ranking/useRankingApi";
 
 // 8-bit Styled Components
 const StyledContainer = styled(Box)(({ theme }) => ({
@@ -111,9 +112,11 @@ const StyledToggleButton = styled(Button)(({ theme }) => ({
     const theme = useTheme();
     const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
     const { isLogged, loading, hasRole, role } = useAuth();
+    const { getRanking, loading: rankingLoading, rankingData } = useRankingApi();
     const [UserSection, setUserSection] = useState(null);
     const [showNewTrips, setShowNewTrips] = useState(true);
     const [showRanking, setShowRanking] = useState(true);
+    const [topTrips, setTopTrips] = useState([]);
 
     const generateUserSection = () => {
         if (hasRole('user')) {
@@ -150,6 +153,21 @@ const StyledToggleButton = styled(Button)(({ theme }) => ({
            
         }
     },[loading]);
+
+    useEffect(() => {
+        const fetchTopTrips = async () => {
+            try {
+                const data = await getRanking('trips', 3);
+                if (data && data.ranking) {
+                    setTopTrips(data.ranking);
+                }
+            } catch (error) {
+                console.error('Error fetching top trips:', error);
+            }
+        };
+
+        fetchTopTrips();
+    }, [getRanking]);
 
     return (
         <CenteredTemplate>
@@ -258,7 +276,7 @@ const StyledToggleButton = styled(Button)(({ theme }) => ({
                     </StyledSectionHeader>
                     <Collapse in={showNewTrips}>
                         <StyledSectionContent>
-                            <NewTrips />
+                            <NewTrips topTrips={topTrips} />
                         </StyledSectionContent>
                     </Collapse>
                 </StyledSectionCard>

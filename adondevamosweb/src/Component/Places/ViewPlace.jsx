@@ -252,14 +252,7 @@ function ViewPlace(){
     
     return (
         <StyledContainer>
-            {/* Banner Image */}
-            {placeInfo.gallery && placeInfo.gallery.length > 0 && (
-                <StyledBanner
-                    component="img"
-                    image={placeInfo.gallery[0].completeurl}
-                    alt={placeInfo.name}
-                />
-            )}
+            
 
             {/* Header Section */}
             <StyledHeaderCard>
@@ -300,7 +293,13 @@ function ViewPlace(){
                     </PixelTypography>
                 </StyledHeaderContent>
             </StyledHeaderCard>
-
+            {placeInfo.gallery && placeInfo.gallery.length > 0 && (
+                <StyledBanner
+                    component="img"
+                    image={placeInfo.gallery[0].completeurl}
+                    alt={placeInfo.name}
+                />
+            )}
             {/* Address Section */}
             <StyledSectionCard>
                 <StyledSectionHeader>

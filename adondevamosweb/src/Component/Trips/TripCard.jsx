@@ -23,7 +23,8 @@ import {
   Favorite,
   Share,
   ExpandMore,
-  ExpandLess
+  ExpandLess,
+  EmojiEvents
 } from "@mui/icons-material";
 import { styled } from '@mui/material/styles';
 import Itinerary from "./Itinerary/Itinerary";
@@ -128,7 +129,7 @@ const ExpandButton = styled(IconButton, {
   }),
 }));
 
-function TripCard({ tripinfo }) {
+function TripCard({ tripinfo, showRankingBadge = false, rankingPosition = null }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -225,6 +226,24 @@ function TripCard({ tripinfo }) {
   };
 
 
+  const getRankingBadgeColor = (position) => {
+    switch(position) {
+      case 1: return '#FFD700'; // Gold
+      case 2: return '#C0C0C0'; // Silver
+      case 3: return '#CD7F32'; // Bronze
+      default: return '#FFD700';
+    }
+  };
+
+  const getRankingIcon = (position) => {
+    switch(position) {
+      case 1: return '🥇';
+      case 2: return '🥈';
+      case 3: return '🥉';
+      default: return '🏆';
+    }
+  };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('en-US', {
@@ -268,6 +287,35 @@ function TripCard({ tripinfo }) {
               size="medium"
             />
           </Box>
+        }
+        action={
+          showRankingBadge && rankingPosition && (
+            <Tooltip title={`#${rankingPosition} Most Voted Trip`}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  backgroundColor: getRankingBadgeColor(rankingPosition),
+                  border: '2px solid #2C2C2C',
+                  borderRadius: 0,
+                  padding: '4px 8px',
+                  boxShadow: '2px 2px 0px #2C2C2C'
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  sx={{
+                    fontSize: '0.6rem',
+                    fontFamily: "'Press Start 2P', cursive",
+                    color: '#2C2C2C',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  {getRankingIcon(rankingPosition)}
+                </Typography>
+              </Box>
+            </Tooltip>
+          )
         }
         title={
           <Typography 

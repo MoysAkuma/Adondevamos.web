@@ -15,7 +15,7 @@ import
 // Define fields outside component to keep reference stable
 const TRIP_CARD_FIELDS = ['owner', 'itinerary', 'gallery', 'statics', 'userVoted'];
 
-function NewTrips(){
+function NewTrips({ topTrips = [] }){
     const { isLogged, user } = useAuth();
     const {
       trips: NewTripsList,
@@ -26,6 +26,16 @@ function NewTrips(){
       userId: user,
       fields: TRIP_CARD_FIELDS // Optimized for TripCard
     });
+
+    // Function to check if a trip is in the top ranking and get its position
+    const getTripRankingInfo = (tripId) => {
+        const foundTrip = topTrips.find(trip => trip.id === tripId);
+        if (foundTrip) {
+            const position = topTrips.indexOf(foundTrip) + 1;
+            return { isRanked: true, position };
+        }
+        return { isRanked: false, position: null };
+    };
 
     if (isLoading) return (<CircularProgress />);
     if (error) {
@@ -41,8 +51,17 @@ function NewTrips(){
         divider={<Divider />}
         sx={{ overflowX: 'auto', padding: 1, marginTop: 1 }}>
         {
-          NewTripsList.length > 0 ? NewTripsList.map( (x) => 
-            (<TripCard tripinfo={x} key={x.id || x.name} />)) :
+          NewTripsList.length > 0 ? NewTripsList.map( (x) => {
+            const rankingInfo = getTripRankingInfo(x.id);
+            return (
+              <TripCard 
+                tripinfo={x} 
+                key={x.id || x.name} 
+                showRankingBadge={rankingInfo.isRanked}
+                rankingPosition={rankingInfo.position}
+              />
+            );
+          }) :
             (<Typography variant="span" 
               component="span" 
               gutterBottom align="left">
