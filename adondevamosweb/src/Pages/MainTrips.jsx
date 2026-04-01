@@ -13,11 +13,13 @@ import
     useMediaQuery, 
     useTheme,
     Card,
-    CardContent
+    CardContent,
+    Grid,
+    Skeleton
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { Flight, Search, Person, 
-    ExpandMore, ExpandLess } from '@mui/icons-material';
+    ExpandMore, ExpandLess, LocationOn, AccessTime, People } from '@mui/icons-material';
 import TripCard from "../Component/Trips/TripCard";
 import NewTrips from "../Component/Trips/NewTrips";
 import Ranking from "../Component/Ranking/Ranking";
@@ -108,6 +110,123 @@ const StyledToggleButton = styled(Button)(({ theme }) => ({
     transition: 'all 0.2s ease-in-out',
 }));
 
+// Trip Card Skeleton Components
+const StyledTripCard = styled(Card)(({ theme }) => ({
+    borderRadius: 0,
+    border: '3px solid #2C2C2C',
+    boxShadow: '6px 6px 0px rgba(0,0,0,0.5)',
+    marginBottom: theme.spacing(2),
+    backgroundColor: '#2A2A2A',
+    '&:hover': {
+        transform: 'translateY(-2px)',
+        boxShadow: '8px 8px 0px rgba(0,0,0,0.6)',
+        backgroundColor: '#333333',
+    },
+    transition: 'all 0.2s ease-in-out',
+}));
+
+const StyledTripCardHeader = styled(Box)(({ theme }) => ({
+    backgroundColor: '#3D5A80',
+    padding: theme.spacing(1.5),
+    borderBottom: '3px solid #2C2C2C',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+}));
+
+const StyledTripCardContent = styled(CardContent)(({ theme }) => ({
+    backgroundColor: '#2A2A2A',
+    padding: theme.spacing(2),
+    '&:last-child': {
+        paddingBottom: theme.spacing(2),
+    },
+}));
+
+const StyledTripSkeleton = styled(Box)(({ theme }) => ({
+    '& .MuiSkeleton-root': {
+        backgroundColor: '#404040',
+        '&::after': {
+            background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+        },
+    },
+}));
+
+const TripCardSkeleton = () => (
+    <StyledTripCard>
+        <StyledTripCardHeader>
+            <Skeleton 
+                variant="text" 
+                width={120} 
+                height={20} 
+                sx={{ backgroundColor: '#404040' }}
+            />
+            <Skeleton 
+                variant="circular" 
+                width={24} 
+                height={24} 
+                sx={{ backgroundColor: '#404040' }}
+            />
+        </StyledTripCardHeader>
+        <StyledTripCardContent>
+            <StyledTripSkeleton>
+                {/* Trip Title */}
+                <Skeleton 
+                    variant="text" 
+                    width="80%" 
+                    height={28} 
+                    sx={{ mb: 1 }}
+                />
+                
+                {/* Trip Description */}
+                <Skeleton 
+                    variant="text" 
+                    width="100%" 
+                    height={20} 
+                    sx={{ mb: 0.5 }}
+                />
+                <Skeleton 
+                    variant="text" 
+                    width="60%" 
+                    height={20} 
+                    sx={{ mb: 2 }}
+                />
+                
+                {/* Trip Info Row */}
+                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <LocationOn sx={{ fontSize: '1rem', color: '#52B788' }} />
+                        <Skeleton variant="text" width={60} height={16} />
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <AccessTime sx={{ fontSize: '1rem', color: '#52B788' }} />
+                        <Skeleton variant="text" width={40} height={16} />
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <People sx={{ fontSize: '1rem', color: '#52B788' }} />
+                        <Skeleton variant="text" width={30} height={16} />
+                    </Box>
+                </Box>
+                
+                {/* Action Buttons */}
+                <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                    <Skeleton 
+                        variant="rectangular" 
+                        width={80} 
+                        height={32} 
+                        sx={{ border: '2px solid #2C2C2C' }}
+                    />
+                    <Skeleton 
+                        variant="rectangular" 
+                        width={60} 
+                        height={32} 
+                        sx={{ border: '2px solid #2C2C2C' }}
+                    />
+                </Box>
+            </StyledTripSkeleton>
+        </StyledTripCardContent>
+    </StyledTripCard>
+);
+
  const MainTrips = () => {
     const theme = useTheme();
     const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
@@ -116,6 +235,8 @@ const StyledToggleButton = styled(Button)(({ theme }) => ({
     const [UserSection, setUserSection] = useState(null);
     const [showNewTrips, setShowNewTrips] = useState(true);
     const [showRanking, setShowRanking] = useState(true);
+    const [showSkeletonCards, setShowSkeletonCards] = useState(true);
+    const [isLoadingTrips, setIsLoadingTrips] = useState(true);
     const [topTrips, setTopTrips] = useState([]);
 
     const generateUserSection = () => {
@@ -156,6 +277,7 @@ const StyledToggleButton = styled(Button)(({ theme }) => ({
 
     useEffect(() => {
         const fetchTopTrips = async () => {
+            setIsLoadingTrips(true);
             try {
                 const data = await getRanking('trips', 3);
                 if (data && data.ranking) {
@@ -163,6 +285,8 @@ const StyledToggleButton = styled(Button)(({ theme }) => ({
                 }
             } catch (error) {
                 console.error('Error fetching top trips:', error);
+            } finally {
+                setIsLoadingTrips(false);
             }
         };
 
