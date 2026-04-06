@@ -1,0 +1,97 @@
+{
+  "navbar": {
+    "brand": {
+      "name": "AdondeVamos",
+      "href": "/"
+    },
+    "menuItems": [
+      {
+        "id": "home",
+        "title": "Home",
+        "href": "/",
+        "icon": "🏠",
+        "roles": ["anon", "user", "admin"],
+        "order": 1,
+        "visible": true
+      },
+      {
+        "id": "trips",
+        "title": "Trips",
+        "href": "/Trips",
+        "icon": "✈️",
+        "roles": ["anon", "user", "admin"],
+        "order": 2,
+        "visible": true
+      },
+      {
+        "id": "places",
+        "title": "Places",
+        "href": "/Places",
+        "icon": "📍",
+        "roles": ["anon", "user", "admin"],
+        "order": 3,
+        "visible": true
+      },
+      {
+        "id": "profile",
+        "title": "Profile",
+        "href": "/Profile",
+        "icon": "👤",
+        "roles": ["user", "admin"],
+        "order": 4,
+        "visible": true
+      },
+      {
+        "id": "managesite",
+        "title": "Admin",
+        "href": "/ManageSite",
+        "icon": "⚙️",
+        "roles": ["admin"],
+        "order": 5,
+        "visible": true
+      }
+    ],
+    "authButtons": {
+      "login": {
+        "title": "Login",
+        "href": "/Login",
+        "icon": "🔑",
+        "roles": ["anon"]
+      },
+      "logout": {
+        "title": "Logout",
+        "action": "logout",
+        "icon": "🚪",
+        "roles": ["user", "admin"]
+      }
+    },
+    "settings": {
+      "showIcons": true,
+      "mobileBreakpoint": "768px",
+      "maxMenuItems": 5,
+      "enableAnimations": true,
+      "theme": {
+        "style": "8bit",
+        "showPixelEffects": true,
+        "enableHoverSounds": false
+      }
+    },
+    "rolePermissions": {
+      "anon": {
+        "canAccessPublicPages": true,
+        "canAccessUserPages": false,
+        "canAccessAdminPages": false
+      },
+      "user": {
+        "canAccessPublicPages": true,
+        "canAccessUserPages": true,
+        "canAccessAdminPages": false
+      },
+      "admin": {
+        "canAccessPublicPages": true,
+        "canAccessUserPages": true,
+        "canAccessAdminPages": true
+      }
+    }
+  }
+}

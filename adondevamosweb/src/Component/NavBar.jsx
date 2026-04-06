@@ -3,12 +3,16 @@ import { useState, useEffect } from 'react';
 import '../Css/navbar.css';
 
 import { useAuth } from '../context/AuthContext';
+import { useNavbarConfig } from '../hooks/useNavbarConfig';
 
 export default function NavBar() {
   //evaluate session
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const {logout, isLogged, role} = useAuth();
+  
+  // Get navbar configuration based on user role
+  const { brand, menuItems, authButton, settings } = useNavbarConfig(role, isLogged);
 
   // Close menu when clicking on a link
   const closeMenu = () => setIsOpen(false);
@@ -26,7 +30,7 @@ export default function NavBar() {
     <header className={`navbar ${isScrolled ? 'scrolled' : ''}`}>
       <div className="navbar-container">
         <div className="navbar-brand">
-          <a href="/">AdondeVamos</a>
+          <a href={brand.href}>{brand.name}</a>
         </div>
         
         {/* Mobile menu button */}
@@ -35,34 +39,45 @@ export default function NavBar() {
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Menu"
         >
-          <span></span>
-          <span></span>
-          <span></span>
+          <span className="hamburger-line"></span>
+          <span className="hamburger-line"></span>
+          <span className="hamburger-line"></span>
         </button>
         
         {/* Navigation links */}
         <nav className={`navbar-links ${isOpen ? 'open' : ''}`}>
           <ul>
-            <li><a href="/" onClick={closeMenu}>Home</a></li>
-            <li><a href="/Trips" onClick={closeMenu}>Trips</a></li>
-            <li><a href="/Places" onClick={closeMenu}>Places</a></li>
-          {
-            isLogged 
-            ? (
-                role === "Admin" ? 
-                (<>
-                  <li><a href="/ManageSite" onClick={closeMenu}>Admin</a></li>
-                  <li><button onClick={ () =>logout()}>Logout</button></li>
-                </>) : 
-                (<>
-                  <li><button onClick={ () =>logout()}>Logout</button></li>
-                </>)
-              ) 
-               : 
-              (<>
-                <li><a href="/Login" onClick={closeMenu}>Login</a> </li>
-              </>)
-          }
+            {menuItems.map((item) => (
+              <li key={item.id}>
+                <a href={item.href} onClick={closeMenu}>
+                  {settings.showIcons && item.icon && (
+                    <span className="menu-icon" aria-hidden="true">{item.icon}</span>
+                  )}
+                  <span className="menu-text">{item.title}</span>
+                </a>
+              </li>
+            ))}
+            
+            {/* Auth button */}
+            {authButton && (
+              <li>
+                {authButton.action === 'logout' ? (
+                  <button onClick={() => logout()}>
+                    {settings.showIcons && authButton.icon && (
+                      <span className="button-icon" aria-hidden="true">{authButton.icon}</span>
+                    )}
+                    <span className="button-text">{authButton.title}</span>
+                  </button>
+                ) : (
+                  <a href={authButton.href} onClick={closeMenu}>
+                    {settings.showIcons && authButton.icon && (
+                      <span className="menu-icon" aria-hidden="true">{authButton.icon}</span>
+                    )}
+                    <span className="menu-text">{authButton.title}</span>
+                  </a>
+                )}
+              </li>
+            )}
           </ul>
         </nav>
       </div>

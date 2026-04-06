@@ -1,0 +1,120 @@
+{
+  "examples": {
+    "simpleConfig": {
+      "navbar": {
+        "brand": {
+          "name": "Simple Site",
+          "href": "/"
+        },
+        "menuItems": [
+          {
+            "id": "home",
+            "title": "Home",
+            "href": "/",
+            "roles": ["anon", "user", "admin"],
+            "order": 1,
+            "visible": true
+          },
+          {
+            "id": "about",
+            "title": "About",
+            "href": "/about",
+            "roles": ["anon", "user", "admin"],
+            "order": 2,
+            "visible": true
+          }
+        ],
+        "settings": {
+          "showIcons": false,
+          "theme": {
+            "style": "minimal"
+          }
+        }
+      }
+    },
+    "e-commerceConfig": {
+      "navbar": {
+        "brand": {
+          "name": "MyStore",
+          "href": "/"
+        },
+        "menuItems": [
+          {
+            "id": "products",
+            "title": "Products",
+            "href": "/products",
+            "icon": "🛍️",
+            "roles": ["anon", "user", "admin"],
+            "order": 1,
+            "visible": true
+          },
+          {
+            "id": "cart",
+            "title": "Cart",
+            "href": "/cart",
+            "icon": "🛒",
+            "roles": ["user", "admin"],
+            "order": 2,
+            "visible": true
+          },
+          {
+            "id": "orders",
+            "title": "Orders",
+            "href": "/orders",
+            "icon": "📦",
+            "roles": ["user", "admin"],
+            "order": 3,
+            "visible": true
+          },
+          {
+            "id": "dashboard",
+            "title": "Dashboard",
+            "href": "/admin",
+            "icon": "📊",
+            "roles": ["admin"],
+            "order": 4,
+            "visible": true
+          }
+        ]
+      }
+    },
+    "customizationOptions": {
+      "themeStyles": ["8bit", "minimal", "modern", "dark", "light"],
+      "iconSets": {
+        "default": {
+          "home": "🏠",
+          "trips": "✈️",
+          "places": "📍",
+          "profile": "👤",
+          "admin": "⚙️",
+          "login": "🔑",
+          "logout": "🚪"
+        },
+        "pixelArt": {
+          "home": "🏡",
+          "trips": "🚀",
+          "places": "🗺️",
+          "profile": "👨‍💻",
+          "admin": "🔧",
+          "login": "🎮",
+          "logout": "💾"
+        },
+        "business": {
+          "home": "🏢",
+          "trips": "📈",
+          "places": "📍",
+          "profile": "👔",
+          "admin": "📊",
+          "login": "🔐",
+          "logout": "📤"
+        }
+      },
+      "permissionLevels": {
+        "public": ["anon", "user", "admin"],
+        "authenticated": ["user", "admin"],
+        "premium": ["premium", "admin"],
+        "administrative": ["admin"]
+      }
+    }
+  }
+}

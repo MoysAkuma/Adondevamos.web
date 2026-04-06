@@ -474,6 +474,8 @@ Targets specified in `package.json`:
 ### Planned 📋
 - [ ] SEO
 - [ ] Zod
+- [ ] Notification Center
+- [ ] Invite to join by email
 ---
 
 ## 📄 License
