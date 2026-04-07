@@ -33,21 +33,39 @@
         "visible": true
       },
       {
+        "id": "ranking",
+        "title": "Ranking",
+        "href": "/Ranking",
+        "icon": "🏆",
+        "roles": ["anon", "user", "admin"],
+        "order": 4,
+        "visible": true
+      },
+      {
         "id": "profile",
         "title": "Profile",
         "href": "/Profile",
         "icon": "👤",
         "roles": ["user", "admin"],
-        "order": 4,
+        "order": 5,
+        "visible": true
+      },
+      {
+        "id": "faq",
+        "title": "FAQ",
+        "href": "/FAQ",
+        "icon": "❓",
+        "roles": ["anon", "user", "admin"],
+        "order": 6,
         "visible": true
       },
       {
         "id": "managesite",
-        "title": "Admin",
+        "title": "Settings",
         "href": "/ManageSite",
         "icon": "⚙️",
         "roles": ["admin"],
-        "order": 5,
+        "order": 7,
         "visible": true
       }
     ],

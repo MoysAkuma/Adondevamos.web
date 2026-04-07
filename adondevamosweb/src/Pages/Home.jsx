@@ -108,8 +108,8 @@ const StyledAvatar = styled(Avatar)(({ theme, avatarcolor }) => ({
     backgroundColor: avatarcolor || '#3D5A80',
     border: '2px solid #2C2C2C',
     borderRadius: 0,
-    width: 56,
-    height: 56,
+    width: 45,
+    height:45,
 }));
 
 const StepCard = ({ icon: Icon, title, subtitle, cardColor, avatarColor }) => (
@@ -175,7 +175,6 @@ function Home() {
           </StyledHeaderContent>
         </StyledHeaderCard>
 
-        {/* Navigation Section */}
         <StyledSectionCard>
           <StyledSectionHeader>
             <PixelTypography 
