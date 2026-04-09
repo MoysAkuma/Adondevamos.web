@@ -23,7 +23,7 @@ const StyledHeaderCard = styled(Card)(({ theme }) => ({
 }));
 
 const StyledHeaderContent = styled(CardContent)(({ theme }) => ({
-    backgroundColor: '#FFD700',
+    backgroundColor: '#3D5A80',
     color: '#2C2C2C',
     padding: theme.spacing(3),
     textAlign: 'center',

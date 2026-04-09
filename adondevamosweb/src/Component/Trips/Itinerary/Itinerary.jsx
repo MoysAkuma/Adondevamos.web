@@ -215,7 +215,8 @@ function Itinerary ({
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [favoriteItems, setFavoriteItems] = useState(new Map()); // Changed to Map to store vote state from API
-    const [voteCounts, setVoteCounts] = useState(new Map()); // Track vote counts separately
+    const [voteCounts, setVoteCounts] = useState(new Map()); // Track total vote counts separately
+    const [memberVoteCounts, setMemberVoteCounts] = useState(new Map()); // Track member vote counts separately
     const [filterVisible, setFilterVisible] = useState(false);
     const [showOnlyWithVotes, setShowOnlyWithVotes] = useState(false);
     const [sortByVotes, setSortByVotes] = useState(false);
@@ -251,9 +252,11 @@ function Itinerary ({
     const toggleFavorite = (placeId) => {
         const newFavorites = new Map(favoriteItems);
         const newVoteCounts = new Map(voteCounts);
+        const newMemberVoteCounts = new Map(memberVoteCounts);
         
         const currentState = newFavorites.get(placeId) || false;
         const currentCount = newVoteCounts.get(placeId) || 0;
+        const currentMemberCount = newMemberVoteCounts.get(placeId) || 0;
         
         // Toggle the favorite state
         const newState = !currentState;
@@ -263,8 +266,15 @@ function Itinerary ({
         const newCount = Math.max(0, currentCount + (newState ? 1 : -1));
         newVoteCounts.set(placeId, newCount);
         
+        // Update member vote count if user is member/owner
+        if (isOwnerOrMember) {
+            const newMemberCount = Math.max(0, currentMemberCount + (newState ? 1 : -1));
+            newMemberVoteCounts.set(placeId, newMemberCount);
+        }
+        
         setFavoriteItems(newFavorites);
         setVoteCounts(newVoteCounts);
+        setMemberVoteCounts(newMemberVoteCounts);
         
         if (callBackFavorite) {
             callBackFavorite(placeId, tripinfo.id);
@@ -405,20 +415,28 @@ function Itinerary ({
         if (tripinfo.itinerary) {
             const initialFavorites = new Map();
             const initialVoteCounts = new Map();
+            const initialMemberVoteCounts = new Map();
             
             tripinfo.itinerary.forEach(item => {
                 // Set favorite state (default to false if undefined)
                 initialFavorites.set(item.place.id, item.userVoted || false);
                 
-                // Set vote count (default to 0 if undefined)
-                const voteCount = item.votes?.total || 0;
-                initialVoteCounts.set(item.place.id, voteCount);
+                // Set vote count using new structure (default to 0 if undefined)
+                const totalVoteCount = item.votes?.total_votes || 0;
+                initialVoteCounts.set(item.place.id, totalVoteCount);
+                
+                // Set member vote count (only if user is owner/member)
+                if (isOwnerOrMember) {
+                    const memberVoteCount = item.votes?.members || 0;
+                    initialMemberVoteCounts.set(item.place.id, memberVoteCount);
+                }
             });
             
             setFavoriteItems(initialFavorites);
             setVoteCounts(initialVoteCounts);
+            setMemberVoteCounts(initialMemberVoteCounts);
         }
-    }, [tripinfo.itinerary]);
+    }, [tripinfo.itinerary, isOwnerOrMember]);
 
     // Update the max value for the slider based on unique dates
     const sliderMaxValue = Math.max(0, uniqueDates.length - 1);
@@ -611,7 +629,7 @@ function Itinerary ({
                                     px: 2,
                                 }}
                                 secondaryAction={
-                                    <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                    <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
                                         {/* Favorite Button - Only show if callback exists */}
                                         {callBackFavorite && (
                                             <StyledActionButton
@@ -628,24 +646,10 @@ function Itinerary ({
                                                     })
                                                 }}
                                             >
-                                                <Badge 
-                                                    badgeContent={voteCounts.get(visit.place.id) || 0} 
-                                                    color="error"
-                                                    sx={{
-                                                        '& .MuiBadge-badge': {
-                                                            fontSize: '0.6rem',
-                                                            minWidth: '18px',
-                                                            height: '18px',
-                                                            padding: '0 4px',
-                                                            fontFamily: '"Press Start 2P", cursive'
-                                                        }
-                                                    }}
-                                                >
-                                                    {(favoriteItems.get(visit.place.id) === true) ? 
-                                                        <Favorite sx={{ color: '#FFFFFF' }} /> : 
-                                                        <FavoriteBorder sx={{ color: '#2C2C2C' }} />
-                                                    }
-                                                </Badge>
+                                                {(favoriteItems.get(visit.place.id) === true) ? 
+                                                    <Favorite sx={{ color: '#FFFFFF' }} /> : 
+                                                    <FavoriteBorder sx={{ color: '#2C2C2C' }} />
+                                                }
                                             </StyledActionButton>
                                         )}
                                         
@@ -684,65 +688,135 @@ function Itinerary ({
                                 
                                 <ListItemText 
                                     primary={
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                                            <PixelTypography
-                                                component="span"
-                                                variant="body2" 
-                                                sx={{
-                                                    fontSize: { xs: '0.6rem', sm: '0.8rem' },
-                                                    color: '#2C2C2C',
-                                                    ...(callBackView && {
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                            {/* Truncated Place Name with Tooltip */}
+                                            <Tooltip title={visit.place.name} placement="top" arrow>
+                                                <PixelTypography
+                                                    component="span"
+                                                    variant="body2" 
+                                                    sx={{
+                                                        fontSize: { xs: '0.6rem', sm: '0.8rem' },
+                                                        color: '#2C2C2C',
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap',
+                                                        maxWidth: '275px',
                                                         cursor: 'pointer',
-                                                        '&:hover': {
-                                                            color: '#3D5A80',
-                                                            textDecoration: 'underline'
-                                                        },
+                                                        ...(callBackView && {
+                                                            '&:hover': {
+                                                                color: '#3D5A80',
+                                                                textDecoration: 'underline'
+                                                            }
+                                                        }),
                                                         transition: 'all 0.2s ease-in-out'
-                                                    })
-                                                }}
-                                                {...(callBackView && {
-                                                    onClick: () => callBackView(visit.place.id)
-                                                })}
-                                            >
-                                                {visit.place.name}
-                                            </PixelTypography>
+                                                    }}
+                                                    {...(callBackView && {
+                                                        onClick: () => callBackView(visit.place.id)
+                                                    })}
+                                                >
+                                                    {visit.place.name}
+                                                </PixelTypography>
+                                            </Tooltip>
+                                            
+                                            {/* Grouped Chips Section */}
+                                            <Box sx={{ 
+                                                display: 'flex', 
+                                                alignItems: 'center', 
+                                                gap: 0.5, 
+                                                flexWrap: 'wrap',
+                                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                                                padding: '4px 6px',
+                                                borderRadius: '2px',
+                                                border: '1px solid rgba(44, 44, 44, 0.2)'
+                                            }}>
+                                                {days && (
+                                                    <StyledChip
+                                                        label={`${days} day${days > 1 ? 's' : ''}`} 
+                                                        size="small" 
+                                                        sx={{ 
+                                                            fontSize: '0.4rem',
+                                                            height: '18px',
+                                                            backgroundColor: '#3D5A80',
+                                                            color: '#FFFFFF'
+                                                        }}
+                                                    />
+                                                )}
+                                                
+                                                <StyledChip
+                                                    label={visit.place.Country.acronym} 
+                                                    size="small" 
+                                                    sx={{ 
+                                                        fontSize: '0.4rem',
+                                                        height: '18px',
+                                                        backgroundColor: '#52B788',
+                                                        color: '#FFFFFF' 
+                                                    }}
+                                                />
+                                                
+                                                {/* Total Votes Chip */}
+                                                {(voteCounts.get(visit.place.id) || 0) > 0 && (
+                                                    <StyledChip
+                                                        label={voteCounts.get(visit.place.id) || 0}
+                                                        size="small"
+                                                        icon={<Favorite sx={{ fontSize: '0.6rem !important', color: '#E63946' }} />}
+                                                        sx={{
+                                                            fontSize: '0.4rem',
+                                                            height: '18px',
+                                                            backgroundColor: '#FFFFFF',
+                                                            color: '#2C2C2C',
+                                                            border: '1px solid #E63946',
+                                                            '& .MuiChip-label': {
+                                                                padding: '0 4px',
+                                                                paddingLeft: '2px'
+                                                            },
+                                                            '& .MuiChip-icon': {
+                                                                marginLeft: '2px',
+                                                                marginRight: '0px'
+                                                            }
+                                                        }}
+                                                    />
+                                                )}
+                                                
+                                                {/* Member Votes Chip */}
+                                                {isOwnerOrMember && memberVoteCounts.get(visit.place.id) > 0 && (
+                                                    <StyledChip
+                                                        label={`M: ${memberVoteCounts.get(visit.place.id)}`}
+                                                        size="small"
+                                                        sx={{
+                                                            fontSize: '0.4rem',
+                                                            height: '18px',
+                                                            backgroundColor: '#E63946',
+                                                            color: '#FFFFFF'
+                                                        }}
+                                                    />
+                                                )}
+                                                
+                                                <Divider 
+                                                    orientation="vertical" 
+                                                    flexItem 
+                                                    sx={{ 
+                                                        borderColor: '#2C2C2C',
+                                                        borderWidth: '1px',
+                                                        height: '12px',
+                                                        alignSelf: 'center'
+                                                    }} 
+                                                />
+                                                
+                                                <PixelTypography 
+                                                    component="span"
+                                                    variant="body2" 
+                                                    sx={{ 
+                                                        color: '#2C2C2C', 
+                                                        fontSize: '0.4rem',
+                                                        fontWeight: 'bold'
+                                                    }}
+                                                >
+                                                    {generateDateText(visit.initialdate, visit.finaldate)}
+                                                </PixelTypography>
+                                            </Box>
                                         </Box>
                                     }
                                     primaryTypographyProps={{ component: 'div' }}
-                                    secondary={
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                                            {days && (
-                                                <StyledChip
-                                                    label={`${days} day${days > 1 ? 's' : ''}`} 
-                                                    size="small" 
-                                                    sx={{ fontSize: '0.5rem' }}
-                                                />
-                                            )}
-                                            
-                                            <StyledChip
-                                                label={`${visit.place.Country.acronym} `} 
-                                                size="small" 
-                                                sx={{ 
-                                                    fontSize: '0.5rem',
-                                                    backgroundColor: '#52B788',
-                                                    color: '#FFFFFF' 
-                                                }}
-                                            />
-                                            <Divider flexItem sx={{ borderColor: '#2C2C2C' }} />
-                                            <PixelTypography 
-                                                component="span"
-                                                variant="body2" 
-                                                sx={{ 
-                                                    color: '#000000', 
-                                                    mt: 0.5,
-                                                    fontSize: { xs: '0.5rem', sm: '0.6rem' }
-                                                }}
-                                            >
-                                                {generateDateText(visit.initialdate, visit.finaldate)}
-                                            </PixelTypography>
-                                        </Box>
-                                    }
-                                    secondaryTypographyProps={{ component: 'div' }}
                                 />
                             </StyledListItem>
                         );

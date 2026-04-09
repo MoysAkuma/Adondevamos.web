@@ -10,10 +10,11 @@ import {
     Divider,
     Chip,
     Stack,
-    List
+    List,
+    Button
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { LocationOn, CalendarToday, Flight, ThumbUp, Place } from '@mui/icons-material';
+import { LocationOn, CalendarToday, Flight, ThumbUp, Place, Email } from '@mui/icons-material';
 import useProfileById from '../../hooks/Users/useProfileById';
 import TripListItem from '../Trips/TripListItem';
 import UserAvatar from '../Commons/UserAvatar';
@@ -30,11 +31,11 @@ const StyledHeaderCard = styled(Card)(({ theme }) => ({
     border: '4px solid #2C2C2C',
     boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
     marginBottom: theme.spacing(3),
-    backgroundColor: '#3D5A80',
+    backgroundColor: '#1E293B',
 }));
 
 const StyledHeaderContent = styled(CardContent)(({ theme }) => ({
-    backgroundColor: '#3D5A80',
+    backgroundColor: '#1E293B',
     color: '#FFFFFF',
     padding: theme.spacing(4),
     textAlign: 'center',
@@ -48,13 +49,13 @@ const StyledSectionCard = styled(Card)(({ theme }) => ({
 }));
 
 const StyledSectionHeader = styled(Box)(({ theme }) => ({
-    backgroundColor: '#52B788',
+    backgroundColor: '#0F766E',
     padding: theme.spacing(2),
     borderBottom: '4px solid #2C2C2C',
 }));
 
 const StyledSectionContent = styled(CardContent)(({ theme }) => ({
-    backgroundColor: '#E0AC69',
+    backgroundColor: '#F8FAFC',
     padding: theme.spacing(3),
     '&:last-child': {
         paddingBottom: theme.spacing(3),
@@ -70,12 +71,33 @@ const StyledInfoCard = styled(Card)(({ theme }) => ({
     border: '4px solid #2C2C2C',
     boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
     marginBottom: theme.spacing(3),
-    backgroundColor: '#E0AC69',
+    backgroundColor: '#F8FAFC',
 }));
 
 const StyledInfoContent = styled(CardContent)(({ theme }) => ({
-    backgroundColor: '#E0AC69',
+    backgroundColor: '#F8FAFC',
     padding: theme.spacing(3),
+}));
+
+const StyledEmailButton = styled(Button)(({ theme }) => ({
+    borderRadius: 0,
+    border: '3px solid #2C2C2C',
+    boxShadow: '4px 4px 0px rgba(0,0,0,0.3)',
+    backgroundColor: '#0F766E',
+    color: '#FFFFFF',
+    fontFamily: "'Press Start 2P', cursive",
+    fontSize: '0.6rem',
+    padding: theme.spacing(1.5, 3),
+    textTransform: 'none',
+    '&:hover': {
+        backgroundColor: '#134E4A',
+        boxShadow: '6px 6px 0px rgba(0,0,0,0.4)',
+        transform: 'translate(-1px, -1px)',
+    },
+    '&:active': {
+        transform: 'translate(2px, 2px)',
+        boxShadow: '2px 2px 0px rgba(0,0,0,0.3)',
+    },
 }));
 
 function ViewProfile() {
@@ -89,7 +111,7 @@ function ViewProfile() {
                 <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}>
                     <CircularProgress 
                         sx={{ 
-                            color: '#3D5A80'
+                            color: '#1E293B'
                         }} 
                     />
                 </Box>
@@ -244,7 +266,7 @@ function ViewProfile() {
                                 variant="h4" 
                                 sx={{ 
                                     fontSize: '1.5rem',
-                                    color: '#3D5A80'
+                                    color: '#1E293B'
                                 }}
                             >
                                 {voteCounts?.trips || 0}
@@ -266,7 +288,7 @@ function ViewProfile() {
                                 variant="h4" 
                                 sx={{ 
                                     fontSize: '1.5rem',
-                                    color: '#52B788'
+                                    color: '#0F766E'
                                 }}
                             >
                                 {voteCounts?.places || 0}
@@ -284,6 +306,19 @@ function ViewProfile() {
                             </PixelTypography>
                         </Box>
                     </Stack>
+
+                    <Divider sx={{ my: 3, borderColor: '#2C2C2C', borderWidth: 2 }} />
+
+                    <Box sx={{ textAlign: 'center' }}>
+                        <StyledEmailButton
+                            startIcon={<Email />}
+                            onClick={() => {
+                                window.location.href = `mailto:${user.email || ''}?subject=Hello from AdondeVamos`;
+                            }}
+                        >
+                            Send Email
+                        </StyledEmailButton>
+                    </Box>
                 </StyledInfoContent>
             </StyledInfoCard>
 

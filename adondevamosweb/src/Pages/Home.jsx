@@ -49,7 +49,7 @@ const StyledHeaderContent = styled(CardContent)(({ theme }) => ({
 
 const StyledSectionCard = styled(Card)(({ theme }) => ({
     borderRadius: 0,
-    border: '4px solid #2C2C2C',
+    border: '3px solid #2C2C2C',
     boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
     marginBottom: theme.spacing(3),
 }));
@@ -57,7 +57,7 @@ const StyledSectionCard = styled(Card)(({ theme }) => ({
 const StyledSectionHeader = styled(Box)(({ theme }) => ({
     backgroundColor: '#52B788',
     padding: theme.spacing(2),
-    borderBottom: '4px solid #2C2C2C',
+    borderBottom: '3px solid #2C2C2C',
 }));
 
 const StyledSectionContent = styled(CardContent)(({ theme }) => ({
@@ -90,7 +90,7 @@ const PixelTypography = styled(Typography)(({ theme }) => ({
 
 const StyledStepCard = styled(Paper)(({ theme, cardcolor }) => ({
     borderRadius: 0,
-    border: '4px solid #2C2C2C',
+    border: '3px solid #2C2C2C',
     boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
     backgroundColor: cardcolor || '#E0AC69',
     padding: theme.spacing(2),
@@ -108,8 +108,8 @@ const StyledAvatar = styled(Avatar)(({ theme, avatarcolor }) => ({
     backgroundColor: avatarcolor || '#3D5A80',
     border: '2px solid #2C2C2C',
     borderRadius: 0,
-    width: 56,
-    height: 56,
+    width: 45,
+    height:45,
 }));
 
 const StepCard = ({ icon: Icon, title, subtitle, cardColor, avatarColor }) => (
@@ -150,6 +150,12 @@ function Home() {
                 AdondeVamos.net
             </PixelTypography>
 
+          </StyledHeaderContent>
+
+        </StyledHeaderCard>
+
+        <StyledSectionCard>
+          <StyledSectionHeader>
             <PixelTypography 
                 variant="body1" 
                 sx={{ 
@@ -161,7 +167,8 @@ function Home() {
             >
                 What is Adondevamos?
             </PixelTypography>
-
+          </StyledSectionHeader>
+          <StyledSectionContent>
             <PixelTypography 
                 variant="body2" 
                 sx={{ 
@@ -172,10 +179,8 @@ function Home() {
             >
                 AdondeVamos is a platform designed to help you plan trips with your friends by allowing everyone to suggest and vote on places to visit.
             </PixelTypography>
-          </StyledHeaderContent>
-        </StyledHeaderCard>
-
-        {/* Navigation Section */}
+          </StyledSectionContent>
+        </StyledSectionCard>
         <StyledSectionCard>
           <StyledSectionHeader>
             <PixelTypography 

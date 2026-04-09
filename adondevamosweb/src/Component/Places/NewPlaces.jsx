@@ -68,13 +68,10 @@ function NewPlaces() {
 
     return (
         <>
-        <Paper
-            elevation={1}
-            sx={{ p : 2, borderRadius : 2, backgroundColor : "rgba(255, 255, 255, 0.9)"}}
-        >
+       
             <Stack spacing={2} 
             divider={<Divider />}
-            sx={{ overflowX: 'auto', padding: 1, marginTop: 1 }}>
+            sx={{ overflowX: 'auto' }}>
                 {isLoading ? (
                     [1, 2, 3].map((skeletonId) => renderPlaceCardSkeleton(skeletonId))
                 ) : (
@@ -87,7 +84,7 @@ function NewPlaces() {
                     (<></>)
                 )}
             </Stack>
-      </Paper>
+      
       </>
     );
 }

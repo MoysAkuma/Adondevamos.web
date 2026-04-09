@@ -8,12 +8,16 @@ import { useAuth } from "../../context/AuthContext";
 import { Container } from "@mui/system";
 import { NotListedLocation, Menu as MenuIcon } from "@mui/icons-material";
 import UserProfileAvatar from "../Users/UserProfileAvatar";
+import { useNavbarConfig } from "../../hooks/useNavbarConfig";
 
 export default function AppBarComp() {
-    const { isLogged, loading, role, logout, hasRole } = useAuth();
+    const { isLogged, loading, role, logout } = useAuth();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    
+    // Get navbar configuration based on user role
+    const { brand, menuItems, authButton, settings } = useNavbarConfig(role, isLogged);
 
-    const settings = [{text :'Profile', path: '/Profile'}, {text: 'Logout', path: '/Logout'}];
+    const userSettings = [{text :'Profile', path: '/Profile'}, {text: 'Logout', path: '/Logout'}];
 
     const toggleMobileMenu = () => {
         setMobileMenuOpen(!mobileMenuOpen);
@@ -21,7 +25,13 @@ export default function AppBarComp() {
 
     const handleLogout = async () => {
         await logout();
-    }
+    };
+
+    const handleAuthAction = () => {
+        if (authButton?.action === 'logout') {
+            handleLogout();
+        }
+    };
 
     return (
         <>
@@ -30,8 +40,8 @@ export default function AppBarComp() {
                 <Toolbar disableGutters>
                     <NotListedLocation sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
-                            AdondeVamos
+                        <Link to={brand.href} style={{ textDecoration: 'none', color: 'inherit' }}>
+                            {brand.name}
                         </Link>
                     </Typography>
                     
@@ -43,45 +53,39 @@ export default function AppBarComp() {
                         <>
                             {/* Desktop Menu */}
                             <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center' }}>
+                                {/* Regular menu items */}
+                                {menuItems.map((item) => (
+                                    item.id !== 'profile' && (
+                                        <Button 
+                                            key={item.id}
+                                            color="inherit" 
+                                            component={Link} 
+                                            to={item.href}
+                                        >
+                                            {settings.showIcons && item.icon && (
+                                                <span style={{ marginRight: '4px' }}>{item.icon}</span>
+                                            )}
+                                            {item.title}
+                                        </Button>
+                                    )
+                                ))}
+                                
+                                {/* Auth button or user avatar */}
                                 {isLogged ? (
-                                    <>
-                                        {hasRole('admin') && (
-                                            <Button color="inherit" component={Link} to="/ManageSite">
-                                                Manage Site
-                                            </Button>
-                                        )}
-                                        <Button color="inherit" component={Link} to="/Trips">
-                                            Trips
-                                        </Button>
-                                        <Button color="inherit" component={Link} to="/Places">
-                                            Places
-                                        </Button>
-                                        <Button color="inherit" component={Link} to="/Ranking">
-                                            Ranking
-                                        </Button>
-                                        <Button color="inherit" component={Link} to="/FAQ">
-                                            FAQ
-                                        </Button>
-                                        <UserProfileAvatar settings={settings} />
-                                    </>
+                                    <UserProfileAvatar settings={userSettings} />
                                 ) : (
-                                    <>
-                                        <Button color="inherit" component={Link} to="/Trips">
-                                            Trips
+                                    authButton && (
+                                        <Button 
+                                            color="inherit" 
+                                            component={Link} 
+                                            to={authButton.href}
+                                        >
+                                            {settings.showIcons && authButton.icon && (
+                                                <span style={{ marginRight: '4px' }}>{authButton.icon}</span>
+                                            )}
+                                            {authButton.title}
                                         </Button>
-                                        <Button color="inherit" component={Link} to="/Places">
-                                            Places
-                                        </Button>
-                                        <Button color="inherit" component={Link} to="/Ranking">
-                                            Ranking
-                                        </Button>
-                                        <Button color="inherit" component={Link} to="/FAQ">
-                                            FAQ
-                                        </Button>
-                                        <Button color="inherit" component={Link} to="/Login">
-                                            Login
-                                        </Button>
-                                    </>
+                                    )
                                 )}
                             </Box>
 
@@ -115,75 +119,55 @@ export default function AppBarComp() {
                 onClick={toggleMobileMenu}
             >
                 <List>
-                    {isLogged ? (
-                        <>
-                            {hasRole('admin') && (
-                                <ListItem disablePadding>
-                                    <ListItemButton component={Link} to="/ManageSite">
-                                        <ListItemText primary="Manage Site" />
-                                    </ListItemButton>
-                                </ListItem>
+                    {/* Regular menu items */}
+                    {menuItems.map((item) => (
+                        <ListItem key={item.id} disablePadding>
+                            <ListItemButton component={Link} to={item.href}>
+                                <ListItemText 
+                                    primary={
+                                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                            {settings.showIcons && item.icon && (
+                                                <span style={{ marginRight: '8px' }}>{item.icon}</span>
+                                            )}
+                                            {item.title}
+                                        </Box>
+                                    } 
+                                />
+                            </ListItemButton>
+                        </ListItem>
+                    ))}
+                    
+                    {/* Auth button */}
+                    {authButton && (
+                        <ListItem disablePadding>
+                            {authButton.action === 'logout' ? (
+                                <ListItemButton onClick={handleAuthAction}>
+                                    <ListItemText 
+                                        primary={
+                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                {settings.showIcons && authButton.icon && (
+                                                    <span style={{ marginRight: '8px' }}>{authButton.icon}</span>
+                                                )}
+                                                {authButton.title}
+                                            </Box>
+                                        } 
+                                    />
+                                </ListItemButton>
+                            ) : (
+                                <ListItemButton component={Link} to={authButton.href}>
+                                    <ListItemText 
+                                        primary={
+                                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                {settings.showIcons && authButton.icon && (
+                                                    <span style={{ marginRight: '8px' }}>{authButton.icon}</span>
+                                                )}
+                                                {authButton.title}
+                                            </Box>
+                                        } 
+                                    />
+                                </ListItemButton>
                             )}
-                            <ListItem disablePadding>
-                                <ListItemButton component={Link} to="/Trips">
-                                    <ListItemText primary="Trips" />
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem disablePadding>
-                                <ListItemButton component={Link} to="/Places">
-                                    <ListItemText primary="Places" />
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem disablePadding>
-                                <ListItemButton component={Link} to="/Ranking">
-                                    <ListItemText primary="Ranking" />
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem disablePadding>
-                                <ListItemButton component={Link} to="/FAQ">
-                                    <ListItemText primary="FAQ" />
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem disablePadding>
-                                <ListItemButton component={Link} to="/Profile">
-                                    <ListItemText primary="Profile" />
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem disablePadding>
-                                <ListItemButton component={Link} to="/" 
-                                onClick={handleLogout}>
-                                    <ListItemText primary="Logout" />
-                                </ListItemButton>
-                            </ListItem>
-                        </>
-                    ) : (
-                        <>
-                            <ListItem disablePadding>
-                                <ListItemButton component={Link} to="/Trips">
-                                    <ListItemText primary="Trips" />
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem disablePadding>
-                                <ListItemButton component={Link} to="/Places">
-                                    <ListItemText primary="Places" />
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem disablePadding>
-                                <ListItemButton component={Link} to="/Ranking">
-                                    <ListItemText primary="Ranking" />
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem disablePadding>
-                                <ListItemButton component={Link} to="/FAQ">
-                                    <ListItemText primary="FAQ" />
-                                </ListItemButton>
-                            </ListItem>
-                            <ListItem disablePadding>
-                                <ListItemButton component={Link} to="/Login">
-                                    <ListItemText primary="Login" />
-                                </ListItemButton>
-                            </ListItem>
-                        </>
+                        </ListItem>
                     )}
                 </List>
             </Box>

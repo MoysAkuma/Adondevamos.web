@@ -18,7 +18,7 @@ import
         CardMedia,
         Stack
     } from '@mui/material';
-import { Visibility, Edit, FavoriteBorder, EditLocation } from '@mui/icons-material'
+import { Visibility, Edit, FavoriteBorder, EditLocation, PersonAdd, AddLocation } from '@mui/icons-material'
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import useTripById from '../../hooks/Trips/useTripById';
@@ -180,8 +180,8 @@ function ViewTrip(){
         // Check if user is owner
         if (tripInfo.owner.id === parseInt(user)) return true;
         
-        // Check if user is member
-        return tripInfo.members.some(member => member.userid === parseInt(user));
+        // Check if user is in member list
+        return tripInfo.members.some(member => member.user.id === parseInt(user));
     };
 
     const showSnackbar = (message, severity = 'info') => {
@@ -235,6 +235,19 @@ function ViewTrip(){
         navigate(`/Edit/Itinerary/${id}`);
     };
 
+    const handleEditMembers = () => {
+        navigate(`/Edit/Members/${id}`);
+    };
+
+    const handleAddPlace = () => {
+        // Navigate to appropriate edit page based on user role
+        if (isOwner) {
+            navigate(`/Edit/Trip/${id}`);
+        } else {
+            navigate(`/Edit/Itinerary/${id}`);
+        }
+    };
+
     const goToViewProfile = (userId) => {
         if (!userId) return;
         navigate('/View/User/' + userId);
@@ -269,36 +282,87 @@ function ViewTrip(){
     
     if (notFound) {
         return (
-            <Alert severity="warning" sx={{ mt: 2 }}>
-                Trip not found
-            </Alert>
+            <StyledContainer>
+                <Alert 
+                    severity="warning" 
+                    sx={{ 
+                        mt: 2,
+                        borderRadius: 0,
+                        border: '4px solid #2C2C2C',
+                        boxShadow: '6px 6px 0px rgba(0,0,0,0.3)',
+                        backgroundColor: '#FEF3C7',
+                        color: '#2C2C2C',
+                        fontFamily: "'Press Start 2P', cursive",
+                        fontSize: '0.7rem',
+                        lineHeight: 1.6,
+                        '& .MuiAlert-icon': {
+                            fontSize: '1rem',
+                            color: '#D97706'
+                        }
+                    }}
+                >
+                    Trip not found
+                </Alert>
+            </StyledContainer>
         );
     }
     
     if (error) {
         return (
-            <Alert severity="error" sx={{ mt: 2 }}>
-                Error: {error}
-            </Alert>
+            <StyledContainer>
+                <Alert 
+                    severity="error" 
+                    sx={{ 
+                        mt: 2,
+                        borderRadius: 0,
+                        border: '4px solid #2C2C2C',
+                        boxShadow: '6px 6px 0px rgba(0,0,0,0.3)',
+                        backgroundColor: '#FEE2E2',
+                        color: '#2C2C2C',
+                        fontFamily: "'Press Start 2P', cursive",
+                        fontSize: '0.7rem',
+                        lineHeight: 1.6,
+                        '& .MuiAlert-icon': {
+                            fontSize: '1rem',
+                            color: '#DC2626'
+                        }
+                    }}
+                >
+                    Error: {error}
+                </Alert>
+            </StyledContainer>
         );
     }
     
     if (!tripInfo) {
         return (
-            <Alert severity="warning" sx={{ mt: 2 }}>
-                Trip not found
-            </Alert>
+            <StyledContainer>
+                <Alert 
+                    severity="warning" 
+                    sx={{ 
+                        mt: 2,
+                        borderRadius: 0,
+                        border: '4px solid #2C2C2C',
+                        boxShadow: '6px 6px 0px rgba(0,0,0,0.3)',
+                        backgroundColor: '#FEF3C7',
+                        color: '#2C2C2C',
+                        fontFamily: "'Press Start 2P', cursive",
+                        fontSize: '0.7rem',
+                        lineHeight: 1.6,
+                        '& .MuiAlert-icon': {
+                            fontSize: '1rem',
+                            color: '#D97706'
+                        }
+                    }}
+                >
+                    Trip not found
+                </Alert>
+            </StyledContainer>
         );
     }
     return (
         <StyledContainer>
-            {/* Banner Image */}
-            <StyledBanner
-                component="img"
-                image={getBannerImage()}
-                alt="Trip banner"
-            />
-
+            
             {/* Header Section */}
             <StyledHeaderCard>
                 <StyledHeaderContent>
@@ -360,19 +424,46 @@ function ViewTrip(){
                     </Stack>
                 </StyledHeaderContent>
             </StyledHeaderCard>
+            <StyledBanner
+                component="img"
+                image={getBannerImage()}
+                alt="Trip banner"
+            />
 
             {/* Members Section */}
             <StyledSectionCard>
                 <StyledSectionHeader>
-                    <PixelTypography 
-                        variant="h5" 
-                        sx={{ 
-                            fontSize: { xs: '0.8rem', sm: '1rem' },
-                            color: '#FFFFFF'
-                        }}
-                    >
-                        Members
-                    </PixelTypography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <PixelTypography 
+                            variant="h5" 
+                            sx={{ 
+                                fontSize: { xs: '0.8rem', sm: '1rem' },
+                                color: '#FFFFFF'
+                            }}
+                        >
+                            Members
+                        </PixelTypography>
+                        {isOwnerOrMember() && (
+                            <Tooltip title="Manage members">
+                                <StyledActionButton
+                                    onClick={handleEditMembers}
+                                    size="small"
+                                    sx={{ 
+                                        padding: '6px',
+                                        minWidth: 'auto',
+                                        backgroundColor: '#FFFFFF',
+                                        '&:hover': {
+                                            backgroundColor: '#F8F8F8',
+                                            transform: 'translateY(-1px)',
+                                            boxShadow: '2px 2px 0px #2C2C2C'
+                                        }
+                                    }}
+                                >
+                                    <PersonAdd sx={{ fontSize: '1rem' }} />
+                                </StyledActionButton>
+                            </Tooltip>
+                        )}
+                    </Box>
                 </StyledSectionHeader>
                 <StyledSectionContent>
                     {tripInfo.members.length !== 0 ? (
@@ -382,9 +473,22 @@ function ViewTrip(){
                             severity="warning"
                             sx={{
                                 borderRadius: 0,
-                                border: '2px solid #2C2C2C',
+                                border: '4px solid #2C2C2C',
+                                boxShadow: '6px 6px 0px rgba(0,0,0,0.3)',
+                                backgroundColor: '#FEF3C7',
+                                color: '#2C2C2C',
                                 fontFamily: "'Press Start 2P', cursive",
-                                fontSize: '0.6rem'
+                                fontSize: '0.6rem',
+                                lineHeight: 1.6,
+                                padding: '16px',
+                                '& .MuiAlert-icon': {
+                                    fontSize: '1rem',
+                                    color: '#D97706'
+                                },
+                                '& .MuiAlert-message': {
+                                    padding: 0,
+                                    fontFamily: "'Press Start 2P', cursive"
+                                }
                             }}
                         >
                             This trip has no member list yet.
@@ -395,15 +499,37 @@ function ViewTrip(){
             {/* Itinerary Section */}
             <StyledSectionCard>
                 <StyledSectionHeader>
-                    <PixelTypography 
-                        variant="h5" 
-                        sx={{ 
-                            fontSize: { xs: '0.8rem', sm: '1rem' },
-                            color: '#FFFFFF'
-                        }}
-                    >
-                        Itinerary
-                    </PixelTypography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <PixelTypography 
+                            variant="h5" 
+                            sx={{ 
+                                fontSize: { xs: '0.8rem', sm: '1rem' },
+                                color: '#FFFFFF'
+                            }}
+                        >
+                            Itinerary
+                        </PixelTypography>
+                        {isOwnerOrMember() && (
+                            <Tooltip title="Add place">
+                                <StyledActionButton
+                                    onClick={handleAddPlace}
+                                    size="small"
+                                    sx={{ 
+                                        padding: '6px',
+                                        minWidth: 'auto',
+                                        backgroundColor: '#FFFFFF',
+                                        '&:hover': {
+                                            backgroundColor: '#F8F8F8',
+                                            transform: 'translateY(-1px)',
+                                            boxShadow: '2px 2px 0px #2C2C2C'
+                                        }
+                                    }}
+                                >
+                                    <AddLocation sx={{ fontSize: '1rem' }} />
+                                </StyledActionButton>
+                            </Tooltip>
+                        )}
+                    </Box>
                 </StyledSectionHeader>
                 <StyledSectionContent>
                     <Itinerary 
@@ -412,14 +538,6 @@ function ViewTrip(){
                         callBackView={(placeId) => {
                             if (!placeId) return;
                             navigate('/View/Place/' + placeId);
-                        }}
-                        callBackAddPlace={() => {
-                            // Navigate to appropriate edit page based on user role
-                            if (isOwner) {
-                                navigate(`/Edit/Trip/${id}`);
-                            } else {
-                                navigate(`/Edit/Itinerary/${id}`);
-                            }
                         }}
                         callBackFavorite={isOwnerOrMember() ? async (placeId, tripId) => {
                             if (!user) {
@@ -493,17 +611,6 @@ function ViewTrip(){
                                 size="medium"
                             >
                                 <Edit />
-                            </StyledActionButton>
-                        </Tooltip>
-                    )}
-
-                    {isOwnerOrMember() && !isOwner && (
-                        <Tooltip title="Edit itinerary">
-                            <StyledActionButton
-                                onClick={handleEditItinerary}
-                                size="medium"
-                            >
-                                <EditLocation />
                             </StyledActionButton>
                         </Tooltip>
                     )}
