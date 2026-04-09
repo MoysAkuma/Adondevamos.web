@@ -282,25 +282,82 @@ function ViewTrip(){
     
     if (notFound) {
         return (
-            <Alert severity="warning" sx={{ mt: 2 }}>
-                Trip not found
-            </Alert>
+            <StyledContainer>
+                <Alert 
+                    severity="warning" 
+                    sx={{ 
+                        mt: 2,
+                        borderRadius: 0,
+                        border: '4px solid #2C2C2C',
+                        boxShadow: '6px 6px 0px rgba(0,0,0,0.3)',
+                        backgroundColor: '#FEF3C7',
+                        color: '#2C2C2C',
+                        fontFamily: "'Press Start 2P', cursive",
+                        fontSize: '0.7rem',
+                        lineHeight: 1.6,
+                        '& .MuiAlert-icon': {
+                            fontSize: '1rem',
+                            color: '#D97706'
+                        }
+                    }}
+                >
+                    Trip not found
+                </Alert>
+            </StyledContainer>
         );
     }
     
     if (error) {
         return (
-            <Alert severity="error" sx={{ mt: 2 }}>
-                Error: {error}
-            </Alert>
+            <StyledContainer>
+                <Alert 
+                    severity="error" 
+                    sx={{ 
+                        mt: 2,
+                        borderRadius: 0,
+                        border: '4px solid #2C2C2C',
+                        boxShadow: '6px 6px 0px rgba(0,0,0,0.3)',
+                        backgroundColor: '#FEE2E2',
+                        color: '#2C2C2C',
+                        fontFamily: "'Press Start 2P', cursive",
+                        fontSize: '0.7rem',
+                        lineHeight: 1.6,
+                        '& .MuiAlert-icon': {
+                            fontSize: '1rem',
+                            color: '#DC2626'
+                        }
+                    }}
+                >
+                    Error: {error}
+                </Alert>
+            </StyledContainer>
         );
     }
     
     if (!tripInfo) {
         return (
-            <Alert severity="warning" sx={{ mt: 2 }}>
-                Trip not found
-            </Alert>
+            <StyledContainer>
+                <Alert 
+                    severity="warning" 
+                    sx={{ 
+                        mt: 2,
+                        borderRadius: 0,
+                        border: '4px solid #2C2C2C',
+                        boxShadow: '6px 6px 0px rgba(0,0,0,0.3)',
+                        backgroundColor: '#FEF3C7',
+                        color: '#2C2C2C',
+                        fontFamily: "'Press Start 2P', cursive",
+                        fontSize: '0.7rem',
+                        lineHeight: 1.6,
+                        '& .MuiAlert-icon': {
+                            fontSize: '1rem',
+                            color: '#D97706'
+                        }
+                    }}
+                >
+                    Trip not found
+                </Alert>
+            </StyledContainer>
         );
     }
     return (
@@ -416,9 +473,22 @@ function ViewTrip(){
                             severity="warning"
                             sx={{
                                 borderRadius: 0,
-                                border: '2px solid #2C2C2C',
+                                border: '4px solid #2C2C2C',
+                                boxShadow: '6px 6px 0px rgba(0,0,0,0.3)',
+                                backgroundColor: '#FEF3C7',
+                                color: '#2C2C2C',
                                 fontFamily: "'Press Start 2P', cursive",
-                                fontSize: '0.6rem'
+                                fontSize: '0.6rem',
+                                lineHeight: 1.6,
+                                padding: '16px',
+                                '& .MuiAlert-icon': {
+                                    fontSize: '1rem',
+                                    color: '#D97706'
+                                },
+                                '& .MuiAlert-message': {
+                                    padding: 0,
+                                    fontFamily: "'Press Start 2P', cursive"
+                                }
                             }}
                         >
                             This trip has no member list yet.
