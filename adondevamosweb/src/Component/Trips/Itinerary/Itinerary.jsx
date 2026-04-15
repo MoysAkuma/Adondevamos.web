@@ -132,7 +132,7 @@ const StyledActionButton = styled(IconButton)(({ theme }) => ({
     backgroundColor: '#FFFFFF',
     borderRadius: 0,
     border: '2px solid #2C2C2C',
-    padding: theme.spacing(1),
+    padding: theme.spacing(0.5),
     margin: theme.spacing(0, 0.25),
     '&:hover': {
         backgroundColor: '#F8F8F8',
@@ -334,10 +334,24 @@ function Itinerary ({
         );
     }
 
-    // Sort itinerary by initial date
-    const sortedItinerary = tripinfo.itinerary ? [...tripinfo.itinerary].sort((a, b) => 
-        new Date(a.initialdate) - new Date(b.initialdate)
-    ) : [];
+    // Sort itinerary by date - primary: initial date, secondary: final date
+    const sortedItinerary = tripinfo.itinerary ? [...tripinfo.itinerary].sort((a, b) => {
+        // Parse initial dates
+        const dateA = new Date(a.initialdate);
+        const dateB = new Date(b.initialdate);
+        
+        // Primary sort by initial date
+        const initialDateComparison = dateA.getTime() - dateB.getTime();
+        
+        // If initial dates are the same, sort by final date
+        if (initialDateComparison === 0) {
+            const finalDateA = new Date(a.finaldate);
+            const finalDateB = new Date(b.finaldate);
+            return finalDateA.getTime() - finalDateB.getTime();
+        }
+        
+        return initialDateComparison;
+    }) : [];
 
     // Group itinerary by date (initial date)
     const groupedByDate = sortedItinerary.reduce((acc, visit) => {
@@ -688,20 +702,18 @@ function Itinerary ({
                                 
                                 <ListItemText 
                                     primary={
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                            {/* Truncated Place Name with Tooltip */}
-                                            <Tooltip title={visit.place.name} placement="top" arrow>
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                                            {/* Place Name with More Space */}
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                 <PixelTypography
                                                     component="span"
-                                                    variant="body2" 
+                                                    variant="body1" 
                                                     sx={{
-                                                        fontSize: { xs: '0.6rem', sm: '0.8rem' },
+                                                        fontSize: { xs: '0.7rem', sm: '0.9rem' },
                                                         color: '#2C2C2C',
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis',
-                                                        whiteSpace: 'nowrap',
-                                                        maxWidth: '275px',
+                                                        fontWeight: 'bold',
                                                         cursor: 'pointer',
+                                                        flex: 1,
                                                         ...(callBackView && {
                                                             '&:hover': {
                                                                 color: '#3D5A80',
@@ -716,18 +728,18 @@ function Itinerary ({
                                                 >
                                                     {visit.place.name}
                                                 </PixelTypography>
-                                            </Tooltip>
+                                            </Box>
                                             
-                                            {/* Grouped Chips Section */}
+                                            {/* Chips Section */}
                                             <Box sx={{ 
                                                 display: 'flex', 
                                                 alignItems: 'center', 
                                                 gap: 0.5, 
                                                 flexWrap: 'wrap',
-                                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                                                padding: '4px 6px',
-                                                borderRadius: '2px',
-                                                border: '1px solid rgba(44, 44, 44, 0.2)'
+                                                backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                                                padding: '6px 8px',
+                                                borderRadius: '3px',
+                                                border: '1px solid rgba(44, 44, 44, 0.3)'
                                             }}>
                                                 {days && (
                                                     <StyledChip
@@ -735,7 +747,7 @@ function Itinerary ({
                                                         size="small" 
                                                         sx={{ 
                                                             fontSize: '0.4rem',
-                                                            height: '18px',
+                                                            height: '20px',
                                                             backgroundColor: '#3D5A80',
                                                             color: '#FFFFFF'
                                                         }}
@@ -747,7 +759,7 @@ function Itinerary ({
                                                     size="small" 
                                                     sx={{ 
                                                         fontSize: '0.4rem',
-                                                        height: '18px',
+                                                        height: '20px',
                                                         backgroundColor: '#52B788',
                                                         color: '#FFFFFF' 
                                                     }}
@@ -761,7 +773,7 @@ function Itinerary ({
                                                         icon={<Favorite sx={{ fontSize: '0.6rem !important', color: '#E63946' }} />}
                                                         sx={{
                                                             fontSize: '0.4rem',
-                                                            height: '18px',
+                                                            height: '20px',
                                                             backgroundColor: '#FFFFFF',
                                                             color: '#2C2C2C',
                                                             border: '1px solid #E63946',
@@ -784,34 +796,33 @@ function Itinerary ({
                                                         size="small"
                                                         sx={{
                                                             fontSize: '0.4rem',
-                                                            height: '18px',
+                                                            height: '20px',
                                                             backgroundColor: '#E63946',
                                                             color: '#FFFFFF'
                                                         }}
                                                     />
                                                 )}
-                                                
-                                                <Divider 
-                                                    orientation="vertical" 
-                                                    flexItem 
-                                                    sx={{ 
-                                                        borderColor: '#2C2C2C',
-                                                        borderWidth: '1px',
-                                                        height: '12px',
-                                                        alignSelf: 'center'
-                                                    }} 
-                                                />
-                                                
+                                            </Box>
+                                            
+                                            {/* Separate Date Section */}
+                                            <Box sx={{ 
+                                                display: 'flex', 
+                                                alignItems: 'center',
+                                                backgroundColor: 'rgba(44, 44, 44, 0.1)',
+                                                padding: '4px 8px',
+                                                borderRadius: '2px',
+                                                border: '1px solid rgba(44, 44, 44, 0.2)'
+                                            }}>
                                                 <PixelTypography 
                                                     component="span"
                                                     variant="body2" 
                                                     sx={{ 
                                                         color: '#2C2C2C', 
-                                                        fontSize: '0.4rem',
+                                                        fontSize: '0.5rem',
                                                         fontWeight: 'bold'
                                                     }}
                                                 >
-                                                    {generateDateText(visit.initialdate, visit.finaldate)}
+                                                    📅 {generateDateText(visit.initialdate, visit.finaldate)}
                                                 </PixelTypography>
                                             </Box>
                                         </Box>
