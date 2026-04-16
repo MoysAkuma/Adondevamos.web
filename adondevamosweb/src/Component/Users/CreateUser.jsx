@@ -18,6 +18,7 @@ import { Person } from '@mui/icons-material';
 
 import FormUser from "./FormUser";
 import config from "../../Resources/config";
+import useCatalogues from "../../hooks/useCatalogues";
 
 function CreateUser(){
     const theme = useTheme();
@@ -206,21 +207,14 @@ function CreateUser(){
         setConfirmPassword('');
     };
 
-    useEffect(()=> {
-        //getCatalogues
-        const getCatalogues = async() => {
-            try {
-                const response = await axios.get(`${URLsCatalogService.Catalogues}/all`);
-                const data = response.data.info;
-                setAllCatalogues(data);
-                setLoading(false);
-            } catch (error) {
+    const { catalogues, loading: cataloguesLoading } = useCatalogues();
 
-            }
-        };
-        
-        getCatalogues();
-    },[URLsCatalogService.Catalogues]);
+    useEffect(() => {
+        if (!cataloguesLoading) {
+            setAllCatalogues(catalogues);
+            setLoading(false);
+        }
+    }, [cataloguesLoading, catalogues]);
 
     if (loading) {
         setLoading(false)

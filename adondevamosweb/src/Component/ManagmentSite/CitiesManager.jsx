@@ -26,7 +26,8 @@ function CitiesManager({id,
     callback,
     cities = [],
     states = [],
-    countries = []
+    countries = [],
+    onUpdate
 }){
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -113,6 +114,11 @@ function CitiesManager({id,
         setCityID(null);
         setInfoToEdit(null);
         reloadCities();
+        
+        // Refresh cached catalogues
+        if (onUpdate) {
+            onUpdate();
+        }
     };
     const reloadCities = async() => {
         try {
@@ -139,6 +145,11 @@ function CitiesManager({id,
         try {
             await axios.patch(`${config.api.baseUrl}${config.api.endpoints.Catalogues}/city/${item.id}`, { hide: !item.hide });
             reloadCities();
+            
+            // Refresh cached catalogues
+            if (onUpdate) {
+                onUpdate();
+            }
         } catch (error) {
             setSubmitError(error.response?.data?.message || error.message);
             console.error('Error toggling city visibility:', error);

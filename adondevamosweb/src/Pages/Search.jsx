@@ -189,7 +189,7 @@ export default function Search() {
         }).catch( (error) => {
             if (error.response?.status === 404) {
                 setSearchResults([]);
-                setSnackbar({ open: true, message: 'No data was found', severity: 'warning' });
+                setSnackbar({ open: true, message: 'No data was found', severity: 'info' });
             } else {
                 console.error("There was an error searching trips by filters!", error);
                 setSnackbar({ open: true, message: 'Error searching trips', severity: 'error' });
@@ -206,7 +206,7 @@ export default function Search() {
             .catch((error) => {
                 if (error.response?.status === 404) {
                     setSearchResults([]);
-                    setSnackbar({ open: true, message: 'No data was found', severity: 'warning' });
+                    setSnackbar({ open: true, message: 'No data was found', severity: 'info' });
                 } else {
                     console.error("There was an error searching places by filters!", error);
                     setSnackbar({ open: true, message: 'Error searching places', severity: 'error' });

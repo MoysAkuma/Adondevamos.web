@@ -15,6 +15,7 @@ import { useParams } from 'react-router-dom';
 
 import FormUser from "./FormUser";
 import config from "../../Resources/config";
+import useCatalogues from "../../hooks/useCatalogues";
 
 function EditUser() {
     const theme = useTheme();
@@ -23,6 +24,9 @@ function EditUser() {
     
     // Get user id from URL params
     const { id } = useParams();
+    
+    // Get catalogues from hook
+    const { catalogues, loading: cataloguesLoading } = useCatalogues();
     
     //URLS
     const URLsCatalogService = {
@@ -179,10 +183,11 @@ function EditUser() {
         //getCatalogues and user data
         const initializeData = async () => {
             try {
-                // Get catalogues
-                const cataloguesResponse = await axios.get(`${URLsCatalogService.Catalogues}/all`);
-                const cataloguesData = cataloguesResponse.data.info;
-                setAllCatalogues(cataloguesData);
+                // Wait for catalogues to load
+                if (cataloguesLoading) return;
+                
+                // Set catalogues
+                setAllCatalogues(catalogues);
 
                 // Get user data
                 const userResponse = await axios.get(`${URLsCatalogService.Users}/${id}`);
@@ -215,7 +220,7 @@ function EditUser() {
         if (id) {
             initializeData();
         }
-    }, [id]);
+    }, [id, catalogues, cataloguesLoading]);
 
     if (loading) {
         return <CircularProgress />;
