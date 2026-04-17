@@ -11,14 +11,90 @@ import
         Typography,
         Box,
         Alert,
-        Snackbar
+        Snackbar,
+        Card,
+        CardContent
     } from '@mui/material';
-
+import { styled } from '@mui/material/styles';
 import { Person } from '@mui/icons-material';
 
 import FormUser from "./FormUser";
 import config from "../../Resources/config";
 import useCatalogues from "../../hooks/useCatalogues";
+
+// 8-bit Styled Components
+const StyledContainer = styled(Box)(({ theme }) => ({
+    maxWidth: '600px',
+    margin: '0 auto',
+    padding: theme.spacing(2),
+}));
+
+const StyledHeaderCard = styled(Card)(({ theme }) => ({
+    borderRadius: 0,
+    border: '4px solid #2C2C2C',
+    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
+    marginBottom: theme.spacing(3),
+    backgroundColor: '#3D5A80',
+}));
+
+const StyledHeaderContent = styled(CardContent)(({ theme }) => ({
+    backgroundColor: '#3D5A80',
+    color: '#FFFFFF',
+    padding: theme.spacing(3),
+    textAlign: 'center',
+    '&:last-child': {
+        paddingBottom: theme.spacing(3),
+    }
+}));
+
+const StyledFormCard = styled(Card)(({ theme }) => ({
+    borderRadius: 0,
+    border: '4px solid #2C2C2C',
+    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
+    backgroundColor: '#E0AC69',
+}));
+
+const StyledFormContent = styled(CardContent)(({ theme }) => ({
+    backgroundColor: '#E0AC69',
+    padding: theme.spacing(3),
+    '&:last-child': {
+        paddingBottom: theme.spacing(3),
+    }
+}));
+
+const PixelTypography = styled(Typography)(({ theme }) => ({
+    fontFamily: "'Press Start 2P', cursive",
+}));
+
+const PixelButton = styled(Button)(({ theme }) => ({
+    fontFamily: "'Press Start 2P', cursive",
+    fontSize: '0.7rem',
+    border: '4px solid #2C2C2C',
+    borderRadius: 0,
+    boxShadow: '6px 6px 0px rgba(0,0,0,0.3)',
+    backgroundColor: '#52B788',
+    color: '#FFFFFF',
+    padding: theme.spacing(1.5, 3),
+    '&:hover': {
+        backgroundColor: '#45a076',
+        boxShadow: '4px 4px 0px rgba(0,0,0,0.3)',
+        transform: 'translate(2px, 2px)'
+    },
+    '&:disabled': {
+        backgroundColor: '#CCCCCC',
+        color: '#888888',
+        border: '4px solid #999999'
+    },
+    transition: 'all 0.1s ease'
+}));
+
+const StyledAlert = styled(Alert)(({ theme }) => ({
+    fontFamily: "'Press Start 2P', cursive",
+    fontSize: '0.6rem',
+    border: '3px solid #2C2C2C',
+    borderRadius: 0,
+    boxShadow: '4px 4px 0px rgba(0,0,0,0.3)',
+}));
 
 function CreateUser(){
     const theme = useTheme();
@@ -88,7 +164,7 @@ function CreateUser(){
     const [submitError, setSubmitError] = useState('');
     const [submitSuccess, setSubmitSuccess] = useState(false);
 
-    const handleSubmit = async (e) => {debugger
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
         setSubmitError('');
@@ -217,72 +293,111 @@ function CreateUser(){
     }, [cataloguesLoading, catalogues]);
 
     if (loading) {
-        setLoading(false)
-        return <CircularProgress />;
+        return (
+            <StyledContainer sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
+                <CircularProgress sx={{ color: '#52B788' }} />
+            </StyledContainer>
+        );
     }
+    
     return (
-        <>
-            <Typography variant="h5" 
-            component="h1" 
-            gutterBottom 
-            align="center" 
-            sx={{ fontFamily: "'Press Start 2P', cursive" }}>
-                Create Account
-            </Typography>
-            
-            <Box
-                component="form"
-                onSubmit={handleSubmit}
-                autoComplete="off"
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 2,
-                    width: '100%'
-                }}
-            >
-                
-                <FormUser
-                    formUser={formCreateUser}
-                    handleChange={handleChange}
-                    id={null}
-                    allCatalogues={allCatalogues}
-                    locationValues={locationValues}
-                    onLocationChange={handleLocationChange}
-                    confirmPassword={confirmPassword}
-                    onConfirmPasswordChange={handleChangeConfirmPassword}
-                    size={isMobile ? 'small' : 'medium'}
-                />
+        <StyledContainer>
+            {/* Header Section */}
+            <StyledHeaderCard>
+                <StyledHeaderContent>
+                    <PixelTypography 
+                        variant="h4" 
+                        sx={{
+                            fontSize: { xs: '1.2rem', sm: '1.5rem' },
+                            color: '#FFFFFF',
+                            lineHeight: 1.6
+                        }}
+                    >
+                        Create Account
+                    </PixelTypography>
+                    <PixelTypography 
+                        variant="body2" 
+                        sx={{
+                            fontSize: { xs: '0.5rem', sm: '0.6rem' },
+                            color: '#E0E0E0',
+                            mt: 2,
+                            lineHeight: 1.8
+                        }}
+                    >
+                        Join our community!
+                    </PixelTypography>
+                </StyledHeaderContent>
+            </StyledHeaderCard>
 
-                <Button 
-                    type="submit" 
-                    disabled={isSubmitting}
-                    variant="outlined"
-                    size="small"
-                    onClick={handleSubmit}
-                    startIcon={ <Person/> }
-                >
-                    Create Account
-                </Button>
+            {/* Form Section */}
+            <StyledFormCard>
+                <StyledFormContent>
+                    <Box
+                        component="form"
+                        onSubmit={handleSubmit}
+                        autoComplete="off"
+                        sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 3
+                        }}
+                    >
+                        <FormUser
+                            formUser={formCreateUser}
+                            handleChange={handleChange}
+                            id={null}
+                            allCatalogues={allCatalogues}
+                            locationValues={locationValues}
+                            onLocationChange={handleLocationChange}
+                            confirmPassword={confirmPassword}
+                            onConfirmPasswordChange={handleChangeConfirmPassword}
+                            size={isMobile ? 'small' : 'medium'}
+                        />
 
-            </Box>
+                        <PixelButton 
+                            type="submit" 
+                            disabled={isSubmitting}
+                            fullWidth
+                            startIcon={<Person/>}
+                        >
+                            {isSubmitting ? 'Creating...' : 'Create Account'}
+                        </PixelButton>
+                    </Box>
+                </StyledFormContent>
+            </StyledFormCard>
+
+            {/* Error Snackbar */}
             <Snackbar
                 open={!!submitError}
                 autoHideDuration={6000}
                 onClose={() => setSubmitError('')}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
             >
-                <Alert onClose={() => setSubmitError('')} severity="error" sx={{ width: '100%' }}>
+                <StyledAlert 
+                    onClose={() => setSubmitError('')} 
+                    severity="error" 
+                    sx={{ width: '100%' }}
+                >
                     {submitError}
-                </Alert>
+                </StyledAlert>
             </Snackbar>
+
+            {/* Success Snackbar */}
             <Snackbar
                 open={submitSuccess}
                 autoHideDuration={6000}
                 onClose={() => setSubmitSuccess(false)}
-                message="User created successfully!"
-            />
-        </>
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <StyledAlert 
+                    onClose={() => setSubmitSuccess(false)} 
+                    severity="success" 
+                    sx={{ width: '100%' }}
+                >
+                    User created successfully!
+                </StyledAlert>
+            </Snackbar>
+        </StyledContainer>
     );
 }
 

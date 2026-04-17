@@ -10,7 +10,11 @@ import PlaceFilter from "../Component/Places/PlaceFilter";
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 import TripsResultSearch from "../Component/Trips/TripsResultSearch";
 import PlacesResultSearch from "../Component/Places/PlacesResultSearch";
+import Pagination from "../Component/Commons/Pagination";
 import usePlaceQueryApi from '../hooks/Places/usePlaceQueryApi';
+import useTripQueryApi from '../hooks/Trips/useTripQueryApi';
+import useSearch from '../hooks/useSearch';
+import usePagination from '../hooks/usePagination';
 
 // 8-bit Styled Components
 const StyledContainer = styled(Box)(({ theme }) => ({
@@ -79,8 +83,24 @@ const PixelTypography = styled(Typography)(({ theme }) => ({
 export default function Search() {
     //Module to show the search page
     const { opt } = useParams();
-    const [searchResults, setSearchResults] = useState([]);
     const { searchPlaces } = usePlaceQueryApi();
+    const { searchTrips } = useTripQueryApi();
+    
+    // Use the reusable search hooks for both trips and places
+    const tripsSearch = useSearch(searchTrips);
+    const placesSearch = useSearch(searchPlaces);
+    
+    // Pagination configuration
+    const paginationConfig = {
+        initialPage: 1,
+        itemsPerPage: 5,
+        pageSizeOptions: [5, 10, 20, 50]
+    };
+    
+    // Pagination hooks for both trips and places
+    const tripsPagination = usePagination(tripsSearch.results, paginationConfig);
+    const placesPagination = usePagination(placesSearch.results, paginationConfig);
+    
     const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'error' });
     const [catalogues, setCatalogues] = useState({
         countries: [],
@@ -88,6 +108,11 @@ export default function Search() {
         cities: [],
         facilities: []
     });
+    
+    // Determine which search and pagination to use based on the current option
+    const currentSearch = opt === "Trips" ? tripsSearch : placesSearch;
+    const currentPagination = opt === "Trips" ? tripsPagination : placesPagination;
+    const searchResults = currentSearch.results;
     
     useEffect(() => {
         // Fetch catalogues data once when component mounts
@@ -159,59 +184,94 @@ export default function Search() {
         if (searchResults.length === 0 ) return <></>;
         if (opt === "Trips") {
             return (
-                <StyledResultsCard>
-                    <StyledResultsContent>
-                        <TripsResultSearch results={searchResults} />
-                    </StyledResultsContent>
-                </StyledResultsCard>
+                <>
+                    <StyledResultsCard>
+                        <StyledResultsContent>
+                            <TripsResultSearch results={tripsPagination.paginatedItems} />
+                        </StyledResultsContent>
+                    </StyledResultsCard>
+                    <Pagination
+                        currentPage={tripsPagination.currentPage}
+                        totalPages={tripsPagination.totalPages}
+                        itemsPerPage={tripsPagination.itemsPerPage}
+                        pageSizeOptions={tripsPagination.pageSizeOptions}
+                        totalItems={tripsPagination.totalItems}
+                        startItem={tripsPagination.startItem}
+                        endItem={tripsPagination.endItem}
+                        hasNextPage={tripsPagination.hasNextPage}
+                        hasPrevPage={tripsPagination.hasPrevPage}
+                        goToPage={tripsPagination.goToPage}
+                        nextPage={tripsPagination.nextPage}
+                        prevPage={tripsPagination.prevPage}
+                        goToFirstPage={tripsPagination.goToFirstPage}
+                        goToLastPage={tripsPagination.goToLastPage}
+                        changeItemsPerPage={tripsPagination.changeItemsPerPage}
+                        getPageNumbers={tripsPagination.getPageNumbers}
+                        showFirstLast={true}
+                        showPageSize={true}
+                        showInfo={true}
+                    />
+                </>
             );
         }
         if(opt === "Places"){
             return (
-                <StyledResultsCard>
-                    <StyledResultsContent>
-                        <PlacesResultSearch results={searchResults} />
-                    </StyledResultsContent>
-                </StyledResultsCard>
+                <>
+                    <StyledResultsCard>
+                        <StyledResultsContent>
+                            <PlacesResultSearch results={placesPagination.paginatedItems} />
+                        </StyledResultsContent>
+                    </StyledResultsCard>
+                    <Pagination
+                        currentPage={placesPagination.currentPage}
+                        totalPages={placesPagination.totalPages}
+                        itemsPerPage={placesPagination.itemsPerPage}
+                        pageSizeOptions={placesPagination.pageSizeOptions}
+                        totalItems={placesPagination.totalItems}
+                        startItem={placesPagination.startItem}
+                        endItem={placesPagination.endItem}
+                        hasNextPage={placesPagination.hasNextPage}
+                        hasPrevPage={placesPagination.hasPrevPage}
+                        goToPage={placesPagination.goToPage}
+                        nextPage={placesPagination.nextPage}
+                        prevPage={placesPagination.prevPage}
+                        goToFirstPage={placesPagination.goToFirstPage}
+                        goToLastPage={placesPagination.goToLastPage}
+                        changeItemsPerPage={placesPagination.changeItemsPerPage}
+                        getPageNumbers={placesPagination.getPageNumbers}
+                        showFirstLast={true}
+                        showPageSize={true}
+                        showInfo={true}
+                    />
+                </>
             );
         }
     }
     
     const searchTripsByFilters = async (filters) => {
-        axios.post(
-            `${config.api.baseUrl}${config.api.endpoints.Trips}/Search`,
-            {
-                filters : filters
-            }
-        ).then( (response) => {
-
-            setSearchResults( response.data.info );
-        }).catch( (error) => {
-            if (error.response?.status === 404) {
-                setSearchResults([]);
-                setSnackbar({ open: true, message: 'No data was found', severity: 'info' });
+        const result = await tripsSearch.search(filters);
+        
+        if (!result.success) {
+            if (result.error.status === 404) {
+                setSnackbar({ open: true, message: 'No trips found', severity: 'info' });
             } else {
-                console.error("There was an error searching trips by filters!", error);
+                console.error("Error searching trips:", result.error);
                 setSnackbar({ open: true, message: 'Error searching trips', severity: 'error' });
             }
-        });    
+        }
     }
 
     const searchPlacessByFilters = async (filters) => {
-        searchPlaces(filters)
-            .then((response) => {
-                
-                setSearchResults(response.data.info);
-            })
-            .catch((error) => {
-                if (error.response?.status === 404) {
-                    setSearchResults([]);
-                    setSnackbar({ open: true, message: 'No data was found', severity: 'info' });
-                } else {
-                    console.error("There was an error searching places by filters!", error);
-                    setSnackbar({ open: true, message: 'Error searching places', severity: 'error' });
-                }
-            });
+        const result = await placesSearch.search(filters);
+        
+        if (!result.success) {
+            if (result.error.status === 404) {
+                setSnackbar({ open: true, message: 'No places found', severity: 'info' });
+            } else {
+                console.error("Error searching places:", result.error);
+                setSnackbar({ open: true, message: 'Error searching places', severity: 'error' });
+            }
+        }
     }
 
     const handleCloseSnackbar = () => {

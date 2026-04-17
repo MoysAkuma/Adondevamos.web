@@ -5,12 +5,68 @@ import {
     Typography,
     Alert,
     useMediaQuery,
-    useTheme
+    useTheme,
+    Box
 } from '@mui/material';
+import { styled } from '@mui/material/styles';
 
 import UbicationSelector from "../Commons/Ubication/UbicationSelector";
 import config from "../../Resources/config";
 import utils from "../../Resources/utils";
+
+// 8-bit Styled Components
+const PixelTypography = styled(Typography)(({ theme }) => ({
+    fontFamily: "'Press Start 2P', cursive",
+}));
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+    '& .MuiOutlinedInput-root': {
+        borderRadius: 0,
+        backgroundColor: '#FFFFFF',
+        fontFamily: "'Courier New', monospace",
+        '& fieldset': {
+            borderColor: '#2C2C2C',
+            borderWidth: 3,
+        },
+        '&:hover fieldset': {
+            borderColor: '#52B788',
+            borderWidth: 3,
+        },
+        '&.Mui-focused fieldset': {
+            borderColor: '#52B788',
+            borderWidth: 4,
+        },
+        '&.Mui-error fieldset': {
+            borderColor: '#d32f2f',
+            borderWidth: 3,
+        }
+    },
+    '& .MuiInputLabel-root': {
+        fontFamily: "'Press Start 2P', cursive",
+        fontSize: '0.7rem',
+        '&.Mui-focused': {
+            color: '#52B788',
+        }
+    },
+    '& .MuiFormHelperText-root': {
+        fontFamily: "'Courier New', monospace",
+        fontSize: '0.7rem',
+    }
+}));
+
+const StyledAlert = styled(Alert)(({ theme }) => ({
+    fontFamily: "'Press Start 2P', cursive",
+    fontSize: '0.6rem',
+    border: '3px solid #2C2C2C',
+    borderRadius: 0,
+    boxShadow: '4px 4px 0px rgba(0,0,0,0.3)',
+    lineHeight: 1.8,
+}));
+
+const SectionDivider = styled(Box)(({ theme }) => ({
+    borderBottom: '3px solid #2C2C2C',
+    margin: `${theme.spacing(3)} 0`,
+}));
 
 const FormUser = ({
     formUser,
@@ -85,35 +141,45 @@ const FormUser = ({
 
     return (
         <>
-            <Typography variant="h6" 
-            component="h1" gutterBottom align="center" sx={{ fontFamily: "'Press Start 2P', cursive" }}>
+            <PixelTypography 
+                variant="h6" 
+                sx={{ 
+                    fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                    color: '#2C2C2C',
+                    mb: 2,
+                    textAlign: 'center',
+                    lineHeight: 1.6
+                }}
+            >
                 Unique as You
-            </Typography>
+            </PixelTypography>
             { 
                 (id && id > 0) ? 
                 <>
-                    <Typography
-                        variant="h6"
-                        component="div"
-                        gutterBottom
-                        align="left"
-                        color="textSecondary"
+                    <PixelTypography
+                        variant="body1"
+                        sx={{ 
+                            fontSize: '0.7rem',
+                            mb: 1,
+                            color: '#2C2C2C'
+                        }}
                     >
-                        <strong>Tag:</strong> {  formUser.tag }
-                    </Typography>
-                    <Typography
-                        variant="h6"
-                        component="div"
-                        gutterBottom
-                        align="left"
-                        color="textSecondary"
+                        <strong>Tag:</strong> {formUser.tag}
+                    </PixelTypography>
+                    <PixelTypography
+                        variant="body1"
+                        sx={{ 
+                            fontSize: '0.7rem',
+                            mb: 2,
+                            color: '#2C2C2C'
+                        }}
                     >
-                        <strong>Email:</strong> {  formUser.email }
-                    </Typography>
-            </> 
+                        <strong>Email:</strong> {formUser.email}
+                    </PixelTypography>
+                </> 
             :
             <>
-                <TextField
+                <StyledTextField
                     id="tag"
                     name="tag"
                     label="Tag"
@@ -132,20 +198,21 @@ const FormUser = ({
                 {
                     tagwasVerify ?
                         (
-                            <Alert variant="outlined"
-                                gutterBottom
-                                align="center"
-                                severity={tagistaken ? "error" : "success"}>
+                            <StyledAlert 
+                                variant="outlined"
+                                severity={tagistaken ? "error" : "success"}
+                                sx={{ mb: 2 }}
+                            >
                                 {tagistaken ? "Tag is already taken" : "Tag is available"}
-                            </Alert>
+                            </StyledAlert>
                         )
-                    : <></>
+                    : null
                 }
-                <TextField
+                <StyledTextField
                     id="email"
                     name="email"
                     label="Email"
-                    placeholder="Email accout"
+                    placeholder="Email account"
                     variant="outlined"
                     helperText="Your email must be unique"
                     onChange={handleChange}
@@ -158,24 +225,32 @@ const FormUser = ({
                 />
                 {
                     emailwasVerify ? (
-                        <Alert
+                        <StyledAlert
                             variant="outlined"
-                            component="body1"
-                            gutterBottom
-                            align="center"
-                            severity={emailIsUsed ? "error" : "success"} >
-                            {emailIsUsed ? "Email is already registed" : "Email is available"}
-                        </Alert>) :
-                        <></>
+                            severity={emailIsUsed ? "error" : "success"}
+                            sx={{ mb: 2 }}
+                        >
+                            {emailIsUsed ? "Email is already registered" : "Email is available"}
+                        </StyledAlert>) :
+                        null
                 }
-                <Typography variant="h6" 
-                component="h1" 
-                gutterBottom align="center" 
-                sx={{ fontFamily: "'Press Start 2P', cursive" }}>
+                
+                <SectionDivider />
+                
+                <PixelTypography 
+                    variant="h6" 
+                    sx={{ 
+                        fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                        color: '#2C2C2C',
+                        mb: 2,
+                        textAlign: 'center',
+                        lineHeight: 1.6
+                    }}
+                >
                     Security
-                </Typography>
+                </PixelTypography>
 
-                <TextField
+                <StyledTextField
                     type="password"
                     id="password"
                     name="password"
@@ -190,7 +265,7 @@ const FormUser = ({
                     error={passwordWasVerify === false && confirmPassword && confirmPassword.length > 0}
                 />
 
-                <TextField
+                <StyledTextField
                     type="password"
                     id="confirmpassword"
                     name="confirmpassword"
@@ -207,29 +282,35 @@ const FormUser = ({
                 />
                 {
                     passwordWasVerify ? (
-                        <Alert
+                        <StyledAlert
                             variant="outlined"
-                            component="body1"
-                            gutterBottom
-                            align="center"
-                            severity={passwordWasVerify ? "success" : "error"} >
+                            severity={passwordWasVerify ? "success" : "error"}
+                            sx={{ mb: 2 }}
+                        >
                             {passwordWasVerify ? "Passwords match" : "Passwords do not match"}
-                        </Alert>
+                        </StyledAlert>
                     ) :
-                        <></>
+                        null
                 }
                 </>
                 }
             
+            <SectionDivider />
 
+            <PixelTypography 
+                variant="h6" 
+                sx={{ 
+                    fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                    color: '#2C2C2C',
+                    mb: 2,
+                    textAlign: 'center',
+                    lineHeight: 1.6
+                }}
+            >
+                Your Name
+            </PixelTypography>
             
-
-            <Typography variant="h6" 
-            component="h1" gutterBottom 
-            align="center" sx={{ fontFamily: "'Press Start 2P', cursive" }}>
-                Your name
-            </Typography>
-            <TextField
+            <StyledTextField
                 id="name"
                 name="name"
                 label="Name"
@@ -242,7 +323,7 @@ const FormUser = ({
                 required
             />
 
-            <TextField
+            <StyledTextField
                 id="secondname"
                 name="secondname"
                 label="Second Name"
@@ -254,7 +335,7 @@ const FormUser = ({
                 fullWidth
             />
 
-            <TextField
+            <StyledTextField
                 required
                 id="lastname"
                 name="lastname"
@@ -267,7 +348,7 @@ const FormUser = ({
                 fullWidth
             />
 
-            <TextField
+            <StyledTextField
                 fullWidth
                 name="description"
                 id="description"
@@ -280,6 +361,21 @@ const FormUser = ({
                 multiline
                 rows={3}
             />
+
+            <SectionDivider />
+
+            <PixelTypography 
+                variant="h6" 
+                sx={{ 
+                    fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                    color: '#2C2C2C',
+                    mb: 2,
+                    textAlign: 'center',
+                    lineHeight: 1.6
+                }}
+            >
+                Location
+            </PixelTypography>
 
             <UbicationSelector
                 allCatalogues={allCatalogues}
