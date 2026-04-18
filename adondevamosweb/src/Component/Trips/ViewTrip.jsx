@@ -31,6 +31,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import utils from "../../Resources/utils";
 import ImageCarousel from "../Commons/ImageCarousel";
 import Itinerary from "./Itinerary/Itinerary";
+import ItineraryMap from "./ItineraryMap";
 import SnackbarNotification from '../Commons/SnackbarNotification';
 
 // 8-bit Styled Components
@@ -564,6 +565,10 @@ function ViewTrip(){
                     />
                 </StyledSectionContent>
             </StyledSectionCard>
+            
+            {/* Itinerary Map */}
+            <ItineraryMap itinerary={tripInfo?.itinerary || []} />
+             
             {/* Gallery Section */}
             <StyledSectionCard>
                 <StyledSectionHeader>

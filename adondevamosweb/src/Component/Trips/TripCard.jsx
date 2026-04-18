@@ -28,6 +28,7 @@ import {
 } from "@mui/icons-material";
 import { styled } from '@mui/material/styles';
 import Itinerary from "./Itinerary/Itinerary";
+import ItineraryMap from "./ItineraryMap";
 import { useAuth } from '../../context/AuthContext';
 import useVoteApi from '../../hooks/Votes/useVoteApi';
 import SnackbarNotification from '../Commons/SnackbarNotification';
@@ -468,9 +469,12 @@ function TripCard({ tripinfo, showRankingBadge = false, rankingPosition = null }
               No places added yet.
             </Typography>
           ) : (
-            <Itinerary tripinfo={tripinfo}
-            callBackView={goToViewPlace}
-             />
+            <>
+              <Itinerary tripinfo={tripinfo}
+              callBackView={goToViewPlace}
+               />
+              <ItineraryMap itinerary={tripinfo?.itinerary || []} />
+            </>
           )}
         </CardContent>
       </Collapse>

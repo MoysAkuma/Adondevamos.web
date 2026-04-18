@@ -12,8 +12,7 @@ import { Typography, List, ListItem, ListItemText,
     Button
  } from '@mui/material';
 import { Chat, FlightTakeoff, Add, Delete, Edit, ArrowCircleUp, 
-    ArrowCircleDown, AccountCircle, ExpandMore, ExpandLess, 
-    Visibility} from '@mui/icons-material';
+    ArrowCircleDown, AccountCircle, ExpandMore, ExpandLess } from '@mui/icons-material';
 import UserAvatar from '../Commons/UserAvatar';
 
 // Styled components for 8-bit retro design
@@ -118,18 +117,6 @@ function ViewMemberList ({
                     key={member.user.id}
                     secondaryAction={
                         <>
-                            <Box 
-                                onClick={() => goToViewProfile(member.user.id)} 
-                                sx={{ cursor: 'pointer' }}
-                            >
-                                <Tooltip title="View profile" arrow>
-                                <span>
-                                    <StyledIconButton disabled aria-label="view profile" edge="end" >
-                                    <Visibility />
-                                    </StyledIconButton>
-                                </span>
-                                </Tooltip>
-                            </Box>
                             {
                                 actualIndex !== 0 && 
                                 ( <StyledIconButton aria-label="move up" edge="end">
@@ -161,28 +148,40 @@ function ViewMemberList ({
                     <ListItemText 
                         primary={ 
                             <Typography 
+                                onClick={() => goToViewProfile(member.user.id)}
                                 sx={{ 
                                     fontFamily: "'Press Start 2P', cursive",
                                     fontSize: '0.7rem',
                                     color: '#000000',
-                                    fontWeight: 600
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    '&:hover': {
+                                        color: '#3D5A80',
+                                        textDecoration: 'underline'
+                                    }
                                 }}
                             >
                                 @{member.user.tag}
                             </Typography>
                         } 
                         secondary={ 
-                            <Typography 
-                                component="span" 
-                                variant="body2" 
-                                sx={{ 
-                                    color: '#000000', 
-                                    display: 'inline',
-                                    fontSize: '0.7rem'
-                                }} 
-                            >
-                                {member.user.email}    
-                            </Typography>
+                            <Tooltip title={member.user.email} arrow placement="top">
+                                <Typography 
+                                    component="span" 
+                                    variant="body2" 
+                                    sx={{ 
+                                        color: '#000000', 
+                                        fontSize: '0.7rem',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap',
+                                        display: 'block',
+                                        maxWidth: { xs: '120px', sm: '200px', md: '300px' }
+                                    }} 
+                                >
+                                    {member.user.email}    
+                                </Typography>
+                            </Tooltip>
                         } 
                     />
                 </StyledListItem>
