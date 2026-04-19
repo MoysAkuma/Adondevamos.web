@@ -1,5 +1,6 @@
 import React from "react";
 import TripCard from "./TripCard";
+import TripCardSkeleton from "./TripCardSkeleton";
 import { useAuth } from '../../context/AuthContext';
 import useLastedTrips from '../../hooks/Trips/useLastedTrips';
 import 
@@ -37,7 +38,15 @@ function NewTrips({ topTrips = [] }){
         return { isRanked: false, position: null };
     };
 
-    if (isLoading) return (<CircularProgress />);
+    if (isLoading) {
+        return (
+            <Stack spacing={2} sx={{ padding: 1, marginTop: 1 }}>
+                {Array.from({ length: 3 }, (_, index) => (
+                    <TripCardSkeleton key={index} />
+                ))}
+            </Stack>
+        );
+    }
     if (error) {
       return (
         <Alert severity="error">

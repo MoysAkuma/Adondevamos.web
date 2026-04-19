@@ -18,6 +18,7 @@ import {
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import useRankingApi from '../../hooks/Ranking/useRankingApi';
+import TripCardSkeleton from '../Trips/TripCardSkeleton';
 
 // Styled podium components
 const PodiumContainer = styled(Box)(({ theme }) => ({
@@ -266,8 +267,10 @@ function Ranking({ defaultEntityType = 'places', showSelector = true }) {
             )}
 
             {loading && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
-                    <CircularProgress />
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, py: 2 }}>
+                    {Array.from({ length: 3 }, (_, index) => (
+                        <TripCardSkeleton key={index} />
+                    ))}
                 </Box>
             )}
 

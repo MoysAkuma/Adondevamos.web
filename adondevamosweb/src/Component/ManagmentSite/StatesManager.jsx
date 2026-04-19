@@ -32,7 +32,7 @@ import { Delete, Visibility, VisibilityOff, Close, Edit, FilterList } from '@mui
 
 import config from '../../Resources/config';
 
-function StatesManager({ states = [], countries = [], callback }){ 
+function StatesManager({ states = [], countries = [], callback, onUpdate }){ 
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
@@ -98,6 +98,11 @@ function StatesManager({ states = [], countries = [], callback }){
         setOpenModal(false);
         setInfoToEdit(null);
         realoadStates();
+        
+        // Refresh cached catalogues
+        if (onUpdate) {
+            onUpdate();
+        }
     };
 
     const toggleVisibilityState = async( item ) =>{
@@ -106,6 +111,11 @@ function StatesManager({ states = [], countries = [], callback }){
         try {
             await axios.patch(`${URLStates}/state/${item.id}/`, {hide: !item.hide} );
             realoadStates();
+            
+            // Refresh cached catalogues
+            if (onUpdate) {
+                onUpdate();
+            }
         } catch (error) {
             setSubmitError(error.response?.data?.message || error.message);
             console.error('Error toggling state visibility:', error);

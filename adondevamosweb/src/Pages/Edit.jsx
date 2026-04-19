@@ -12,10 +12,14 @@ import EditMembers from "../Component/Trips/EditMembers";
 import EditUser from "../Component/Users/EditUser";
 import EditPlace from "../Component/Places/EditPlace";
 import { useAuth } from '../context/AuthContext';
+import useCatalogues from "../hooks/useCatalogues";
 
 export default function Edit() {
     //Module to show the search page
     const { opt } = useParams();
+
+    // Get catalogues from hook
+    const { catalogues, loading: cataloguesLoading } = useCatalogues();
 
     const [countries, setCountries] = useState([]);
     const [states, setStates] = useState([]);
@@ -68,32 +72,15 @@ export default function Edit() {
             />
         </>
     }
-    useEffect(()=> {
-        //getCatalogues
-        const getCatalogues = async() => {
-            try {
-                const response = 
-                await axios.get(`${URLsCatalogService.Catalogues}/all`);
-                
-                if (response.status !== 200){
-                    return;
-                }
-                const data = response.data.info;
-                
-                setCountries(data.countries);
-                setStates(data.states);
-                setCities(data.cities);
-                setFacilities(data.facilities);
-                
-            } catch (error) {
-                console.error("Error getting catalogues for site management", error);   
-            }
-            finally{
-                setLoading(false);
-            }
-        };
-        getCatalogues();
-    },[]);
+    useEffect(() => {
+        if (!cataloguesLoading) {
+            setCountries(catalogues.countries);
+            setStates(catalogues.states);
+            setCities(catalogues.cities);
+            setFacilities(catalogues.facilities);
+            setLoading(false);
+        }
+    }, [cataloguesLoading, catalogues]);
 
     if (loading) {
         return <CircularProgress />;

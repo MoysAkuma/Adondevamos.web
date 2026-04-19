@@ -34,7 +34,8 @@ function Facilitymanager({
     facilities,  
     id, 
     callbackAddFacility, 
-    callbackUpdateFacility }) {
+    callbackUpdateFacility,
+    onUpdate }) {
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
@@ -58,6 +59,11 @@ function Facilitymanager({
         setShowFacilityForm(false);
         setOpenModal(false);
         reloadFacilities();
+        
+        // Refresh cached catalogues
+        if (onUpdate) {
+            onUpdate();
+        }
     };
 
     const toggleVisibilityFacility = async( item ) =>{
@@ -71,6 +77,11 @@ function Facilitymanager({
                 return;
             }
             reloadFacilities();
+            
+            // Refresh cached catalogues
+            if (onUpdate) {
+                onUpdate();
+            }
         } catch (error) {
             console.error("Error updating facility visibility", error);
         }

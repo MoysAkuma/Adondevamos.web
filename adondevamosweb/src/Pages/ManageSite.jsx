@@ -19,12 +19,17 @@ import StatesManager from '../Component/ManagmentSite/StatesManager';
 import CitiesManager from '../Component/ManagmentSite/CitiesManager';
 import CenteredTemplate from '../Component/Commons/CenteredTemplate'
 import { useAuth } from '../context/AuthContext';
+import useCatalogues from '../hooks/useCatalogues';
 
  function ManageSite(){
     const auth = useAuth();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [tabValue, setTabValue] = useState(0);
+    
+    // Get catalogues from hook with refresh capability
+    const { catalogues, loading: cataloguesLoading, refreshCatalogues } = useCatalogues();
+    
     const URLsCatalogService =
     {
         Catalogues:`${config.api.baseUrl}${config.api.endpoints.Catalogues}`,
@@ -39,34 +44,27 @@ import { useAuth } from '../context/AuthContext';
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
     };
+    
+    // Callback to refresh catalogues when new location is saved
+    const handleLocationUpdate = async () => {
+        try {
+            await refreshCatalogues();
+        } catch (error) {
+            console.error("Error refreshing catalogues:", error);
+        }
+    };
 
 
-    useEffect(()=> {
-        //getCatalogues
-        const getCatalogues = async() => {
-            try {
-                const response = 
-                await axios.get(`${URLsCatalogService.Catalogues}/all`);
-                
-                if (response.status !== 200){
-                    return;
-                }
-                const data = response.data.info;
-                
-                setFacilities(data.facilities);
-                setCountries(data.countries);
-                setStates(data.states);
-                setCities(data.cities);
-                
-            } catch (error) {
-                console.error("Error getting catalogues for site management", error);   
-            }
-            finally{
-                setLoading(false);
-            }
-        };
-        getCatalogues();
-    },[]);
+    useEffect(() => {
+        if (!cataloguesLoading) {
+            setFacilities(catalogues.facilities);
+            setCountries(catalogues.countries);
+            setStates(catalogues.states);
+            setCities(catalogues.cities);
+            setLoading(false);
+        }
+    }, [cataloguesLoading, catalogues]);
+
     if (loading) {
         return <CircularProgress />;
     }
@@ -98,26 +96,30 @@ import { useAuth } from '../context/AuthContext';
                 {
                     tabValue === 0 && <CountryManager 
                     countries={countries} 
-                    callback={setCountries} />
+                    callback={setCountries}
+                    onUpdate={handleLocationUpdate} />
                 }
                 {
                     tabValue === 1 && <StatesManager 
                         states={states}
                         countries={countries} 
-                        callback={setStates} />
+                        callback={setStates}
+                        onUpdate={handleLocationUpdate} />
                 }
                 {
                     tabValue === 2 && <CitiesManager 
                     cities={cities}
                     states={states}
                     countries={countries}
-                    callback={setCities} />
+                    callback={setCities}
+                    onUpdate={handleLocationUpdate} />
                 }
                 {
                     tabValue === 3 && <Facilitymanager 
                     callbackUpdateFacility={setFacilities} 
                     callbackAddFacility={() => {}}
-                    facilities={facilities} />
+                    facilities={facilities}
+                    onUpdate={handleLocationUpdate} />
                 }
             </Box>
         </CenteredTemplate>)

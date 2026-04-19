@@ -14,6 +14,9 @@ const config = {
         Votes: '/Votes',
         Ranking: '/ranking'
       }
+    },
+    cache: {
+      cataloguesExpirationMinutes: 60 // Cache catalogues for 1 hour
     }
   },
   production: {
@@ -31,6 +34,9 @@ const config = {
         Votes: '/Votes',
         Ranking: '/ranking'
       }
+    },
+    cache: {
+      cataloguesExpirationMinutes: 120 // Cache catalogues for 2 hours in production
     }
   }
 };

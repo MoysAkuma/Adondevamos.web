@@ -10,9 +10,15 @@ import CreateTrip from "../Component/Trips/CreateTrip";
 import CreatePlace from "../Component/Places/CreatePlace"
 import CreateUser from "../Component/Users/CreateUser";
 import { useAuth } from "../context/AuthContext";
+import useCatalogues from "../hooks/useCatalogues";
+
 export default function Create() {
     const [loading, setLoading] = useState(true);
     const { isLogged, loading: authLoading } = useAuth();
+    
+    // Get catalogues from hook
+    const { catalogues, loading: cataloguesLoading } = useCatalogues();
+    
     //Module to show the search page
     const { opt } = useParams();
     const [searchResults, setSearchResults] = useState([]);
@@ -61,31 +67,15 @@ export default function Create() {
         }
         
     }
-    useEffect(()=> {
-        //getCatalogues
-        const getCatalogues = async() => {
-            try {
-                const response = 
-                await axios.get(`${URLsAPIService.Catalogues}/all`);
-                if (response.status !== 200){
-                    return;
-                }
-                const data = response.data.info;
-                
-                setCatCountries(data.countries);
-                setCatState(data.states);
-                setCatCities(data.cities);
-                setCatFacilities(data.facilities);
-                
-            } catch (error) {
-                console.error("Error getting catalogues for site management", error);   
-            }
-            finally{
-                setLoading(false);
-            }
-        };
-        getCatalogues();
-    },[]);
+    useEffect(() => {
+        if (!cataloguesLoading) {
+            setCatCountries(catalogues.countries);
+            setCatState(catalogues.states);
+            setCatCities(catalogues.cities);
+            setCatFacilities(catalogues.facilities);
+            setLoading(false);
+        }
+    }, [cataloguesLoading, catalogues]);
 
     if (loading || authLoading) {
         return <CircularProgress />;

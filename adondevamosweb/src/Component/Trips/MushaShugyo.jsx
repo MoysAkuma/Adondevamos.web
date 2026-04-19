@@ -1,5 +1,6 @@
 import { Box, CircularProgress, Alert, Container } from '@mui/material';
 import TripCard from "./TripCard";
+import TripCardSkeleton from "./TripCardSkeleton";
 import useTripById from "../../hooks/Trips/useTripById";
 
 function MushaShugyo() {
@@ -14,14 +15,9 @@ function MushaShugyo() {
 
     if (loading) {
         return (
-            <Box 
-                display="flex" 
-                justifyContent="center" 
-                alignItems="center" 
-                minHeight="400px"
-            >
-                <CircularProgress />
-            </Box>
+            <Container maxWidth="sm" sx={{ mt: 4, mb: 4 }}>
+                <TripCardSkeleton />
+            </Container>
         );
     }
 

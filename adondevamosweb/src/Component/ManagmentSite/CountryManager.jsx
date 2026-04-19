@@ -18,7 +18,7 @@ import { Edit, Delete, Visibility, VisibilityOff, Close } from '@mui/icons-mater
 
 import config from '../../Resources/config';
 
-function CountryManager({ countries = [], callback: onCountryUpdate }){
+function CountryManager({ countries = [], callback: onCountryUpdate, onUpdate }){
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
     const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -43,6 +43,11 @@ function CountryManager({ countries = [], callback: onCountryUpdate }){
         setOpenModal(false);
         reloadCountries();
         setCountryID(null);
+        
+        // Refresh cached catalogues
+        if (onUpdate) {
+            onUpdate();
+        }
     }
 
     const reloadCountries = async() => {
@@ -74,6 +79,11 @@ function CountryManager({ countries = [], callback: onCountryUpdate }){
             
             await axios.patch(`${URLCountry}/country/${item.id}`, {hide: !item.hide} );
             reloadCountries();
+            
+            // Refresh cached catalogues
+            if (onUpdate) {
+                onUpdate();
+            }
         } catch (error) {
             setSubmitError(error.response?.data?.message || error.message);
             console.error('Error toggling country visibility:', error);
