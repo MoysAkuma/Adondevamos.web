@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { styled } from '@mui/material/styles';
 import {
     Box,
@@ -6,33 +6,33 @@ import {
     CardContent,
     Typography,
     Alert,
-    CircularProgress,
     IconButton,
     Tooltip
 } from '@mui/material';
-import { Map as MapIcon, ZoomIn, ZoomOut, Refresh } from '@mui/icons-material';
+import { Map as MapIcon, ZoomIn, ZoomOut, Refresh, MyLocation } from '@mui/icons-material';
+import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 /**
  * ItineraryMap Component
  * 
- * Displays a static map with markers for each place in a trip's itinerary.
+ * Displays an interactive map with markers for each place in a trip's itinerary.
  * Only renders when there are at least 2 places with valid coordinates.
  * 
  * Features:
+ * - Interactive Leaflet map with OpenStreetMap tiles
  * - Auto-calculates optimal zoom level based on coordinate spread
  * - Shows labeled markers (A, B, C, ...) for each place in sequence
  * - Draws a path connecting all locations
- * - Zoom in/out controls
+ * - Zoom in/out and fit bounds controls
  * - Responsive design
  * 
  * @param {Object} props
  * @param {Array} props.itinerary - Array of itinerary items with place objects containing latitude/longitude
  * 
- * PRODUCTION NOTE:
- * To use in production, add a Google Maps Static API key:
- * 1. Get an API key from Google Cloud Console
- * 2. Add it to your .env file: REACT_APP_GOOGLE_MAPS_API_KEY=your_key_here
- * 3. Update the generateMapUrl function to include: &key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
+ * DEPENDENCIES:
+ * Install required packages: npm install react-leaflet leaflet
  */
 
 const StyledMapCard = styled(Card)(({ theme }) => ({
@@ -64,14 +64,19 @@ const PixelTypography = styled(Typography)(({ theme }) => ({
     fontFamily: "'Press Start 2P', cursive",
 }));
 
-const MapImageContainer = styled(Box)(({ theme }) => ({
+const MapContainer_Styled = styled(Box)(({ theme }) => ({
     position: 'relative',
     width: '100%',
+    height: '400px',
     borderRadius: 0,
     border: '3px solid #2C2C2C',
     overflow: 'hidden',
     backgroundColor: '#FFFFFF',
     boxShadow: '4px 4px 0px rgba(0,0,0,0.2)',
+    '& .leaflet-container': {
+        height: '100%',
+        width: '100%',
+    },
 }));
 
 const StyledIconButton = styled(IconButton)(({ theme }) => ({
@@ -94,21 +99,78 @@ const StyledIconButton = styled(IconButton)(({ theme }) => ({
     },
 }));
 
+// Create custom numbered marker icons
+const createNumberedIcon = (number) => {
+    const label = String.fromCharCode(65 + number); // A, B, C, ...
+    return L.divIcon({
+        className: 'custom-marker',
+        html: `
+            <div style="
+                background-color: #EF4444;
+                color: white;
+                width: 30px;
+                height: 30px;
+                border-radius: 50% 50% 50% 0;
+                border: 3px solid #2C2C2C;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: 'Press Start 2P', cursive;
+                font-size: 12px;
+                font-weight: bold;
+                transform: rotate(-45deg);
+                box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            ">
+                <span style="transform: rotate(45deg);">${label}</span>
+            </div>
+        `,
+        iconSize: [30, 30],
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30]
+    });
+};
+
+// Component to fit map bounds to markers
+const FitBounds = ({ bounds }) => {
+    const map = useMap();
+    
+    useEffect(() => {
+        if (bounds && bounds.length > 0) {
+            map.fitBounds(bounds, { padding: [50, 50] });
+        }
+    }, [map, bounds]);
+    
+    return null;
+};
+
 const ItineraryMap = ({ itinerary = [] }) => {
     const [zoom, setZoom] = useState(10);
-    const [mapSize, setMapSize] = useState({ width: 640, height: 400 });
-    const [imageLoaded, setImageLoaded] = useState(false);
-    const [imageError, setImageError] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
+    const mapRef = useRef(null);
 
-    // Filter out places without coordinates
+    // Filter out places without valid coordinates
     const validPlaces = useMemo(() => {
-        const valid = itinerary.filter(item => 
-            item?.place?.latitude != null && 
-            item?.place?.longitude != null &&
-            !isNaN(item.place.latitude) &&
-            !isNaN(item.place.longitude)
-        );
+        const valid = itinerary.filter(item => {
+            // Check if place exists
+            if (!item?.place) return false;
+            
+            const { latitude, longitude } = item.place;
+            
+            // Check if both lat and lng exist and are not null/undefined
+            if (latitude == null || longitude == null) return false;
+            
+            // Check if both are valid numbers
+            const lat = parseFloat(latitude);
+            const lng = parseFloat(longitude);
+            
+            if (isNaN(lat) || isNaN(lng)) return false;
+            
+            // Check if within valid ranges
+            if (lat < -90 || lat > 90) return false;
+            if (lng < -180 || lng > 180) return false;
+            
+            return true;
+        });
         
         // Debug logging
         if (itinerary.length > 0 && valid.length === 0) {
@@ -128,6 +190,24 @@ const ItineraryMap = ({ itinerary = [] }) => {
         const avgLng = validPlaces.reduce((sum, item) => sum + parseFloat(item.place.longitude), 0) / validPlaces.length;
         
         return { lat: avgLat, lng: avgLng };
+    }, [validPlaces]);
+
+    // Calculate bounds for all markers
+    const bounds = useMemo(() => {
+        if (validPlaces.length === 0) return null;
+        
+        return validPlaces.map(item => [
+            parseFloat(item.place.latitude),
+            parseFloat(item.place.longitude)
+        ]);
+    }, [validPlaces]);
+
+    // Prepare polyline coordinates
+    const polylinePositions = useMemo(() => {
+        return validPlaces.map(item => [
+            parseFloat(item.place.latitude),
+            parseFloat(item.place.longitude)
+        ]);
     }, [validPlaces]);
 
     // Auto-adjust zoom based on distance between points
@@ -156,67 +236,27 @@ const ItineraryMap = ({ itinerary = [] }) => {
         setZoom(calculatedZoom);
     }, [validPlaces]);
 
-    // Update map size based on container width
-    useEffect(() => {
-        const updateSize = () => {
-            const container = document.getElementById('map-container');
-            if (container) {
-                const width = Math.min(640, container.offsetWidth - 20);
-                const height = Math.round(width * 0.625); // 16:10 ratio
-                setMapSize({ width, height });
-            }
-        };
-
-        updateSize();
-        window.addEventListener('resize', updateSize);
-        return () => window.removeEventListener('resize', updateSize);
-    }, []);
-
-    // Generate Google Maps Static API URL
-    const generateMapUrl = () => {
-        if (!mapCenter || validPlaces.length < 2) return null;
-
-        const baseUrl = 'https://maps.googleapis.com/maps/api/staticmap';
-        
-        // Build markers parameter
-        const markers = validPlaces.map((item, index) => {
-            const label = String.fromCharCode(65 + index); // A, B, C, ...
-            return `markers=color:red%7Clabel:${label}%7C${item.place.latitude},${item.place.longitude}`;
-        }).join('&');
-
-        // Build path parameter to connect the points
-        const path = validPlaces.map(item => 
-            `${item.place.latitude},${item.place.longitude}`
-        ).join('|');
-
-        const params = [
-            `center=${mapCenter.lat},${mapCenter.lng}`,
-            `zoom=${zoom}`,
-            `size=${mapSize.width}x${mapSize.height}`,
-            `scale=2`,
-            markers,
-            validPlaces.length > 1 ? `path=color:0x3D5A80%7Cweight:3%7C${path}` : '',
-            // Add API key from environment variable if available
-            process.env.REACT_APP_GOOGLE_MAPS_API_KEY ? `key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}` : ''
-        ].filter(Boolean).join('&');
-
-        return `${baseUrl}?${params}`;
-    };
-
     const handleZoomIn = () => {
-        setZoom(prev => Math.min(prev + 1, 20));
-        setImageLoaded(false);
+        if (mapRef.current) {
+            mapRef.current.zoomIn();
+        }
     };
 
     const handleZoomOut = () => {
-        setZoom(prev => Math.max(prev - 1, 1));
-        setImageLoaded(false);
+        if (mapRef.current) {
+            mapRef.current.zoomOut();
+        }
+    };
+
+    const handleFitBounds = () => {
+        if (mapRef.current && bounds && bounds.length > 0) {
+            mapRef.current.fitBounds(bounds, { padding: [50, 50] });
+        }
     };
 
     const handleRefresh = () => {
         setRefreshKey(prev => prev + 1);
-        setImageLoaded(false);
-        setImageError(false);
+        handleFitBounds();
     };
 
     // Don't render if less than 2 places
@@ -264,9 +304,7 @@ const ItineraryMap = ({ itinerary = [] }) => {
         return null;
     }
 
-    const mapUrl = generateMapUrl();
-
-    if (!mapUrl) {
+    if (!mapCenter) {
         return null;
     }
 
@@ -287,26 +325,28 @@ const ItineraryMap = ({ itinerary = [] }) => {
                 </Box>
                 <Box sx={{ display: 'flex', gap: 0.5 }}>
                     <Tooltip title="Zoom Out" arrow>
-                        <span>
-                            <StyledIconButton 
-                                size="small" 
-                                onClick={handleZoomOut}
-                                disabled={zoom <= 1}
-                            >
-                                <ZoomOut fontSize="small" />
-                            </StyledIconButton>
-                        </span>
+                        <StyledIconButton 
+                            size="small" 
+                            onClick={handleZoomOut}
+                        >
+                            <ZoomOut fontSize="small" />
+                        </StyledIconButton>
                     </Tooltip>
                     <Tooltip title="Zoom In" arrow>
-                        <span>
-                            <StyledIconButton 
-                                size="small" 
-                                onClick={handleZoomIn}
-                                disabled={zoom >= 20}
-                            >
-                                <ZoomIn fontSize="small" />
-                            </StyledIconButton>
-                        </span>
+                        <StyledIconButton 
+                            size="small" 
+                            onClick={handleZoomIn}
+                        >
+                            <ZoomIn fontSize="small" />
+                        </StyledIconButton>
+                    </Tooltip>
+                    <Tooltip title="Fit to View" arrow>
+                        <StyledIconButton 
+                            size="small" 
+                            onClick={handleFitBounds}
+                        >
+                            <MyLocation fontSize="small" />
+                        </StyledIconButton>
                     </Tooltip>
                     <Tooltip title="Refresh Map" arrow>
                         <StyledIconButton size="small" onClick={handleRefresh}>
@@ -317,56 +357,46 @@ const ItineraryMap = ({ itinerary = [] }) => {
             </StyledMapHeader>
 
             <StyledMapContent>
-                <MapImageContainer id="map-container">
-                    {!imageLoaded && !imageError && (
-                        <Box 
-                            sx={{ 
-                                display: 'flex', 
-                                justifyContent: 'center', 
-                                alignItems: 'center',
-                                minHeight: 200,
-                                backgroundColor: '#f5f5f5'
-                            }}
-                        >
-                            <CircularProgress sx={{ color: '#3D5A80' }} />
-                        </Box>
-                    )}
-                    
-                    {imageError && (
-                        <Box sx={{ p: 2 }}>
-                            <Alert 
-                                severity="warning"
-                                sx={{
-                                    borderRadius: 0,
-                                    border: '2px solid #2C2C2C'
-                                }}
-                            >
-                                <PixelTypography sx={{ fontSize: '0.6rem', lineHeight: 1.8 }}>
-                                    Map could not be loaded. Check coordinates or API key configuration.
-                                </PixelTypography>
-                            </Alert>
-                        </Box>
-                    )}
-
-                    <img
-                        key={refreshKey}
-                        src={mapUrl}
-                        alt="Trip itinerary map"
-                        style={{
-                            width: '100%',
-                            height: 'auto',
-                            display: imageLoaded ? 'block' : 'none'
-                        }}
-                        onLoad={() => {
-                            setImageLoaded(true);
-                            setImageError(false);
-                        }}
-                        onError={() => {
-                            setImageError(true);
-                            setImageLoaded(false);
-                        }}
-                    />
-                </MapImageContainer>
+                <MapContainer_Styled key={refreshKey}>
+                    <MapContainer
+                        center={[mapCenter.lat, mapCenter.lng]}
+                        zoom={zoom}
+                        scrollWheelZoom={true}
+                        ref={mapRef}
+                        style={{ height: '100%', width: '100%' }}
+                    >
+                        <TileLayer
+                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        />
+                        
+                        {/* Fit bounds on mount/update */}
+                        <FitBounds bounds={bounds} />
+                        
+                        {/* Draw polyline connecting all points */}
+                        {polylinePositions.length > 1 && (
+                            <Polyline
+                                positions={polylinePositions}
+                                color="#3D5A80"
+                                weight={4}
+                                opacity={0.8}
+                            />
+                        )}
+                        
+                        {/* Render markers for each place */}
+                        {validPlaces.map((item, index) => (
+                            <Marker
+                                key={`${item.place.id}-${index}`}
+                                position={[
+                                    parseFloat(item.place.latitude),
+                                    parseFloat(item.place.longitude)
+                                ]}
+                                icon={createNumberedIcon(index)}
+                                title={item.place.name || `Stop ${index + 1}`}
+                            />
+                        ))}
+                    </MapContainer>
+                </MapContainer_Styled>
 
                 <Box sx={{ mt: 2 }}>
                     <PixelTypography 
