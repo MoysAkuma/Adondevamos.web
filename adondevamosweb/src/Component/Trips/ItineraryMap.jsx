@@ -10,9 +10,10 @@ import {
     Tooltip
 } from '@mui/material';
 import { Map as MapIcon, ZoomIn, ZoomOut, Refresh, MyLocation } from '@mui/icons-material';
-import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { Link as RouterLink } from 'react-router-dom';
 
 /**
  * ItineraryMap Component
@@ -171,13 +172,6 @@ const ItineraryMap = ({ itinerary = [] }) => {
             
             return true;
         });
-        
-        // Debug logging
-        if (itinerary.length > 0 && valid.length === 0) {
-            console.log('ItineraryMap: No valid coordinates found in itinerary', itinerary);
-        } else if (valid.length > 0) {
-            console.log(`ItineraryMap: Found ${valid.length} valid places with coordinates`, valid);
-        }
         
         return valid;
     }, [itinerary]);
@@ -393,7 +387,52 @@ const ItineraryMap = ({ itinerary = [] }) => {
                                 ]}
                                 icon={createNumberedIcon(index)}
                                 title={item.place.name || `Stop ${index + 1}`}
-                            />
+                            >
+                                <Popup>
+                                    <Box sx={{ 
+                                        fontFamily: "'Press Start 2P', cursive",
+                                        fontSize: '0.6rem',
+                                        lineHeight: 1.8,
+                                        textAlign: 'center'
+                                    }}>
+                                        <Typography sx={{ 
+                                            fontFamily: "'Press Start 2P', cursive",
+                                            fontSize: '0.6rem',
+                                            fontWeight: 'bold',
+                                            mb: 1,
+                                            color: '#2C2C2C'
+                                        }}>
+                                            {String.fromCharCode(65 + index)}. {item.place.name || `Stop ${index + 1}`}
+                                        </Typography>
+                                        <RouterLink 
+                                            to={`/View/Place/${item.place.id}`}
+                                            style={{
+                                                fontFamily: "'Press Start 2P', cursive",
+                                                fontSize: '0.5rem',
+                                                color: '#3D5A80',
+                                                textDecoration: 'none',
+                                                display: 'inline-block',
+                                                padding: '4px 8px',
+                                                border: '2px solid #2C2C2C',
+                                                backgroundColor: '#52B788',
+                                                color: '#FFFFFF',
+                                                borderRadius: '0',
+                                                transition: 'all 0.2s'
+                                            }}
+                                            onMouseEnter={(e) => {
+                                                e.target.style.backgroundColor = '#40916C';
+                                                e.target.style.transform = 'translateY(-2px)';
+                                            }}
+                                            onMouseLeave={(e) => {
+                                                e.target.style.backgroundColor = '#52B788';
+                                                e.target.style.transform = 'translateY(0)';
+                                            }}
+                                        >
+                                            View Place
+                                        </RouterLink>
+                                    </Box>
+                                </Popup>
+                            </Marker>
                         ))}
                     </MapContainer>
                 </MapContainer_Styled>

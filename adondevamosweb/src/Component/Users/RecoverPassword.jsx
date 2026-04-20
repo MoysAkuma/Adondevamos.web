@@ -1,11 +1,9 @@
 import React from "react";
 import { useState } from "react";
-import { Typography, Box, TextField, 
-    Alert, Snackbar } from "@mui/material";
+import { Typography, Box, TextField, Alert, Snackbar } from "@mui/material";
 import { Button, Modal } from "@mui/material";
 import { Help } from "@mui/icons-material";
-import axios from "axios";
-import config from "../../Resources/config";
+import useRecoverPasswordApi from "../../hooks/Session/useRecoverPasswordApi";
 
 const style = {
   position: 'absolute',
@@ -23,11 +21,13 @@ const style = {
 
 export default function RecoverPassword() {
     const [open, setOpen] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [anonEmail, setAnonEmail] = useState("");
     const [emailError, setEmailError] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
     const [showMessage, setShowMessage] = useState(false);
+
+    // Use the password recovery API hook
+    const { recoverPassword, isLoading, error: apiError, resetState } = useRecoverPasswordApi();
 
     // Email validation regex
     const isValidEmail = (email) => {
@@ -38,8 +38,7 @@ export default function RecoverPassword() {
     const handleOpen = () => {
         setOpen(true);
         setEmailError("");
-        setSuccessMessage("");
-        setAnonEmail("");
+        resetState(); // Reset API hook state
     };
 
     const handleClose = () => {
@@ -47,6 +46,7 @@ export default function RecoverPassword() {
         setEmailError("");
         setSuccessMessage("");
         setAnonEmail("");
+        resetState(); // Reset API hook state
         setTimeout(() => {
             setShowMessage(false);
         }, 10000);
@@ -75,42 +75,35 @@ export default function RecoverPassword() {
             setEmailError("Please enter a valid email address");
             return;
         }
-        handleClose();
-        await callRecoverPasswordAPI(anonEmail);
+
+        // Call the API hook
+        const result = await recoverPassword(anonEmail);
+        
+        if (result.success) {
+            setSuccessMessage('Password recovery link sent to your email. Please check your inbox.');
+            setShowMessage(true);
+            // Close modal and reset form without clearing success message
+            setOpen(false);
+            setEmailError("");
+            setAnonEmail("");
+            resetState();
+        } else {
+            setEmailError(result.error || 'Error sending instructions. Please try again.');
+        }
     };
 
-    const callRecoverPasswordAPI = async (email) => {
-        setIsSubmitting(true);
-        setEmailError("");
-        
-        try {
-            const response = await axios.post(
-                `${config.api.baseUrl}/Users/RecoverPassword`, 
-                { email },
-                { withCredentials: true }
-            );
-            setSuccessMessage('Instructions sent to your email.');
-            setShowMessage(true);
-        } catch (error) {
-            setEmailError(error.response?.data?.message || 'Error sending instructions. Please try again.');
-            
-        }
-        finally {
-            setIsSubmitting(false);
-        }
-        
-    };
     const handleCloseAlert = (event, reason) => {
         if (reason === 'clickaway') {
-        return;
+            return;
         }
+        setShowMessage(false);
     };
 
     return (
         <>
             <Button 
                 type="button" 
-                disabled={isSubmitting}
+                disabled={isLoading}
                 variant="text"
                 size="small"
                 endIcon={<Help/>}
@@ -152,9 +145,9 @@ export default function RecoverPassword() {
                             We will send you an email with instructions to recover your password.
                         </Typography>
 
-                        {successMessage && (
-                            <Alert severity="success" sx={{ mt: 2 }}>
-                                {successMessage}
+                        {apiError && (
+                            <Alert severity="error" sx={{ mt: 2 }}>
+                                {apiError}
                             </Alert>
                         )}
                         
@@ -168,33 +161,32 @@ export default function RecoverPassword() {
                                 type="button"
                                 variant="outlined"
                                 onClick={handleClose}
-                                disabled={isSubmitting}
+                                disabled={isLoading}
                             >
                                 Cancel
                             </Button>
                             <Button 
                                 type="submit" 
-                                disabled={isSubmitting || !anonEmail}
+                                disabled={isLoading || !anonEmail}
                                 variant="contained"
                             >
-                                {isSubmitting ? "Sending..." : "Send Instructions"}
+                                {isLoading ? "Sending..." : "Send Instructions"}
                             </Button>
                         </Box>
                     </Box>
                 </Box>
             </Modal>
-            <Snackbar open={showMessage} 
+
+            <Snackbar 
+                open={showMessage} 
                 autoHideDuration={6000} 
-                onClose={handleCloseAlert}>
-                <Alert
-                    onClose={handleCloseAlert}
-                    severity="success"
-                    variant="filled"
-                    sx={{ width: '100%' }}
-                >
-                    Password recovery instructions sent successfully.
+                onClose={handleCloseAlert}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseAlert} severity="success" sx={{ width: '100%' }}>
+                    {successMessage}
                 </Alert>
-                </Snackbar>
+            </Snackbar>
         </>
     );
 }

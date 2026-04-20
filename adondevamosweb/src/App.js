@@ -13,6 +13,7 @@ import Profile from "./Pages/Profile";
 import FAQ from "./Pages/FAQ";
 import RankingPage from "./Pages/Ranking";
 import ConfirmEmail from "./Pages/ConfirmEmail";
+import ResetPassword from "./Pages/ResetPassword";
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from "./Component/Commons/ProtectedRoute";
 import SessionWarning from "./Component/Commons/SessionWarning";
@@ -46,6 +47,7 @@ function AppContent() {
           <Route exact path="/" element={ <Home /> } />
           <Route path="/Login" element={ <Login/>}/>
           <Route path="/confirm-email" element={ <ConfirmEmail/>}/>
+          <Route path="/reset-password" element={ <ResetPassword/>}/>
           <Route path="/Trips" element={ <MainTrips/>}/>
           <Route path="/Places" element={ <MainPlaces/>}/>
           <Route path="/ManageSite" element={<ProtectedRoute 
