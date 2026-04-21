@@ -149,9 +149,30 @@ const ItineraryMap = ({ itinerary = [] }) => {
     const [refreshKey, setRefreshKey] = useState(0);
     const mapRef = useRef(null);
 
+    // Sort itinerary by initial date
+    const sortedItinerary = useMemo(() => {
+        return [...itinerary].sort((a, b) => {
+            // Parse initial dates
+            const dateA = new Date(a.initialdate);
+            const dateB = new Date(b.initialdate);
+            
+            // Primary sort by initial date
+            const initialDateComparison = dateA.getTime() - dateB.getTime();
+            
+            // If initial dates are the same, sort by final date
+            if (initialDateComparison === 0 && a.finaldate && b.finaldate) {
+                const finalDateA = new Date(a.finaldate);
+                const finalDateB = new Date(b.finaldate);
+                return finalDateA.getTime() - finalDateB.getTime();
+            }
+            
+            return initialDateComparison;
+        });
+    }, [itinerary]);
+
     // Filter out places without valid coordinates
     const validPlaces = useMemo(() => {
-        const valid = itinerary.filter(item => {
+        const valid = sortedItinerary.filter(item => {
             // Check if place exists
             if (!item?.place) return false;
             
@@ -174,7 +195,7 @@ const ItineraryMap = ({ itinerary = [] }) => {
         });
         
         return valid;
-    }, [itinerary]);
+    }, [sortedItinerary]);
 
     // Calculate map center
     const mapCenter = useMemo(() => {
@@ -256,7 +277,7 @@ const ItineraryMap = ({ itinerary = [] }) => {
     // Don't render if less than 2 places
     if (validPlaces.length < 2) {
         // Show helpful message if there are places but not enough valid coordinates
-        if (itinerary.length >= 2 && validPlaces.length < 2) {
+        if (sortedItinerary.length >= 2 && validPlaces.length < 2) {
             return (
                 <StyledMapCard>
                     <StyledMapHeader>

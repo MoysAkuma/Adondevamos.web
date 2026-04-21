@@ -409,6 +409,44 @@ function Itinerary ({
         page * itemsPerPage
     );
 
+    // Get top 3 most voted places
+    const getTop3MostVoted = () => {
+        // Create array of all places with their vote counts
+        const placesWithVotes = sortedItinerary.map(visit => ({
+            placeId: visit.place.id,
+            votes: voteCounts.get(visit.place.id) || 0
+        }));
+        
+        // Sort by votes (descending) and get unique places
+        const sortedUniquePlaces = placesWithVotes
+            .filter(item => item.votes > 0) // Only include places with votes
+            .sort((a, b) => b.votes - a.votes)
+            .reduce((acc, current) => {
+                // Remove duplicates by placeId
+                if (!acc.find(item => item.placeId === current.placeId)) {
+                    acc.push(current);
+                }
+                return acc;
+            }, [])
+            .slice(0, 3); // Get top 3
+        
+        return {
+            first: sortedUniquePlaces[0]?.placeId,
+            second: sortedUniquePlaces[1]?.placeId,
+            third: sortedUniquePlaces[2]?.placeId
+        };
+    };
+
+    const top3 = getTop3MostVoted();
+
+    // Get background color based on place ranking
+    const getPlaceBackgroundColor = (placeId) => {
+        if (placeId === top3.first) return '#FFD700'; // Gold
+        if (placeId === top3.second) return '#C0C0C0'; // Silver
+        if (placeId === top3.third) return '#CD7F32'; // Bronze
+        return '#69bee0'; // Default blue
+    };
+
     // Handle slider change
     const handleSliderChange = (event, newValue) => {
         setSliderValue(newValue);
@@ -641,6 +679,13 @@ function Itinerary ({
                                 sx={{
                                     py: 2,
                                     px: 2,
+                                    backgroundColor: getPlaceBackgroundColor(visit.place.id),
+                                    '&:hover': {
+                                        backgroundColor: visit.place.id === top3.first ? '#E6C200' :
+                                                        visit.place.id === top3.second ? '#A8A8A8' :
+                                                        visit.place.id === top3.third ? '#B86F28' :
+                                                        '#D4956B',
+                                    },
                                 }}
                                 secondaryAction={
                                     <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
@@ -705,6 +750,18 @@ function Itinerary ({
                                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                                             {/* Place Name with More Space */}
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                {/* Top 3 Badge */}
+                                                {(visit.place.id === top3.first || visit.place.id === top3.second || visit.place.id === top3.third) && (
+                                                    <Box sx={{ 
+                                                        fontSize: '1.2rem',
+                                                        display: 'flex',
+                                                        alignItems: 'center'
+                                                    }}>
+                                                        {visit.place.id === top3.first && '🥇'}
+                                                        {visit.place.id === top3.second && '🥈'}
+                                                        {visit.place.id === top3.third && '🥉'}
+                                                    </Box>
+                                                )}
                                                 <PixelTypography
                                                     component="span"
                                                     variant="body1" 
