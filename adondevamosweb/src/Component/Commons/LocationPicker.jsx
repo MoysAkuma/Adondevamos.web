@@ -128,13 +128,16 @@ const MapClickHandler = ({ onLocationSelect }) => {
   return null;
 };
 
-// Component to recenter map
+// Component to recenter map (optimized - no auto-recenter)
 const RecenterMap = ({ center, zoom }) => {
   const map = useMap();
+  const hasInitialized = useRef(false);
   
   useEffect(() => {
-    if (center) {
+    // Only set view on initial mount, not on every position change
+    if (!hasInitialized.current && center) {
       map.setView(center, zoom);
+      hasInitialized.current = true;
     }
   }, [center, zoom, map]);
   
@@ -157,36 +160,73 @@ function LocationPicker({
   const mapRef = useRef(null);
   const markerRef = useRef(null);
 
+  // Validate coordinates helper function
+  const isValidCoordinate = (latitude, longitude) => {
+    return (
+      latitude !== '' && 
+      longitude !== '' && 
+      !isNaN(latitude) && 
+      !isNaN(longitude) &&
+      latitude >= -90 && 
+      latitude <= 90 && 
+      longitude >= -180 && 
+      longitude <= 180
+    );
+  };
+
   useEffect(() => {
-    setLat(Number(latitude));
-    setLng(Number(longitude));
+    const newLat = Number(latitude);
+    const newLng = Number(longitude);
+    // Only update if provided coordinates are valid
+    if (isValidCoordinate(newLat, newLng)) {
+      setLat(newLat);
+      setLng(newLng);
+    } else {
+      console.warn('Invalid initial coordinates provided:', { latitude, longitude });
+    }
   }, [latitude, longitude]);
 
   const position = useMemo(() => [lat, lng], [lat, lng]);
 
-  const handleLocationSelect = (newLat, newLng) => {
-    setLat(newLat);
-    setLng(newLng);
-    if (onChange) {
-      onChange(newLat, newLng);
+  // Normalize longitude to -180 to 180 range
+  const normalizeLongitude = (lng) => {
+    // Wrap longitude to -180 to 180 range
+    let normalized = lng % 360;
+    if (normalized > 180) {
+      normalized -= 360;
+    } else if (normalized < -180) {
+      normalized += 360;
     }
+    return normalized;
   };
 
-  const handleMarkerDragStart = () => {
-    // Disable map dragging when marker drag starts
-    if (mapRef.current) {
-      mapRef.current.dragging.disable();
+  const handleLocationSelect = (newLat, newLng) => {
+    // Normalize longitude in case it wraps around the map
+    const normalizedLng = normalizeLongitude(newLng);
+    
+    // Clamp latitude to valid range
+    const clampedLat = Math.max(-90, Math.min(90, newLat));
+    
+    // Only update if coordinates are valid after normalization
+    if (!isValidCoordinate(clampedLat, normalizedLng)) {
+      console.warn('Invalid coordinates rejected:', { lat: newLat, lng: newLng, normalized: { lat: clampedLat, lng: normalizedLng } });
+      return;
+    }
+    
+    setLat(clampedLat);
+    setLng(normalizedLng);
+    if (onChange) {
+      onChange(clampedLat, normalizedLng);
     }
   };
 
   const handleMarkerDragEnd = (e) => {
-    const marker = e.target;
-    const position = marker.getLatLng();
-    handleLocationSelect(position.lat, position.lng);
-    
-    // Re-enable map dragging when marker drag ends
-    if (mapRef.current) {
-      mapRef.current.dragging.enable();
+    try {
+      const marker = e.target;
+      const position = marker.getLatLng();
+      handleLocationSelect(position.lat, position.lng);
+    } catch (error) {
+      console.error('Error during marker drag end:', error);
     }
   };
 
@@ -217,6 +257,11 @@ function LocationPicker({
               break;
           }
           setGeoError(errorMessage);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
         }
       );
     } else {
@@ -252,21 +297,13 @@ function LocationPicker({
     setRefreshKey(prev => prev + 1);
     // Optionally recenter after refresh
     setTimeout(() => {
-      if (mapRef.current) {
+      if (mapRef.current && isValidCoordinate(lat, lng)) {
         mapRef.current.setView([lat, lng], currentZoom);
       }
     }, 100);
   };
 
-  const isValidCoordinates = 
-    lat !== '' && 
-    lng !== '' && 
-    !isNaN(lat) && 
-    !isNaN(lng) &&
-    lat >= -90 && 
-    lat <= 90 && 
-    lng >= -180 && 
-    lng <= 180;
+  const isValidCoordinates = isValidCoordinate(lat, lng);
 
   return (
     <StyledPaper elevation={2} $retro={retroStyle}>
@@ -366,16 +403,6 @@ function LocationPicker({
           >
             Use My Location
           </StyledButton>
-          <StyledButton 
-            variant="outlined" 
-            startIcon={<OpenInNew />}
-            onClick={handleOpenInOSM}
-            size="small"
-            $retro={retroStyle}
-            disabled={!isValidCoordinates}
-          >
-            Open in OSM
-          </StyledButton>
         </Stack>
 
         <Box sx={{ position: 'relative', height: height }}>
@@ -387,6 +414,16 @@ function LocationPicker({
                 scrollWheelZoom={true}
                 ref={mapRef}
                 style={{ height: '100%', width: '100%' }}
+                zoomControl={false}
+                attributionControl={true}
+                preferCanvas={true}
+                zoomAnimation={true}
+                fadeAnimation={true}
+                markerZoomAnimation={true}
+                inertia={true}
+                inertiaDeceleration={3000}
+                inertiaMaxSpeed={1500}
+                worldCopyJump={true}
               >
                 <TileLayer
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -401,10 +438,11 @@ function LocationPicker({
                   icon={createDraggableIcon()}
                   draggable={true}
                   eventHandlers={{
-                    dragstart: handleMarkerDragStart,
                     dragend: handleMarkerDragEnd
                   }}
                   ref={markerRef}
+                  autoPan={true}
+                  autoPanSpeed={10}
                 />
               </MapContainer>
 

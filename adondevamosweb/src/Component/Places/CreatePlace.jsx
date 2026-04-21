@@ -405,11 +405,6 @@ function CreatePlace({
           }}
         />
 
-        <Typography variant="h6" component="h6" 
-          gutterBottom align="left" sx={{ mt: 3 }}>
-          Images
-        </Typography>
-
         <GalleryListManager
           items={[]}
           pendingImages={addedImages}

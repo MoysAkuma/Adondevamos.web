@@ -246,6 +246,17 @@ function EditTrip(){
     } 
   }
 
+  const handleDateUpdate = (placeId, initialdate, finaldate) => {
+    setFormTrip(prev => ({
+      ...prev,
+      itinerary: prev.itinerary.map(item => 
+        item.place.id === placeId 
+          ? { ...item, initialdate, finaldate }
+          : item
+      )
+    }));
+  };
+
   const removePhoto = async (item) => {
     try {
       const response = await removeGalleryImage(id, item.id);
@@ -423,6 +434,7 @@ const handleRemoveUser = (event) => {
                   onPlaceAdd={handlePlaceAdd}
                   onPlaceRemove={handleRemove}
                   onClearItinerary={clearItinerary}
+                  onDateUpdate={handleDateUpdate}
                 />
               </Box>
             </Collapse>

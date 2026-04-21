@@ -12,10 +12,18 @@ import {
     ListItemText,
     ListItemAvatar,
     Avatar,
-    Divider
+    Divider,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    TextField,
+    Stack,
+    IconButton,
+    Chip
 } from '@mui/material';
 
-import { LocationCity } from '@mui/icons-material';
+import { LocationCity, Edit, CalendarMonth, Close } from '@mui/icons-material';
 import { Add, Delete, WatchLater } from '@mui/icons-material';
 import SearchPlaces from '../SearchPlaces';
 import utils from '../../../Resources/utils';
@@ -24,10 +32,14 @@ function ManageItinerary({
     itinerary = [], 
     onPlaceAdd, 
     onPlaceRemove, 
-    onClearItinerary 
+    onClearItinerary,
+    onDateUpdate
 }) {
     const [showManager, setShowManager] = useState(false);
     const [duplicateError, setDuplicateError] = useState(false);
+    const [dateModalOpen, setDateModalOpen] = useState(false);
+    const [selectedVisit, setSelectedVisit] = useState(null);
+    const [tempDates, setTempDates] = useState({ initialdate: '', finaldate: '' });
 
     const handlePlaceAdd = (item) => {
         // Search if exists in itinerary
@@ -64,6 +76,35 @@ function ManageItinerary({
     const showSearch = () => {
         setShowManager(true);
         setDuplicateError(false);
+    };
+
+    const handleDateClick = (visit) => {
+        setSelectedVisit(visit);
+        setTempDates({
+            initialdate: visit.initialdate || '',
+            finaldate: visit.finaldate || ''
+        });
+        setDateModalOpen(true);
+    };
+
+    const handleDateModalClose = () => {
+        setDateModalOpen(false);
+        setSelectedVisit(null);
+        setTempDates({ initialdate: '', finaldate: '' });
+    };
+
+    const handleDateChange = (field, value) => {
+        setTempDates(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
+
+    const handleSaveDates = () => {
+        if (selectedVisit && onDateUpdate) {
+            onDateUpdate(selectedVisit.place.id, tempDates.initialdate, tempDates.finaldate);
+        }
+        handleDateModalClose();
     };
 
 
@@ -120,10 +161,31 @@ function ManageItinerary({
                                         </Box>
                                     }
                                     secondary={
-                                        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                                            {utils.generateDateText(visit.initialdate, visit.finaldate)}
-                                        </Typography>
+                                        <Box 
+                                            onClick={() => handleDateClick(visit)}
+                                            sx={{ 
+                                                mt: 0.5,
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: 0.5,
+                                                cursor: 'pointer',
+                                                padding: '4px 8px',
+                                                borderRadius: 1,
+                                                transition: 'all 0.2s',
+                                                '&:hover': {
+                                                    bgcolor: 'action.hover',
+                                                    color: 'primary.main'
+                                                }
+                                            }}
+                                        >
+                                            <CalendarMonth sx={{ fontSize: 16 }} />
+                                            <Typography variant="body2" color="text.secondary" component="span">
+                                                {utils.generateDateText(visit.initialdate, visit.finaldate)}
+                                            </Typography>
+                                            <Edit sx={{ fontSize: 14, ml: 0.5, opacity: 0.6 }} />
+                                        </Box>
                                     }
+                                    secondaryTypographyProps={{ component: 'div' }}
                                 />
                             </ListItem>
                             
@@ -197,7 +259,74 @@ function ManageItinerary({
             itinerary.length > 0 && (
                 generateItineratyList(itinerary)
             )}
-        </>
+            {/* Date Edit Modal */}
+            <Dialog 
+                open={dateModalOpen} 
+                onClose={handleDateModalClose}
+                maxWidth="sm"
+                fullWidth
+            >
+                <DialogTitle>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <CalendarMonth color="primary" />
+                            <Typography variant="h6">
+                                Edit Dates - {selectedVisit?.place.name}
+                            </Typography>
+                        </Box>
+                        <IconButton size="small" onClick={handleDateModalClose}>
+                            <Close />
+                        </IconButton>
+                    </Box>
+                </DialogTitle>
+                <DialogContent>
+                    <Stack spacing={3} sx={{ mt: 2 }}>
+                        <TextField
+                            label="Start Date"
+                            type="date"
+                            value={tempDates.initialdate ? tempDates.initialdate.split('T')[0] : ''}
+                            onChange={(e) => handleDateChange('initialdate', e.target.value)}
+                            fullWidth
+                            InputLabelProps={{
+                                shrink: true,
+                            }}
+                            helperText="When do you plan to arrive?"
+                        />
+                        <TextField
+                            label="End Date"
+                            type="date"
+                            value={tempDates.finaldate ? tempDates.finaldate.split('T')[0] : ''}
+                            onChange={(e) => handleDateChange('finaldate', e.target.value)}
+                            fullWidth
+                            InputLabelProps={{
+                                shrink: true,
+                            }}
+                            helperText="When do you plan to leave?"
+                            inputProps={{
+                                min: tempDates.initialdate ? tempDates.initialdate.split('T')[0] : undefined
+                            }}
+                        />
+                        
+                        {tempDates.initialdate && tempDates.finaldate && (
+                            <Alert severity="info" icon={<CalendarMonth />}>
+                                Duration: {utils.generateDateText(tempDates.initialdate, tempDates.finaldate)}
+                            </Alert>
+                        )}
+                    </Stack>
+                </DialogContent>
+                <DialogActions sx={{ px: 3, pb: 2 }}>
+                    <Button onClick={handleDateModalClose} color="inherit">
+                        Cancel
+                    </Button>
+                    <Button 
+                        onClick={handleSaveDates} 
+                        variant="contained"
+                        startIcon={<CalendarMonth />}
+                    >
+                        Save Dates
+                    </Button>
+                </DialogActions>
+            </Dialog>        </>
     );
 }
 
