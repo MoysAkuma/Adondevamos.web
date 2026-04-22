@@ -140,6 +140,8 @@ function CreatePlace({
         setSubmitSuccess(true);
         
         const placeId = response.data.info?.id;
+        console.log("Created place ID:", placeId);
+        console.log("Added images count:", addedImages.length);
 
         // Save facilities
         if (placeId) {
@@ -147,20 +149,36 @@ function CreatePlace({
           
           // Upload images if added
           if (addedImages.length > 0) {
-            await uploadImages({
-              images: addedImages,
-              context: { placeId },
-              buildPayload: (normalizedImages, uploadContext) => ({
-                images: normalizedImages.map((image, index) => ({
-                  name: `place_${uploadContext.placeId}_${Date.now()}_${index}`,
-                  data: image.data,
-                  mimetype: image.mimetype,
-                  extension: image.extension
-                }))
-              }),
-              uploadRequest: (payload) => saveGalleryImages(placeId, payload)
-            });
-            setMessageSnack("Photos uploaded successfully!");
+            try {
+              console.log("Starting image upload for", addedImages.length, "images");
+              const uploadResult = await uploadImages({
+                images: addedImages,
+                context: { placeId },
+                buildPayload: (normalizedImages, uploadContext) => ({
+                  images: normalizedImages.map((image, index) => ({
+                    name: `place_${uploadContext.placeId}_${Date.now()}_${index}`,
+                    data: image.data,
+                    mimetype: image.mimetype,
+                    extension: image.extension
+                  }))
+                }),
+                uploadRequest: (payload) => saveGalleryImages(placeId, payload)
+              });
+              
+              console.log("Upload result:", uploadResult);
+              
+              if (uploadResult?.uploaded) {
+                setMessageSnack(`Place created! ${uploadResult.count} photo(s) uploaded successfully!`);
+              } else {
+                setMessageSnack("Place created but no photos were uploaded.");
+              }
+            } catch (uploadError) {
+              console.error("Error uploading images:", uploadError);
+              console.error("Upload error details:", uploadError.response?.data);
+              setMessageSnack("Place created but image upload failed: " + (uploadError.response?.data?.message || uploadError.message));
+            }
+          } else {
+            setMessageSnack("Place created successfully!");
           }
           
           // Navigate to the new place after a short delay
@@ -404,11 +422,6 @@ function CreatePlace({
             }));
           }}
         />
-
-        <Typography variant="h6" component="h6" 
-          gutterBottom align="left" sx={{ mt: 3 }}>
-          Images
-        </Typography>
 
         <GalleryListManager
           items={[]}

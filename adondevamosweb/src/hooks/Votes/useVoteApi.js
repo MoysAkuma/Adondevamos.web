@@ -8,7 +8,7 @@ export const useVoteApi = () => {
     []
   );
 
-  const getAuthToken = useCallback(() => sessionStorage.getItem('authToken'), []);
+  const getAuthToken = useCallback(() => localStorage.getItem('authToken') || sessionStorage.getItem('authToken'), []);
 
   const buildAuthHeaders = useCallback((headers = {}) => {
     const token = getAuthToken();

@@ -2,28 +2,30 @@ import React from "react";
 import 
     {
         MenuItem,
-        Select
+        Select,
+        FormControl,
+        FormHelperText
 } from '@mui/material';
 
 function CitiesSelect({ val, onChangecall, catCities}){
     return (
-    <Select
-        id="cityid"
-        name="cityid"
-        helperText="Please select your City"
-        value={val}
-        onChange={onChangecall}
-        fullWidth
-        variant="standard"
-        >
-        {  
-            catCities?.map((option) => (
-            <MenuItem key={option.id} value={option.id}>
-            {option.name}
-            </MenuItem>
-        ))
-        }
-    </Select>
+    <FormControl fullWidth variant="standard">
+        <Select
+            id="cityid"
+            name="cityid"
+            value={val}
+            onChange={onChangecall}
+            >
+            {  
+                catCities?.map((option) => (
+                <MenuItem key={option.id} value={option.id}>
+                {option.name}
+                </MenuItem>
+            ))
+            }
+        </Select>
+        <FormHelperText>Please select your City</FormHelperText>
+    </FormControl>
     );
 }
 

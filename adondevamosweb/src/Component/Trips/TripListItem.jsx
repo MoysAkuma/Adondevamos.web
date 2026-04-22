@@ -63,9 +63,10 @@ function TripListItem({ trip, onView }) {
                     </PixelTypography>
                 }
                 secondary={
-                    <Box>
+                    <Box component="span" sx={{ display: 'block' }}>
                         {description && (
                             <Typography
+                                component="span"
                                 variant="body2"
                                 sx={{
                                     color: '#2C2C2C',
@@ -82,7 +83,7 @@ function TripListItem({ trip, onView }) {
                                 {description}
                             </Typography>
                         )}
-                        <Stack direction="row" spacing={1} flexWrap="wrap" sx={{ gap: 1 }}>
+                        <Stack component="span" direction="row" spacing={1} flexWrap="wrap" sx={{ gap: 1, display: 'flex' }}>
                             {initialDate && finalDate && (
                                 <Chip
                                     icon={<CalendarToday sx={{ fontSize: '0.9rem' }} />}
@@ -145,6 +146,7 @@ function TripListItem({ trip, onView }) {
                         </Stack>
                     </Box>
                 }
+                secondaryTypographyProps={{ component: 'div' }}
             />
             <IconButton
                 edge="end"

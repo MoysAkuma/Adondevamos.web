@@ -9,7 +9,8 @@ import
         Box,
         FormControlLabel,
         Checkbox,
-        CircularProgress
+        CircularProgress,
+        Skeleton
 } from '@mui/material';
 
 import { Save } from '@mui/icons-material';
@@ -82,6 +83,7 @@ function EditPlace({
   const [originalPlace, setOriginalPlace] = useState(null);
 
   // UI state
+  const [isLoadingPlace, setIsLoadingPlace] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -265,6 +267,7 @@ function EditPlace({
   useEffect(() => {
     const fetchPlace = async () => {
       if (!id) return;
+      setIsLoadingPlace(true);
       try {
         const response = await getPlace(id);
         const placeData = response.data.info;
@@ -312,6 +315,8 @@ function EditPlace({
           place: true
         }));
         console.error("Error getting place info:", err);
+      } finally {
+        setIsLoadingPlace(false);
       }
     };
     
@@ -323,6 +328,40 @@ function EditPlace({
       <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
         <CircularProgress />
       </Box>
+    );
+  }
+
+  if (isLoadingPlace) {
+    return (
+      <>
+        <Skeleton variant="text" width="40%" height={50} sx={{ mx: 'auto', mb: 2 }} />
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, width: '100%' }}>
+          <Skeleton variant="text" width="30%" height={40} />
+          <Skeleton variant="rectangular" height={56} />
+          <Skeleton variant="rectangular" height={100} />
+          
+          <Skeleton variant="text" width="30%" height={40} sx={{ mt: 2 }} />
+          <Skeleton variant="rectangular" height={56} />
+          <Skeleton variant="rectangular" height={56} />
+          <Skeleton variant="rectangular" height={56} />
+          <Skeleton variant="rectangular" height={56} />
+          
+          <Skeleton variant="text" width="30%" height={40} sx={{ mt: 2 }} />
+          <Skeleton variant="rectangular" height={200} />
+          
+          <Skeleton variant="text" width="30%" height={40} sx={{ mt: 2 }} />
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Skeleton key={i} variant="rectangular" width={100} height={40} />
+            ))}
+          </Box>
+          
+          <Skeleton variant="text" width="30%" height={40} sx={{ mt: 2 }} />
+          <Skeleton variant="rectangular" height={150} />
+          
+          <Skeleton variant="rectangular" width={150} height={50} sx={{ mt: 2 }} />
+        </Box>
+      </>
     );
   }
 
@@ -490,11 +529,6 @@ function EditPlace({
             ))
           }
         </Box>
-
-        <Typography variant="h6" component="h6" gutterBottom align="left">
-          Gallery
-        </Typography>
-
 
         <GalleryListManager 
           items={originalPlace?.gallery || []} 

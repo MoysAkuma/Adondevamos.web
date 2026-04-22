@@ -371,12 +371,11 @@ function Login(){
                             >
                                 {isSubmitting ? 'Loading...' : 'Log In'}
                             </StyledButton>
-
-                            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
-                                <RecoverPassword />
-                            </Box>
-
-                            <Divider 
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
+                            <RecoverPassword />
+                        </Box>
+                        <Divider 
                                 sx={{ 
                                     my: 2,
                                     borderColor: '#2C2C2C',
@@ -394,27 +393,31 @@ function Login(){
                                     Don't have an account?
                                 </Typography>
                             </Divider>
+                            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
+                                    <StyledButton 
+                                    type="button" 
+                                    disabled={isSubmitting}
+                                    variant="contained"
+                                    size="large"
+                                    startIcon={<PersonAdd />}
+                                    href="/Create/User"
+                                    sx={{
+                                        fontSize: { xs: '0.6rem', sm: '0.7rem' },
+                                        py: 1.5,
+                                        backgroundColor: '#52B788',
+                                        color: '#FFFFFF',
+                                        '&:hover': {
+                                            backgroundColor: '#40916C',
+                                        }
+                                    }}
+                                    >
+                                    Create Account
+                                </StyledButton>
+                            </Box>
                             
-                            <StyledButton 
-                                type="button" 
-                                disabled={isSubmitting}
-                                variant="contained"
-                                size="large"
-                                startIcon={<PersonAdd />}
-                                href="/Create/User"
-                                sx={{
-                                    fontSize: { xs: '0.6rem', sm: '0.7rem' },
-                                    py: 1.5,
-                                    backgroundColor: '#52B788',
-                                    color: '#FFFFFF',
-                                    '&:hover': {
-                                        backgroundColor: '#40916C',
-                                    }
-                                }}
-                            >
-                                Create Account
-                            </StyledButton>
-                        </Box>
+
+                        
+
                     </StyledContentArea>
                 </StyledContentCard>
                 

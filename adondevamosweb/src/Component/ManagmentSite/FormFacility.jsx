@@ -1,6 +1,5 @@
 import React from "react";
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 import 
     {
         TextField, 
@@ -18,6 +17,7 @@ import
     } from '@mui/material';
 import config from '../../Resources/config';
 import FacilityIcon from '../Commons/FacilityIcon';
+import useAuthenticatedApi from '../../hooks/useAuthenticatedApi';
 
 
 function FormFacility({id, callback}){
@@ -30,6 +30,9 @@ function FormFacility({id, callback}){
     const [submitSuccess,setSubmitSuccess] = useState(false);
     
     const [submitError, setSubmitError] = useState('');
+    
+    // Use authenticated API hook with admin headers
+    const { post, patch, isAdmin } = useAuthenticatedApi();
     
     const URLFacilities = `${config.api.baseUrl}${config.api.endpoints.Catalogues}/facility`;
 
@@ -48,7 +51,28 @@ function FormFacility({id, callback}){
         { code: 'Bar', label: 'Bar' },
         { code: 'LocalPostOffice', label: 'Post Office' },
         { code: 'Phone', label: 'Phone' },
-        { code: 'Luggage', label: 'Luggage Storage' }
+        { code: 'Luggage', label: 'Luggage Storage' },
+        { code: 'Atm', label: 'ATM' },
+        { code: 'AirportShuttle', label: 'Airport Shuttle' },
+        { code: 'Architecture', label: 'Architecture' },
+        { code: 'Web', label: 'Web' },
+        { code: 'VideoLabel', label: 'Video Label' },
+        { code: 'Translate', label: 'Translate' },
+        { code: 'Train', label: 'Train' },
+        { code: 'TheaterComedy', label: 'Theater Comedy' },
+        { code: 'TempleBuddhist', label: 'Temple Buddhist' },
+        { code: 'Surfing', label: 'Surfing' },
+        { code: 'Store', label: 'Store' },
+        { code: 'Skateboarding', label: 'Skateboarding' },
+        { code: 'SignalCellularNodata', label: 'Signal Cellular No Data' },
+        { code: 'Attractions', label: 'Attractions' },
+        { code: 'Castle', label: 'Castle' },
+        { code: 'Church', label: 'Church' },
+        { code: 'Coffee', label: 'Coffee' },
+        { code: 'Elevator', label: 'Elevator' },
+        { code: 'Forest', label: 'Forest' },
+        { code: 'IceSkating', label: 'Ice Skating' }
+
     ];
 
     const [formFacility,setFormFacility] = useState({
@@ -73,7 +97,6 @@ function FormFacility({id, callback}){
         setSubmitError('');
         setSubmitSuccess(false);
         try {
-
             // Validate for field Name
             if (!formFacility.name.trim()) {
                 throw new Error('Name of facility is required');
@@ -82,29 +105,34 @@ function FormFacility({id, callback}){
             if (!formFacility.code.trim()) {
                 throw new Error('Icon code is required');
             }
+            
             if (isEdit){
-                // Editing existing facility
-                await axios.patch(`${URLFacilities}/${id}`, formFacility );
+                // Editing existing facility with admin authentication
+                await patch(`${URLFacilities}/${id}`, formFacility);
                 setIsEdit(false);
+            } else {
+                // Creating new facility with admin authentication
+                await post(URLFacilities, formFacility);
             }
-            axios.post(URLFacilities, formFacility )
-            .then(
-                resp => {
-                    //Stop loading form
-                    setLoading(false);
-                    //empty form
-                    setFormFacility({
-                        name: '',
-                        code:''
-                    });
-                    callback();
+            
+            // Success - reset form
+            setLoading(false);
+            setSubmitSuccess(true);
+            setFormFacility({
+                name: '',
+                code: '',
+                enabled: true,
+                hide: false
+            });
+            
+            // Call callback if provided
+            if (callback) {
+                callback();
             }
-        )
-        .catch(error => console.error("Error creating a facility"));
         
         } catch (error) {
             setSubmitError(error.response?.data?.message || error.message);
-            console.error('Error creating place:', error);
+            console.error('Error saving facility:', error);
         } finally {
             setIsSubmitting(false);
         }

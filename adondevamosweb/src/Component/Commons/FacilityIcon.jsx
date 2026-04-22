@@ -12,7 +12,28 @@ import {
     LocalBar,
     HelpOutline,
     MarkunreadMailbox,
-    Phone, Luggage
+    Phone, 
+    Luggage,
+    Atm,
+    AirportShuttle,
+    Architecture,
+    Web,
+    VideoLabel,
+    Translate,
+    Train,
+    TheaterComedy,
+    TempleBuddhist,
+    Surfing,
+    Store,
+    Skateboarding,
+    SignalCellularNodata,
+    Attractions,
+    Castle,
+    Church,
+    Coffee,
+    Elevator,
+    Forest,
+    IceSkating
 } from '@mui/icons-material';
 
 // Icon mapping based on facility code
@@ -30,7 +51,27 @@ const facilityIcons = {
     Bar: LocalBar,
     LocalPostOffice: MarkunreadMailbox,
     Phone: Phone,
-    Luggage: Luggage
+    Luggage: Luggage,
+    Atm: Atm,
+    AirportShuttle: AirportShuttle,
+    Architecture: Architecture,
+    Web: Web,
+    VideoLabel: VideoLabel,
+    Translate: Translate,
+    Train: Train,
+    TheaterComedy: TheaterComedy,
+    TempleBuddhist: TempleBuddhist,
+    Surfing: Surfing,
+    Store: Store,
+    Skateboarding: Skateboarding,
+    SignalCellularNodata: SignalCellularNodata,
+    Attractions: Attractions,
+    Castle: Castle,
+    Church: Church,
+    Coffee: Coffee,
+    Elevator: Elevator,
+    Forest: Forest,
+    IceSkating: IceSkating
 };
 
 function FacilityIcon({ code, ...props }) {

@@ -135,6 +135,17 @@ function EditItinerary() {
         }
     };
 
+    const handleDateUpdate = (placeId, initialdate, finaldate) => {
+        setFormTrip(prev => ({
+            ...prev,
+            itinerary: prev.itinerary.map(item => 
+                item.place.id === placeId 
+                    ? { ...item, initialdate, finaldate }
+                    : item
+            )
+        }));
+    };
+
     const clearItinerary = () => {
         setFormTrip(
             prev => ({
@@ -284,6 +295,7 @@ function EditItinerary() {
                 onPlaceAdd={handlePlaceAdd}
                 onPlaceRemove={handleRemove}
                 onClearItinerary={clearItinerary}
+                onDateUpdate={handleDateUpdate}
             />
 
             {errors.duplicatedplace && (

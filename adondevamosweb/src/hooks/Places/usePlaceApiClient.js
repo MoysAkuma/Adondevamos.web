@@ -8,7 +8,7 @@ export const usePlaceApiClient = () => {
   );
 
   const buildAuthHeaders = useCallback((headers = {}) => {
-    const token = sessionStorage.getItem('authToken');
+    const token = localStorage.getItem('authToken') || sessionStorage.getItem('authToken');
 
     if (!token) {
       return headers;
@@ -20,7 +20,7 @@ export const usePlaceApiClient = () => {
     };
   }, []);
 
-  const getAuthToken = useCallback(() => sessionStorage.getItem('authToken'), []);
+  const getAuthToken = useCallback(() => localStorage.getItem('authToken') || sessionStorage.getItem('authToken'), []);
 
   return {
     placesUrl,

@@ -273,6 +273,17 @@ function CreateTrip( ) {
     } 
   }
 
+  const handleDateUpdate = (placeId, initialdate, finaldate) => {
+    setFormTrip(prev => ({
+      ...prev,
+      itinerary: prev.itinerary.map(item => 
+        item.place.id === placeId 
+          ? { ...item, initialdate, finaldate }
+          : item
+      )
+    }));
+  };
+
   const handleUserAdd = (item) => {
     const foundInList = formTrip.memberlist.filter( x => x.id == item.id );
 
@@ -390,6 +401,7 @@ function CreateTrip( ) {
           onPlaceAdd={handlePlaceAdd}
           onPlaceRemove={handleRemove}
           onClearItinerary={clearItinerary}
+          onDateUpdate={handleDateUpdate}
         />  
 
         <ManageMemberList
