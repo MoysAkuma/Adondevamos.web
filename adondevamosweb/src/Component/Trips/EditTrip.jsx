@@ -8,7 +8,8 @@ import
         useMediaQuery,
         useTheme,
         Collapse,
-        IconButton
+        IconButton,
+        Skeleton
 } from '@mui/material';
 
 import { Save, ExpandMore, ExpandLess
@@ -32,6 +33,7 @@ function EditTrip(){
   const { loading } = useAuth();
   const { uploadImages, isUploading } = useGalleryUpload();
     const [isUser, setIsUser] = useState(false);
+    const [isFetchingTrip, setIsFetchingTrip] = useState(true);
     const navigate = useNavigate();
   const { getTrip, updateTrip } = useTripMutationApi();
   const { saveItinerary, saveGallery, removeGalleryImage, saveMembers } = useTripDetailsApi();
@@ -348,6 +350,7 @@ const handleRemoveUser = (event) => {
   useEffect(()=> {
       const fetchTrip = async () => {
           if ( !id ) return;
+          setIsFetchingTrip(true);
           try {
             const response = await getTrip(id);
             setFormTrip(response.data.info);
@@ -363,7 +366,7 @@ const handleRemoveUser = (event) => {
           );
 
         } finally {
-          
+          setIsFetchingTrip(false);
         } 
       }
       fetchTrip();
@@ -376,6 +379,62 @@ const handleRemoveUser = (event) => {
           </Box>
         );
     }
+
+    if (isFetchingTrip) {
+      return (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            width: '100%',
+            px: 2
+          }}
+        >
+          {/* Title Skeleton */}
+          <Skeleton 
+            variant="text" 
+            width="60%" 
+            height={isSmUp ? 60 : 50}
+            sx={{ mx: 'auto' }}
+          />
+
+          {/* Section Header Skeleton */}
+          <Skeleton variant="text" width="30%" height={30} />
+
+          {/* Form Fields Skeletons */}
+          <Skeleton variant="rounded" width="100%" height={56} />
+          <Skeleton variant="rounded" width="100%" height={120} />
+          
+          <Box sx={{ display: 'flex', gap: 2, flexDirection: isSmUp ? 'row' : 'column' }}>
+            <Skeleton variant="rounded" width={isSmUp ? '50%' : '100%'} height={56} />
+            <Skeleton variant="rounded" width={isSmUp ? '50%' : '100%'} height={56} />
+          </Box>
+
+          {/* Itinerary Section Skeleton */}
+          <Box sx={{ mt: 2 }}>
+            <Skeleton variant="text" width="40%" height={40} />
+            <Skeleton variant="rounded" width="100%" height={100} sx={{ mt: 1 }} />
+          </Box>
+
+          {/* Members Section Skeleton */}
+          <Box sx={{ mt: 2 }}>
+            <Skeleton variant="text" width="40%" height={40} />
+            <Skeleton variant="rounded" width="100%" height={100} sx={{ mt: 1 }} />
+          </Box>
+
+          {/* Gallery Section Skeleton */}
+          <Box sx={{ mt: 2 }}>
+            <Skeleton variant="text" width="40%" height={40} />
+            <Skeleton variant="rounded" width="100%" height={150} sx={{ mt: 1 }} />
+          </Box>
+
+          {/* Submit Button Skeleton */}
+          <Skeleton variant="rounded" width={isSmUp ? '20%' : '100%'} height={40} sx={{ mt: 2 }} />
+        </Box>
+      );
+    }
+
     return (
       <Box
         component="form"

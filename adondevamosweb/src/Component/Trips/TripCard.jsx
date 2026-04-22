@@ -473,7 +473,6 @@ function TripCard({ tripinfo, showRankingBadge = false, rankingPosition = null }
               <Itinerary tripinfo={tripinfo}
               callBackView={goToViewPlace}
                />
-              <ItineraryMap itinerary={tripinfo?.itinerary || []} />
             </>
           )}
         </CardContent>
