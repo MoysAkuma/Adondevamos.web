@@ -36,7 +36,7 @@ function EditPlace({
   const { loading } = useAuth();
   const { uploadImages, isUploading } = useGalleryUpload();
   const { updatePlace } = usePlaceMutationApi();
-  const { getPlace, saveFacilities, saveGalleryImages, removeGalleryImage } = usePlaceDetailsApi();
+  const { getPlace, saveFacilities, saveGalleryImages, removeGalleryImage, setCoverImage } = usePlaceDetailsApi();
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -58,6 +58,8 @@ function EditPlace({
 
   // Added images
   const [addedImages, setAddedImages] = useState([]);
+  const [coverImageId, setCoverImageId] = useState(null);
+  const [coverImageIndex, setCoverImageIndex] = useState(null);
 
   const facilitiesChange = (event) => {
     setCheckedFacilities({
@@ -160,12 +162,14 @@ function EditPlace({
       if (addedImages.length > 0) {
         await uploadImages({
           images: addedImages,
+          coverImageIndex: coverImageIndex,
           uploadRequest: (payload) => saveGalleryImages(id, payload),
-          buildPayload: (normalizedImages) => ({
-            images: normalizedImages.map((image) => ({
+          buildPayload: (normalizedImages, uploadContext, coverIdx) => ({
+            images: normalizedImages.map((image, index) => ({
               data: image.data,
               mimetype: image.mimetype,
-              extension: image.extension
+              extension: image.extension,
+              iscover: coverIdx !== null && index === coverIdx
             }))
           })
         });
@@ -537,6 +541,35 @@ function EditPlace({
           onPendingImagesChange={setAddedImages}
           showUploader
           maxPendingImages={10}
+          coverImageId={coverImageId}
+          coverImageIndex={coverImageIndex}
+          onSetCover={async (idOrIndex, autoSet) => {
+            // For pending images, it's always an index (number 0-n)
+            // For existing gallery items, it's always an ID (could be number or string from DB)
+            // We distinguish by checking if items exist and comparing with gallery
+            const hasExistingGallery = originalPlace?.gallery && originalPlace.gallery.length > 0;
+            
+            if (hasExistingGallery && originalPlace.gallery.some(img => img.id === idOrIndex)) {
+              // It's an existing gallery item ID - call API to persist
+              setCoverImageId(idOrIndex);
+              setCoverImageIndex(null);
+              
+              try {
+                await setCoverImage(id, idOrIndex);
+                console.log('Cover image persisted:', idOrIndex);
+              } catch (error) {
+                console.error('Failed to set cover image:', error);
+                setSubmitError('Failed to set cover image. Please try again.');
+              }
+            } else {
+              // It's a pending image index - will be set on save
+              setCoverImageIndex(idOrIndex);
+              setCoverImageId(null);
+            }
+            if (!autoSet) {
+              console.log('Cover image set:', idOrIndex);
+            }
+          }}
         />
         
         <SnackbarNotification

@@ -36,7 +36,7 @@ function EditTrip(){
     const [isFetchingTrip, setIsFetchingTrip] = useState(true);
     const navigate = useNavigate();
   const { getTrip, updateTrip } = useTripMutationApi();
-  const { saveItinerary, saveGallery, removeGalleryImage, saveMembers } = useTripDetailsApi();
+  const { saveItinerary, saveGallery, removeGalleryImage, setCoverImage, saveMembers } = useTripDetailsApi();
 
     //Trip id
     const { id } = useParams();
@@ -56,6 +56,8 @@ function EditTrip(){
 
     //addedImages
     const [addedImages, setAddedImages] = useState([]);
+    const [coverImageId, setCoverImageId] = useState(null);
+    const [coverImageIndex, setCoverImageIndex] = useState(null);
 
     // trip info
     const [formTrip, setFormTrip] = useState({
@@ -144,11 +146,13 @@ function EditTrip(){
       if (addedImages.length > 0) {
         await uploadImages({
           images: addedImages,
-          buildPayload: (normalizedImages) => ({
-            images: normalizedImages.map((image) => ({
+          coverImageIndex: coverImageIndex,
+          buildPayload: (normalizedImages, uploadContext, coverIdx) => ({
+            images: normalizedImages.map((image, index) => ({
               data: image.data,
               mimetype: image.mimetype,
-              extension: image.extension
+              extension: image.extension,
+              iscover: coverIdx !== null && index === coverIdx
             }))
           }),
           uploadRequest: (payload) => saveGallery(id, payload)
@@ -557,6 +561,34 @@ const handleRemoveUser = (event) => {
                   onPendingImagesChange={setAddedImages}
                   showUploader
                   maxPendingImages={10}
+                  coverImageId={coverImageId}
+                  coverImageIndex={coverImageIndex}
+                  onSetCover={async (idOrIndex, autoSet) => {
+                    // For pending images, it's always an index (number 0-n)
+                    // For existing gallery items, it's always an ID (could be number or string from DB)
+                    const hasExistingGallery = originalTrip?.gallery && originalTrip.gallery.length > 0;
+                    
+                    if (hasExistingGallery && originalTrip.gallery.some(img => img.id === idOrIndex)) {
+                      // It's an existing gallery item ID - call API to persist
+                      setCoverImageId(idOrIndex);
+                      setCoverImageIndex(null);
+                      
+                      try {
+                        await setCoverImage(id, idOrIndex);
+                        console.log('Cover image persisted:', idOrIndex);
+                      } catch (error) {
+                        console.error('Failed to set cover image:', error);
+                        setSubmitError('Failed to set cover image. Please try again.');
+                      }
+                    } else {
+                      // It's a pending image index - will be set on save
+                      setCoverImageIndex(idOrIndex);
+                      setCoverImageId(null);
+                    }
+                    if (!autoSet) {
+                      console.log('Cover image set:', idOrIndex);
+                    }
+                  }}
                 />
               </Box>
             </Collapse>

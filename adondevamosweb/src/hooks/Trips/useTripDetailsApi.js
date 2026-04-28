@@ -37,6 +37,15 @@ export const useTripDetailsApi = () => {
     [buildAuthHeaders, tripsUrl]
   );
 
+  const setCoverImage = useCallback(
+    async (tripId, imageId) => {
+      return axios.put(`${tripsUrl}/${tripId}/Images/${imageId}/SetCover`, {}, {
+        headers: buildAuthHeaders()
+      });
+    },
+    [buildAuthHeaders, tripsUrl]
+  );
+
   const saveMembers = useCallback(
     async (tripId, payload, method = 'put') => {
       const endpoint = `${tripsUrl}/${tripId}/Members`;
@@ -53,6 +62,7 @@ export const useTripDetailsApi = () => {
     saveItinerary,
     saveGallery,
     removeGalleryImage,
+    setCoverImage,
     saveMembers
   };
 };

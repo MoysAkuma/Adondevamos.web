@@ -65,12 +65,23 @@ export const usePlaceDetailsApi = () => {
     [buildAuthHeaders, ensureToken, placesUrl]
   );
 
+  const setCoverImage = useCallback(
+    async (placeId, imageId) => {
+      ensureToken();
+      return axios.put(`${placesUrl}/${placeId}/Images/${imageId}/SetCover`, {}, {
+        headers: buildAuthHeaders()
+      });
+    },
+    [buildAuthHeaders, ensureToken, placesUrl]
+  );
+
   return {
     getPlace,
     saveFacilities,
     saveGalleryImages,
     saveGalleryPhotos,
-    removeGalleryImage
+    removeGalleryImage,
+    setCoverImage
   };
 };
 

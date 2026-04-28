@@ -67,7 +67,7 @@ export const useGalleryUpload = () => {
     };
   }, []);
 
-  const uploadImages = useCallback(async ({ images = [], uploadRequest, buildPayload, context }) => {
+  const uploadImages = useCallback(async ({ images = [], uploadRequest, buildPayload, context, coverImageIndex = null }) => {
     if (!images.length) {
       return { uploaded: false, count: 0 };
     }
@@ -80,9 +80,14 @@ export const useGalleryUpload = () => {
     try {
       const normalizedImages = await Promise.all(images.map((photo) => normalizeImage(photo)));
       const payload = typeof buildPayload === 'function'
-        ? buildPayload(normalizedImages, context)
+        ? buildPayload(normalizedImages, context, coverImageIndex)
         : {
-            images: normalizedImages.map(({ data, mimetype, extension }) => ({ data, mimetype, extension }))
+            images: normalizedImages.map(({ data, mimetype, extension }, index) => ({ 
+              data, 
+              mimetype, 
+              extension,
+              iscover: coverImageIndex !== null && index === coverImageIndex
+            }))
           };
 
       const response = await uploadRequest(payload, context);
