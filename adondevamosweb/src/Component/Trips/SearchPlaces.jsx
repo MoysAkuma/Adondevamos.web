@@ -7,12 +7,14 @@ import
         InputAdornment,
         Typography,
         IconButton,
-        Stack
+        Stack,
+        Button
     } from '@mui/material';
 
 import { FlightTakeoff, 
     FlightLand, 
-    Delete } 
+    Delete,
+    Add } 
     from '@mui/icons-material';
 
 import PlaceListFound from '../View/PlaceListFound';
@@ -53,13 +55,20 @@ function SearchPlaces({ callback, itinerary }){
 
     //handle change of place 
     const handleChangeplace = (e) => {
-        switch(e.target.name){
+        const { name, value } = e.target;
+        
+        switch(name){
             case "initialdate": 
-                setInitialDate(e.target.value);
+                setInitialDate(value);
+                // Auto-set finalDate to same value when initialDate is selected
+                // Only auto-set if finalDate is empty OR if it's less than the new initial date
+                if (!finalDate || finalDate < value) {
+                    setFinalDate(value);
+                }
             break;
 
             case "finaldate": 
-                setFinalDate(e.target.value);
+                setFinalDate(value);
             break;
         }
     };
@@ -186,8 +195,22 @@ function SearchPlaces({ callback, itinerary }){
                                 )
                             }
                         }}
-                        onBlurCapture={() => callresponse(finalDate) }
+                        inputProps={{
+                            min: initialDate
+                        }}
                     />
+                    
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<Add />}
+                        onClick={() => callresponse(finalDate)}
+                        disabled={!initialDate || !finalDate}
+                        fullWidth
+                        sx={{ mt: 2 }}
+                    >
+                        Add to Itinerary
+                    </Button>
                 </>
             ) : <>
                 <TextField

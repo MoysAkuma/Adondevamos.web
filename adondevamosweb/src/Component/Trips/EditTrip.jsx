@@ -58,6 +58,8 @@ function EditTrip(){
     const [addedImages, setAddedImages] = useState([]);
     const [coverImageId, setCoverImageId] = useState(null);
     const [coverImageIndex, setCoverImageIndex] = useState(null);
+    const [originalCoverImageId, setOriginalCoverImageId] = useState(null);
+    const [coverImageChanged, setCoverImageChanged] = useState(false);
 
     // trip info
     const [formTrip, setFormTrip] = useState({
@@ -144,6 +146,7 @@ function EditTrip(){
       }
 
       if (addedImages.length > 0) {
+        setMessageSnack("Uploading images...");
         await uploadImages({
           images: addedImages,
           coverImageIndex: coverImageIndex,
@@ -158,6 +161,16 @@ function EditTrip(){
           uploadRequest: (payload) => saveGallery(id, payload)
         });
         setMessageSnack("Photos were added to gallery.");
+      } else if (coverImageChanged && coverImageId) {
+        // If only cover image changed (no new images added)
+        setMessageSnack("Updating cover image...");
+        try {
+          await setCoverImage(id, coverImageId);
+          setMessageSnack("Cover image was updated.");
+          setCoverImageChanged(false);
+        } catch (error) {
+          throw new Error(`Failed to update cover image: ${error.message}`);
+        }
       }
 
       // Handle success
@@ -229,7 +242,8 @@ function EditTrip(){
             ) 
           );
 
-        setShowManager( prev => ( { ...prev, itinerary : false } ) );
+        // Keep itinerary section open after adding
+        // setShowManager( prev => ( { ...prev, itinerary : false } ) );
     } else {
         setErrors(prev => (
           {
@@ -268,7 +282,15 @@ function EditTrip(){
       const response = await removeGalleryImage(id, item.id);
       if (response.status === 200 || response.status === 204) {
         setMessageSnack("Photo was removed from gallery.");
-        // Update originalPlace state to reflect removal
+        
+        // If removed photo was the cover, reset cover image state
+        if (item.id === coverImageId) {
+          setCoverImageId(null);
+          setOriginalCoverImageId(null);
+          setCoverImageChanged(false);
+        }
+        
+        // Update originalTrip state to reflect removal
         setOriginalTrip(prev => ({
           ...prev,
           gallery: prev.gallery.filter(img => img.id !== item.id)
@@ -359,6 +381,20 @@ const handleRemoveUser = (event) => {
             const response = await getTrip(id);
             setFormTrip(response.data.info);
             setOriginalTrip(response.data.info);
+            
+            // Initialize cover image state
+            if (response.data.info.gallery && response.data.info.gallery.length > 0) {
+              const coverImage = response.data.info.gallery.find(img => img.iscover);
+              if (coverImage) {
+                setCoverImageId(coverImage.id);
+                setOriginalCoverImageId(coverImage.id);
+              } else {
+                // If no cover is set, use the first image
+                const firstImage = response.data.info.gallery[0];
+                setCoverImageId(firstImage.id);
+                setOriginalCoverImageId(firstImage.id);
+              }
+            }
         } catch (err) {
           console.error("Error getting trip info", err);
           setErrors(prev => (
@@ -569,21 +605,19 @@ const handleRemoveUser = (event) => {
                     const hasExistingGallery = originalTrip?.gallery && originalTrip.gallery.length > 0;
                     
                     if (hasExistingGallery && originalTrip.gallery.some(img => img.id === idOrIndex)) {
-                      // It's an existing gallery item ID - call API to persist
+                      // It's an existing gallery item ID - mark as changed, will be saved on submit
                       setCoverImageId(idOrIndex);
                       setCoverImageIndex(null);
+                      setCoverImageChanged(originalCoverImageId !== idOrIndex);
                       
-                      try {
-                        await setCoverImage(id, idOrIndex);
-                        console.log('Cover image persisted:', idOrIndex);
-                      } catch (error) {
-                        console.error('Failed to set cover image:', error);
-                        setSubmitError('Failed to set cover image. Please try again.');
+                      if (!autoSet) {
+                        console.log('Cover image marked for update:', idOrIndex);
                       }
                     } else {
                       // It's a pending image index - will be set on save
                       setCoverImageIndex(idOrIndex);
                       setCoverImageId(null);
+                      setCoverImageChanged(false);
                     }
                     if (!autoSet) {
                       console.log('Cover image set:', idOrIndex);
