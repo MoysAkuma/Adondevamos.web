@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import {
     Box,
     Typography,
@@ -8,16 +7,25 @@ import {
     CircularProgress,
     Alert,
     Divider,
-    Chip,
     Stack,
-    List,
     Button
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { LocationOn, CalendarToday, Flight, ThumbUp, Place, Email } from '@mui/icons-material';
+import { LocationOn, Email } from '@mui/icons-material';
 import useProfileById from '../../hooks/Users/useProfileById';
-import TripListItem from '../Trips/TripListItem';
+import CreatedTripsList from '../Trips/CreatedTripsList';
 import UserAvatar from '../Commons/UserAvatar';
+
+/**
+ * ViewProfile Component
+ * 
+ * This component is designed for viewing the user's OWN profile with full pagination.
+ * Shows all created trips with pagination controls.
+ * 
+ * For viewing OTHER users' profiles with limited trips (last 3), use ViewUser component.
+ * 
+ * @component
+ */
 
 // 8-bit Styled Components
 const StyledContainer = styled(Box)(({ theme }) => ({
@@ -39,27 +47,6 @@ const StyledHeaderContent = styled(CardContent)(({ theme }) => ({
     color: '#FFFFFF',
     padding: theme.spacing(4),
     textAlign: 'center',
-}));
-
-const StyledSectionCard = styled(Card)(({ theme }) => ({
-    borderRadius: 0,
-    border: '4px solid #2C2C2C',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-    marginBottom: theme.spacing(3),
-}));
-
-const StyledSectionHeader = styled(Box)(({ theme }) => ({
-    backgroundColor: '#0F766E',
-    padding: theme.spacing(2),
-    borderBottom: '4px solid #2C2C2C',
-}));
-
-const StyledSectionContent = styled(CardContent)(({ theme }) => ({
-    backgroundColor: '#F8FAFC',
-    padding: theme.spacing(3),
-    '&:last-child': {
-        paddingBottom: theme.spacing(3),
-    },
 }));
 
 const PixelTypography = styled(Typography)(({ theme }) => ({
@@ -102,7 +89,6 @@ const StyledEmailButton = styled(Button)(({ theme }) => ({
 
 function ViewProfile() {
     const { id } = useParams();
-    const navigate = useNavigate();
     const { profileData, loading, error } = useProfileById(id);
 
     if (loading) {
@@ -322,87 +308,21 @@ function ViewProfile() {
                 </StyledInfoContent>
             </StyledInfoCard>
 
-            {/* Trips Created Section */}
-            {createdTrips && createdTrips.length > 0 && (
-                <StyledSectionCard>
-                    <StyledSectionHeader>
-                        <PixelTypography 
-                            variant="h5" 
-                            sx={{ 
-                                fontSize: { xs: '0.8rem', sm: '1rem' },
-                                color: '#FFFFFF'
-                            }}
-                        >
-                            Recent Trips Created (Last 3)
-                        </PixelTypography>
-                    </StyledSectionHeader>
-                    <StyledSectionContent>
-                        <List sx={{ width: '100%', padding: 0 }}>
-                            {createdTrips.map((trip) => (
-                                <TripListItem
-                                    key={trip.id}
-                                    trip={trip}
-                                    onView={(tripId) => {
-                                        if (!tripId) return;
-                                        navigate('/View/Trip/' + tripId);
-                                    }}
-                                />
-                            ))}
-                        </List>
-                    </StyledSectionContent>
-                </StyledSectionCard>
-            )}
+            {/* Trips Created Section - Shows ALL with pagination */}
+            <CreatedTripsList
+                trips={createdTrips}
+                showPagination={true}
+                title="All Created Trips"
+                emptyMessage="You haven't created any trips yet."
+            />
 
-            {/* Voted Trips Section */}
-            {votedTrips && votedTrips.length > 0 && (
-                <StyledSectionCard>
-                    <StyledSectionHeader>
-                        <PixelTypography 
-                            variant="h5" 
-                            sx={{ 
-                                fontSize: { xs: '0.8rem', sm: '1rem' },
-                                color: '#FFFFFF'
-                            }}
-                        >
-                            Recently Voted Trips (Last 3)
-                        </PixelTypography>
-                    </StyledSectionHeader>
-                    <StyledSectionContent>
-                        <List sx={{ width: '100%', padding: 0 }}>
-                            {votedTrips.map((trip) => (
-                                <TripListItem
-                                    key={trip.id}
-                                    trip={trip}
-                                    onView={(tripId) => {
-                                        if (!tripId) return;
-                                        navigate('/View/Trip/' + tripId);
-                                    }}
-                                />
-                            ))}
-                        </List>
-                    </StyledSectionContent>
-                </StyledSectionCard>
-            )}
-
-            {/* No Trips Message */}
-            {(!createdTrips || createdTrips.length === 0) && (!votedTrips || votedTrips.length === 0) && (
-                <StyledSectionCard>
-                    <StyledSectionContent>
-                        <Alert 
-                            severity="info"
-                            sx={{
-                                borderRadius: 0,
-                                border: '2px solid #2C2C2C',
-                                fontFamily: "'Press Start 2P', cursive",
-                                fontSize: '0.6rem',
-                                lineHeight: 1.6
-                            }}
-                        >
-                            This user hasn't created or voted on any trips yet.
-                        </Alert>
-                    </StyledSectionContent>
-                </StyledSectionCard>
-            )}
+            {/* Voted Trips Section - Shows ALL with pagination */}
+            <CreatedTripsList
+                trips={votedTrips}
+                showPagination={true}
+                title="All Voted Trips"
+                emptyMessage="You haven't voted on any trips yet."
+            />
         </StyledContainer>
     );
 }

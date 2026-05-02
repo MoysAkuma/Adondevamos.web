@@ -21,9 +21,9 @@ export const useTripQueryApi = () => {
   );
 
   const searchTrips = useCallback(
-    async (filters = {}) => {
+    async (filters = {}, page = 1, limit = 10) => {
       return axios.post(
-        `${tripsUrl}/Search`,
+        `${tripsUrl}/Search?page=${page}&limit=${limit}`,
         { filters },
         {
           headers: buildAuthHeaders({ 'Content-Type': 'application/json' })
