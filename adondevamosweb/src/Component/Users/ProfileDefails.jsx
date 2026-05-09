@@ -1,9 +1,11 @@
 import React from "react";
-import { Box, IconButton, Menu, MenuItem, 
-    Tooltip, Avatar, Typography, 
-    Button, ButtonGroup} from '@mui/material';
+import { Box, Typography, Button, ButtonGroup, Divider } from '@mui/material';
 import ChangePassword from "./ChangePassword";
-export default function ProfileDetails({ user }) {
+import CreatedTripsList from '../Trips/CreatedTripsList';
+
+export default function ProfileDetails({ user, createdTrips = [], 
+    votedTrips = [], 
+    voteCounts = { trips: 0, places: 0 } }) {
     const userid = localStorage.getItem("userid");
     return (
         <Box sx={{ mt: 4 }}>
@@ -41,7 +43,28 @@ export default function ProfileDetails({ user }) {
 
             </Typography>
             
-            <ButtonGroup sx={{ mt: 2, display: 'flex', gap: 1 }}>
+            <Divider sx={{ my: 3 }} />
+
+            <Typography align="center" variant="h6" sx={{ mb: 2 }}>
+                <strong>Your Stats</strong>
+            </Typography>
+
+            <Box sx={{ display: 'flex', justifyContent: 'space-around', mb: 3 }}>
+                <Box sx={{ textAlign: 'center' }}>
+                    <Typography variant="h5" color="primary">
+                        {voteCounts.trips + voteCounts.places}
+                    </Typography>
+                    <Typography variant="body2">Total Votes</Typography>
+                </Box>
+                <Box sx={{ textAlign: 'center' }}>
+                    <Typography variant="h5" color="secondary">
+                        {createdTrips.length}
+                    </Typography>
+                    <Typography variant="body2">Trips Created</Typography>
+                </Box>
+            </Box>
+
+            <ButtonGroup sx={{ mt: 2, mb: 3, display: 'flex', gap: 1 }}>
                 <Button 
                 variant="contained"
                 href={`/Edit/Profile/${userid}`}>
@@ -50,6 +73,24 @@ export default function ProfileDetails({ user }) {
                 
                 <ChangePassword userId={userid} />
             </ButtonGroup>
+
+            <Divider sx={{ my: 3 }} />
+
+            {/* Created Trips Section - Shows ALL with pagination */}
+            <CreatedTripsList
+                trips={createdTrips}
+                showPagination={true}
+                title="Created Trips"
+                emptyMessage="You haven't created any trips yet."
+            />
+
+            {/* Voted Trips Section - Shows ALL with pagination */}
+            <CreatedTripsList
+                trips={votedTrips}
+                showPagination={true}
+                title="Voted Trips"
+                emptyMessage="You haven't voted on any trips yet."
+            />
         </Box>
     );
 }

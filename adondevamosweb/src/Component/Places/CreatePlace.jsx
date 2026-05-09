@@ -47,6 +47,7 @@ function CreatePlace({
   
   // Added images
   const [addedImages, setAddedImages] = useState([]);
+  const [coverImageIndex, setCoverImageIndex] = useState(null);
 
   // State to track checked options
   const [checkedFacilities, setCheckedFacilities] = useState({});
@@ -154,12 +155,14 @@ function CreatePlace({
               const uploadResult = await uploadImages({
                 images: addedImages,
                 context: { placeId },
-                buildPayload: (normalizedImages, uploadContext) => ({
+                coverImageIndex: coverImageIndex,
+                buildPayload: (normalizedImages, uploadContext, coverIdx) => ({
                   images: normalizedImages.map((image, index) => ({
                     name: `place_${uploadContext.placeId}_${Date.now()}_${index}`,
                     data: image.data,
                     mimetype: image.mimetype,
-                    extension: image.extension
+                    extension: image.extension,
+                    iscover: coverIdx !== null && index === coverIdx
                   }))
                 }),
                 uploadRequest: (payload) => saveGalleryImages(placeId, payload)
@@ -429,6 +432,13 @@ function CreatePlace({
           onPendingImagesChange={setAddedImages}
           showUploader
           maxPendingImages={5}
+          coverImageIndex={coverImageIndex}
+          onSetCover={(index, autoSet) => {
+            setCoverImageIndex(index);
+            if (!autoSet) {
+              console.log('Cover image set to index:', index);
+            }
+          }}
         />
 
         <Typography variant="h6" component="h6" 

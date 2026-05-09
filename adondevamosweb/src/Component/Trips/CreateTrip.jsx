@@ -59,6 +59,7 @@ function CreateTrip( ) {
     // UI state
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitSuccess, setSubmitSuccess] = useState(false);
+    const [coverImageIndex, setCoverImageIndex] = useState(null);
 
     //Message snack text
     const [messageSnack, setMessageStack] = useState('');
@@ -215,13 +216,23 @@ function CreateTrip( ) {
         for (let i = 0; i < images.length; i += batchSize) {
           const batch = images.slice(i, i + batchSize);
           
+          // Calculate the cover index relative to this batch
+          const batchStartIndex = i;
+          const batchCoverIndex = coverImageIndex !== null && 
+                                   coverImageIndex >= batchStartIndex && 
+                                   coverImageIndex < batchStartIndex + batchSize
+            ? coverImageIndex - batchStartIndex
+            : null;
+          
           await uploadImages({
             images: batch,
-            buildPayload: (normalizedImages) => ({
-              images: normalizedImages.map((image) => ({
+            coverImageIndex: batchCoverIndex,
+            buildPayload: (normalizedImages, uploadContext, coverIdx) => ({
+              images: normalizedImages.map((image, index) => ({
                 data: image.data,
                 mimetype: image.mimetype,
-                extension: image.extension
+                extension: image.extension,
+                iscover: coverIdx !== null && index === coverIdx
               }))
             }),
             uploadRequest: (payload) => saveGallery(id, payload)
@@ -419,6 +430,13 @@ function CreateTrip( ) {
           onPendingImagesChange={(images) => setFormTrip(prev => ({ ...prev, gallery: images }))}
           showUploader
           maxPendingImages={10}
+          coverImageIndex={coverImageIndex}
+          onSetCover={(index, autoSet) => {
+            setCoverImageIndex(index);
+            if (!autoSet) {
+              console.log('Cover image set to index:', index);
+            }
+          }}
         />
 
         <Button 

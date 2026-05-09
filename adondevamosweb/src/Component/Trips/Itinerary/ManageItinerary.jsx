@@ -20,10 +20,11 @@ import {
     TextField,
     Stack,
     IconButton,
-    Chip
+    Chip,
+    Tooltip
 } from '@mui/material';
 
-import { LocationCity, Edit, CalendarMonth, Close } from '@mui/icons-material';
+import { LocationCity, Edit, CalendarMonth, Close, Warning } from '@mui/icons-material';
 import { Add, Delete, WatchLater } from '@mui/icons-material';
 import SearchPlaces from '../SearchPlaces';
 import utils from '../../../Resources/utils';
@@ -56,7 +57,8 @@ function ManageItinerary({
                 }
             );
             
-            setShowManager(false);
+            // Keep search open after adding to allow adding multiple places
+            // setShowManager(false);
             setDuplicateError(false);
         } else {
             setDuplicateError(true);
@@ -94,10 +96,22 @@ function ManageItinerary({
     };
 
     const handleDateChange = (field, value) => {
-        setTempDates(prev => ({
-            ...prev,
-            [field]: value
-        }));
+        setTempDates(prev => {
+            const newDates = {
+                ...prev,
+                [field]: value
+            };
+            
+            // Auto-set finaldate when initialdate is selected
+            // Only auto-set if finaldate is empty OR if it's less than the new initial date
+            if (field === 'initialdate') {
+                if (!prev.finaldate || prev.finaldate < value) {
+                    newDates.finaldate = value;
+                }
+            }
+            
+            return newDates;
+        });
     };
 
     const handleSaveDates = () => {
@@ -109,6 +123,30 @@ function ManageItinerary({
 
 
     const generateItineratyList = (itinerary) => {
+           // Sort itinerary by initial date
+           const sortedItinerary = [...itinerary].sort((a, b) => {
+               // Handle missing dates - put them at the end
+               if (!a.initialdate && !b.initialdate) return 0;
+               if (!a.initialdate) return 1;
+               if (!b.initialdate) return -1;
+               
+               // Parse dates for proper comparison
+               const dateA = new Date(a.initialdate);
+               const dateB = new Date(b.initialdate);
+               
+               // Primary sort by initial date
+               const initialComparison = dateA.getTime() - dateB.getTime();
+               
+               // If initial dates are the same, sort by final date
+               if (initialComparison === 0 && a.finaldate && b.finaldate) {
+                   const finalDateA = new Date(a.finaldate);
+                   const finalDateB = new Date(b.finaldate);
+                   return finalDateA.getTime() - finalDateB.getTime();
+               }
+               
+               return initialComparison;
+           });
+           
            return( <Paper 
                 elevation={1} 
                 sx={{ 
@@ -118,7 +156,7 @@ function ManageItinerary({
                 }}
             >
             <List sx={{ width: '100%', p: 0 }}>
-                {itinerary.map((visit, index) => {
+                {sortedItinerary.map((visit, index) => {
                     return (
                         <Box key={visit.place.id}>
                             <ListItem
@@ -157,7 +195,16 @@ function ManageItinerary({
                                             <Typography variant="subtitle1" fontWeight={600}>
                                                 {visit.place.name}
                                             </Typography>
-                                            
+                                            {(() => {
+                                                const year = visit.initialdate ? new Date(visit.initialdate).getFullYear() : null;
+                                                const currentYear = new Date().getFullYear();
+                                                const isUnusualYear = year && (year < currentYear - 5 || year > currentYear + 5);
+                                                return isUnusualYear ? (
+                                                    <Tooltip title={`Unusual year: ${year}`}>
+                                                        <Warning sx={{ fontSize: 18, color: 'warning.main' }} />
+                                                    </Tooltip>
+                                                ) : null;
+                                            })()}
                                         </Box>
                                     }
                                     secondary={
@@ -199,9 +246,20 @@ function ManageItinerary({
 
     return (
         <>
-            <Typography variant="body1" align="left">
-                Itinerary
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="body1" align="left">
+                    Itinerary
+                </Typography>
+                {itinerary.length > 0 && (
+                    <Chip 
+                        size="small" 
+                        label="Sorted by date" 
+                        color="primary" 
+                        variant="outlined"
+                        sx={{ fontSize: '0.7rem' }}
+                    />
+                )}
+            </Box>
             
             <ButtonGroup 
                 variant="contained" 

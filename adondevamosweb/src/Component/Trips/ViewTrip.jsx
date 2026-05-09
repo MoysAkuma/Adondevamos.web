@@ -260,7 +260,17 @@ function ViewTrip(){
     };
 
     const getBannerImage = () => {
+        if (tripInfo?.cover_url) {
+            return tripInfo.cover_url;
+        }
+
         if (tripInfo?.gallery && tripInfo.gallery.length > 0) {
+            // First, try to find the cover image
+            const coverImage = tripInfo.gallery.find(img => img.iscover);
+            if (coverImage) {
+                return coverImage.completeurl;
+            }
+            // If no cover is set, use the first image
             return tripInfo.gallery[0].completeurl;
         }
         if (tripInfo?.itinerary && tripInfo.itinerary.length > 0) {

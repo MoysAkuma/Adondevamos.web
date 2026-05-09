@@ -61,6 +61,7 @@ const StyledLoadingCard = styled(Card)(({ theme }) => ({
 export default function Profile() {
 
     const [userInfo, setUserInfo] = useState(null);
+    const [profileData, setProfileData] = useState(null);
     const auth = useAuth();
     const URLs = {
         Site: `${config.api.baseUrl}`
@@ -79,8 +80,24 @@ export default function Profile() {
             }
         };
 
+        const fetchProfileData = async () => {
+            try {
+                const response = await axios.get(
+                    `${URLs.Site}/Users/${auth.user}/Profile`,
+                    { withCredentials: true }
+                );
+
+                if (response.status === 200) {
+                    setProfileData(response.data.info);
+                }
+            } catch (error) {
+                console.error("Error fetching profile data:", error);
+            }
+        };
+
         if (auth.user) {
             fetchUserInfo();
+            fetchProfileData();
         }
     }, [auth.user]);
 
@@ -131,7 +148,12 @@ export default function Profile() {
                 {/* Profile Content */}
                 <StyledContentCard>
                     <StyledContentArea>
-                        <ProfileDetails user={userInfo} />
+                        <ProfileDetails 
+                            user={userInfo} 
+                            createdTrips={profileData?.createdTrips || []}
+                            votedTrips={profileData?.votedTrips || []}
+                            voteCounts={profileData?.voteCounts || { trips: 0, places: 0 }}
+                        />
                     </StyledContentArea>
                 </StyledContentCard>
             </StyledContainer>

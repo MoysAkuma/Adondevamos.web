@@ -1,19 +1,13 @@
 import React from "react";
-import { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
-import { Container, Box, Typography } from "@mui/material";
-import axios from 'axios';
-
-import config from "../Resources/config";
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 import ViewTrip from "../Component/Trips/ViewTrip";
 import ViewPlace from "../Component/Places/ViewPlace";
-import ViewProfile from "../Component/Users/ViewProfile";
+import ViewUser from "../Component/Users/ViewUser";
 
 export default function View() {
     //Module to show the search page
-    const { opt, id } = useParams();
-    const [searchResults, setSearchResults] = useState([]);
+    const { opt } = useParams();
 
     const controlViewOption = (opt) => {
         if (opt === "Trip") {
@@ -28,7 +22,7 @@ export default function View() {
         }
         if (opt === "User") {
             return <>
-                <ViewProfile />
+                <ViewUser />
             </>;
         }
     }
