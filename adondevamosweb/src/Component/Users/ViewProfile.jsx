@@ -15,6 +15,7 @@ import { LocationOn, Email } from '@mui/icons-material';
 import useProfileById from '../../hooks/Users/useProfileById';
 import CreatedTripsList from '../Trips/CreatedTripsList';
 import UserAvatar from '../Commons/UserAvatar';
+import ProfilePhotoUpload from './ProfilePhotoUpload';
 
 /**
  * ViewProfile Component
@@ -152,6 +153,7 @@ function ViewProfile() {
                 <StyledHeaderContent>
                     <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
                         <UserAvatar
+                            src={user.profile_photo_tn || user.profile_photo}
                             name={user.name}
                             tag={user.tag}
                             size="xlarge"
@@ -159,6 +161,12 @@ function ViewProfile() {
                                 border: '4px solid #FFFFFF',
                                 boxShadow: '6px 6px 0px rgba(0,0,0,0.4)'
                             }}
+                        />
+                    </Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+                        <ProfilePhotoUpload userId={user.id} 
+                        currentPhotoUrl={user.profile_photo}
+                        thumbnailUrl={user.profile_photo_tn}
                         />
                     </Box>
                     <PixelTypography 

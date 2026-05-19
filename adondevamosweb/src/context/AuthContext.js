@@ -23,6 +23,7 @@ export const AuthProvider = ({ children }) => {
   const [usertag, setUserTag] = useState(null);
   const [isLogged, setIsLogged] = useState(false);
   const [role, setRole] = useState(null);
+  const [thumbnail, setThumbnail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState(null);
   const [sessionWarning, setSessionWarning] = useState(false);
@@ -104,12 +105,14 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('userid');
     localStorage.removeItem('tag');
     localStorage.removeItem('role');
+    localStorage.removeItem('thumbnail');
     localStorage.removeItem('localSession');
     localStorage.removeItem('authToken');
     sessionStorage.removeItem('authToken');
     setUser(null);
     setUserTag(null);
     setRole(null);
+    setThumbnail(null);
     setIsLogged(false);
     setAuthError(null);
     clearSessionTimers();
@@ -184,22 +187,26 @@ export const AuthProvider = ({ children }) => {
       const storedUserId = localStorage.getItem('userid');
       const storedRole = localStorage.getItem('role');
       const storedTag = localStorage.getItem('tag');
+      const storedThumbnail = localStorage.getItem('thumbnail');
       
       if (storedUserId || parsedLocalSession?.userid) {
         const hydratedUserId = storedUserId || String(parsedLocalSession.userid);
         const hydratedRole = storedRole || String(parsedLocalSession.role || '');
         const hydratedTag = storedTag || String(parsedLocalSession.tag || '');
+        const hydratedThumbnail = storedThumbnail || String(parsedLocalSession.thumbnail || '');
 
         if (!storedUserId && hydratedUserId) {
           localStorage.setItem('userid', hydratedUserId);
           localStorage.setItem('role', hydratedRole);
           localStorage.setItem('tag', hydratedTag);
+          if (hydratedThumbnail) localStorage.setItem('thumbnail', hydratedThumbnail);
         }
 
         setIsLogged(true);
         setUser(hydratedUserId);
         setRole(hydratedRole);
         setUserTag(hydratedTag);
+        setThumbnail(hydratedThumbnail || null);
         setLoading(false);
         resetSessionTimeout();
         isCheckingAuthRef.current = false;
@@ -211,6 +218,7 @@ export const AuthProvider = ({ children }) => {
     const storedUserId = localStorage.getItem('userid');
     const storedRole = localStorage.getItem('role');
     const storedTag = localStorage.getItem('tag');
+    const storedThumbnail = localStorage.getItem('thumbnail');
     
     // Check if backend provides user details
     if (response.data.id !== undefined) {
@@ -218,23 +226,27 @@ export const AuthProvider = ({ children }) => {
       const backendUserId = String(response.data.id);
       const backendRole = String(response.data.role || '');
       const backendTag = String(response.data.tag || '');
+      const backendThumbnail = String(response.data.thumbnail || '');
       
       if (storedUserId !== backendUserId || storedRole !== backendRole) {
         localStorage.setItem('userid', backendUserId);
         localStorage.setItem('role', backendRole);
         localStorage.setItem('tag', backendTag);
+        if (backendThumbnail) localStorage.setItem('thumbnail', backendThumbnail);
       }
 
       localStorage.setItem('localSession', JSON.stringify({
         userid: backendUserId,
         role: backendRole,
-        tag: backendTag
+        tag: backendTag,
+        thumbnail: backendThumbnail
       }));
       
       setIsLogged(true);
       setUser(backendUserId);
       setRole(backendRole);
       setUserTag(backendTag);
+      setThumbnail(backendThumbnail || null);
       setLoading(false);
       resetSessionTimeout();
       isCheckingAuthRef.current = false;
@@ -245,6 +257,7 @@ export const AuthProvider = ({ children }) => {
       setUser(storedUserId);
       setRole(storedRole);
       setUserTag(storedTag);
+      setThumbnail(storedThumbnail || null);
       setLoading(false);
       resetSessionTimeout();
       isCheckingAuthRef.current = false;
@@ -326,7 +339,7 @@ export const AuthProvider = ({ children }) => {
       return { success: false, message: errorMessage };
     }
 
-    const { id, tag, role } = response.data;
+    const { id, tag, role, thumbnail } = response.data;
     
     // Validate response data
     if (!id && id !== 0) {
@@ -340,20 +353,24 @@ export const AuthProvider = ({ children }) => {
     const userId = String(id);
     const userTag = String(tag || '');
     const userRole = String(role || '');
+    const userThumbnail = String(thumbnail || '');
     
     localStorage.setItem('userid', userId);
     localStorage.setItem('tag', userTag);
     localStorage.setItem('role', userRole);
+    if (userThumbnail) localStorage.setItem('thumbnail', userThumbnail);
     localStorage.setItem('localSession', JSON.stringify({
       userid: userId,
       tag: userTag,
-      role: userRole
+      role: userRole,
+      thumbnail: userThumbnail
     }));
     
     // Update state
     setUser(userId);
     setUserTag(userTag);
     setRole(userRole);
+    setThumbnail(userThumbnail || null);
     setIsLogged(true);
     setLoading(false);
     resetSessionTimeout();
@@ -428,6 +445,7 @@ export const AuthProvider = ({ children }) => {
         isLogged,
         role,
         usertag,
+        thumbnail,
         authError,
         sessionWarning,
         login, 

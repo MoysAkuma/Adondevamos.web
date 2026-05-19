@@ -100,7 +100,6 @@ const useProfilePhotoUpload = (userId) => {
         {
           headers: {
             'Authorization': `Bearer ${token}`,
-            'X-User-Id': userId,
             'Content-Type': 'application/json'
           },
           withCredentials: true
