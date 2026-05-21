@@ -50,7 +50,8 @@ const ProfilePhotoUpload = ({
   onUploadSuccess,
   onUploadError,
   showButton = true,
-  buttonText = 'Upload Photo'
+  buttonText = 'Upload Photo',
+  showText = true
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -199,9 +200,11 @@ const ProfilePhotoUpload = ({
       </Box>
 
       {/* Info text */}
+      {showText && (
       <Typography variant="caption" color="text.secondary" align="center">
         {selectedFile ? selectedFile.name : 'Click to select a photo'}
       </Typography>
+      )}
 
       {/* Upload button */}
       {showButton && selectedFile && (
