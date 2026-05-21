@@ -8,7 +8,10 @@ import { useAuth } from '../../context/AuthContext';
 export default function UserProfileAvatar({ settings }) {
     const [anchorElUser, setAnchorElUser] = useState(null);
     const navigate = useNavigate();
-    const { logout } = useAuth();
+    const { logout, thumbnail } = useAuth();
+
+    // Use thumbnail from context or fallback to localStorage
+    const avatarSrc = thumbnail || localStorage.getItem('thumbnail') || undefined;
 
     const handleOpenUserMenu = (event) => {
         setAnchorElUser(event.currentTarget);
@@ -33,8 +36,8 @@ export default function UserProfileAvatar({ settings }) {
         <Box sx={{ flexGrow: 0 }}>
             <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar>
-                        <Person />
+                    <Avatar src={avatarSrc}>
+                        {!avatarSrc && <Person />}
                     </Avatar>
                 </IconButton>
             </Tooltip>

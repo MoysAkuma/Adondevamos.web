@@ -14,7 +14,7 @@ const StyledAvatar = styled(Avatar)(({ theme, size = 'medium' }) => {
   return {
     ...sizes[size],
     borderRadius: 0,
-    backgroundColor: '#E63946',
+    // Don't set backgroundColor here - let it be set via sx prop
     color: '#FFFFFF',
     fontFamily: "'Press Start 2P', cursive",
     fontWeight: 700,
@@ -98,7 +98,7 @@ function UserAvatar({
         alt={displayAlt}
         size={size}
         sx={{ 
-          backgroundColor: bgColor,
+          // Don't set backgroundColor when using image
           ...sx 
         }}
         {...otherProps}

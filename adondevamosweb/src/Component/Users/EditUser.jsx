@@ -16,7 +16,6 @@ import { useParams } from 'react-router-dom';
 import FormUser from "./FormUser";
 import config from "../../Resources/config";
 import useCatalogues from "../../hooks/useCatalogues";
-import ProfilePhotoUpload from "./ProfilePhotoUpload";
 
 function EditUser() {
     const theme = useTheme();
@@ -244,17 +243,6 @@ function EditUser() {
                     width: '100%'
                 }}
             >
-                <ProfilePhotoUpload 
-                    userId={id}
-                    currentPhotoUrl={formEditUser.profilePhotoUrl}
-                    onUploadSuccess={(result) => {
-                        // Update profile photo URL in form state after successful upload
-                        setFormEditUser(prev => ({
-                            ...prev,
-                            profilePhotoUrl: result.profilePhotoUrl // Assuming API returns new photo URL
-                        }));
-                    }}
-                />
                 <FormUser
                     formUser={formEditUser}
                     handleChange={handleChange}
