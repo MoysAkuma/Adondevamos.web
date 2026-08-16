@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from 'axios';
+import { useSeoMeta } from '@unhead/react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import 
     {
@@ -88,6 +89,11 @@ const StyledButton = styled(Button)(({ theme }) => ({
 }));
 
 function Login(){
+    useSeoMeta({
+        title: 'Login - AdondeVamos',
+        description: 'Sign in to your AdondeVamos account to manage trips and places.',
+        ogTitle: 'Login - AdondeVamos',
+    });
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const location = useLocation();

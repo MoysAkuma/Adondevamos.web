@@ -15,7 +15,7 @@ const AdSense = ({
   style = {},
   className = '' 
 }) => {
-  const clientId = process.env.REACT_APP_ADSENSE_CLIENT_ID;
+  const clientId = import.meta.env.VITE_ADSENSE_CLIENT_ID as string | undefined;
   const adRef = useRef(null);
   const isAdPushed = useRef(false);
 

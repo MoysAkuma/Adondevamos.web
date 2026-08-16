@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useSeoMeta } from '@unhead/react';
 import {
   Grid,
   Box,
@@ -129,6 +130,13 @@ const StepCard = ({ icon: Icon, title, subtitle, cardColor, avatarColor }) => (
 );
 
 function Home() {
+  useSeoMeta({
+    title: 'AdondeVamos - Plan and Share Travel Itineraries',
+    description: 'Discover, create, and share travel itineraries and places with AdondeVamos.',
+    ogTitle: 'AdondeVamos - Plan and Share Travel Itineraries',
+    ogDescription: 'Discover, create, and share travel itineraries and places with AdondeVamos.',
+    ogType: 'website',
+  });
   const theme = useTheme();
   const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
 

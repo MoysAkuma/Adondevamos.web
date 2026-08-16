@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSeoMeta } from '@unhead/react';
 import {
   Container,
   Card,
@@ -49,6 +50,11 @@ const StyledButton = styled(Button)(({ theme }) => ({
 }));
 
 const ResetPassword = () => {
+  useSeoMeta({
+    title: 'Reset Password - AdondeVamos',
+    description: 'Set a new password for your AdondeVamos account.',
+    ogTitle: 'Reset Password - AdondeVamos',
+  });
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const token = searchParams.get('token');

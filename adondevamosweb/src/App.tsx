@@ -21,6 +21,9 @@ import { Navigate } from 'react-router-dom';
 import AppBar from "./Component/Commons/AppBar";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
+import { createHead, UnheadProvider } from '@unhead/react/client';
+
+const head = createHead();
 
 const theme = createTheme({
   typography: {
@@ -44,7 +47,7 @@ function AppContent() {
       <AppBar/>
       <SessionWarning />
         <Routes>
-          <Route exact path="/" element={ <Home /> } />
+          <Route path="/" element={ <Home /> } />
           <Route path="/Login" element={ <Login/>}/>
           <Route path="/confirm-email" element={ <ConfirmEmail/>}/>
           <Route path="/reset-password" element={ <ResetPassword/>}/>
@@ -52,13 +55,13 @@ function AppContent() {
           <Route path="/Places" element={ <MainPlaces/>}/>
           <Route path="/ManageSite" element={<ProtectedRoute 
           requiredRole="admin"><ManageSite/></ProtectedRoute>}/>
-          <Route path="/Create/:opt" requiredRole="user" element={<Create />}/>
-          <Route path="/Edit/:opt/:id" requiredRole="user" element={<ProtectedRoute> <Edit /> </ProtectedRoute>}/>
+          <Route path="/Create/:opt" element={<ProtectedRoute requiredRole="user"><Create /></ProtectedRoute>}/>
+          <Route path="/Edit/:opt/:id" element={<ProtectedRoute requiredRole="user"> <Edit /> </ProtectedRoute>}/>
           <Route path="/Search/:opt" element={<Search/>}/>
           <Route path="/View/:opt/:id" element={<View/>}/>
           <Route path="/Ranking" element={<RankingPage/>}/>
           <Route path="/Ranking/:entityType" element={<RankingPage/>}/>
-          <Route path="/Profile" requiredRole="user" element={<ProtectedRoute> <Profile/> </ProtectedRoute>}/>
+          <Route path="/Profile" element={<ProtectedRoute requiredRole="user"> <Profile/> </ProtectedRoute>}/>
           <Route path="/FAQ" element={<FAQ/>}/>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
@@ -67,13 +70,15 @@ function AppContent() {
 
 export default function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <BrowserRouter>
-        <AuthProvider>
-            <AppContent />
-        </AuthProvider>
-      </BrowserRouter>
-    </ThemeProvider>
+    <UnheadProvider value={head}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <BrowserRouter>
+          <AuthProvider>
+              <AppContent />
+          </AuthProvider>
+        </BrowserRouter>
+      </ThemeProvider>
+    </UnheadProvider>
   );
 }

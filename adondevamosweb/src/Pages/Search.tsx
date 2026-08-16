@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
+import { useSeoMeta } from '@unhead/react';
 import { Typography, Snackbar, Alert, Card, CardContent, Box } from "@mui/material";
 import { styled } from '@mui/material/styles';
 import axios from 'axios';
@@ -83,6 +84,14 @@ const PixelTypography = styled(Typography)(({ theme }) => ({
 export default function Search() {
     //Module to show the search page
     const { opt } = useParams();
+
+    const pageTitle = `Search ${opt ?? ''} - AdondeVamos`;
+    useSeoMeta({
+        title: pageTitle,
+        description: `Search for ${opt === 'Trips' ? 'travel trips' : 'places'} on AdondeVamos.`,
+        ogTitle: pageTitle,
+    });
+
     const { searchPlaces } = usePlaceQueryApi();
     const { searchTrips } = useTripQueryApi();
     

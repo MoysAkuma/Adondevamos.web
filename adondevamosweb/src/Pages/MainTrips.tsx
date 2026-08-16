@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
+import { useSeoMeta } from '@unhead/react';
 import 
 {
     Stack, 
@@ -113,6 +114,11 @@ const StyledToggleButton = styled(Button)(({ theme }) => ({
 }));
 
  const MainTrips = () => {
+    useSeoMeta({
+        title: 'Trips - AdondeVamos',
+        description: 'Browse, filter and discover travel trips shared by the AdondeVamos community.',
+        ogTitle: 'Trips - AdondeVamos',
+    });
     const theme = useTheme();
     const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
     const { isLogged, loading, hasRole, role } = useAuth();

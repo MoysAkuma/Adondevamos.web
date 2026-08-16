@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSeoMeta } from '@unhead/react';
 import 
     {
         useMediaQuery,
@@ -22,6 +23,11 @@ import { useAuth } from '../context/AuthContext';
 import useCatalogues from '../hooks/useCatalogues';
 
  function ManageSite(){
+    useSeoMeta({
+        title: 'Manage Site - AdondeVamos',
+        description: 'Admin panel to manage countries, states, cities and facilities.',
+        ogTitle: 'Manage Site - AdondeVamos',
+    });
     const auth = useAuth();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));

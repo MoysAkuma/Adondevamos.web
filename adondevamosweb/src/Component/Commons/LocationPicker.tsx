@@ -6,6 +6,10 @@ import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-lea
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
+interface RetroProps {
+  $retro?: boolean;
+}
+
 /**
  * LocationPicker - Interactive map component to select a location using Leaflet
  * Features: Click to place marker, drag marker, geolocation, read-only coordinate display
@@ -25,7 +29,7 @@ import 'leaflet/dist/leaflet.css';
 
 const StyledPaper = styled(Paper, {
   shouldForwardProp: (prop) => prop !== '$retro',
-})(({ theme, $retro }) => ({
+})<RetroProps>(({ theme, $retro }) => ({
   overflow: 'hidden',
   borderRadius: $retro ? 0 : theme.spacing(2),
   border: $retro ? '4px solid #2C2C2C' : 'none',
@@ -36,7 +40,7 @@ const StyledPaper = styled(Paper, {
 
 const MapContainer_Styled = styled(Box, {
   shouldForwardProp: (prop) => prop !== '$retro',
-})(({ theme, $retro }) => ({
+})<RetroProps>(({ theme, $retro }) => ({
   position: 'relative',
   width: '100%',
   height: '100%',
@@ -54,7 +58,7 @@ const MapContainer_Styled = styled(Box, {
 
 const StyledIconButton = styled(IconButton, {
   shouldForwardProp: (prop) => prop !== '$retro',
-})(({ theme, $retro }) => ({
+})<RetroProps>(({ theme, $retro }) => ({
   backgroundColor: '#FFFFFF',
   borderRadius: $retro ? 0 : '4px',
   border: $retro ? '2px solid #2C2C2C' : '1px solid rgba(0, 0, 0, 0.2)',
@@ -71,7 +75,7 @@ const StyledIconButton = styled(IconButton, {
 
 const StyledButton = styled(Button, {
   shouldForwardProp: (prop) => prop !== '$retro',
-})(({ theme, $retro }) => ({
+})<RetroProps>(({ theme, $retro }) => ({
   borderRadius: $retro ? 0 : theme.shape.borderRadius,
   border: $retro ? '3px solid #2C2C2C' : undefined,
   boxShadow: $retro ? '4px 4px 0px rgba(0,0,0,0.3)' : undefined,
@@ -186,7 +190,7 @@ function LocationPicker({
     }
   }, [latitude, longitude]);
 
-  const position = useMemo(() => [lat, lng], [lat, lng]);
+  const position = useMemo(() => [lat, lng] as [number, number], [lat, lng]);
 
   // Normalize longitude to -180 to 180 range
   const normalizeLongitude = (lng) => {

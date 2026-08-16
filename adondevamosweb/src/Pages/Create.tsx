@@ -1,6 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
+import { useSeoMeta } from '@unhead/react';
 import { CircularProgress, Box, Typography } from "@mui/material";
 import axios from 'axios';
 
@@ -21,6 +22,10 @@ export default function Create() {
     
     //Module to show the search page
     const { opt } = useParams();
+
+    const titleMap: Record<string, string> = { Trip: 'Create Trip', Place: 'Create Place', User: 'Create Account' };
+    const pageTitle = `${titleMap[opt ?? ''] ?? 'Create'} - AdondeVamos`;
+    useSeoMeta({ title: pageTitle, ogTitle: pageTitle });
     const [searchResults, setSearchResults] = useState([]);
     //API
     const URLsAPIService= 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import { useSeoMeta } from '@unhead/react';
 import { Box, Card, CardContent, useMediaQuery, useTheme } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { EmojiEvents } from '@mui/icons-material';
@@ -54,6 +55,14 @@ function RankingPage() {
     
     // Valid entity types
     const validTypes = ['places', 'trips', 'itineraries'];
+
+    const entityLabel = entityType ? entityType.charAt(0).toUpperCase() + entityType.slice(1) : undefined;
+    const pageTitle = entityLabel ? `${entityLabel} Ranking - AdondeVamos` : 'Rankings - AdondeVamos';
+    useSeoMeta({
+        title: pageTitle,
+        description: entityLabel ? `See the top-ranked ${entityType} on AdondeVamos.` : 'See the top-ranked trips, places and itineraries on AdondeVamos.',
+        ogTitle: pageTitle,
+    });
     const showMulti = !entityType || !validTypes.includes(entityType);
 
     return (

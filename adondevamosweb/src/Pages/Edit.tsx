@@ -1,6 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
+import { useSeoMeta } from '@unhead/react';
 import { CircularProgress, Box, Typography } from "@mui/material";
 import axios from 'axios';
 
@@ -17,6 +18,10 @@ import useCatalogues from "../hooks/useCatalogues";
 export default function Edit() {
     //Module to show the search page
     const { opt } = useParams();
+
+    const titleMap: Record<string, string> = { Trip: 'Edit Trip', Itinerary: 'Edit Itinerary', Members: 'Edit Members', Place: 'Edit Place', Profile: 'Edit Profile' };
+    const pageTitle = `${titleMap[opt ?? ''] ?? 'Edit'} - AdondeVamos`;
+    useSeoMeta({ title: pageTitle, ogTitle: pageTitle });
 
     // Get catalogues from hook
     const { catalogues, loading: cataloguesLoading } = useCatalogues();

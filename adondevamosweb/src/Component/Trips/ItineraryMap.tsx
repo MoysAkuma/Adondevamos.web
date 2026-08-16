@@ -430,7 +430,6 @@ const ItineraryMap = ({ itinerary = [] }) => {
                                             style={{
                                                 fontFamily: "'Press Start 2P', cursive",
                                                 fontSize: '0.5rem',
-                                                color: '#3D5A80',
                                                 textDecoration: 'none',
                                                 display: 'inline-block',
                                                 padding: '4px 8px',

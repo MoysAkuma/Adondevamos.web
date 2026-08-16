@@ -3,7 +3,7 @@ import { Box, CircularProgress, Alert, AlertTitle } from '@mui/material';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from "../../context/AuthContext";
 
-const ProtectedRoute = ({ children, requiredRole, requiredPermission }) => {
+const ProtectedRoute = ({ children, requiredRole = undefined, requiredPermission = undefined }) => {
   const { isLogged, loading, hasRole, hasPermission, authError } = useAuth();
   const location = useLocation();
 

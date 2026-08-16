@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from 'axios';
+import { useSeoMeta } from '@unhead/react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
     Box,
@@ -47,6 +48,11 @@ const PixelTypography = styled(Typography)(({ theme }) => ({
 }));
 
 function ConfirmEmail() {
+    useSeoMeta({
+        title: 'Confirm Email - AdondeVamos',
+        description: 'Confirm your email address to activate your AdondeVamos account.',
+        ogTitle: 'Confirm Email - AdondeVamos',
+    });
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const [status, setStatus] = useState('loading'); // loading, success, error

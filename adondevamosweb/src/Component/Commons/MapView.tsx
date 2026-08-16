@@ -6,6 +6,10 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
+interface RetroProps {
+  $retro?: boolean;
+}
+
 /**
  * MapView - A reusable component to display a location on an interactive Leaflet map
  * Uses the same Leaflet library as ItineraryMap
@@ -27,7 +31,7 @@ import 'leaflet/dist/leaflet.css';
 
 const MapContainer_Styled = styled(Box, {
   shouldForwardProp: (prop) => prop !== '$retro',
-})(({ theme, $retro }) => ({
+})<RetroProps>(({ theme, $retro }) => ({
   position: 'relative',
   width: '100%',
   height: '100%',
@@ -44,7 +48,7 @@ const MapContainer_Styled = styled(Box, {
 
 const StyledIconButton = styled(IconButton, {
   shouldForwardProp: (prop) => prop !== '$retro',
-})(({ theme, $retro }) => ({
+})<RetroProps>(({ theme, $retro }) => ({
   backgroundColor: '#FFFFFF',
   borderRadius: $retro ? 0 : '4px',
   border: $retro ? '2px solid #2C2C2C' : '1px solid rgba(0, 0, 0, 0.2)',
@@ -66,7 +70,7 @@ const StyledIconButton = styled(IconButton, {
 
 const AddressOverlay = styled(Box, {
   shouldForwardProp: (prop) => prop !== '$retro',
-})(({ theme, $retro }) => ({
+})<RetroProps>(({ theme, $retro }) => ({
   position: 'absolute',
   bottom: 0,
   left: 0,

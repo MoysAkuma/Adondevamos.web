@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSeoMeta } from '@unhead/react';
 import {
   Typography,
   Accordion,
@@ -180,6 +181,11 @@ const faqs = [
 ];
 
 export default function FAQ() {
+  useSeoMeta({
+    title: 'FAQ - AdondeVamos',
+    description: 'Frequently asked questions about AdondeVamos — trips, places, accounts and more.',
+    ogTitle: 'FAQ - AdondeVamos',
+  });
   const [expanded, setExpanded] = useState(false);
 
   const handleChange = (panel) => (event, isExpanded) => {

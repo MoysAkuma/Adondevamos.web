@@ -3,8 +3,15 @@ import useLoginApi from '../hooks/Session/useLoginApi';
 import useCheckAuthApi from '../hooks/Session/useCheckAuthApi';
 import useLogoutApi from '../hooks/Session/useLogoutApi';
 
-const AuthContext = createContext({
+const AuthContext = createContext<any>({
   user: null,
+  usertag: null,
+  isLogged: false,
+  role: null,
+  thumbnail: null,
+  loading: true,
+  authError: null,
+  sessionWarning: false,
   login: () => {},
   logout: () => {},
   checkAuthStatus: () => false,

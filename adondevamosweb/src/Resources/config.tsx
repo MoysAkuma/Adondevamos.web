@@ -1,7 +1,7 @@
 const config = {
   development: {
     api: {
-      baseUrl: process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001/v1',
+      baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:3001/v1',
       site:{
         View : '/View'
       },
@@ -21,7 +21,7 @@ const config = {
   },
   production: {
     api: {
-      baseUrl: process.env.REACT_APP_API_BASE_URL,
+      baseUrl: import.meta.env.VITE_API_URL,
       site:{
         View : '/View'
       },
@@ -41,4 +41,4 @@ const config = {
   }
 };
 
-export default config[process.env.REACT_APP_ENV || 'development'];
+export default config[(import.meta.env.VITE_ENV as keyof typeof config) || 'development'];

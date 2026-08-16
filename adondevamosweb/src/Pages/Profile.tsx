@@ -1,6 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import axios from 'axios';
+import { useSeoMeta } from '@unhead/react';
 import { useAuth } from "../context/AuthContext";
 import { Container, Box, Typography, Card, CardContent, CircularProgress } from "@mui/material";
 import { styled } from '@mui/material/styles';
@@ -63,6 +64,11 @@ const StyledLoadingCard = styled(Card)(({ theme }) => ({
 
 export default function Profile() {
 
+    useSeoMeta({
+        title: 'My Profile - AdondeVamos',
+        description: 'View and edit your AdondeVamos profile, trips and settings.',
+        ogTitle: 'My Profile - AdondeVamos',
+    });
     const [userInfo, setUserInfo] = useState(null);
     const [profileData, setProfileData] = useState(null);
     const auth = useAuth();

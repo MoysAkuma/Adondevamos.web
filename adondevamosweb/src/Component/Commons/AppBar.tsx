@@ -15,7 +15,8 @@ export default function AppBarComp() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     
     // Get navbar configuration based on user role
-    const { brand, menuItems, authButton, settings } = useNavbarConfig(role, isLogged);
+    const { brand, menuItems, authButton: _authButton, settings } = useNavbarConfig(role, isLogged);
+    const authButton = _authButton as any;
 
     const userSettings = [{text :'Profile', path: '/Profile'}, {text: 'Logout', path: '/Logout'}];
 
