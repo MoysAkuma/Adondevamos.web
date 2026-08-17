@@ -1,6 +1,6 @@
 {
   "name": "adondevamosweb",
-  "version": "0.0.Alpha",
+  "version": "0.0.beta",
   "description": "a website to create trips, places and user and vote",
   "type": "module",
   "dependencies": {
@@ -13,7 +13,7 @@
     "axios": "^1.8.4",
     "leaflet": "^1.9.4",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "react-dom": "^19.2.8",
     "react-leaflet": "^5.0.0",
     "react-router-dom": "^6.22.0"
   },
