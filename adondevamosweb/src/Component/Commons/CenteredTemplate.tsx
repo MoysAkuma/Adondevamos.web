@@ -57,17 +57,6 @@ const CenteredTemplate = ({ children }) => (
         Site made by <a href='https://github.com/MoysAkuma'>@MoysAkuma</a>
       </Box>
     </Box>
-    <AdSense 
-      slot="1234567890" 
-      format="auto" 
-      responsive={true}
-      style={{ 
-        width: '100%', 
-        textAlign: 'center', 
-        padding: '10px 0',
-        backgroundColor: '#f5f5f5'
-      }}
-    />
   </>
   
 );

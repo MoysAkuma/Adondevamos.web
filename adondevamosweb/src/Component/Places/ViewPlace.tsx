@@ -20,8 +20,9 @@ import
 import { styled } from '@mui/material/styles';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
-import { FavoriteBorder, Edit } from '@mui/icons-material';
+import { FavoriteBorder, Edit, AddLocation } from '@mui/icons-material';
 import FacilityIcon from "../Commons/FacilityIcon";
+import AddToTripModal from './AddToTripModal';
 import { useAuth } from '../../context/AuthContext';
 import MapView from "../Commons/MapView";
 import ImageCarousel from "../Commons/ImageCarousel";
@@ -142,6 +143,7 @@ function ViewPlace(){
         message: '',
         severity: 'info'
     });
+    const [addToTripOpen, setAddToTripOpen] = useState(false);
 
     const showSnackbar = (message, severity = 'info') => {
         setSnackbar({ open: true, message, severity });
@@ -474,6 +476,17 @@ function ViewPlace(){
                         </StyledActionButton>
                     </Tooltip>
                     
+                    {isLogged && (
+                        <Tooltip title="Add to my trip">
+                            <StyledActionButton
+                                onClick={() => setAddToTripOpen(true)}
+                                size="medium"
+                            >
+                                <AddLocation />
+                            </StyledActionButton>
+                        </Tooltip>
+                    )}
+
                     {hasRole('admin') && (
                         <Tooltip title="Edit place">
                             <StyledActionButton
@@ -493,6 +506,15 @@ function ViewPlace(){
                 message={snackbar.message}
                 severity={snackbar.severity}
                 autoHideDuration={3000}
+            />
+
+            <AddToTripModal
+                open={addToTripOpen}
+                onClose={() => setAddToTripOpen(false)}
+                placeId={id}
+                userId={user}
+                onSuccess={(msg) => showSnackbar(msg, 'success')}
+                onError={(msg) => showSnackbar(msg, 'error')}
             />
         </StyledContainer>
     );
