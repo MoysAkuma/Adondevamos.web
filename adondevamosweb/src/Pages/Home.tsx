@@ -1,133 +1,22 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSeoMeta } from '@unhead/react';
-import {
-  Grid,
-  Box,
-  Typography,
-  ButtonGroup,
-  Button,
-  Paper,
-  Avatar,
-  useMediaQuery,
-  useTheme,
-  Card,
-  CardContent
-} from '@mui/material';
-import { styled } from '@mui/material/styles';
-import {
-  FlightTakeoff,
-  AccountCircle,
-  AddLocation,
-  Favorite,
-  Flight,
-  WhereToVote
-} from '@mui/icons-material';
-import CenteredTemplate from "../Component/Commons/CenteredTemplate";
+import { Grid, Box, useMediaQuery, useTheme } from '@mui/material';
+import { FlightTakeoff, AccountCircle, AddLocation, Favorite, Flight, WhereToVote } from '@mui/icons-material';
+import CenteredTemplate from '../Component/Commons/CenteredTemplate';
 import MushaShugyo from '../Component/Trips/MushaShugyo';
-
-// 8-bit Styled Components
-const StyledContainer = styled(Box)(({ theme }) => ({
-    maxWidth: '800px',
-    margin: '0 auto',
-    padding: theme.spacing(2),
-}));
-
-const StyledHeaderCard = styled(Card)(({ theme }) => ({
-    borderRadius: 0,
-    border: '4px solid #2C2C2C',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-    marginBottom: theme.spacing(3),
-    backgroundColor: '#3D5A80',
-}));
-
-const StyledHeaderContent = styled(CardContent)(({ theme }) => ({
-    backgroundColor: '#3D5A80',
-    color: '#FFFFFF',
-    padding: theme.spacing(3),
-    textAlign: 'center',
-}));
-
-const StyledSectionCard = styled(Card)(({ theme }) => ({
-    borderRadius: 0,
-    border: '3px solid #2C2C2C',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-    marginBottom: theme.spacing(3),
-}));
-
-const StyledSectionHeader = styled(Box)(({ theme }) => ({
-    backgroundColor: '#52B788',
-    padding: theme.spacing(2),
-    borderBottom: '3px solid #2C2C2C',
-}));
-
-const StyledSectionContent = styled(CardContent)(({ theme }) => ({
-    backgroundColor: '#E0AC69',
-    padding: theme.spacing(2),
-    '&:last-child': {
-        paddingBottom: theme.spacing(2),
-    },
-}));
-
-const StyledButton = styled(Button)(({ theme }) => ({
-    borderRadius: 0,
-    border: '2px solid #2C2C2C',
-    backgroundColor: '#FFFFFF',
-    color: '#2C2C2C',
-    fontFamily: "'Press Start 2P', cursive",
-    fontSize: '0.6rem',
-    padding: theme.spacing(1.5, 2),
-    '&:hover': {
-        backgroundColor: '#F8F8F8',
-        transform: 'translateY(-2px)',
-        boxShadow: '3px 3px 0px #2C2C2C',
-    },
-    transition: 'all 0.2s ease-in-out',
-}));
-
-const PixelTypography = styled(Typography)(({ theme }) => ({
-    fontFamily: "'Press Start 2P', cursive",
-}));
-
-const StyledStepCard = styled(Paper)(({ theme, cardcolor }) => ({
-    borderRadius: 0,
-    border: '3px solid #2C2C2C',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-    backgroundColor: cardcolor || '#E0AC69',
-    padding: theme.spacing(2),
-    display: 'flex',
-    gap: 2,
-    alignItems: 'center',
-    '&:hover': {
-        transform: 'translateY(-2px)',
-        boxShadow: '10px 10px 0px rgba(0,0,0,0.3)',
-    },
-    transition: 'all 0.2s ease-in-out',
-}));
-
-const StyledAvatar = styled(Avatar)(({ theme, avatarcolor }) => ({
-    backgroundColor: avatarcolor || '#3D5A80',
-    border: '2px solid #2C2C2C',
-    borderRadius: 0,
-    width: 45,
-    height:45,
-}));
-
-const StepCard = ({ icon: Icon, title, subtitle, cardColor, avatarColor }) => (
-  <StyledStepCard cardcolor={cardColor}>
-    <StyledAvatar avatarcolor={avatarColor}>
-      <Icon sx={{ fontSize: 28, color: '#FFFFFF' }} />
-    </StyledAvatar>
-    <Box>
-      <PixelTypography variant="subtitle1" sx={{ fontSize: '0.7rem', color: '#2C2C2C', mb: 1 }}>
-        {title}
-      </PixelTypography>
-      <PixelTypography variant="body2" sx={{ fontSize: '0.5rem', color: '#2C2C2C', lineHeight: 1.4 }}>
-        {subtitle}
-      </PixelTypography>
-    </Box>
-  </StyledStepCard>
-);
+import StepCard from '../Component/Commons/StepCard';
+import {
+  PixelTypography,
+  StyledContainer,
+  StyledHeaderCard,
+  StyledHeaderContent,
+  StyledSectionCard,
+  StyledSectionHeader,
+  StyledSectionContent,
+  PixelButton,
+} from '../Css/pixel.styles';
+import { StyledStepCard, StyledAvatar } from '../Css/Home.styles';
 
 function Home() {
   useSeoMeta({
@@ -157,20 +46,27 @@ function Home() {
             >
                 AdondeVamos.net
             </PixelTypography>
-
+            <PixelTypography
+              sx={{
+                  fontSize: isSmUp ? '0.6rem' : '0.5rem',
+                  color: '#2C2C2C',
+                  lineHeight: 1.6,
+                  mt: 1,
+              }}
+          >
+             Share your travel plans and discover new places with friends.
+          </PixelTypography>
           </StyledHeaderContent>
 
         </StyledHeaderCard>
 
         <StyledSectionCard>
           <StyledSectionHeader>
-            <PixelTypography 
-                variant="body1" 
+           <PixelTypography 
+                variant="h5" 
                 sx={{ 
-                    fontSize: { xs: '0.6rem', sm: '0.8rem' },
-                    color: '#E8F4FD',
-                    mb: 2,
-                    lineHeight: 1.6
+                    fontSize: { xs: '0.8rem', sm: '1rem' },
+                    color: '#FFFFFF'
                 }}
             >
                 What is Adondevamos?
@@ -203,23 +99,23 @@ function Home() {
           </StyledSectionHeader>
           <StyledSectionContent>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <StyledButton
+              <PixelButton
                 startIcon={<Flight sx={{ fontSize: '1rem' }} />}
                 component={Link}
                 to="/Trips"
                 fullWidth
               >
                 Explore Trips
-              </StyledButton>
+              </PixelButton>
 
-              <StyledButton
+              <PixelButton
                 startIcon={<WhereToVote sx={{ fontSize: '1rem' }} />}
                 component={Link}
                 to="/Places"
                 fullWidth
               >
                 Explore Places
-              </StyledButton>
+              </PixelButton>
             </Box>
           </StyledSectionContent>
         </StyledSectionCard>

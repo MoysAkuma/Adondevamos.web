@@ -1,117 +1,38 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { useSeoMeta } from '@unhead/react';
-import 
-{
-    Stack, 
-    Button,
-    CircularProgress,
-    Typography,
-    Box,
-    ButtonGroup,
-    Collapse,
-    useMediaQuery, 
-    useTheme,
-    Card,
-    CardContent,
-    Grid,
-    Skeleton
+import {
+  Stack,
+  CircularProgress,
+  Box,
+  Collapse,
+  useMediaQuery,
+  useTheme,
+  Grid,
+  Skeleton,
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { Flight, Search, Person, 
-    ExpandMore, ExpandLess, LocationOn, AccessTime, People } from '@mui/icons-material';
-import TripCard from "../Component/Trips/TripCard";
-import TripCardSkeleton from "../Component/Trips/TripCardSkeleton";
-import TripSkeletonList from "../Component/Trips/TripSkeletonList";
-import NewTrips from "../Component/Trips/NewTrips";
-import Ranking from "../Component/Ranking/Ranking";
-import CenteredTemplate from "../Component/Commons/CenteredTemplate";
-import { useAuth } from "../context/AuthContext";
-import useRankingApi from "../hooks/Ranking/useRankingApi";
-
-// 8-bit Styled Components
-const StyledContainer = styled(Box)(({ theme }) => ({
-    maxWidth: '800px',
-    margin: '0 auto',
-    padding: theme.spacing(2),
-}));
-
-const StyledHeaderCard = styled(Card)(({ theme }) => ({
-    borderRadius: 0,
-    border: '4px solid #2C2C2C',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-    marginBottom: theme.spacing(3),
-    backgroundColor: '#3D5A80',
-}));
-
-const StyledHeaderContent = styled(CardContent)(({ theme }) => ({
-    backgroundColor: '#3D5A80',
-    color: '#FFFFFF',
-    padding: theme.spacing(3),
-    textAlign: 'center',
-}));
-
-const StyledSectionCard = styled(Card)(({ theme }) => ({
-    borderRadius: 0,
-    border: '4px solid #2C2C2C',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-    marginBottom: theme.spacing(3),
-}));
-
-const StyledSectionHeader = styled(Box)(({ theme }) => ({
-    backgroundColor: '#52B788',
-    padding: theme.spacing(2),
-    borderBottom: '4px solid #2C2C2C',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-}));
-
-const StyledSectionContent = styled(CardContent)(({ theme }) => ({
-    backgroundColor: '#E0AC69',
-    padding: theme.spacing(2),
-    '&:last-child': {
-        paddingBottom: theme.spacing(2),
-    },
-}));
-
-const StyledButton = styled(Button)(({ theme }) => ({
-    borderRadius: 0,
-    border: '2px solid #2C2C2C',
-    backgroundColor: '#FFFFFF',
-    color: '#2C2C2C',
-    fontFamily: "'Press Start 2P', cursive",
-    fontSize: '0.6rem',
-    padding: theme.spacing(1.5, 2),
-    '&:hover': {
-        backgroundColor: '#F8F8F8',
-        transform: 'translateY(-2px)',
-        boxShadow: '3px 3px 0px #2C2C2C',
-    },
-    transition: 'all 0.2s ease-in-out',
-}));
-
-const PixelTypography = styled(Typography)(({ theme }) => ({
-    fontFamily: "'Press Start 2P', cursive",
-}));
-
-const StyledToggleButton = styled(Button)(({ theme }) => ({
-    borderRadius: 0,
-    border: '2px solid #2C2C2C',
-    backgroundColor: '#FFFFFF',
-    color: '#2C2C2C',
-    fontFamily: "'Press Start 2P', cursive",
-    fontSize: '0.5rem',
-    padding: theme.spacing(0.5, 1),
-    minWidth: 'auto',
-    '&:hover': {
-        backgroundColor: '#F8F8F8',
-        transform: 'translateY(-1px)',
-        boxShadow: '2px 2px 0px #2C2C2C',
-    },
-    transition: 'all 0.2s ease-in-out',
-}));
+import { Flight, Search, ExpandMore, ExpandLess } from '@mui/icons-material';
+import TripCard from '../Component/Trips/TripCard';
+import TripCardSkeleton from '../Component/Trips/TripCardSkeleton';
+import TripSkeletonList from '../Component/Trips/TripSkeletonList';
+import NewTrips from '../Component/Trips/NewTrips';
+import Ranking from '../Component/Ranking/Ranking';
+import CenteredTemplate from '../Component/Commons/CenteredTemplate';
+import { useAuth } from '../context/AuthContext';
+import useRankingApi from '../hooks/Ranking/useRankingApi';
+import {
+  PixelTypography,
+  StyledContainer,
+  StyledHeaderCard,
+  StyledHeaderContent,
+  StyledSectionCard,
+  StyledSectionHeader,
+  StyledSectionContent,
+  StyledButton,
+  ToggleButton,
+  RankingTrip,
+} from '../Css/MainTrips.styles';
 
  const MainTrips = () => {
     useSeoMeta({
@@ -123,11 +44,11 @@ const StyledToggleButton = styled(Button)(({ theme }) => ({
     const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
     const { isLogged, loading, hasRole, role } = useAuth();
     const { getRanking, loading: rankingLoading, rankingData } = useRankingApi();
-    const [showNewTrips, setShowNewTrips] = useState(true);
-    const [showRanking, setShowRanking] = useState(true);
-    const [topTrips, setTopTrips] = useState([]);
+    const [showNewTrips, setShowNewTrips] = useState<boolean>(true);
+    const [showRanking, setShowRanking] = useState<boolean>(true);
+    const [topTrips, setTopTrips] = useState<RankingTrip[]>([]);
 
-    const generateUserSection = () => {
+    const generateUserSection = (): React.ReactElement | null => {
         if (hasRole('user')) {
             return (
                 <StyledSectionCard>
@@ -276,12 +197,12 @@ const StyledToggleButton = styled(Button)(({ theme }) => ({
                         >
                             New Trips
                         </PixelTypography>
-                        <StyledToggleButton 
+                        <ToggleButton 
                             onClick={() => setShowNewTrips(!showNewTrips)}
                             endIcon={showNewTrips ? <ExpandLess sx={{ fontSize: '0.8rem' }} /> : <ExpandMore sx={{ fontSize: '0.8rem' }} />}
                         >
                             {showNewTrips ? 'Hide' : 'Show'}
-                        </StyledToggleButton>
+                        </ToggleButton>
                     </StyledSectionHeader>
                     <Collapse in={showNewTrips}>
                         <StyledSectionContent>
@@ -302,12 +223,12 @@ const StyledToggleButton = styled(Button)(({ theme }) => ({
                         >
                             Most Voted Trips
                         </PixelTypography>
-                        <StyledToggleButton 
+                        <ToggleButton 
                             onClick={() => setShowRanking(!showRanking)}
                             endIcon={showRanking ? <ExpandLess sx={{ fontSize: '0.8rem' }} /> : <ExpandMore sx={{ fontSize: '0.8rem' }} />}
                         >
                             {showRanking ? 'Hide' : 'Show'}
-                        </StyledToggleButton>
+                        </ToggleButton>
                     </StyledSectionHeader>
                     <Collapse in={showRanking}>
                         <StyledSectionContent>

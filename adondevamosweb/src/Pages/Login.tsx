@@ -2,91 +2,33 @@ import { useState } from "react";
 import axios from 'axios';
 import { useSeoMeta } from '@unhead/react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import 
-    {
-        TextField, 
-        Button,
-        useMediaQuery,
-        useTheme,
-        Tooltip,
-        Typography,
-        Box,
-        InputAdornment,
-        IconButton,
-        Alert,
-        AlertTitle,
-        Divider,
-        Container,
-        Card,
-        CardContent
-    } from '@mui/material';
-import { styled } from '@mui/material/styles';
-
-import {  Visibility, VisibilityOff, AccountCircle, PersonAdd, Gamepad } from '@mui/icons-material';
-import LoginIcon  from '@mui/icons-material/Login';
-import { useAuth }  from '../context/AuthContext'
-
+import {
+  Button,
+  useMediaQuery,
+  useTheme,
+  Box,
+  InputAdornment,
+  IconButton,
+  Divider,
+  Typography,
+} from '@mui/material';
+import { Visibility, VisibilityOff, AccountCircle, PersonAdd } from '@mui/icons-material';
+import LoginIcon from '@mui/icons-material/Login';
+import { useAuth } from '../context/AuthContext';
 import config from '../Resources/config';
-import CenteredTemplate from "../Component/Commons/CenteredTemplate";
-import RecoverPassword from "../Component/Users/RecoverPassword";
-import SnackbarNotification from "../Component/Commons/SnackbarNotification";
-
-// 8-bit Styled Components
-const StyledContainer = styled(Container)(({ theme }) => ({
-    maxWidth: '500px !important',
-    margin: '0 auto',
-    padding: theme.spacing(2),
-}));
-
-const StyledHeaderCard = styled(Card)(({ theme }) => ({
-    borderRadius: 0,
-    border: '4px solid #2C2C2C',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-    marginBottom: theme.spacing(3),
-    backgroundColor: '#3D5A80',
-}));
-
-const StyledHeaderContent = styled(CardContent)(({ theme }) => ({
-    backgroundColor: '#3D5A80',
-    color: '#FFFFFF',
-    padding: theme.spacing(3),
-    textAlign: 'center',
-}));
-
-const StyledContentCard = styled(Card)(({ theme }) => ({
-    borderRadius: 0,
-    border: '4px solid #2C2C2C',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-    backgroundColor: '#E0AC69',
-}));
-
-const StyledContentArea = styled(CardContent)(({ theme }) => ({
-    backgroundColor: '#E0AC69',
-    padding: theme.spacing(3),
-    '&:last-child': {
-        paddingBottom: theme.spacing(3),
-    },
-}));
-
-const PixelTypography = styled(Typography)(({ theme }) => ({
-    fontFamily: "'Press Start 2P', cursive",
-}));
-
-const StyledButton = styled(Button)(({ theme }) => ({
-    fontFamily: "'Press Start 2P', cursive",
-    borderRadius: 0,
-    border: '4px solid #2C2C2C',
-    boxShadow: '4px 4px 0px rgba(0,0,0,0.3)',
-    transition: 'all 0.1s',
-    '&:hover': {
-        transform: 'translate(2px, 2px)',
-        boxShadow: '2px 2px 0px rgba(0,0,0,0.3)',
-    },
-    '&:active': {
-        transform: 'translate(4px, 4px)',
-        boxShadow: 'none',
-    },
-}));
+import CenteredTemplate from '../Component/Commons/CenteredTemplate';
+import RecoverPassword from '../Component/Users/RecoverPassword';
+import SnackbarNotification from '../Component/Commons/SnackbarNotification';
+import {
+  PixelTypography,
+  StyledHeaderCard,
+  StyledHeaderContent,
+  StyledLoginContainer,
+  StyledContentCard,
+  StyledContentArea,
+  LoginButton,
+  PixelTextField,
+} from '../Css/Login.styles';
 
 function Login(){
     useSeoMeta({
@@ -220,7 +162,7 @@ function Login(){
 
     return (
         <CenteredTemplate>
-            <StyledContainer>
+            <StyledLoginContainer>
                 {/* Header Section */}
                 <StyledHeaderCard>
                     <StyledHeaderContent>
@@ -260,7 +202,7 @@ function Login(){
                                 gap: 2.5,
                             }}
                         >
-                            <TextField
+                            <PixelTextField
                                 id="email"
                                 name="email"
                                 label="Email or Tag"
@@ -271,27 +213,6 @@ function Login(){
                                 value={formLogIn.email}
                                 fullWidth
                                 required
-                                sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                        borderRadius: 0,
-                                        backgroundColor: '#FFFFFF',
-                                        border: '3px solid #2C2C2C',
-                                        '& fieldset': {
-                                            border: 'none'
-                                        },
-                                        '&:hover': {
-                                            backgroundColor: '#F8F9FA',
-                                        },
-                                        '&.Mui-focused': {
-                                            backgroundColor: '#FFFFFF',
-                                            boxShadow: '4px 4px 0px rgba(0,0,0,0.2)',
-                                        }
-                                    },
-                                    '& .MuiInputLabel-root': {
-                                        fontWeight: 600,
-                                        color: '#2C2C2C'
-                                    }
-                                }}
                                 slotProps={{
                                     input: {
                                         endAdornment: (
@@ -301,9 +222,9 @@ function Login(){
                                         )
                                     }
                                 }}
-                                    />
+                                />
 
-                            <TextField
+                            <PixelTextField
                                 id="password"
                                 name="password"
                                 label="Password"
@@ -315,27 +236,6 @@ function Login(){
                                 value={formLogIn.password}
                                 fullWidth
                                 required
-                                sx={{
-                                    '& .MuiOutlinedInput-root': {
-                                        borderRadius: 0,
-                                        backgroundColor: '#FFFFFF',
-                                        border: '3px solid #2C2C2C',
-                                        '& fieldset': {
-                                            border: 'none'
-                                        },
-                                        '&:hover': {
-                                            backgroundColor: '#F8F9FA',
-                                        },
-                                        '&.Mui-focused': {
-                                            backgroundColor: '#FFFFFF',
-                                            boxShadow: '4px 4px 0px rgba(0,0,0,0.2)',
-                                        }
-                                    },
-                                    '& .MuiInputLabel-root': {
-                                        fontWeight: 600,
-                                        color: '#2C2C2C'
-                                    }
-                                }}
                                 slotProps={{
                                     input: {
                                         endAdornment: (
@@ -355,8 +255,9 @@ function Login(){
                                 }}
                             />
 
-                            <StyledButton 
-                                type="submit" 
+                            <Button
+                                component={LoginButton}
+                                type="submit"
                                 disabled={isSubmitting}
                                 variant="contained"
                                 size="large"
@@ -366,17 +267,12 @@ function Login(){
                                     py: 1.5,
                                     backgroundColor: '#3D5A80',
                                     color: '#FFFFFF',
-                                    '&:hover': {
-                                        backgroundColor: '#2C4563',
-                                    },
-                                    '&:disabled': {
-                                        backgroundColor: '#95a5a6',
-                                        color: '#FFFFFF'
-                                    }
+                                    '&:hover': { backgroundColor: '#2C4563' },
+                                    '&:disabled': { backgroundColor: '#95a5a6', color: '#FFFFFF' },
                                 }}
                             >
                                 {isSubmitting ? 'Loading...' : 'Log In'}
-                            </StyledButton>
+                            </Button>
                         </Box>
                         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
                             <RecoverPassword />
@@ -400,8 +296,9 @@ function Login(){
                                 </Typography>
                             </Divider>
                             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
-                                    <StyledButton 
-                                    type="button" 
+                                <Button
+                                    component={LoginButton}
+                                    type="button"
                                     disabled={isSubmitting}
                                     variant="contained"
                                     size="large"
@@ -412,13 +309,11 @@ function Login(){
                                         py: 1.5,
                                         backgroundColor: '#52B788',
                                         color: '#FFFFFF',
-                                        '&:hover': {
-                                            backgroundColor: '#40916C',
-                                        }
+                                        '&:hover': { backgroundColor: '#40916C' },
                                     }}
-                                    >
+                                >
                                     Create Account
-                                </StyledButton>
+                                </Button>
                             </Box>
                             
 
@@ -433,7 +328,7 @@ function Login(){
                     message={snackbar.message}
                     severity={snackbar.severity}
                 />
-            </StyledContainer>
+            </StyledLoginContainer>
         </CenteredTemplate>
     );
 }

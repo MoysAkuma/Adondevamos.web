@@ -1,66 +1,23 @@
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from 'axios';
 import { useSeoMeta } from '@unhead/react';
 import { useAuth } from "../context/AuthContext";
-import { Container, Box, Typography, Card, CardContent, CircularProgress } from "@mui/material";
-import { styled } from '@mui/material/styles';
-import  ProfileDetails from "../Component/Users/ProfileDefails";
-import UserAvatar from "../Component/Commons/UserAvatar";
+import { Box, CircularProgress } from "@mui/material";
+import ProfileDetails from "../Component/Users/ProfileDefails";
 import CenteredTemplate from "../Component/Commons/CenteredTemplate";
 import config from "../Resources/config";
-import { Style } from "@mui/icons-material";
 import ProfilePhotoUpload from "../Component/Users/ProfilePhotoUpload";
-
-// 8-bit Styled Components
-const StyledContainer = styled(Container)(({ theme }) => ({
-    maxWidth: '600px !important',
-    margin: '0 auto',
-    padding: theme.spacing(2),
-}));
-
-const StyledHeaderCard = styled(Card)(({ theme }) => ({
-    borderRadius: 0,
-    border: '4px solid #2C2C2C',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-    marginBottom: theme.spacing(3),
-    backgroundColor: '#3D5A80',
-}));
-
-const StyledHeaderContent = styled(CardContent)(({ theme }) => ({
-    backgroundColor: '#3D5A80',
-    color: '#FFFFFF',
-    padding: theme.spacing(3),
-    textAlign: 'center',
-}));
-
-const StyledContentCard = styled(Card)(({ theme }) => ({
-    borderRadius: 0,
-    border: '4px solid #2C2C2C',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-    backgroundColor: '#E0AC69',
-}));
-
-const StyledContentArea = styled(CardContent)(({ theme }) => ({
-    backgroundColor: '#E0AC69',
-    padding: theme.spacing(3),
-    '&:last-child': {
-        paddingBottom: theme.spacing(3),
-    },
-}));
-
-const PixelTypography = styled(Typography)(({ theme }) => ({
-    fontFamily: "'Press Start 2P', cursive",
-}));
-
-const StyledLoadingCard = styled(Card)(({ theme }) => ({
-    borderRadius: 0,
-    border: '4px solid #2C2C2C',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-    backgroundColor: '#52B788',
-    padding: theme.spacing(4),
-    textAlign: 'center',
-}));
+import {
+  PixelTypography,
+  StyledHeaderCard,
+  StyledHeaderContent,
+  StyledContentCard,
+  StyledContentArea,
+  StyledProfileContainer,
+  StyledLoadingCard,
+  UserInfo,
+  ProfileData,
+} from '../Css/Profile.styles';
 
 export default function Profile() {
 
@@ -69,8 +26,8 @@ export default function Profile() {
         description: 'View and edit your AdondeVamos profile, trips and settings.',
         ogTitle: 'My Profile - AdondeVamos',
     });
-    const [userInfo, setUserInfo] = useState(null);
-    const [profileData, setProfileData] = useState(null);
+    const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
+    const [profileData, setProfileData] = useState<ProfileData | null>(null);
     const auth = useAuth();
     const URLs = {
         Site: `${config.api.baseUrl}`
@@ -113,7 +70,7 @@ export default function Profile() {
     if (!userInfo) {
         return (
             <CenteredTemplate>
-                <StyledContainer>
+                <StyledProfileContainer>
                     <StyledLoadingCard>
                         <CircularProgress 
                             sx={{ 
@@ -130,13 +87,13 @@ export default function Profile() {
                             Loading profile...
                         </PixelTypography>
                     </StyledLoadingCard>
-                </StyledContainer>
+                </StyledProfileContainer>
             </CenteredTemplate>
         );
     }
     return (
         <CenteredTemplate>
-            <StyledContainer>
+            <StyledProfileContainer>
                 {/* Header Section */}
                 <StyledHeaderCard>
                     <StyledHeaderContent>
@@ -176,7 +133,7 @@ export default function Profile() {
                         />
                     </StyledContentArea>
                 </StyledContentCard>
-            </StyledContainer>
+            </StyledProfileContainer>
         </CenteredTemplate>
     );
 }

@@ -2,11 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useSeoMeta } from '@unhead/react';
 import {
-  Container,
-  Card,
   CardContent,
   TextField,
-  Button,
   Typography,
   Box,
   Alert,
@@ -14,40 +11,14 @@ import {
   InputAdornment,
   IconButton
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
 import { Visibility, VisibilityOff, Lock, ArrowBack } from '@mui/icons-material';
 import useResetPasswordApi from '../hooks/Session/useResetPasswordApi';
 import useVerifyResetTokenApi from '../hooks/Session/useVerifyResetTokenApi';
-
-const StyledContainer = styled(Container)(({ theme }) => ({
-  maxWidth: '500px !important',
-  margin: '0 auto',
-  padding: theme.spacing(2),
-  marginTop: theme.spacing(8)
-}));
-
-const StyledCard = styled(Card)(({ theme }) => ({
-  borderRadius: 0,
-  border: '4px solid #2C2C2C',
-  boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-  marginBottom: theme.spacing(3),
-  backgroundColor: '#FFFFFF',
-}));
-
-const StyledButton = styled(Button)(({ theme }) => ({
-  borderRadius: 0,
-  border: '3px solid #2C2C2C',
-  boxShadow: '4px 4px 0px rgba(0,0,0,0.3)',
-  textTransform: 'uppercase',
-  fontWeight: 'bold',
-  '&:hover': {
-    boxShadow: '6px 6px 0px rgba(0,0,0,0.3)',
-  },
-  '&:active': {
-    boxShadow: '2px 2px 0px rgba(0,0,0,0.3)',
-    transform: 'translate(2px, 2px)',
-  }
-}));
+import {
+  StyledResetContainer,
+  StyledResetCard,
+  ResetButton,
+} from '../Css/ResetPassword.styles';
 
 const ResetPassword = () => {
   useSeoMeta({
@@ -59,11 +30,11 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const token = searchParams.get('token');
 
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [validationError, setValidationError] = useState('');
+  const [newPassword, setNewPassword] = useState<string>('');
+  const [confirmPassword, setConfirmPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [validationError, setValidationError] = useState<string>('');
 
   const { verifyToken, isLoading: isVerifying, error: verifyError, isValid, email } = useVerifyResetTokenApi();
   const { resetPassword, isLoading: isResetting, error: resetError, success } = useResetPasswordApi();
@@ -89,7 +60,7 @@ const ResetPassword = () => {
     }
   }, [success, navigate]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setValidationError('');
 
@@ -124,22 +95,22 @@ const ResetPassword = () => {
   // Loading state while verifying token
   if (isVerifying) {
     return (
-      <StyledContainer>
+      <StyledResetContainer>
         <Box display="flex" flexDirection="column" alignItems="center" mt={8}>
           <CircularProgress size={60} />
           <Typography variant="h6" sx={{ mt: 2 }}>
             Verifying reset link...
           </Typography>
         </Box>
-      </StyledContainer>
+      </StyledResetContainer>
     );
   }
 
   // Error state - invalid or expired token
   if (verifyError || !isValid) {
     return (
-      <StyledContainer>
-        <StyledCard>
+      <StyledResetContainer>
+        <StyledResetCard>
           <CardContent>
             <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', textAlign: 'center' }}>
               Reset Link Invalid
@@ -151,23 +122,23 @@ const ResetPassword = () => {
               Password reset links expire after 1 hour for security reasons.
               Please request a new password reset.
             </Typography>
-            <StyledButton
+            <ResetButton
               fullWidth
               variant="contained"
               onClick={() => navigate('/Login')}
               startIcon={<ArrowBack />}
             >
               Back to Login
-            </StyledButton>
+            </ResetButton>
           </CardContent>
-        </StyledCard>
-      </StyledContainer>
+        </StyledResetCard>
+      </StyledResetContainer>
     );
   }
 
   return (
-    <StyledContainer>
-      <StyledCard>
+    <StyledResetContainer>
+      <StyledResetCard>
         <CardContent>
           <Box textAlign="center" mb={3}>
             <Lock sx={{ fontSize: 60, color: '#3D5A80' }} />
@@ -249,7 +220,7 @@ const ResetPassword = () => {
               }}
             />
 
-            <StyledButton
+            <ResetButton
               type="submit"
               fullWidth
               variant="contained"
@@ -264,9 +235,9 @@ const ResetPassword = () => {
               ) : (
                 'Reset Password'
               )}
-            </StyledButton>
+            </ResetButton>
 
-            <StyledButton
+            <ResetButton
               fullWidth
               variant="outlined"
               onClick={() => navigate('/Login')}
@@ -274,11 +245,11 @@ const ResetPassword = () => {
               startIcon={<ArrowBack />}
             >
               Back to Login
-            </StyledButton>
+            </ResetButton>
           </Box>
         </CardContent>
-      </StyledCard>
-    </StyledContainer>
+      </StyledResetCard>
+    </StyledResetContainer>
   );
 };
 

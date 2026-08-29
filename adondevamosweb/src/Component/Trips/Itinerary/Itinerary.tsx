@@ -725,26 +725,6 @@ function Itinerary ({
                                     </Box>
                                 }
                             >
-                                <ListItemAvatar>
-                                    <StyledAvatar
-                                        sx={{
-                                            ...(callBackView && {
-                                                cursor: 'pointer',
-                                                '&:hover': {
-                                                    backgroundColor: '#2C5F75',
-                                                    transform: 'scale(1.05)'
-                                                },
-                                                transition: 'all 0.2s ease-in-out'
-                                            })
-                                        }}
-                                        {...(callBackView && {
-                                            onClick: () => callBackView(visit.place.id)
-                                        })}
-                                    >
-                                        <LocationCity sx={{ color: '#FFFFFF' }} />
-                                    </StyledAvatar>
-                                </ListItemAvatar>
-                                
                                 <ListItemText 
                                     primary={
                                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
@@ -753,9 +733,10 @@ function Itinerary ({
                                                 {/* Top 3 Badge */}
                                                 {(visit.place.id === top3.first || visit.place.id === top3.second || visit.place.id === top3.third) && (
                                                     <Box sx={{ 
-                                                        fontSize: '1.2rem',
+                                                        fontSize: '1.4rem',
                                                         display: 'flex',
-                                                        alignItems: 'center'
+                                                        alignItems: 'center',
+                                                        flexShrink: 0
                                                     }}>
                                                         {visit.place.id === top3.first && '🥇'}
                                                         {visit.place.id === top3.second && '🥈'}
@@ -766,11 +747,13 @@ function Itinerary ({
                                                     component="span"
                                                     variant="body1" 
                                                     sx={{
-                                                        fontSize: { xs: '0.7rem', sm: '0.9rem' },
+                                                        fontSize: { xs: '0.8rem', sm: '1rem', md: '1.1rem' },
                                                         color: '#2C2C2C',
                                                         fontWeight: 'bold',
-                                                        cursor: 'pointer',
+                                                        cursor: callBackView ? 'pointer' : 'default',
                                                         flex: 1,
+                                                        lineHeight: 1.4,
+                                                        wordBreak: 'break-word',
                                                         ...(callBackView && {
                                                             '&:hover': {
                                                                 color: '#3D5A80',
