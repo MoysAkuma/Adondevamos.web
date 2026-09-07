@@ -20,7 +20,7 @@ import { FlightTakeoff,
 import PlaceListFound from '../View/PlaceListFound';
 import usePlaceQueryApi from '../../hooks/Places/usePlaceQueryApi';
 
-function SearchPlaces({ callback, itinerary }){
+function SearchPlaces({ callback, itinerary, allowRepeatedPlaces = false }){
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [loading, setLoading] = useState(false);
@@ -231,6 +231,7 @@ function SearchPlaces({ callback, itinerary }){
                                 placeList={findedPlaces} 
                                 callback={addPlace} 
                                 itinerary={itinerary} 
+                                allowRepeatedPlaces={allowRepeatedPlaces}
                             />) 
                         : 
                         ( <></>)

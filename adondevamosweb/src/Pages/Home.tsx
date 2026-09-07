@@ -183,7 +183,7 @@ function Home() {
                     color: '#FFFFFF'
                 }}
             >
-                The trip that changed my life
+              The trip that changed my life
             </PixelTypography>
           </StyledSectionHeader>
           <StyledSectionContent>
@@ -196,7 +196,7 @@ function Home() {
                     lineHeight: 1.6
                 }}
             >
-                Main reason to create AdondeVamos
+              Main reason to create AdondeVamos
             </PixelTypography>
             <MushaShugyo />
           </StyledSectionContent>

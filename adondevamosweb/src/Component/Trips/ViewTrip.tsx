@@ -16,23 +16,30 @@ import
         Card,
         CardContent,
         CardMedia,
-        Stack
-    } from '@mui/material';
-import { Visibility, Edit, FavoriteBorder, EditLocation, PersonAdd, AddLocation } from '@mui/icons-material'
+        Stack,
+        Dialog,
+        DialogTitle,
+        DialogContent,
+        DialogActions,
+        Button
+    } from '@mui/material'; 
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import useTripById from '../../hooks/Trips/useTripById';
 import useVoteApi from '../../hooks/Votes/useVoteApi';
 import { styled } from '@mui/material/styles';
 
-import ViewMemberList from '../View/ViewMemberList'
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
+        import { Visibility, Edit, FavoriteBorder, EditLocation, PersonAdd, AddLocation, Close, Delete } from '@mui/icons-material'
 import utils from "../../Resources/utils";
 import ImageCarousel from "../Commons/ImageCarousel";
 import Itinerary from "./Itinerary/Itinerary";
 import ItineraryMap from "./ItineraryMap";
 import SnackbarNotification from '../Commons/SnackbarNotification';
+import SearchPlaces from './SearchPlaces';
+import useTripDetailsApi from '../../hooks/Trips/useTripDetailsApi';
+import ViewMemberList from '../View/ViewMemberList';
 
 // 8-bit Styled Components
 const StyledContainer = styled(Box)(({ theme }) => ({
@@ -138,9 +145,12 @@ function ViewTrip(){
     const navigate = useNavigate();
     const { isLogged, user } = useAuth();
     const { voteTrip, getTripVotesSummary, voteItineraryPlace } = useVoteApi();
+    const { saveItinerary } = useTripDetailsApi();
     const [liked, setLiked] = useState(false);
-    const [isOwner, setIsOwner] = useState(false);
     const [isVotingPlace, setIsVotingPlace] = useState(false); // Prevent multiple votes
+    const [addPlaceModalOpen, setAddPlaceModalOpen] = useState(false);
+    const [pendingPlaces, setPendingPlaces] = useState([]);
+    const [isSavingPlaces, setIsSavingPlaces] = useState(false);
     const [snackbar, setSnackbar] = useState({
         open: false,
         message: '',
@@ -166,13 +176,17 @@ function ViewTrip(){
     useEffect(() => {
         if (!tripInfo) {
             setLiked(false);
-            setIsOwner(false);
             return;
         }
 
         setLiked(tripInfo.userVoted || false);
-        setIsOwner(user && (tripInfo.owner.id === parseInt(user)));
     }, [tripInfo, user]);
+
+    const isOwner = Boolean(
+        tripInfo?.owner?.id !== undefined &&
+        user !== null &&
+        Number(tripInfo.owner.id) === Number(user)
+    );
 
     // Check if user is owner or member
     const isOwnerOrMember = () => {
@@ -241,11 +255,82 @@ function ViewTrip(){
     };
 
     const handleAddPlace = () => {
-        // Navigate to appropriate edit page based on user role
         if (isOwner) {
-            navigate(`/Edit/Trip/${id}`);
-        } else {
-            navigate(`/Edit/Itinerary/${id}`);
+            setPendingPlaces([]);
+            setAddPlaceModalOpen(true);
+            return;
+        }
+
+        navigate(`/Edit/Itinerary/${id}`);
+    };
+
+    const handleCloseAddPlaceModal = () => {
+        if (isSavingPlaces) return;
+        setAddPlaceModalOpen(false);
+        setPendingPlaces([]);
+    };
+
+    const handleQueuedPlaceAdd = (place) => {
+        const newItem = {
+            place: {
+                id: place.id,
+                name: place.name,
+                description: place.description
+            },
+            initialdate: place.initialdate,
+            finaldate: place.finaldate
+        };
+
+        const duplicate = pendingPlaces.some(item =>
+            item.place.id === newItem.place.id &&
+            item.initialdate === newItem.initialdate &&
+            item.finaldate === newItem.finaldate
+        );
+
+        if (duplicate) {
+            showSnackbar('This exact place and date range is already queued.', 'warning');
+            return;
+        }
+
+        setPendingPlaces(prev => [...prev, newItem]);
+    };
+
+    const handleRemoveQueuedPlace = (index) => {
+        setPendingPlaces(prev => prev.filter((_, itemIndex) => itemIndex !== index));
+    };
+
+    const handleSaveQueuedPlaces = async () => {
+        if (!isOwner) {
+            showSnackbar('Only the trip owner can use quick add.', 'warning');
+            return;
+        }
+
+        if (pendingPlaces.length === 0) {
+            showSnackbar('Add at least one place before saving.', 'warning');
+            return;
+        }
+
+        setIsSavingPlaces(true);
+
+        try {
+            const rq = {
+                Itinerary: pendingPlaces.map(item => ({
+                    placeid: item.place.id,
+                    initialdate: item.initialdate,
+                    finaldate: item.finaldate
+                }))
+            };
+
+            await saveItinerary(id, rq, 'post');
+            showSnackbar('Places added successfully.', 'success');
+            setAddPlaceModalOpen(false);
+            setPendingPlaces([]);
+            window.location.reload();
+        } catch (error) {
+            showSnackbar('Could not add the selected places.', 'error');
+            console.error('Error adding places to itinerary:', error);
+        } finally {
+            setIsSavingPlaces(false);
         }
     };
 
@@ -520,7 +605,7 @@ function ViewTrip(){
                         >
                             Itinerary
                         </PixelTypography>
-                        {isOwnerOrMember() && (
+                        {isOwner && (
                             <Tooltip title="Add place">
                                 <StyledActionButton
                                     onClick={handleAddPlace}
@@ -639,6 +724,77 @@ function ViewTrip(){
                 severity={snackbar.severity}
                 autoHideDuration={3000}
             />
+
+            <Dialog
+                open={addPlaceModalOpen}
+                onClose={handleCloseAddPlaceModal}
+                fullWidth
+                maxWidth="md"
+            >
+                <DialogTitle>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+                        <Typography variant="h6" sx={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.8rem' }}>
+                            Add Place to Itinerary
+                        </Typography>
+                        <IconButton onClick={handleCloseAddPlaceModal} disabled={isSavingPlaces}>
+                            <Close />
+                        </IconButton>
+                    </Box>
+                </DialogTitle>
+                <DialogContent dividers>
+                    <Stack spacing={3}>
+                        <Alert severity="info">
+                            Search a place, select dates, and queue as many entries as you need before saving.
+                        </Alert>
+
+                        <SearchPlaces
+                            callback={handleQueuedPlaceAdd}
+                            itinerary={tripInfo?.itinerary || []}
+                            allowRepeatedPlaces
+                        />
+
+                        <Box>
+                            <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 700 }}>
+                                Pending places ({pendingPlaces.length})
+                            </Typography>
+
+                            {pendingPlaces.length === 0 ? (
+                                <Alert severity="warning">No places queued yet.</Alert>
+                            ) : (
+                                <List sx={{ border: '1px solid #ddd', borderRadius: 1 }}>
+                                    {pendingPlaces.map((item, index) => (
+                                        <ListItem
+                                            key={`${item.place.id}-${item.initialdate}-${item.finaldate}-${index}`}
+                                            secondaryAction={
+                                                <IconButton edge="end" onClick={() => handleRemoveQueuedPlace(index)}>
+                                                    <Delete />
+                                                </IconButton>
+                                            }
+                                        >
+                                            <ListItemText
+                                                primary={item.place.name}
+                                                secondary={`${utils.formatDate(item.initialdate)} - ${utils.formatDate(item.finaldate)}`}
+                                            />
+                                        </ListItem>
+                                    ))}
+                                </List>
+                            )}
+                        </Box>
+                    </Stack>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCloseAddPlaceModal} disabled={isSavingPlaces}>
+                        Cancel
+                    </Button>
+                    <Button
+                        variant="contained"
+                        onClick={handleSaveQueuedPlaces}
+                        disabled={isSavingPlaces || pendingPlaces.length === 0}
+                    >
+                        Save Places
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </StyledContainer>
     );
 }

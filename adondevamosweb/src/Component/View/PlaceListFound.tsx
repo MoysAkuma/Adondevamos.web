@@ -13,7 +13,7 @@ import
 import {  LocationCity, Add } from '@mui/icons-material';
 
 
-function PlaceListFound({ placeList, callback, itinerary }){
+function PlaceListFound({ placeList, callback, itinerary, allowRepeatedPlaces = false }){
     const [dense, setDense] = useState(false);
     return ( 
         <List dense={dense}>
@@ -28,6 +28,7 @@ function PlaceListFound({ placeList, callback, itinerary }){
                                         aria-label='actions'
                                     >
                                     {   
+                                        allowRepeatedPlaces ||
                                         (itinerary?.length == 0) ||
                                         (itinerary?.filter(
                                             addedplace =>
