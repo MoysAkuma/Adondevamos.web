@@ -13,7 +13,6 @@ import {
     Paper,
     Divider,
     Box,
-    Chip,
     Slider,
     Tooltip,
     Pagination,
@@ -49,7 +48,11 @@ import {
     ExpandMore,
     ExpandLess,
     Sort,
-    AddLocation
+    AddLocation,
+    Flag,
+    CalendarToday,
+    Public,
+    Person
 } from '@mui/icons-material';
 
 import {
@@ -63,7 +66,6 @@ import {
     ItineraryListItem as StyledListItem,
     ItineraryAvatar as StyledAvatar,
     ItineraryActionButton as StyledActionButton,
-    ItineraryChip as StyledChip,
     ItineraryPagination as StyledPagination,
 } from '../../../Css/Trips/trips.styles';
 
@@ -98,7 +100,7 @@ function Itinerary ({
     callBackFavorite = null,
     callBackAddPlace = null,
     isOwnerOrMember = false
-})
+}: any)
 {
     const [sliderValue, setSliderValue] = useState(0);
     const [showAllDates, setShowAllDates] = useState(true);
@@ -183,10 +185,24 @@ function Itinerary ({
       return utils.formatDate(initialdate) + " → " + utils.formatDate(finaldate);
     }
 
+    const generateShortDateText = (initialdate, finaldate) => {
+        if (!initialdate || !finaldate) return 'Dates n/a';
+
+        const shortFormatter = new Intl.DateTimeFormat('en-US', {
+            month: 'short',
+            day: 'numeric'
+        });
+
+        const start = shortFormatter.format(new Date(initialdate));
+        const end = shortFormatter.format(new Date(finaldate));
+
+        return initialdate === finaldate ? start : `${start} - ${end}`;
+    };
+
     const calculateDays = (initialdate, finaldate) => {
         if (!initialdate || !finaldate) return null;
-        const start = new Date(initialdate);
-        const end = new Date(finaldate);
+        const start = new Date(initialdate).getTime();
+        const end = new Date(finaldate).getTime();
         const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
         return days;
     }
@@ -255,7 +271,7 @@ function Itinerary ({
     }, {});
 
     // Get unique dates for slider marks
-    const uniqueDates = Object.keys(groupedByDate).sort((a, b) => new Date(a) - new Date(b));
+    const uniqueDates = Object.keys(groupedByDate).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
 
     // Get unique date ranges for slider marks
     const getSliderMarks = () => {
@@ -471,40 +487,26 @@ function Itinerary ({
 
                             {/* Vote Filters */}
                             <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap' }}>
-                                <StyledChip
-                                    icon={<Favorite />}
-                                    label={showOnlyWithVotes ? "Only With Votes" : "Show All"}
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<Favorite />}
                                     onClick={() => {
                                         setShowOnlyWithVotes(!showOnlyWithVotes);
                                         setPage(1);
                                     }}
-                                    sx={{
-                                        ...(showOnlyWithVotes && {
-                                            backgroundColor: '#E63946',
-                                            color: '#FFFFFF',
-                                            '&:hover': {
-                                                backgroundColor: '#C53030',
-                                            }
-                                        })
-                                    }}
-                                />
-                                <StyledChip
-                                    icon={<Sort />}
-                                    label={sortByVotes ? "Sorted by Votes" : "Sort by Votes"}
+                                >
+                                    {showOnlyWithVotes ? "Only With Votes" : "Show All"}
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    startIcon={<Sort />}
                                     onClick={() => {
                                         setSortByVotes(!sortByVotes);
                                         setPage(1);
                                     }}
-                                    sx={{
-                                        ...(sortByVotes && {
-                                            backgroundColor: '#3D5A80',
-                                            color: '#FFFFFF',
-                                            '&:hover': {
-                                                backgroundColor: '#2C4560',
-                                            }
-                                        })
-                                    }}
-                                />
+                                >
+                                    {sortByVotes ? "Sorted by Votes" : "Sort by Votes"}
+                                </Button>
                             </Box>
 
                             {/* Date Filter Section */}
@@ -513,20 +515,23 @@ function Itinerary ({
                                 <PixelTypography variant="subtitle2" sx={{ color: '#2C2C2C', fontSize: '0.6rem' }}>
                                     Filter by Date
                                 </PixelTypography>
-                                <Chip 
-                                    label={showAllDates ? "All Dates" : sliderMarks[sliderValue]?.displayDate}
-                                    size="small"
-                                    color="primary"
-                                    variant={showAllDates ? "outlined" : "filled"}
-                                />
+                                <Box
+                                    component="span"
+                                    sx={{
+                                        fontSize: '0.55rem',
+                                        fontWeight: 700,
+                                        color: '#2C2C2C',
+                                        backgroundColor: '#FFFFFF',
+                                        border: '1px solid #2C2C2C',
+                                        padding: '4px 8px',
+                                    }}
+                                >
+                                    {showAllDates ? "All Dates" : sliderMarks[sliderValue]?.displayDate}
+                                </Box>
                                 {!showAllDates && (
-                                    <Chip 
-                                        label="Show All"
-                                        size="small"
-                                        onClick={() => setShowAllDates(true)}
-                                        onDelete={() => setShowAllDates(true)}
-                                        sx={{ cursor: 'pointer' }}
-                                    />
+                                    <Button size="small" onClick={() => setShowAllDates(true)}>
+                                        Show All
+                                    </Button>
                                 )}
                             </Box>
                             <Box sx={{ px: 2, pt: 1, pb: 1 }}>
@@ -561,9 +566,13 @@ function Itinerary ({
 
             <StyledMainCard>
                 <List sx={{ width: '100%', p: 0 }}>
-                    {paginatedItinerary.map((visit, index) => {
+                    {paginatedItinerary.map((visit) => {
                         const days = calculateDays(visit.initialdate, visit.finaldate);
-                        
+                        const totalVotes = voteCounts.get(visit.place.id) || 0;
+                        const memberVotes = memberVoteCounts.get(visit.place.id) || 0;
+                        const ownerId = tripinfo?.owner?.id;
+                        const isTripOwner = ownerId != null && String(ownerId) === String(localStorage.getItem('userid'));
+
                         return (
                             <StyledListItem
                                 key={visit.place.id}
@@ -573,17 +582,16 @@ function Itinerary ({
                                     backgroundColor: getPlaceBackgroundColor(visit.place.id),
                                     '&:hover': {
                                         backgroundColor: visit.place.id === top3.first ? '#E6C200' :
-                                                        visit.place.id === top3.second ? '#A8A8A8' :
-                                                        visit.place.id === top3.third ? '#B86F28' :
-                                                        '#D4956B',
+                                            visit.place.id === top3.second ? '#A8A8A8' :
+                                            visit.place.id === top3.third ? '#B86F28' :
+                                            '#D4956B',
                                     },
                                 }}
                                 secondaryAction={
                                     <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-                                        {/* Favorite Button - Only show if callback exists */}
                                         {callBackFavorite && (
                                             <StyledActionButton
-                                                aria-label="favorite" 
+                                                aria-label="favorite"
                                                 size="small"
                                                 onClick={() => toggleFavorite(visit.place.id)}
                                                 sx={{
@@ -596,17 +604,17 @@ function Itinerary ({
                                                     })
                                                 }}
                                             >
-                                                {(favoriteItems.get(visit.place.id) === true) ? 
-                                                    <Favorite sx={{ color: '#FFFFFF' }} /> : 
+                                                {favoriteItems.get(visit.place.id) === true ? (
+                                                    <Favorite sx={{ color: '#FFFFFF' }} />
+                                                ) : (
                                                     <FavoriteBorder sx={{ color: '#2C2C2C' }} />
-                                                }
+                                                )}
                                             </StyledActionButton>
                                         )}
-                                        
-                                        {/* Edit Button - Only for owners and if callback exists */}
-                                        {((tripinfo?.owner?.id == localStorage.getItem('userid'))) && callBackEdit && (
+
+                                        {isTripOwner && callBackEdit && (
                                             <StyledActionButton
-                                                aria-label="edit" 
+                                                aria-label="edit"
                                                 size="small"
                                                 onClick={() => handleEditOpen(visit)}
                                             >
@@ -616,14 +624,12 @@ function Itinerary ({
                                     </Box>
                                 }
                             >
-                                <ListItemText 
+                                <ListItemText
                                     primary={
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                                            {/* Place Name with More Space */}
+                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                {/* Top 3 Badge */}
                                                 {(visit.place.id === top3.first || visit.place.id === top3.second || visit.place.id === top3.third) && (
-                                                    <Box sx={{ 
+                                                    <Box sx={{
                                                         fontSize: '1.4rem',
                                                         display: 'flex',
                                                         alignItems: 'center',
@@ -634,16 +640,17 @@ function Itinerary ({
                                                         {visit.place.id === top3.third && '🥉'}
                                                     </Box>
                                                 )}
+
                                                 <PixelTypography
-                                                    component="span"
-                                                    variant="body1" 
+                                                    variant="body1"
                                                     sx={{
-                                                        fontSize: { xs: '0.8rem', sm: '1rem', md: '1.1rem' },
+                                                        fontFamily: "'Roboto Slab', 'Georgia', serif",
+                                                        fontSize: { xs: '0.95rem', sm: '1.1rem', md: '1.2rem' },
                                                         color: '#2C2C2C',
                                                         fontWeight: 'bold',
                                                         cursor: callBackView ? 'pointer' : 'default',
                                                         flex: 1,
-                                                        lineHeight: 1.4,
+                                                        lineHeight: 1.2,
                                                         wordBreak: 'break-word',
                                                         ...(callBackView && {
                                                             '&:hover': {
@@ -660,101 +667,40 @@ function Itinerary ({
                                                     {visit.place.name}
                                                 </PixelTypography>
                                             </Box>
-                                            
-                                            {/* Chips Section */}
-                                            <Box sx={{ 
-                                                display: 'flex', 
-                                                alignItems: 'center', 
-                                                gap: 0.5, 
+
+                                            <Box sx={{
+                                                display: 'flex',
                                                 flexWrap: 'wrap',
-                                                backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                                                padding: '6px 8px',
-                                                borderRadius: '3px',
-                                                border: '1px solid rgba(44, 44, 44, 0.3)'
-                                            }}>
-                                                {days && (
-                                                    <StyledChip
-                                                        label={`${days} day${days > 1 ? 's' : ''}`} 
-                                                        size="small" 
-                                                        sx={{ 
-                                                            fontSize: '0.4rem',
-                                                            height: '20px',
-                                                            backgroundColor: '#3D5A80',
-                                                            color: '#FFFFFF'
-                                                        }}
-                                                    />
-                                                )}
-                                                
-                                                <StyledChip
-                                                    label={visit.place.Country.acronym} 
-                                                    size="small" 
-                                                    sx={{ 
-                                                        fontSize: '0.4rem',
-                                                        height: '20px',
-                                                        backgroundColor: '#52B788',
-                                                        color: '#FFFFFF' 
-                                                    }}
-                                                />
-                                                
-                                                {/* Total Votes Chip */}
-                                                {(voteCounts.get(visit.place.id) || 0) > 0 && (
-                                                    <StyledChip
-                                                        label={voteCounts.get(visit.place.id) || 0}
-                                                        size="small"
-                                                        icon={<Favorite sx={{ fontSize: '0.6rem !important', color: '#E63946' }} />}
-                                                        sx={{
-                                                            fontSize: '0.4rem',
-                                                            height: '20px',
-                                                            backgroundColor: '#FFFFFF',
-                                                            color: '#2C2C2C',
-                                                            border: '1px solid #E63946',
-                                                            '& .MuiChip-label': {
-                                                                padding: '0 4px',
-                                                                paddingLeft: '2px'
-                                                            },
-                                                            '& .MuiChip-icon': {
-                                                                marginLeft: '2px',
-                                                                marginRight: '0px'
-                                                            }
-                                                        }}
-                                                    />
-                                                )}
-                                                
-                                                {/* Member Votes Chip */}
-                                                {isOwnerOrMember && memberVoteCounts.get(visit.place.id) > 0 && (
-                                                    <StyledChip
-                                                        label={`M: ${memberVoteCounts.get(visit.place.id)}`}
-                                                        size="small"
-                                                        sx={{
-                                                            fontSize: '0.4rem',
-                                                            height: '20px',
-                                                            backgroundColor: '#E63946',
-                                                            color: '#FFFFFF'
-                                                        }}
-                                                    />
-                                                )}
-                                            </Box>
-                                            
-                                            {/* Separate Date Section */}
-                                            <Box sx={{ 
-                                                display: 'flex', 
                                                 alignItems: 'center',
-                                                backgroundColor: 'rgba(44, 44, 44, 0.1)',
-                                                padding: '4px 8px',
-                                                borderRadius: '2px',
-                                                border: '1px solid rgba(44, 44, 44, 0.2)'
+                                                gap: 1,
+                                                color: '#2C2C2C',
+                                                backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                                                padding: '6px 10px',
+                                                borderRadius: '3px',
+                                                border: '1px solid rgba(44, 44, 44, 0.3)',
+                                                fontSize: '0.72rem',
+                                                fontWeight: 700,
                                             }}>
-                                                <PixelTypography 
-                                                    component="span"
-                                                    variant="body2" 
-                                                    sx={{ 
-                                                        color: '#2C2C2C', 
-                                                        fontSize: '0.5rem',
-                                                        fontWeight: 'bold'
-                                                    }}
-                                                >
-                                                    📅 {generateDateText(visit.initialdate, visit.finaldate)}
-                                                </PixelTypography>
+                                                <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                                                    <Flag sx={{ fontSize: '0.85rem' }} />
+                                                    <span>{visit.place.Country.acronym}</span>
+                                                </Box>
+                                                <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                                                    <CalendarToday sx={{ fontSize: '0.85rem' }} />
+                                                    <span>{generateShortDateText(visit.initialdate, visit.finaldate)}</span>
+                                                </Box>
+                                                <Tooltip title="Votes from site" arrow>
+                                                    <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                                                        <Public sx={{ fontSize: '0.85rem' }} />
+                                                        <span>{totalVotes}</span>
+                                                    </Box>
+                                                </Tooltip>
+                                                <Tooltip title="Votes by members of this trip" arrow>
+                                                    <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                                                        <Person sx={{ fontSize: '0.85rem' }} />
+                                                        <span>{memberVotes}</span>
+                                                    </Box>
+                                                </Tooltip>
                                             </Box>
                                         </Box>
                                     }
@@ -765,26 +711,6 @@ function Itinerary ({
                     })}
                 </List>
             </StyledMainCard>
-            
-            {/* Results Counter */}
-            {(showOnlyWithVotes || sortByVotes) && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                    <PixelTypography 
-                        variant="body2" 
-                        sx={{ 
-                            fontSize: '0.6rem',
-                            color: '#2C2C2C',
-                            backgroundColor: '#E0AC69',
-                            padding: '8px 16px',
-                            border: '2px solid #2C2C2C'
-                        }}
-                    >
-                        Showing {sortedByVotesItinerary.length} of {sortedItinerary.length} places
-                        {showOnlyWithVotes && ' with votes'}
-                        {sortByVotes && ' (sorted by votes)'}
-                    </PixelTypography>
-                </Box>
-            )}
             
             {/* Pagination */}
             {totalPages > 1 && (
