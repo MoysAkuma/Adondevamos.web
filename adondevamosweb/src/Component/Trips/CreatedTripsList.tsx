@@ -1,45 +1,20 @@
 import { useNavigate } from 'react-router-dom';
 import {
-    Card,
-    CardContent,
     List,
     Alert,
     Box
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
 import TripListItem from './TripListItem';
 import Pagination from '../Commons/Pagination';
 import usePagination from '../../hooks/usePagination';
-
-const StyledSectionCard = styled(Card)(({ theme }) => ({
-    borderRadius: 0,
-    border: '4px solid #2C2C2C',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-    marginBottom: theme.spacing(3),
-}));
-
-const StyledSectionHeader = styled(Box)(({ theme }) => ({
-    backgroundColor: '#0F766E',
-    padding: theme.spacing(2),
-    borderBottom: '4px solid #2C2C2C',
-}));
-
-const StyledSectionContent = styled(CardContent)(({ theme }) => ({
-    backgroundColor: '#F8FAFC',
-    padding: theme.spacing(3),
-    '&:last-child': {
-        paddingBottom: theme.spacing(3),
-    },
-}));
-
-const PixelTypography = styled('div')(({ theme }) => ({
-    fontFamily: "'Press Start 2P', cursive",
-    fontSize: '1rem',
-    color: '#FFFFFF',
-    [theme.breakpoints.down('sm')]: {
-        fontSize: '0.8rem',
-    },
-}));
+import {
+    CreatedTripsSectionCard,
+    CreatedTripsSectionHeader,
+    CreatedTripsSectionContent,
+    CreatedTripsHeaderText,
+    createdTripsEmptyAlertSx,
+    createdTripsListSx,
+} from '../../Css/Trips/trips.styles';
 
 /**
  * Reusable component for displaying created trips
@@ -94,34 +69,28 @@ function CreatedTripsList({
 
     if (!trips || trips.length === 0) {
         return (
-            <StyledSectionCard>
-                <StyledSectionContent>
+            <CreatedTripsSectionCard>
+                <CreatedTripsSectionContent>
                     <Alert 
                         severity="info"
-                        sx={{
-                            borderRadius: 0,
-                            border: '2px solid #2C2C2C',
-                            fontFamily: "'Press Start 2P', cursive",
-                            fontSize: '0.6rem',
-                            lineHeight: 1.6
-                        }}
+                        sx={createdTripsEmptyAlertSx}
                     >
                         {emptyMessage}
                     </Alert>
-                </StyledSectionContent>
-            </StyledSectionCard>
+                </CreatedTripsSectionContent>
+            </CreatedTripsSectionCard>
         );
     }
 
     return (
-        <StyledSectionCard>
-            <StyledSectionHeader>
-                <PixelTypography>
+        <CreatedTripsSectionCard>
+            <CreatedTripsSectionHeader>
+                <CreatedTripsHeaderText>
                     {title}
-                </PixelTypography>
-            </StyledSectionHeader>
-            <StyledSectionContent>
-                <List sx={{ width: '100%', padding: 0 }}>
+                </CreatedTripsHeaderText>
+            </CreatedTripsSectionHeader>
+            <CreatedTripsSectionContent>
+                <List sx={createdTripsListSx}>
                     {tripsToRender.map((trip) => (
                         <TripListItem
                             key={trip.id}
@@ -151,8 +120,8 @@ function CreatedTripsList({
                         pageSizeOptions={[5, 10, 20, 50]}
                     />
                 )}
-            </StyledSectionContent>
-        </StyledSectionCard>
+            </CreatedTripsSectionContent>
+        </CreatedTripsSectionCard>
     );
 }
 

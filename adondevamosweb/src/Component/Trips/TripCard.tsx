@@ -1,21 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
-  Avatar,
   Typography,
-  Card,
-  CardHeader,
-  CardActions,
   CardContent,
-  CardMedia,
   IconButton,
   Badge,
   Collapse,
   Tooltip,
-  Chip,
   Box,
-  Stack,
-  Divider
+  Stack
 } from '@mui/material';
 import { 
   CalendarToday,
@@ -26,109 +19,33 @@ import {
   ExpandLess,
   EmojiEvents
 } from "@mui/icons-material";
-import { styled } from '@mui/material/styles';
 import Itinerary from "./Itinerary/Itinerary";
 import ItineraryMap from "./ItineraryMap";
 import { useAuth } from '../../context/AuthContext';
 import useVoteApi from '../../hooks/Votes/useVoteApi';
 import SnackbarNotification from '../Commons/SnackbarNotification';
 import UserAvatar from '../Commons/UserAvatar';
-
-// Styled components for 8-bit retro design
-const StyledCard = styled(Card)(({ theme }) => ({
-  maxWidth: '100%',
-  borderRadius: 0,
-  border: '4px solid #2C2C2C',
-  boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-  transition: 'transform 0.1s ease-in-out, box-shadow 0.1s ease-in-out',
-  '&:hover': {
-    transform: 'translate(-2px, -2px)',
-    boxShadow: '10px 10px 0px rgba(0,0,0,0.4)',
-  },
-  [theme.breakpoints.up('sm')]: {
-    maxWidth: 400,
-  },
-}));
-
-const StyledCardHeader = styled(CardHeader)(({ theme }) => ({
-  padding: theme.spacing(2),
-  [theme.breakpoints.up('sm')]: {
-    padding: theme.spacing(2.5),
-  },
-  backgroundColor: '#3D5A80',
-  borderBottom: '4px solid #2C2C2C',
-  '& .MuiCardHeader-avatar': {
-    '& .MuiAvatar-root': {
-      borderRadius: 0,
-      border: '2px solid #2C2C2C',
-      backgroundColor: '#E63946',
-    },
-  },
-  '& .MuiCardHeader-action': {
-    marginTop: 0,
-    marginRight: 0,
-  },
-  '& .MuiIconButton-root': {
-    color: '#2C2C2C',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 0,
-    border: '2px solid #2C2C2C',
-    padding: '6px',
-    '&:hover': {
-      backgroundColor: '#F8F8F8',
-      transform: 'translateY(-2px)',
-      boxShadow: '3px 3px 0px #2C2C2C',
-    },
-  },
-}));
-
-const StyledCardMedia = styled(CardMedia)({
-  height: 200,
-  cursor: 'pointer',
-  objectFit: 'cover',
-  transition: 'opacity 0.3s ease',
-  '&:hover': {
-    opacity: 0.9,
-  },
-});
-
-const StyledCardContent = styled(CardContent)(({ theme }) => ({
-  padding: theme.spacing(2),
-  [theme.breakpoints.up('sm')]: {
-    padding: theme.spacing(2.5),
-  },
-  backgroundColor: '#E0AC69',
-  borderBottom: '4px solid #2C2C2C',
-}));
-
-const StyledCardActions = styled(CardActions)(({ theme }) => ({
-  padding: theme.spacing(1, 2),
-  backgroundColor: '#52B788',
-  borderTop: '4px solid #2C2C2C',
-  '& .MuiIconButton-root': {
-    color: '#2C2C2C',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 0,
-    border: '2px solid #2C2C2C',
-    padding: '8px',
-    margin: '0 4px',
-    '&:hover': {
-      backgroundColor: '#F8F8F8',
-      transform: 'translateY(-2px)',
-      boxShadow: '3px 3px 0px #2C2C2C',
-    },
-  },
-}));
-
-const ExpandButton = styled(IconButton, {
-  shouldForwardProp: (prop) => prop !== 'expand',
-})(({ theme, expand }) => ({
-  transform: expand ? 'rotate(180deg)' : 'rotate(0deg)',
-  marginLeft: 'auto',
-  transition: theme.transitions.create('transform', {
-    duration: theme.transitions.duration.shortest,
-  }),
-}));
+import {
+  TripCardRoot,
+  TripCardHeader,
+  TripCardMedia,
+  TripCardContent,
+  TripCardActions,
+  TripCardExpandButton,
+  tripCardAvatarClickSx,
+  tripCardRankingBadgeSx,
+  tripCardRankingIconTextSx,
+  tripCardTitleSx,
+  tripCardDateStackSx,
+  tripCardDateIconSx,
+  tripCardDateTextSx,
+  tripCardBulletSx,
+  tripCardDescriptionSx,
+  tripCardLikedIconSx,
+  tripCardCollapseContentSx,
+  tripCardCollapseTitleSx,
+  tripCardCollapseEmptySx,
+} from '../../Css/Trips/trips.styles';
 
 function TripCard({ tripinfo, showRankingBadge = false, rankingPosition = null }) {
   const location = useLocation();
@@ -275,17 +192,19 @@ function TripCard({ tripinfo, showRankingBadge = false, rankingPosition = null }
 
 
   return (
-    <StyledCard>
-      <StyledCardHeader
+    <TripCardRoot>
+      <TripCardHeader
         avatar={
           <Box 
             onClick={() => goToViewProfile(tripinfo.owner.id)}
-            sx={{ cursor: 'pointer' }}
+            sx={tripCardAvatarClickSx}
           >
             <UserAvatar
+              src={tripinfo.owner?.pictureurl || tripinfo.owner?.avatar || ''}
               name={tripinfo.owner.name || tripinfo.owner.lastname}
               tag={tripinfo.owner.tag}
               size="medium"
+              alt={tripinfo.owner.tag || tripinfo.owner.name || 'Trip owner'}
             />
           </Box>
         }
@@ -293,24 +212,11 @@ function TripCard({ tripinfo, showRankingBadge = false, rankingPosition = null }
           showRankingBadge && rankingPosition && (
             <Tooltip title={`#${rankingPosition} Most Voted Trip`}>
               <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  backgroundColor: getRankingBadgeColor(rankingPosition),
-                  border: '2px solid #2C2C2C',
-                  borderRadius: 0,
-                  padding: '4px 8px',
-                  boxShadow: '2px 2px 0px #2C2C2C'
-                }}
+                sx={tripCardRankingBadgeSx(getRankingBadgeColor(rankingPosition))}
               >
                 <Typography
                   variant="caption"
-                  sx={{
-                    fontSize: '0.6rem',
-                    fontFamily: "'Press Start 2P', cursive",
-                    color: '#2C2C2C',
-                    fontWeight: 'bold'
-                  }}
+                  sx={tripCardRankingIconTextSx}
                 >
                   {getRankingIcon(rankingPosition)}
                 </Typography>
@@ -323,17 +229,7 @@ function TripCard({ tripinfo, showRankingBadge = false, rankingPosition = null }
             variant="h6" 
             component="h6"
             onClick={() => gotoViewTrip(tripinfo)}
-            sx={{ 
-              fontSize: { xs: '0.7rem', sm: '0.8rem' },
-              fontFamily: "'Press Start 2P', cursive",
-              fontWeight: 600,
-              color: '#FFFFFF',
-              cursor: 'pointer',
-              '&:hover': {
-                color: '#98C1D9',
-                textDecoration: 'underline',
-              }
-            }}
+            sx={tripCardTitleSx}
           >
             {tripinfo.name}
           </Typography>
@@ -344,21 +240,21 @@ function TripCard({ tripinfo, showRankingBadge = false, rankingPosition = null }
             spacing={0.5} 
             alignItems="center"
             flexWrap="wrap"
-            sx={{ mt: 0.5 }}
+            sx={tripCardDateStackSx}
           >
-            <CalendarToday sx={{ fontSize: 14, color: '#FFFFFF' }} />
+            <CalendarToday sx={tripCardDateIconSx} />
             <Typography 
               variant="caption" 
-              sx={{ color: '#E8F4FD', fontSize: '0.5rem' }}
+              sx={tripCardDateTextSx}
             >
               {formatDate(tripinfo.initialdate)}
             </Typography>
-            <Typography variant="caption" sx={{ color: '#E8F4FD', mx: 0.5 }}>
+            <Typography variant="caption" sx={tripCardBulletSx}>
               •
             </Typography>
             <Typography 
               variant="caption" 
-              sx={{ color: '#E8F4FD', fontSize: '0.5rem' }}
+              sx={tripCardDateTextSx}
             >
               {formatDate(tripinfo.finaldate)}
             </Typography>
@@ -366,34 +262,23 @@ function TripCard({ tripinfo, showRankingBadge = false, rankingPosition = null }
         }
       />
 
-      <StyledCardMedia
-        component="img"
+      <TripCardMedia
         image={getPlaceholderImage()}
-        alt="Trip image"
+        title="Trip image"
         onClick={() => gotoViewTrip(tripinfo)}
       />
       
-      <StyledCardContent>
+      <TripCardContent>
         <Typography 
           variant="body2" 
-          sx={{ 
-            color: '#2C2C2C',
-            lineHeight: 1.8,
-            mb: 2,
-            display: '-webkit-box',
-            WebkitLineClamp: 3,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-            fontSize: { xs: '0.5rem', sm: '0.6rem' },
-            fontFamily: "'Press Start 2P', cursive"
-          }}
+          sx={tripCardDescriptionSx}
         >
           {tripinfo.description}
         </Typography>
         
-      </StyledCardContent>
+      </TripCardContent>
 
-      <StyledCardActions disableSpacing>
+      <TripCardActions disableSpacing>
         <Tooltip title={isLiked ? "Unlike" : "Like"}>
           <IconButton 
             aria-label="vote" 
@@ -407,7 +292,7 @@ function TripCard({ tripinfo, showRankingBadge = false, rankingPosition = null }
               color="error"
             >
               {isLiked ? (
-                <Favorite sx={{ color: '#ef4444' }} />
+                <Favorite sx={tripCardLikedIconSx} />
               ) : (
                 <FavoriteBorder />
               )}
@@ -425,7 +310,7 @@ function TripCard({ tripinfo, showRankingBadge = false, rankingPosition = null }
           </IconButton>
         </Tooltip>
 
-        <ExpandButton
+        <TripCardExpandButton
           expand={expanded}
           onClick={handleExpandClick}
           aria-expanded={expanded}
@@ -433,38 +318,23 @@ function TripCard({ tripinfo, showRankingBadge = false, rankingPosition = null }
           size="small"
         >
           {expanded ? <ExpandLess /> : <ExpandMore />}
-        </ExpandButton>
-      </StyledCardActions>
+        </TripCardExpandButton>
+      </TripCardActions>
 
       <Collapse in={expanded} timeout="auto" unmountOnExit>
         <CardContent 
-          sx={{ 
-            bgcolor: '#6B5B95',
-            borderTop: '4px solid #2C2C2C',
-            p: 2
-          }}
+          sx={tripCardCollapseContentSx}
         >
           <Typography 
             variant="subtitle2" 
-            sx={{ 
-              fontWeight: 600, 
-              color: '#FFFFFF',
-              mb: 1.5,
-              fontSize: '0.65rem',
-              fontFamily: "'Press Start 2P', cursive",
-            }}
+            sx={tripCardCollapseTitleSx}
           >
             Itinerary
           </Typography>
           {!tripinfo.itinerary || tripinfo.itinerary.length === 0 ? (
             <Typography 
               variant="body2" 
-              sx={{ 
-                color: '#E8F4FD', 
-                fontStyle: 'italic',
-                fontSize: '0.6rem',
-                fontFamily: "'Press Start 2P', cursive",
-              }}
+              sx={tripCardCollapseEmptySx}
             >
               No places added yet.
             </Typography>
@@ -484,7 +354,7 @@ function TripCard({ tripinfo, showRankingBadge = false, rankingPosition = null }
         severity={snackbar.severity}
         autoHideDuration={3000}
       />
-    </StyledCard>
+    </TripCardRoot>
   );
 }
 export default TripCard;

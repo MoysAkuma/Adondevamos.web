@@ -1,12 +1,8 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { styled } from '@mui/material/styles';
 import {
     Box,
-    Card,
-    CardContent,
     Typography,
     Alert,
-    IconButton,
     Tooltip
 } from '@mui/material';
 import { Map as MapIcon, ZoomIn, ZoomOut, Refresh, MyLocation } from '@mui/icons-material';
@@ -14,6 +10,23 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Link as RouterLink } from 'react-router-dom';
+import {
+    ItineraryMapCard,
+    ItineraryMapHeader,
+    ItineraryMapContent,
+    ItineraryMapTitle,
+    ItineraryMapContainer,
+    ItineraryMapActionButton,
+    itineraryMapHeaderRowSx,
+    itineraryMapIconSx,
+    itineraryMapTitleSx,
+    itineraryMapActionsRowSx,
+    itineraryMapInfoAlertSx,
+    itineraryMapPopupBoxSx,
+    itineraryMapPopupTitleSx,
+    itineraryMapFooterBoxSx,
+    itineraryMapFooterTextSx,
+} from '../../Css/Trips/trips.styles';
 
 /**
  * ItineraryMap Component
@@ -35,70 +48,6 @@ import { Link as RouterLink } from 'react-router-dom';
  * DEPENDENCIES:
  * Install required packages: npm install react-leaflet leaflet
  */
-
-const StyledMapCard = styled(Card)(({ theme }) => ({
-    borderRadius: 0,
-    border: '4px solid #2C2C2C',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-    marginBottom: theme.spacing(3),
-    backgroundColor: '#E0AC69',
-}));
-
-const StyledMapHeader = styled(Box)(({ theme }) => ({
-    backgroundColor: '#52B788',
-    padding: theme.spacing(2),
-    borderBottom: '4px solid #2C2C2C',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-}));
-
-const StyledMapContent = styled(CardContent)(({ theme }) => ({
-    backgroundColor: '#E0AC69',
-    padding: theme.spacing(2),
-    '&:last-child': {
-        paddingBottom: theme.spacing(2),
-    },
-}));
-
-const PixelTypography = styled(Typography)(({ theme }) => ({
-    fontFamily: "'Press Start 2P', cursive",
-}));
-
-const MapContainer_Styled = styled(Box)(({ theme }) => ({
-    position: 'relative',
-    width: '100%',
-    height: '400px',
-    borderRadius: 0,
-    border: '3px solid #2C2C2C',
-    overflow: 'hidden',
-    backgroundColor: '#FFFFFF',
-    boxShadow: '4px 4px 0px rgba(0,0,0,0.2)',
-    '& .leaflet-container': {
-        height: '100%',
-        width: '100%',
-    },
-}));
-
-const StyledIconButton = styled(IconButton)(({ theme }) => ({
-    backgroundColor: '#FFFFFF',
-    borderRadius: 0,
-    border: '2px solid #2C2C2C',
-    padding: '6px',
-    margin: '0 2px',
-    color: '#2C2C2C',
-    '&:hover': {
-        backgroundColor: '#3D5A80',
-        color: '#FFFFFF',
-        transform: 'translateY(-2px)',
-        boxShadow: '2px 2px 0px #2C2C2C',
-    },
-    '&:disabled': {
-        backgroundColor: '#CCCCCC',
-        borderColor: '#999999',
-        color: '#666666',
-    },
-}));
 
 // Create custom numbered marker icons
 const createNumberedIcon = (number) => {
@@ -279,40 +228,28 @@ const ItineraryMap = ({ itinerary = [] }) => {
         // Show helpful message if there are places but not enough valid coordinates
         if (sortedItinerary.length >= 2 && validPlaces.length < 2) {
             return (
-                <StyledMapCard>
-                    <StyledMapHeader>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <MapIcon sx={{ color: '#FFFFFF', fontSize: '1.5rem' }} />
-                            <PixelTypography
+                <ItineraryMapCard>
+                    <ItineraryMapHeader>
+                        <Box sx={itineraryMapHeaderRowSx}>
+                            <MapIcon sx={itineraryMapIconSx} />
+                            <ItineraryMapTitle
                                 variant="h6"
-                                sx={{
-                                    color: '#FFFFFF',
-                                    fontSize: { xs: '0.6rem', sm: '0.8rem' }
-                                }}
+                                sx={itineraryMapTitleSx}
                             >
                                 Trip Route Map
-                            </PixelTypography>
+                            </ItineraryMapTitle>
                         </Box>
-                    </StyledMapHeader>
-                    <StyledMapContent>
+                    </ItineraryMapHeader>
+                    <ItineraryMapContent>
                         <Alert 
                             severity="info"
-                            sx={{
-                                borderRadius: 0,
-                                border: '2px solid #2C2C2C',
-                                backgroundColor: '#DBEAFE',
-                                '& .MuiAlert-message': {
-                                    fontFamily: "'Press Start 2P', cursive",
-                                    fontSize: '0.6rem',
-                                    lineHeight: 1.8
-                                }
-                            }}
+                            sx={itineraryMapInfoAlertSx}
                         >
                             Map requires at least 2 places with valid coordinates. 
                             Some places in the itinerary are missing location data.
                         </Alert>
-                    </StyledMapContent>
-                </StyledMapCard>
+                    </ItineraryMapContent>
+                </ItineraryMapCard>
             );
         }
         // Don't show anything if less than 2 places in itinerary
@@ -324,55 +261,52 @@ const ItineraryMap = ({ itinerary = [] }) => {
     }
 
     return (
-        <StyledMapCard>
-            <StyledMapHeader>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <MapIcon sx={{ color: '#FFFFFF', fontSize: '1.5rem' }} />
-                    <PixelTypography
+        <ItineraryMapCard>
+            <ItineraryMapHeader>
+                <Box sx={itineraryMapHeaderRowSx}>
+                    <MapIcon sx={itineraryMapIconSx} />
+                    <ItineraryMapTitle
                         variant="h6"
-                        sx={{
-                            color: '#FFFFFF',
-                            fontSize: { xs: '0.6rem', sm: '0.8rem' }
-                        }}
+                        sx={itineraryMapTitleSx}
                     >
                         Trip Route Map
-                    </PixelTypography>
+                    </ItineraryMapTitle>
                 </Box>
-                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                <Box sx={itineraryMapActionsRowSx}>
                     <Tooltip title="Zoom Out" arrow>
-                        <StyledIconButton 
+                        <ItineraryMapActionButton 
                             size="small" 
                             onClick={handleZoomOut}
                         >
                             <ZoomOut fontSize="small" />
-                        </StyledIconButton>
+                        </ItineraryMapActionButton>
                     </Tooltip>
                     <Tooltip title="Zoom In" arrow>
-                        <StyledIconButton 
+                        <ItineraryMapActionButton 
                             size="small" 
                             onClick={handleZoomIn}
                         >
                             <ZoomIn fontSize="small" />
-                        </StyledIconButton>
+                        </ItineraryMapActionButton>
                     </Tooltip>
                     <Tooltip title="Fit to View" arrow>
-                        <StyledIconButton 
+                        <ItineraryMapActionButton 
                             size="small" 
                             onClick={handleFitBounds}
                         >
                             <MyLocation fontSize="small" />
-                        </StyledIconButton>
+                        </ItineraryMapActionButton>
                     </Tooltip>
                     <Tooltip title="Refresh Map" arrow>
-                        <StyledIconButton size="small" onClick={handleRefresh}>
+                        <ItineraryMapActionButton size="small" onClick={handleRefresh}>
                             <Refresh fontSize="small" />
-                        </StyledIconButton>
+                        </ItineraryMapActionButton>
                     </Tooltip>
                 </Box>
-            </StyledMapHeader>
+            </ItineraryMapHeader>
 
-            <StyledMapContent>
-                <MapContainer_Styled key={refreshKey}>
+            <ItineraryMapContent>
+                <ItineraryMapContainer key={refreshKey}>
                     <MapContainer
                         center={[mapCenter.lat, mapCenter.lng]}
                         zoom={zoom}
@@ -410,19 +344,8 @@ const ItineraryMap = ({ itinerary = [] }) => {
                                 title={item.place.name || `Stop ${index + 1}`}
                             >
                                 <Popup>
-                                    <Box sx={{ 
-                                        fontFamily: "'Press Start 2P', cursive",
-                                        fontSize: '0.6rem',
-                                        lineHeight: 1.8,
-                                        textAlign: 'center'
-                                    }}>
-                                        <Typography sx={{ 
-                                            fontFamily: "'Press Start 2P', cursive",
-                                            fontSize: '0.6rem',
-                                            fontWeight: 'bold',
-                                            mb: 1,
-                                            color: '#2C2C2C'
-                                        }}>
+                                    <Box sx={itineraryMapPopupBoxSx}>
+                                        <Typography sx={itineraryMapPopupTitleSx}>
                                             {String.fromCharCode(65 + index)}. {item.place.name || `Stop ${index + 1}`}
                                         </Typography>
                                         <RouterLink 
@@ -455,23 +378,19 @@ const ItineraryMap = ({ itinerary = [] }) => {
                             </Marker>
                         ))}
                     </MapContainer>
-                </MapContainer_Styled>
+                </ItineraryMapContainer>
 
-                <Box sx={{ mt: 2 }}>
-                    <PixelTypography 
+                <Box sx={itineraryMapFooterBoxSx}>
+                    <ItineraryMapTitle 
                         variant="caption" 
-                        sx={{ 
-                            fontSize: '0.5rem', 
-                            color: '#2C2C2C',
-                            lineHeight: 1.8
-                        }}
+                        sx={itineraryMapFooterTextSx}
                     >
                         {validPlaces.length} location{validPlaces.length !== 1 ? 's' : ''} • 
                         Markers show route sequence (A → {String.fromCharCode(64 + validPlaces.length)})
-                    </PixelTypography>
+                    </ItineraryMapTitle>
                 </Box>
-            </StyledMapContent>
-        </StyledMapCard>
+            </ItineraryMapContent>
+        </ItineraryMapCard>
     );
 };
 

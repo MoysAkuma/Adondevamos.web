@@ -10,12 +10,7 @@ import
         ListItem,
         ListItemText,
         Alert,
-        Divider,
-        Paper,
         Tooltip,
-        Card,
-        CardContent,
-        CardMedia,
         Stack,
         Dialog,
         DialogTitle,
@@ -27,11 +22,12 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import useTripById from '../../hooks/Trips/useTripById';
 import useVoteApi from '../../hooks/Votes/useVoteApi';
-import { styled } from '@mui/material/styles';
 
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
-        import { Visibility, Edit, FavoriteBorder, EditLocation, PersonAdd, AddLocation, Close, Delete } from '@mui/icons-material'
+import { Edit, FavoriteBorder, PersonAdd, 
+    AddLocation, Close, Delete 
+} from '@mui/icons-material'
 import utils from "../../Resources/utils";
 import ImageCarousel from "../Commons/ImageCarousel";
 import Itinerary from "./Itinerary/Itinerary";
@@ -40,104 +36,36 @@ import SnackbarNotification from '../Commons/SnackbarNotification';
 import SearchPlaces from './SearchPlaces';
 import useTripDetailsApi from '../../hooks/Trips/useTripDetailsApi';
 import ViewMemberList from '../View/ViewMemberList';
-
-// 8-bit Styled Components
-const StyledContainer = styled(Box)(({ theme }) => ({
-    maxWidth: '800px',
-    margin: '0 auto',
-    padding: theme.spacing(2),
-}));
-
-const StyledBanner = styled(CardMedia)(({ theme }) => ({
-    height: 300,
-    borderRadius: 0,
-    border: '4px solid #2C2C2C',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-    marginBottom: theme.spacing(3),
-    objectFit: 'cover',
-    [theme.breakpoints.down('sm')]: {
-        height: 200,
-    },
-}));
-
-const StyledCard = styled(Card)(({ theme }) => ({
-    borderRadius: 0,
-    border: '4px solid #2C2C2C',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-    marginBottom: theme.spacing(3),
-    overflow: 'visible',
-}));
-
-const StyledCardContent = styled(CardContent)(({ theme }) => ({
-    backgroundColor: '#E0AC69',
-    padding: theme.spacing(3),
-    borderBottom: '4px solid #2C2C2C',
-    '&:last-child': {
-        paddingBottom: theme.spacing(3),
-    },
-}));
-
-const StyledHeaderCard = styled(Card)(({ theme }) => ({
-    borderRadius: 0,
-    border: '4px solid #2C2C2C',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-    marginBottom: theme.spacing(3),
-    backgroundColor: '#3D5A80',
-}));
-
-const StyledHeaderContent = styled(CardContent)(({ theme }) => ({
-    backgroundColor: '#3D5A80',
-    color: '#FFFFFF',
-    padding: theme.spacing(3),
-    textAlign: 'center',
-}));
-
-const StyledSectionCard = styled(Card)(({ theme }) => ({
-    borderRadius: 0,
-    border: '4px solid #2C2C2C',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-    marginBottom: theme.spacing(3),
-}));
-
-const StyledSectionHeader = styled(Box)(({ theme }) => ({
-    backgroundColor: '#52B788',
-    padding: theme.spacing(2),
-    borderBottom: '4px solid #2C2C2C',
-}));
-
-const StyledSectionContent = styled(CardContent)(({ theme }) => ({
-    backgroundColor: '#E0AC69',
-    padding: theme.spacing(2),
-    '&:last-child': {
-        paddingBottom: theme.spacing(2),
-    },
-}));
-
-const StyledActionsCard = styled(Card)(({ theme }) => ({
-    borderRadius: 0,
-    border: '4px solid #2C2C2C',
-    boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-    backgroundColor: '#52B788',
-    padding: theme.spacing(2),
-}));
-
-const StyledActionButton = styled(IconButton)(({ theme }) => ({
-    color: '#2C2C2C',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 0,
-    border: '2px solid #2C2C2C',
-    padding: theme.spacing(1.5),
-    margin: theme.spacing(0, 1),
-    '&:hover': {
-        backgroundColor: '#F8F8F8',
-        transform: 'translateY(-2px)',
-        boxShadow: '3px 3px 0px #2C2C2C',
-    },
-}));
-
-const PixelTypography = styled(Typography)(({ theme }) => ({
-    fontFamily: "'Press Start 2P', cursive",
-}));
+import {
+    StyledContainer,
+    StyledHeaderCard,
+    StyledHeaderContent,
+    StyledSectionCard,
+    StyledSectionHeader,
+    StyledSectionContent,
+    StyledBanner,
+    StyledActionsCard,
+    StyledActionButton,
+    PixelTypography,
+    pageLoadingSx,
+    warningAlertSx,
+    errorAlertSx,
+    tripTitleSx,
+    tripDescriptionSx,
+    tripOwnerSx,
+    tripDatesSx,
+    sectionHeaderRowSx,
+    sectionTitleSx,
+    compactActionButtonSx,
+    iconSmallSx,
+    emptyMembersAlertSx,
+    actionsRowSx,
+    likedIconSx,
+    dialogTitleRowSx,
+    dialogTitleSx,
+    pendingPlacesTitleSx,
+    pendingPlacesListSx,
+} from '../../Css/Trips/trips.styles';
 
 function ViewTrip(){
     //Get id
@@ -370,7 +298,7 @@ function ViewTrip(){
 
     if (loadingPage) {
         return (
-            <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+            <Box sx={pageLoadingSx}>
                 <CircularProgress />
             </Box>
         );
@@ -381,21 +309,7 @@ function ViewTrip(){
             <StyledContainer>
                 <Alert 
                     severity="warning" 
-                    sx={{ 
-                        mt: 2,
-                        borderRadius: 0,
-                        border: '4px solid #2C2C2C',
-                        boxShadow: '6px 6px 0px rgba(0,0,0,0.3)',
-                        backgroundColor: '#FEF3C7',
-                        color: '#2C2C2C',
-                        fontFamily: "'Press Start 2P', cursive",
-                        fontSize: '0.7rem',
-                        lineHeight: 1.6,
-                        '& .MuiAlert-icon': {
-                            fontSize: '1rem',
-                            color: '#D97706'
-                        }
-                    }}
+                    sx={warningAlertSx}
                 >
                     Trip not found
                 </Alert>
@@ -408,21 +322,7 @@ function ViewTrip(){
             <StyledContainer>
                 <Alert 
                     severity="error" 
-                    sx={{ 
-                        mt: 2,
-                        borderRadius: 0,
-                        border: '4px solid #2C2C2C',
-                        boxShadow: '6px 6px 0px rgba(0,0,0,0.3)',
-                        backgroundColor: '#FEE2E2',
-                        color: '#2C2C2C',
-                        fontFamily: "'Press Start 2P', cursive",
-                        fontSize: '0.7rem',
-                        lineHeight: 1.6,
-                        '& .MuiAlert-icon': {
-                            fontSize: '1rem',
-                            color: '#DC2626'
-                        }
-                    }}
+                    sx={errorAlertSx}
                 >
                     Error: {error}
                 </Alert>
@@ -435,21 +335,7 @@ function ViewTrip(){
             <StyledContainer>
                 <Alert 
                     severity="warning" 
-                    sx={{ 
-                        mt: 2,
-                        borderRadius: 0,
-                        border: '4px solid #2C2C2C',
-                        boxShadow: '6px 6px 0px rgba(0,0,0,0.3)',
-                        backgroundColor: '#FEF3C7',
-                        color: '#2C2C2C',
-                        fontFamily: "'Press Start 2P', cursive",
-                        fontSize: '0.7rem',
-                        lineHeight: 1.6,
-                        '& .MuiAlert-icon': {
-                            fontSize: '1rem',
-                            color: '#D97706'
-                        }
-                    }}
+                    sx={warningAlertSx}
                 >
                     Trip not found
                 </Alert>
@@ -465,24 +351,14 @@ function ViewTrip(){
                     <PixelTypography 
                         variant="h3" 
                         component="h1" 
-                        sx={{ 
-                            fontSize: { xs: '1.2rem', sm: '1.8rem', md: '2.2rem' },
-                            color: '#FFFFFF',
-                            mb: 2,
-                            lineHeight: 1.4
-                        }}
+                        sx={tripTitleSx}
                     >
                         {tripInfo.name}
                     </PixelTypography>
                     
                     <PixelTypography 
                         variant="body1" 
-                        sx={{ 
-                            fontSize: { xs: '0.6rem', sm: '0.8rem' },
-                            color: '#E8F4FD',
-                            mb: 2,
-                            lineHeight: 1.6
-                        }}
+                        sx={tripDescriptionSx}
                     >
                         {tripInfo.description}
                     </PixelTypography>
@@ -496,24 +372,13 @@ function ViewTrip(){
                         <PixelTypography 
                             variant="body2" 
                             onClick={() => goToViewProfile(tripInfo.owner.id)}
-                            sx={{ 
-                                fontSize: { xs: '0.5rem', sm: '0.6rem' },
-                                color: '#E8F4FD',
-                                cursor: 'pointer',
-                                '&:hover': {
-                                    color: '#FFFFFF',
-                                    textDecoration: 'underline'
-                                }
-                            }}
+                            sx={tripOwnerSx}
                         >
                             By: {tripInfo.owner.tag}
                         </PixelTypography>
                         <PixelTypography 
                             variant="body2" 
-                            sx={{ 
-                                fontSize: { xs: '0.5rem', sm: '0.6rem' },
-                                color: '#E8F4FD'
-                            }}
+                            sx={tripDatesSx}
                         >
                             {utils.formatDate(tripInfo.initialdate)} - {utils.formatDate(tripInfo.finaldate)}
                         </PixelTypography>
@@ -529,13 +394,10 @@ function ViewTrip(){
             {/* Members Section */}
             <StyledSectionCard>
                 <StyledSectionHeader>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box sx={sectionHeaderRowSx}>
                         <PixelTypography 
                             variant="h5" 
-                            sx={{ 
-                                fontSize: { xs: '0.8rem', sm: '1rem' },
-                                color: '#FFFFFF'
-                            }}
+                            sx={sectionTitleSx}
                         >
                             Members
                         </PixelTypography>
@@ -544,18 +406,9 @@ function ViewTrip(){
                                 <StyledActionButton
                                     onClick={handleEditMembers}
                                     size="small"
-                                    sx={{ 
-                                        padding: '6px',
-                                        minWidth: 'auto',
-                                        backgroundColor: '#FFFFFF',
-                                        '&:hover': {
-                                            backgroundColor: '#F8F8F8',
-                                            transform: 'translateY(-1px)',
-                                            boxShadow: '2px 2px 0px #2C2C2C'
-                                        }
-                                    }}
+                                    sx={compactActionButtonSx}
                                 >
-                                    <PersonAdd sx={{ fontSize: '1rem' }} />
+                                    <PersonAdd sx={iconSmallSx} />
                                 </StyledActionButton>
                             </Tooltip>
                         )}
@@ -567,25 +420,7 @@ function ViewTrip(){
                     ) : (
                         <Alert 
                             severity="warning"
-                            sx={{
-                                borderRadius: 0,
-                                border: '4px solid #2C2C2C',
-                                boxShadow: '6px 6px 0px rgba(0,0,0,0.3)',
-                                backgroundColor: '#FEF3C7',
-                                color: '#2C2C2C',
-                                fontFamily: "'Press Start 2P', cursive",
-                                fontSize: '0.6rem',
-                                lineHeight: 1.6,
-                                padding: '16px',
-                                '& .MuiAlert-icon': {
-                                    fontSize: '1rem',
-                                    color: '#D97706'
-                                },
-                                '& .MuiAlert-message': {
-                                    padding: 0,
-                                    fontFamily: "'Press Start 2P', cursive"
-                                }
-                            }}
+                            sx={emptyMembersAlertSx}
                         >
                             This trip has no member list yet.
                         </Alert>
@@ -595,13 +430,10 @@ function ViewTrip(){
             {/* Itinerary Section */}
             <StyledSectionCard>
                 <StyledSectionHeader>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box sx={sectionHeaderRowSx}>
                         <PixelTypography 
                             variant="h5" 
-                            sx={{ 
-                                fontSize: { xs: '0.8rem', sm: '1rem' },
-                                color: '#FFFFFF'
-                            }}
+                            sx={sectionTitleSx}
                         >
                             Itinerary
                         </PixelTypography>
@@ -610,18 +442,9 @@ function ViewTrip(){
                                 <StyledActionButton
                                     onClick={handleAddPlace}
                                     size="small"
-                                    sx={{ 
-                                        padding: '6px',
-                                        minWidth: 'auto',
-                                        backgroundColor: '#FFFFFF',
-                                        '&:hover': {
-                                            backgroundColor: '#F8F8F8',
-                                            transform: 'translateY(-1px)',
-                                            boxShadow: '2px 2px 0px #2C2C2C'
-                                        }
-                                    }}
+                                    sx={compactActionButtonSx}
                                 >
-                                    <AddLocation sx={{ fontSize: '1rem' }} />
+                                    <AddLocation sx={iconSmallSx} />
                                 </StyledActionButton>
                             </Tooltip>
                         )}
@@ -669,10 +492,7 @@ function ViewTrip(){
                 <StyledSectionHeader>
                     <PixelTypography 
                         variant="h5" 
-                        sx={{ 
-                            fontSize: { xs: '0.8rem', sm: '1rem' },
-                            color: '#FFFFFF'
-                        }}
+                        sx={sectionTitleSx}
                     >
                         Gallery
                     </PixelTypography>
@@ -683,14 +503,14 @@ function ViewTrip(){
             </StyledSectionCard>
             {/* Actions Section */}
             <StyledActionsCard>
-                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, flexWrap: 'wrap' }}>
+                <Box sx={actionsRowSx}>
                     <Tooltip title={liked ? "Unlike" : "Vote this trip"}>
                         <StyledActionButton
                             onClick={handleVoteTrip}
                             size="medium"
                         >
                             <Badge badgeContent={tripInfo.statics.Votes.Total} color="primary">
-                                {liked ? <FavoriteIcon sx={{ color: '#ef4444' }} /> : <FavoriteBorder />}
+                                {liked ? <FavoriteIcon sx={likedIconSx} /> : <FavoriteBorder />}
                             </Badge>
                         </StyledActionButton>
                     </Tooltip>
@@ -732,8 +552,8 @@ function ViewTrip(){
                 maxWidth="md"
             >
                 <DialogTitle>
-                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
-                        <Typography variant="h6" sx={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.8rem' }}>
+                    <Box sx={dialogTitleRowSx}>
+                        <Typography variant="h6" sx={dialogTitleSx}>
                             Add Place to Itinerary
                         </Typography>
                         <IconButton onClick={handleCloseAddPlaceModal} disabled={isSavingPlaces}>
@@ -754,14 +574,14 @@ function ViewTrip(){
                         />
 
                         <Box>
-                            <Typography variant="subtitle1" sx={{ mb: 1, fontWeight: 700 }}>
+                            <Typography variant="subtitle1" sx={pendingPlacesTitleSx}>
                                 Pending places ({pendingPlaces.length})
                             </Typography>
 
                             {pendingPlaces.length === 0 ? (
                                 <Alert severity="warning">No places queued yet.</Alert>
                             ) : (
-                                <List sx={{ border: '1px solid #ddd', borderRadius: 1 }}>
+                                <List sx={pendingPlacesListSx}>
                                     {pendingPlaces.map((item, index) => (
                                         <ListItem
                                             key={`${item.place.id}-${item.initialdate}-${item.finaldate}-${index}`}

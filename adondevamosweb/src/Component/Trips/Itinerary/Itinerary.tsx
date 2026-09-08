@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import axios from 'axios';
 import utils from "../../../Resources/utils";
-import { styled } from '@mui/material/styles';
 
 import { 
     Typography, 
@@ -53,128 +52,20 @@ import {
     AddLocation
 } from '@mui/icons-material';
 
-// 8-bit Styled Components
-const StyledNoDataCard = styled(Paper)(({ theme }) => ({
-    borderRadius: 0,
-    border: '4px solid #2C2C2C',
-    backgroundColor: '#E0AC69',
-    padding: theme.spacing(4),
-    textAlign: 'center',
-}));
-
-const StyledFilterButton = styled(Button)(({ theme }) => ({
-    borderRadius: 0,
-    border: '2px solid #2C2C2C',
-    backgroundColor: '#FFFFFF',
-    color: '#2C2C2C',
-    fontFamily: "'Press Start 2P', cursive",
-    fontSize: '0.6rem',
-    padding: theme.spacing(1, 2),
-    '&:hover': {
-        backgroundColor: '#F8F8F8',
-        transform: 'translateY(-2px)',
-    },
-    transition: 'all 0.2s ease-in-out',
-}));
-
-const StyledMainCard = styled(Paper)(({ theme }) => ({
-    borderRadius: 0,
-    border: '4px solid #2C2C2C',
-    backgroundColor: '#E0AC69',
-    overflow: 'hidden',
-}));
-
-const PixelTypography = styled(Typography)(({ theme }) => ({
-    fontFamily: "'Press Start 2P', cursive",
-}));
-
-const StyledFilterCard = styled(Card)(({ theme }) => ({
-    borderRadius: 0,
-    border: '4px solid #2C2C2C',
-    marginBottom: theme.spacing(2),
-    overflow: 'visible',
-}));
-
-const StyledFilterHeader = styled(Box)(({ theme }) => ({
-    backgroundColor: '#52B788',
-    padding: theme.spacing(1),
-    borderBottom: '4px solid #2C2C2C',
-}));
-
-const StyledFilterContent = styled(CardContent)(({ theme }) => ({
-    backgroundColor: '#E0AC69',
-    padding: theme.spacing(2),
-}));
-
-const StyledListItem = styled(ListItem)(({ theme }) => ({
-    backgroundColor: '#69bee0',
-    borderBottom: '2px solid #2C2C2C',
-    '&:hover': {
-        backgroundColor: '#D4956B',
-        transform: 'translateX(2px)',
-    },
-    transition: 'all 0.2s ease-in-out',
-    '&:last-child': {
-        borderBottom: 'none',
-    },
-}));
-
-const StyledAvatar = styled(Avatar)(({ theme }) => ({
-    backgroundColor: '#3D5A80',
-    border: '2px solid #2C2C2C',
-    borderRadius: 0,
-    width: 48,
-    height: 48,
-}));
-
-const StyledActionButton = styled(IconButton)(({ theme }) => ({
-    color: '#2C2C2C',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 0,
-    border: '2px solid #2C2C2C',
-    padding: theme.spacing(0.5),
-    margin: theme.spacing(0, 0.25),
-    '&:hover': {
-        backgroundColor: '#F8F8F8',
-        transform: 'translateY(-2px)',
-    },
-    transition: 'all 0.2s ease-in-out',
-}));
-
-const StyledChip = styled(Chip)(({ theme }) => ({
-    backgroundColor: '#FFFFFF',
-    color: '#2C2C2C',
-    borderRadius: 0,
-    border: '2px solid #2C2C2C',
-    fontFamily: "'Press Start 2P', cursive",
-    fontSize: '0.5rem',
-    '&:hover': {
-        backgroundColor: '#E63946',
-        color: '#FFFFFF',
-        transform: 'scale(1.05)',
-    },
-    transition: 'all 0.2s ease-in-out',
-}));
-
-const StyledPagination = styled(Pagination)(({ theme }) => ({
-    '& .MuiPaginationItem-root': {
-        borderRadius: 0,
-        border: '2px solid #2C2C2C',
-        backgroundColor: '#FFFFFF',
-        color: '#2C2C2C',
-        fontFamily: "'Press Start 2P', cursive",
-        fontSize: '0.6rem',
-        margin: theme.spacing(0, 0.25),
-        '&:hover': {
-            backgroundColor: '#F8F8F8',
-            transform: 'translateY(-2px)',
-        },
-        '&.Mui-selected': {
-            backgroundColor: '#3D5A80',
-            color: '#FFFFFF',
-        },
-    },
-}));
+import {
+    ItineraryNoDataCard as StyledNoDataCard,
+    ItineraryFilterButton as StyledFilterButton,
+    ItineraryMainCard as StyledMainCard,
+    ItineraryPixelTypography as PixelTypography,
+    ItineraryFilterCard as StyledFilterCard,
+    ItineraryFilterHeader as StyledFilterHeader,
+    ItineraryFilterContent as StyledFilterContent,
+    ItineraryListItem as StyledListItem,
+    ItineraryAvatar as StyledAvatar,
+    ItineraryActionButton as StyledActionButton,
+    ItineraryChip as StyledChip,
+    ItineraryPagination as StyledPagination,
+} from '../../../Css/Trips/trips.styles';
 
 function Itinerary ({
     tripinfo = {

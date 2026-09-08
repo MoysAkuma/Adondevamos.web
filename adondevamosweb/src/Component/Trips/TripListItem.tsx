@@ -1,35 +1,25 @@
-import { useState } from 'react';
 import {
     Box,
     Typography,
-    ListItem,
     ListItemText,
     IconButton,
     Chip,
     Stack
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
 import { Visibility, ThumbUp, CalendarToday, LocationOn } from '@mui/icons-material';
-
-const StyledListItem = styled(ListItem)(({ theme }) => ({
-    borderRadius: 0,
-    border: '4px solid #2C2C2C',
-    boxShadow: '4px 4px 0px rgba(0,0,0,0.3)',
-    marginBottom: theme.spacing(2),
-    backgroundColor: '#E0AC69',
-    padding: theme.spacing(2),
-    cursor: 'pointer',
-    transition: 'transform 0.1s, box-shadow 0.1s',
-    '&:hover': {
-        transform: 'translate(-2px, -2px)',
-        boxShadow: '6px 6px 0px rgba(0,0,0,0.3)',
-        backgroundColor: '#E8B976',
-    },
-}));
-
-const PixelTypography = styled(Typography)(({ theme }) => ({
-    fontFamily: "'Press Start 2P', cursive",
-}));
+import {
+    TripListItemRoot,
+    TripListItemTitle,
+    tripListNameSx,
+    tripListSecondaryWrapperSx,
+    tripListDescriptionSx,
+    tripListChipStackSx,
+    tripListDateChipSx,
+    tripListPlaceChipSx,
+    tripListVoteChipSx,
+    tripListChipIconSx,
+    tripListViewButtonSx,
+} from '../../Css/Trips/trips.styles';
 
 function TripListItem({ trip, onView }) {
     // Extract trip data
@@ -47,101 +37,49 @@ function TripListItem({ trip, onView }) {
     };
 
     return (
-        <StyledListItem onClick={handleClick}>
+        <TripListItemRoot onClick={handleClick}>
             <ListItemText
                 primary={
-                    <PixelTypography
+                    <TripListItemTitle
                         variant="h6"
-                        sx={{
-                            fontSize: { xs: '0.7rem', sm: '0.8rem' },
-                            color: '#2C2C2C',
-                            mb: 1,
-                            lineHeight: 1.4
-                        }}
+                        sx={tripListNameSx}
                     >
                         {tripName}
-                    </PixelTypography>
+                    </TripListItemTitle>
                 }
                 secondary={
-                    <Box component="span" sx={{ display: 'block' }}>
+                    <Box component="span" sx={tripListSecondaryWrapperSx}>
                         {description && (
                             <Typography
                                 component="span"
                                 variant="body2"
-                                sx={{
-                                    color: '#2C2C2C',
-                                    fontSize: '0.85rem',
-                                    mb: 1.5,
-                                    lineHeight: 1.5,
-                                    display: '-webkit-box',
-                                    WebkitLineClamp: 2,
-                                    WebkitBoxOrient: 'vertical',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis'
-                                }}
+                                sx={tripListDescriptionSx}
                             >
                                 {description}
                             </Typography>
                         )}
-                        <Stack component="span" direction="row" spacing={1} flexWrap="wrap" sx={{ gap: 1, display: 'flex' }}>
+                        <Stack component="span" direction="row" spacing={1} flexWrap="wrap" sx={tripListChipStackSx}>
                             {initialDate && finalDate && (
                                 <Chip
-                                    icon={<CalendarToday sx={{ fontSize: '0.9rem' }} />}
+                                    icon={<CalendarToday sx={tripListChipIconSx} />}
                                     label={`${initialDate} - ${finalDate}`}
                                     size="small"
-                                    sx={{
-                                        borderRadius: 0,
-                                        border: '2px solid #2C2C2C',
-                                        backgroundColor: '#FFFFFF',
-                                        fontFamily: "'Press Start 2P', cursive",
-                                        fontSize: '0.5rem',
-                                        height: 'auto',
-                                        padding: '4px 8px',
-                                        '& .MuiChip-icon': {
-                                            fontSize: '0.8rem',
-                                        }
-                                    }}
+                                    sx={tripListDateChipSx}
                                 />
                             )}
                             {locationCount > 0 && (
                                 <Chip
-                                    icon={<LocationOn sx={{ fontSize: '0.9rem' }} />}
+                                    icon={<LocationOn sx={tripListChipIconSx} />}
                                     label={`${locationCount} ${locationCount === 1 ? 'Place' : 'Places'}`}
                                     size="small"
-                                    sx={{
-                                        borderRadius: 0,
-                                        border: '2px solid #2C2C2C',
-                                        backgroundColor: '#52B788',
-                                        color: '#FFFFFF',
-                                        fontFamily: "'Press Start 2P', cursive",
-                                        fontSize: '0.5rem',
-                                        height: 'auto',
-                                        padding: '4px 8px',
-                                        '& .MuiChip-icon': {
-                                            fontSize: '0.8rem',
-                                            color: '#FFFFFF'
-                                        }
-                                    }}
+                                    sx={tripListPlaceChipSx}
                                 />
                             )}
                             <Chip
-                                icon={<ThumbUp sx={{ fontSize: '0.9rem' }} />}
+                                icon={<ThumbUp sx={tripListChipIconSx} />}
                                 label={`${voteCount} ${voteCount === 1 ? 'Vote' : 'Votes'}`}
                                 size="small"
-                                sx={{
-                                    borderRadius: 0,
-                                    border: '2px solid #2C2C2C',
-                                    backgroundColor: '#E63946',
-                                    color: '#FFFFFF',
-                                    fontFamily: "'Press Start 2P', cursive",
-                                    fontSize: '0.5rem',
-                                    height: 'auto',
-                                    padding: '4px 8px',
-                                    '& .MuiChip-icon': {
-                                        fontSize: '0.8rem',
-                                        color: '#FFFFFF'
-                                    }
-                                }}
+                                sx={tripListVoteChipSx}
                             />
                         </Stack>
                     </Box>
@@ -155,20 +93,11 @@ function TripListItem({ trip, onView }) {
                     e.stopPropagation();
                     handleClick();
                 }}
-                sx={{
-                    color: '#3D5A80',
-                    border: '3px solid #2C2C2C',
-                    borderRadius: 0,
-                    padding: '8px',
-                    backgroundColor: '#FFFFFF',
-                    '&:hover': {
-                        backgroundColor: '#F0F0F0',
-                    }
-                }}
+                sx={tripListViewButtonSx}
             >
                 <Visibility />
             </IconButton>
-        </StyledListItem>
+        </TripListItemRoot>
     );
 }
 

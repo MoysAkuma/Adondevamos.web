@@ -17,10 +17,6 @@
  * @component
  */
 import {
-  Card,
-  CardHeader,
-  CardActions,
-  CardContent,
   IconButton,
   Skeleton,
   Stack,
@@ -31,77 +27,23 @@ import {
   Share,
   ExpandMore
 } from "@mui/icons-material";
-import { styled } from '@mui/material/styles';
-
-// Use the same styled components from TripCard for consistency
-const StyledCard = styled(Card)(({ theme }) => ({
-  maxWidth: '100%',
-  borderRadius: 0,
-  border: '4px solid #2C2C2C',
-  boxShadow: '8px 8px 0px rgba(0,0,0,0.3)',
-  [theme.breakpoints.up('sm')]: {
-    maxWidth: 400,
-  },
-}));
-
-const StyledCardHeader = styled(CardHeader)(({ theme }) => ({
-  padding: theme.spacing(2),
-  [theme.breakpoints.up('sm')]: {
-    padding: theme.spacing(2.5),
-  },
-  backgroundColor: '#3D5A80',
-  borderBottom: '4px solid #2C2C2C',
-  '& .MuiCardHeader-avatar': {
-    '& .MuiSkeleton-root': {
-      borderRadius: 0,
-      border: '2px solid #2C2C2C',
-      backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    },
-  },
-}));
-
-const StyledCardContent = styled(CardContent)(({ theme }) => ({
-  padding: theme.spacing(2),
-  [theme.breakpoints.up('sm')]: {
-    padding: theme.spacing(2.5),
-  },
-  backgroundColor: '#E0AC69',
-  borderBottom: '4px solid #2C2C2C',
-}));
-
-const StyledCardActions = styled(CardActions)(({ theme }) => ({
-  padding: theme.spacing(1, 2),
-  backgroundColor: '#52B788',
-  borderTop: '4px solid #2C2C2C',
-  '& .MuiIconButton-root': {
-    color: '#2C2C2C',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 0,
-    border: '2px solid #2C2C2C',
-    padding: '8px',
-    margin: '0 4px',
-  },
-}));
+import {
+  TripCardRoot,
+  TripCardHeader,
+  TripCardContent,
+  TripCardActions,
+  tripCardSkeletonPulseSx,
+  skeletonHeaderPieceSx,
+  skeletonBodyPieceSx,
+  skeletonMediaSx,
+  skeletonDisabledIconSx,
+  skeletonExpandButtonSx,
+} from '../../Css/Trips/trips.styles';
 
 function TripCardSkeleton() {
   return (
-    <StyledCard
-      sx={{
-        animation: 'pulse 2s ease-in-out infinite',
-        '@keyframes pulse': {
-          '0%': {
-            opacity: 1,
-          },
-          '50%': {
-            opacity: 0.8,
-          },
-          '100%': {
-            opacity: 1,
-          },
-        },
-      }}
-    >
-      <StyledCardHeader
+    <TripCardRoot sx={tripCardSkeletonPulseSx}>
+      <TripCardHeader
         avatar={
           <Skeleton
             variant="rectangular"
@@ -110,7 +52,7 @@ function TripCardSkeleton() {
             sx={{
               borderRadius: 0,
               border: '2px solid #2C2C2C',
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              ...skeletonHeaderPieceSx,
             }}
           />
         }
@@ -119,9 +61,7 @@ function TripCardSkeleton() {
             variant="text"
             width="60%"
             height={24}
-            sx={{
-              backgroundColor: 'rgba(255, 255, 255, 0.2)',
-            }}
+            sx={skeletonHeaderPieceSx}
           />
         }
         subheader={
@@ -135,25 +75,25 @@ function TripCardSkeleton() {
               variant="circular"
               width={14}
               height={14}
-              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
+              sx={skeletonHeaderPieceSx}
             />
             <Skeleton
               variant="text"
               width={60}
               height={16}
-              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
+              sx={skeletonHeaderPieceSx}
             />
             <Skeleton
               variant="text"
               width={8}
               height={16}
-              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
+              sx={skeletonHeaderPieceSx}
             />
             <Skeleton
               variant="text"
               width={60}
               height={16}
-              sx={{ backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
+              sx={skeletonHeaderPieceSx}
             />
           </Stack>
         }
@@ -163,18 +103,16 @@ function TripCardSkeleton() {
         variant="rectangular"
         width="100%"
         height={200}
-        sx={{
-          backgroundColor: 'rgba(200, 200, 200, 0.3)',
-        }}
+        sx={skeletonMediaSx}
       />
       
-      <StyledCardContent>
+      <TripCardContent>
         <Box sx={{ mb: 1 }}>
           <Skeleton
             variant="text"
             width="100%"
             height={20}
-            sx={{ backgroundColor: 'rgba(44, 44, 44, 0.2)' }}
+            sx={skeletonBodyPieceSx}
           />
         </Box>
         <Box sx={{ mb: 1 }}>
@@ -182,7 +120,7 @@ function TripCardSkeleton() {
             variant="text"
             width="90%"
             height={20}
-            sx={{ backgroundColor: 'rgba(44, 44, 44, 0.2)' }}
+            sx={skeletonBodyPieceSx}
           />
         </Box>
         <Box>
@@ -190,18 +128,18 @@ function TripCardSkeleton() {
             variant="text"
             width="70%"
             height={20}
-            sx={{ backgroundColor: 'rgba(44, 44, 44, 0.2)' }}
+            sx={skeletonBodyPieceSx}
           />
         </Box>
-      </StyledCardContent>
+      </TripCardContent>
 
-      <StyledCardActions disableSpacing>
+      <TripCardActions disableSpacing>
         <IconButton 
           aria-label="vote" 
           disabled
           size="small"
         >
-          <FavoriteBorder sx={{ opacity: 0.5 }} />
+          <FavoriteBorder sx={skeletonDisabledIconSx} />
         </IconButton>
 
         <IconButton 
@@ -209,18 +147,18 @@ function TripCardSkeleton() {
           disabled
           size="small"
         >
-          <Share sx={{ opacity: 0.5 }} />
+          <Share sx={skeletonDisabledIconSx} />
         </IconButton>
 
         <IconButton
           disabled
           size="small"
-          sx={{ marginLeft: 'auto' }}
+          sx={skeletonExpandButtonSx}
         >
-          <ExpandMore sx={{ opacity: 0.5 }} />
+          <ExpandMore sx={skeletonDisabledIconSx} />
         </IconButton>
-      </StyledCardActions>
-    </StyledCard>
+      </TripCardActions>
+    </TripCardRoot>
   );
 }
 
