@@ -1,66 +1,37 @@
 import { useState, useEffect } from "react";
 import {
-    Dialog,
     DialogTitle,
     DialogContent,
     DialogActions,
     Button,
     FormControl,
     InputLabel,
-    Select,
     MenuItem,
     TextField,
     CircularProgress,
     Alert,
     Box,
     Stack,
-    Typography,
 } from "@mui/material";
-import { styled } from "@mui/material/styles";
 import { useTripsByOwnerApi } from "../../hooks/Trips/useTripsByOwnerApi";
 import { useTripDetailsApi } from "../../hooks/Trips/useTripDetailsApi";
-
-const PixelTypography = styled(Typography)(() => ({
-    fontFamily: "'Press Start 2P', cursive",
-}));
-
-const StyledDialog = styled(Dialog)(() => ({
-    "& .MuiPaper-root": {
-        borderRadius: 0,
-        border: "4px solid #2C2C2C",
-        boxShadow: "8px 8px 0px rgba(0,0,0,0.3)",
-        backgroundColor: "#F5F5F5",
-    },
-}));
-
-const StyledSelect = styled(Select)(() => ({
-    borderRadius: 0,
-    fontFamily: "'Press Start 2P', cursive",
-    fontSize: "0.6rem",
-    "& .MuiOutlinedInput-notchedOutline": { border: "none" },
-    border: "2px solid #2C2C2C",
-}));
-
-const fieldSx = {
-    "& .MuiOutlinedInput-root": {
-        borderRadius: 0,
-        border: "2px solid #2C2C2C",
-        fontFamily: "'Press Start 2P', cursive",
-        fontSize: "0.6rem",
-        "& fieldset": { border: "none" },
-    },
-    "& .MuiInputLabel-root": {
-        fontFamily: "'Press Start 2P', cursive",
-        fontSize: "0.6rem",
-    },
-};
-
-const actionBtnBase = {
-    borderRadius: 0,
-    border: "2px solid #2C2C2C",
-    fontFamily: "'Press Start 2P', cursive",
-    fontSize: "0.5rem",
-};
+import {
+    PixelModalDialog,
+    PixelModalSelect,
+    PixelModalTypography,
+    modalActionsSx,
+    modalAlertSx,
+    modalCancelBtnSx,
+    modalContentSx,
+    modalFieldSx,
+    modalInfoAlertSx,
+    modalInputLabelSx,
+    modalLoaderSx,
+    modalMenuItemSx,
+    modalPrimaryBtnSx,
+    modalTitleRootSx,
+    modalTitleTextSx,
+} from "../../Css/Modals/modal.styles";
 
 interface Trip {
     id: number | string;
@@ -100,7 +71,10 @@ function AddToTripModal({ open, onClose, placeId, userId, onSuccess, onError }: 
         setInitialDate("");
         setFinalDate("");
 
-        getTripsByOwner(userId)
+        getTripsByOwner(userId, 1, 50, {
+            action: "additinerary",
+            placeIds: [placeId],
+        })
             .then((res) => {
                 setTrips(res.data.info || []);
             })
@@ -135,75 +109,43 @@ function AddToTripModal({ open, onClose, placeId, userId, onSuccess, onError }: 
         new Date(finalDate) >= new Date(initialDate);
 
     return (
-        <StyledDialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-            <DialogTitle
-                sx={{
-                    backgroundColor: "#3D5A80",
-                    borderBottom: "4px solid #2C2C2C",
-                    p: 3,
-                }}
-            >
-                <PixelTypography
-                    variant="h6"
-                    sx={{ fontSize: { xs: "0.7rem", sm: "0.9rem" }, color: "#FFFFFF" }}
-                >
+        <PixelModalDialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+            <DialogTitle sx={modalTitleRootSx}>
+                <PixelModalTypography variant="h6" sx={modalTitleTextSx}>
                     Add to Trip
-                </PixelTypography>
+                </PixelModalTypography>
             </DialogTitle>
 
-            <DialogContent sx={{ backgroundColor: "#F5F5F5", pt: "24px !important" }}>
+            <DialogContent sx={modalContentSx}>
                 {loadingTrips ? (
-                    <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+                    <Box sx={modalLoaderSx}>
                         <CircularProgress />
                     </Box>
                 ) : tripsError ? (
-                    <Alert
-                        severity="error"
-                        sx={{ borderRadius: 0, border: "2px solid #2C2C2C" }}
-                    >
+                    <Alert severity="error" sx={modalAlertSx}>
                         {tripsError}
                     </Alert>
                 ) : trips.length === 0 ? (
-                    <Alert
-                        severity="info"
-                        sx={{
-                            borderRadius: 0,
-                            border: "2px solid #2C2C2C",
-                            fontFamily: "'Press Start 2P', cursive",
-                            fontSize: "0.55rem",
-                        }}
-                    >
+                    <Alert severity="info" sx={modalInfoAlertSx}>
                         You have no trips yet. Create one first!
                     </Alert>
                 ) : (
                     <Stack spacing={3}>
                         <FormControl fullWidth>
-                            <InputLabel
-                                sx={{
-                                    fontFamily: "'Press Start 2P', cursive",
-                                    fontSize: "0.6rem",
-                                }}
-                            >
+                            <InputLabel sx={modalInputLabelSx}>
                                 Trip Name
                             </InputLabel>
-                            <StyledSelect
+                            <PixelModalSelect
                                 value={selectedTripId}
                                 label="Trip Name"
                                 onChange={(e) => setSelectedTripId(e.target.value as string | number)}
                             >
                                 {trips.map((trip) => (
-                                    <MenuItem
-                                        key={trip.id}
-                                        value={trip.id}
-                                        sx={{
-                                            fontFamily: "'Press Start 2P', cursive",
-                                            fontSize: "0.6rem",
-                                        }}
-                                    >
+                                    <MenuItem key={trip.id} value={trip.id} sx={modalMenuItemSx}>
                                         {trip.name}
                                     </MenuItem>
                                 ))}
-                            </StyledSelect>
+                            </PixelModalSelect>
                         </FormControl>
 
                         <TextField
@@ -213,7 +155,7 @@ function AddToTripModal({ open, onClose, placeId, userId, onSuccess, onError }: 
                             onChange={(e) => setInitialDate(e.target.value)}
                             fullWidth
                             InputLabelProps={{ shrink: true }}
-                            sx={fieldSx}
+                            sx={modalFieldSx}
                         />
 
                         <TextField
@@ -224,43 +166,24 @@ function AddToTripModal({ open, onClose, placeId, userId, onSuccess, onError }: 
                             fullWidth
                             InputLabelProps={{ shrink: true }}
                             inputProps={{ min: initialDate }}
-                            sx={fieldSx}
+                            sx={modalFieldSx}
                         />
                     </Stack>
                 )}
             </DialogContent>
 
-            <DialogActions
-                sx={{
-                    backgroundColor: "#52B788",
-                    borderTop: "4px solid #2C2C2C",
-                    p: 2,
-                    gap: 1,
-                    justifyContent: "flex-end",
-                }}
-            >
+            <DialogActions sx={modalActionsSx}>
                 <Button
                     onClick={onClose}
                     disabled={submitting}
-                    sx={{
-                        ...actionBtnBase,
-                        backgroundColor: "#FFFFFF",
-                        color: "#2C2C2C",
-                        "&:hover": { backgroundColor: "#F8F8F8" },
-                    }}
+                    sx={modalCancelBtnSx}
                 >
                     Cancel
                 </Button>
                 <Button
                     onClick={handleSubmit}
                     disabled={!isValid || submitting}
-                    sx={{
-                        ...actionBtnBase,
-                        backgroundColor: "#3D5A80",
-                        color: "#FFFFFF",
-                        "&:hover": { backgroundColor: "#2d4a70" },
-                        "&.Mui-disabled": { backgroundColor: "#999", color: "#ccc" },
-                    }}
+                    sx={modalPrimaryBtnSx}
                 >
                     {submitting ? (
                         <CircularProgress size={14} sx={{ color: "#fff" }} />
@@ -269,7 +192,7 @@ function AddToTripModal({ open, onClose, placeId, userId, onSuccess, onError }: 
                     )}
                 </Button>
             </DialogActions>
-        </StyledDialog>
+        </PixelModalDialog>
     );
 }
 
