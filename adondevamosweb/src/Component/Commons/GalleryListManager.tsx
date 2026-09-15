@@ -13,7 +13,12 @@ import {
     Paper,
     Snackbar,
     Alert,
-    Chip
+    Chip,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    TextField
 } from '@mui/material';
 import { Delete, Visibility, Close, Star } from '@mui/icons-material';
 import ImageUploader from './ImageUploader';
@@ -27,7 +32,9 @@ const GalleryListManager = ({
     maxPendingImages = 10,
     coverImageId = null,
     coverImageIndex = null,
-    onSetCover = null
+    onSetCover = null,
+    enableImageMetadata = false,
+    metadataPlaceOptions = []
 }) => {
     const [previewOpen, setPreviewOpen] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
@@ -92,6 +99,31 @@ const GalleryListManager = ({
         setSnackbarOpen(false);
     };
 
+    const handlePendingImageMetadataChange = (index, field, value) => {
+        if (!onPendingImagesChange) {
+            return;
+        }
+
+        const updatedImages = pendingImages.map((image, imageIndex) => {
+            if (imageIndex !== index) {
+                return image;
+            }
+
+            return {
+                ...image,
+                [field]: value
+            };
+        });
+
+        onPendingImagesChange(updatedImages);
+    };
+
+    const getPlaceName = (placeId) => {
+        const normalizedPlaceId = Number(placeId);
+        const match = metadataPlaceOptions.find((option) => Number(option.id) === normalizedPlaceId);
+        return match?.name || `Place ${placeId}`;
+    };
+
     return (
         <>
             <Typography variant="h6" gutterBottom>
@@ -144,6 +176,11 @@ const GalleryListManager = ({
                         >
                             <ListItemText
                                 primary={"IMG " + (index + 1)}
+                                secondary={
+                                    item.descripcion || item.placeid
+                                        ? `${item.placeid ? `Place: ${getPlaceName(item.placeid)}. ` : ''}${item.descripcion ? `Description: ${item.descripcion}` : ''}`.trim()
+                                        : null
+                                }
                             />
                         </ListItem>
                     </Paper>
@@ -192,6 +229,36 @@ const GalleryListManager = ({
                                     secondary="Not uploaded yet"
                                 />
                             </ListItem>
+                            {enableImageMetadata && (
+                                <Box sx={{ px: 2, pb: 2, pt: 1, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                                    <FormControl fullWidth size="small">
+                                        <InputLabel id={`pending-image-place-label-${index}`}>Place</InputLabel>
+                                        <Select
+                                            labelId={`pending-image-place-label-${index}`}
+                                            value={image.placeid ?? ''}
+                                            label="Place"
+                                            onChange={(event) => handlePendingImageMetadataChange(index, 'placeid', event.target.value === '' ? null : Number(event.target.value))}
+                                        >
+                                            <MenuItem value="">
+                                                <em>Without place</em>
+                                            </MenuItem>
+                                            {metadataPlaceOptions.map((option) => (
+                                                <MenuItem key={option.id} value={option.id}>
+                                                    {option.name}
+                                                </MenuItem>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+
+                                    <TextField
+                                        size="small"
+                                        label="Description"
+                                        value={image.descripcion || ''}
+                                        onChange={(event) => handlePendingImageMetadataChange(index, 'descripcion', event.target.value)}
+                                        placeholder="Add a short description"
+                                    />
+                                </Box>
+                            )}
                         </Paper>
                     );
                 })}

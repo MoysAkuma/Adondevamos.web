@@ -226,13 +226,16 @@ function CreateTrip( ) {
           
           await uploadImages({
             images: batch,
+            context: {},
             coverImageIndex: batchCoverIndex,
             buildPayload: (normalizedImages, uploadContext, coverIdx) => ({
               images: normalizedImages.map((image, index) => ({
                 data: image.data,
                 mimetype: image.mimetype,
                 extension: image.extension,
-                iscover: coverIdx !== null && index === coverIdx
+                iscover: coverIdx !== null && index === coverIdx,
+                placeid: batch[index]?.placeid || null,
+                descripcion: batch[index]?.descripcion?.trim() || ''
               }))
             }),
             uploadRequest: (payload) => saveGallery(id, payload)
@@ -429,6 +432,11 @@ function CreateTrip( ) {
           pendingImages={formTrip.gallery}
           onPendingImagesChange={(images) => setFormTrip(prev => ({ ...prev, gallery: images }))}
           showUploader
+          enableImageMetadata
+          metadataPlaceOptions={(formTrip.itinerary || []).map((item) => ({
+            id: item.place.id,
+            name: item.place.name
+          }))}
           maxPendingImages={10}
           coverImageIndex={coverImageIndex}
           onSetCover={(index, autoSet) => {

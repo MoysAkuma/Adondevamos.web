@@ -149,13 +149,16 @@ function EditTrip(){
         setMessageSnack("Uploading images...");
         await uploadImages({
           images: addedImages,
+          context: {},
           coverImageIndex: coverImageIndex,
           buildPayload: (normalizedImages, uploadContext, coverIdx) => ({
             images: normalizedImages.map((image, index) => ({
               data: image.data,
               mimetype: image.mimetype,
               extension: image.extension,
-              iscover: coverIdx !== null && index === coverIdx
+              iscover: coverIdx !== null && index === coverIdx,
+              placeid: addedImages[index]?.placeid || null,
+              descripcion: addedImages[index]?.descripcion?.trim() || ''
             }))
           }),
           uploadRequest: (payload) => saveGallery(id, payload)
@@ -596,6 +599,11 @@ const handleRemoveUser = (event) => {
                   pendingImages={addedImages || []}
                   onPendingImagesChange={setAddedImages}
                   showUploader
+                  enableImageMetadata
+                  metadataPlaceOptions={(formTrip.itinerary || []).map((item) => ({
+                    id: item.place.id,
+                    name: item.place.name
+                  }))}
                   maxPendingImages={10}
                   coverImageId={coverImageId}
                   coverImageIndex={coverImageIndex}
