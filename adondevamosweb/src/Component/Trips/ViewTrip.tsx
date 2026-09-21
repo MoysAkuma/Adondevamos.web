@@ -498,7 +498,16 @@ function ViewTrip(){
                     </PixelTypography>
                 </StyledSectionHeader>
                 <StyledSectionContent>
-                    <ImageCarousel images={tripInfo.gallery} />
+                    <ImageCarousel
+                        images={tripInfo.gallery}
+                        places={(tripInfo?.itinerary || [])
+                            .map((item) => item?.place)
+                            .filter(Boolean)
+                            .map((place) => ({
+                                id: place.id,
+                                name: place.name
+                            }))}
+                    />
                 </StyledSectionContent>
             </StyledSectionCard>
             {/* Actions Section */}

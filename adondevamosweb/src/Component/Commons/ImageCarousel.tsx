@@ -11,10 +11,66 @@ import {
     ChevronLeft,
     ChevronRight,
     Close,
-    ZoomIn
+    ZoomIn,
+    LocationOn,
+    CalendarMonth
 } from '@mui/icons-material';
 
-function ImageCarousel({ images = [], title = "Gallery" }) {
+interface CarouselImage {
+    id?: string | number;
+    completeurl?: string;
+    url?: string;
+    filename?: string;
+    placeid?: string | number;
+    captureddate?: string;
+    descripcion?: string;
+    description?: string;
+}
+
+interface CarouselPlace {
+    id?: string | number;
+    name?: string;
+}
+
+interface ImageCarouselProps {
+    images?: Array<CarouselImage | string>;
+    title?: string;
+    places?: CarouselPlace[];
+}
+
+const getImageUrl = (image: CarouselImage | string | undefined) => {
+    if (!image) return '';
+    if (typeof image === 'string') return image;
+    return image.completeurl || image.url || '';
+};
+
+const getImageDescription = (image: CarouselImage | string | undefined) => {
+    if (!image || typeof image === 'string') return '';
+    return image.description || image.descripcion || '';
+};
+
+const getPlaceNameFromImage = (
+    image: CarouselImage | string | undefined,
+    places: CarouselPlace[]
+) => {
+    if (!image || typeof image === 'string' || !image.placeid) return '';
+    const imagePlaceId = String(image.placeid);
+    const foundPlace = places.find((place) => String(place?.id ?? '') === imagePlaceId);
+    return foundPlace?.name || '';
+};
+
+const formatCapturedDate = (value?: string) => {
+    if (!value) return '';
+    const parsedDate = new Date(value);
+    if (Number.isNaN(parsedDate.getTime())) return value;
+    return parsedDate.toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+    });
+};
+
+function ImageCarousel({ images = [], title = 'Gallery', places = [] }: ImageCarouselProps) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -46,7 +102,7 @@ function ImageCarousel({ images = [], title = "Gallery" }) {
         setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
     };
 
-    const handleZoomOpen = (index) => {
+    const handleZoomOpen = (index: number) => {
         setZoomIndex(index);
         setZoomOpen(true);
     };
@@ -64,7 +120,16 @@ function ImageCarousel({ images = [], title = "Gallery" }) {
     };
 
     const currentImage = images[currentIndex];
-    const imageUrl = currentImage?.completeurl || currentImage?.url || currentImage;
+    const imageUrl = getImageUrl(currentImage);
+    const currentDescription = getImageDescription(currentImage);
+    const currentPlaceName = getPlaceNameFromImage(currentImage, places);
+    const currentCapturedDate =
+        typeof currentImage === 'string' ? '' : formatCapturedDate(currentImage?.captureddate);
+    const zoomImage = images[zoomIndex];
+    const zoomPlaceName = getPlaceNameFromImage(zoomImage, places);
+    const zoomDescription = getImageDescription(zoomImage);
+    const zoomCapturedDate =
+        typeof zoomImage === 'string' ? '' : formatCapturedDate(zoomImage?.captureddate);
 
     return (
         <>
@@ -85,7 +150,7 @@ function ImageCarousel({ images = [], title = "Gallery" }) {
                 >
                     <img
                         src={imageUrl}
-                        alt={currentImage?.filename || `Image ${currentIndex + 1}`}
+                        alt={(typeof currentImage === 'string' ? '' : currentImage?.filename) || `${title} ${currentIndex + 1}`}
                         style={{
                             maxWidth: '100%',
                             maxHeight: '100%',
@@ -166,6 +231,33 @@ function ImageCarousel({ images = [], title = "Gallery" }) {
                     </Box>
                 </Box>
 
+                {(currentPlaceName || currentCapturedDate || currentDescription) && (
+                    <Box sx={{ mt: 1.5 }}>
+                        {currentDescription && (
+                            <Typography variant="subtitle2" color="text.primary">
+                                {currentDescription}
+                            </Typography>
+                        )}
+                        {currentPlaceName && (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                                <LocationOn fontSize="small" color="action" />
+                                <Typography variant="body2" color="text.secondary">
+                                    {currentPlaceName}
+                                </Typography>
+                            </Box>
+                        )}
+                        {currentCapturedDate && (
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.25 }}>
+                                <CalendarMonth fontSize="small" color="action" />
+                                <Typography variant="caption" color="text.secondary" display="block">
+                                    {currentCapturedDate}
+                                </Typography>
+                            </Box>
+                        )}
+                        
+                    </Box>
+                )}
+
                 {/* Thumbnail Strip */}
                 {images.length > 1 && (
                     <Box
@@ -185,10 +277,10 @@ function ImageCarousel({ images = [], title = "Gallery" }) {
                         }}
                     >
                         {images.map((image, index) => {
-                            const thumbUrl = image?.completeurl || image?.url || image;
+                            const thumbUrl = getImageUrl(image);
                             return (
                                 <Box
-                                    key={image?.id || index}
+                                    key={(typeof image === 'string' ? image : image?.id) || index}
                                     sx={{
                                         minWidth: 80,
                                         height: 60,
@@ -260,14 +352,53 @@ function ImageCarousel({ images = [], title = "Gallery" }) {
 
                     {/* Zoomed Image */}
                     <img
-                        src={images[zoomIndex]?.completeurl || images[zoomIndex]?.url || images[zoomIndex]}
-                        alt={images[zoomIndex]?.filename || `Image ${zoomIndex + 1}`}
+                        src={getImageUrl(zoomImage)}
+                        alt={(typeof zoomImage === 'string' ? '' : zoomImage?.filename) || `${title} ${zoomIndex + 1}`}
                         style={{
                             maxWidth: '90vw',
                             maxHeight: '90vh',
                             objectFit: 'contain'
                         }}
                     />
+
+                    {(zoomPlaceName || zoomCapturedDate || zoomDescription) && (
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                left: 16,
+                                bottom: 56,
+                                maxWidth: '70vw',
+                                bgcolor: 'rgba(0, 0, 0, 0.6)',
+                                color: 'white',
+                                px: 2,
+                                py: 1,
+                                borderRadius: 1
+                            }}
+                        >
+                             {zoomDescription && (
+                                <Typography variant="subtitle2" color="inherit">
+                                    {zoomDescription}
+                                </Typography>
+                            )}
+                            {zoomPlaceName && (
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                                    <LocationOn fontSize="small" />
+                                    <Typography variant="body2" color="inherit">
+                                        {zoomPlaceName}
+                                    </Typography>
+                                </Box>
+                            )}
+                            {zoomCapturedDate && (
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.25 }}>
+                                    <CalendarMonth fontSize="small" />
+                                    <Typography variant="caption" color="inherit" display="block">
+                                        {zoomCapturedDate}
+                                    </Typography>
+                                </Box>
+                            )}
+                           
+                        </Box>
+                    )}
 
                     {/* Navigation in Zoom */}
                     {images.length > 1 && (

@@ -11,12 +11,18 @@ import ManageItinerary from './Itinerary/ManageItinerary';
 import ManageMemberList from './MembersList/ManageMemberList';
 import SnackbarNotification from '../Commons/SnackbarNotification';
 import FormTrips from './FormTrips';
-import GalleryListManager from '../Commons/GalleryListManager';
+import TripGallerySection from './TripGallerySection';
 import { FlightTakeoff } from '@mui/icons-material';
 import useTripMutationApi from '../../hooks/Trips/useTripMutationApi';
 import useTripDetailsApi from '../../hooks/Trips/useTripDetailsApi';
 import useGalleryUpload from '../../hooks/useGalleryUpload';
 import { useNavigate } from 'react-router-dom';
+import {
+  buildGalleryUploadPayload,
+  buildItineraryPayload,
+  buildMembersPayload,
+  validateTripInfo
+} from './tripGallery.utils';
 
 function CreateTrip( ) {
     const theme = useTheme();
@@ -86,24 +92,7 @@ function CreateTrip( ) {
     setSubmitSuccess(false); 
 
     try {
-      // Validate for field Trip Name
-      if (!formTrip.name.trim()) {
-        throw new Error('Trip name is required');
-      }
-      // Validate for field Description
-      if (!formTrip.description.trim()) {
-        throw new Error('Trip description is required');
-      }
-
-      // Validate for field initialDate
-      if (formTrip.initialdate === '') {
-        throw new Error('set initial date');
-      }
-
-      // Validate for field finalDate
-      if (formTrip.finaldate === '') {
-        throw new Error('set final date');
-      }
+      validateTripInfo(formTrip);
 
       const rq = {
         name : formTrip.name.trim(),
@@ -154,13 +143,7 @@ function CreateTrip( ) {
     //saveMemberlist
     const saveMemberlist = async( item ) => {
       const id = item.id;
-      const lst = formTrip.memberlist.map(member => ({
-        userid : member.id,
-        hide : false
-      }));
-      const rq = {
-        "Members" : lst
-      };
+      const rq = buildMembersPayload(formTrip.memberlist);
 
       try {
         await saveMembers(id, rq, 'post');
@@ -181,15 +164,7 @@ function CreateTrip( ) {
     //save itinerary
     const saveTripItinerary = async( item ) =>{
       const id = item.id;
-      const lst = formTrip.itinerary.map(place => ({
-        "placeid" : place.place.id ,
-        "initialdate" : place.initialdate,
-        "finaldate" : place.finaldate,
-        "hide" : false
-      }));
-      const rq = {
-        "Itinerary" : lst
-      };
+      const rq = buildItineraryPayload(formTrip.itinerary, true);
       try {
         await saveItinerary(id, rq, 'post');
         setMessageStack("Itinerary was saved.");
@@ -229,14 +204,7 @@ function CreateTrip( ) {
             context: {},
             coverImageIndex: batchCoverIndex,
             buildPayload: (normalizedImages, uploadContext, coverIdx) => ({
-              images: normalizedImages.map((image, index) => ({
-                data: image.data,
-                mimetype: image.mimetype,
-                extension: image.extension,
-                iscover: coverIdx !== null && index === coverIdx,
-                placeid: batch[index]?.placeid || null,
-                descripcion: batch[index]?.descripcion?.trim() || ''
-              }))
+              ...buildGalleryUploadPayload(batch, normalizedImages, coverIdx)
             }),
             uploadRequest: (payload) => saveGallery(id, payload)
           });
@@ -426,17 +394,14 @@ function CreateTrip( ) {
           showDuplicateError={errors.duplicateduser}
         />
 
-        <GalleryListManager
+        <TripGallerySection
           items={[]}
           onRemove={() => {}}
           pendingImages={formTrip.gallery}
           onPendingImagesChange={(images) => setFormTrip(prev => ({ ...prev, gallery: images }))}
+          itinerary={formTrip.itinerary}
           showUploader
           enableImageMetadata
-          metadataPlaceOptions={(formTrip.itinerary || []).map((item) => ({
-            id: item.place.id,
-            name: item.place.name
-          }))}
           maxPendingImages={10}
           coverImageIndex={coverImageIndex}
           onSetCover={(index, autoSet) => {

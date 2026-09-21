@@ -28,6 +28,17 @@ export const useTripDetailsApi = () => {
     [buildAuthHeaders, tripsUrl]
   );
 
+  const saveGalleryMetadata = useCallback(
+    async (tripId, payload) => {
+      return axios.put(`${tripsUrl}/${tripId}/Images`, payload, {
+        headers: buildAuthHeaders({
+          'Content-Type': 'application/json'
+        })
+      });
+    },
+    [buildAuthHeaders, tripsUrl]
+  );
+
   const removeGalleryImage = useCallback(
     async (tripId, imageId) => {
       return axios.delete(`${tripsUrl}/${tripId}/Images/${imageId}`, {
@@ -61,6 +72,7 @@ export const useTripDetailsApi = () => {
   return {
     saveItinerary,
     saveGallery,
+    saveGalleryMetadata,
     removeGalleryImage,
     setCoverImage,
     saveMembers

@@ -14,29 +14,36 @@ import
 
 import { Save, ExpandMore, ExpandLess
 } from '@mui/icons-material'
-import MemberSearch from './MembersList/MemberSearch';
 import ManageItinerary from './Itinerary/ManageItinerary';
-import MemberList from './MembersList/MemberList';
 import ManageMemberList from './MembersList/ManageMemberList';
 import SnackbarNotification from '../Commons/SnackbarNotification';
 import { useNavigate, useParams } from 'react-router-dom';
 import FormTrips from './FormTrips';
 import { useAuth } from "../../context/AuthContext";
-import GalleryListManager from '../Commons/GalleryListManager';
+import TripGallerySection from './TripGallerySection';
 import useTripMutationApi from '../../hooks/Trips/useTripMutationApi';
 import useTripDetailsApi from '../../hooks/Trips/useTripDetailsApi';
 import useGalleryUpload from '../../hooks/useGalleryUpload';
+import {
+  buildGalleryMetadataSnapshot,
+  buildGalleryUploadPayload,
+  buildItineraryPayload,
+  buildMembersPayload,
+  hasCollectionChanged,
+  hasTripInfoChanged,
+  normalizeGalleryMetadataForUpdate,
+  validateTripInfo
+} from './tripGallery.utils';
 
 function EditTrip(){
   const theme = useTheme();
   const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
   const { loading } = useAuth();
   const { uploadImages, isUploading } = useGalleryUpload();
-    const [isUser, setIsUser] = useState(false);
     const [isFetchingTrip, setIsFetchingTrip] = useState(true);
     const navigate = useNavigate();
   const { getTrip, updateTrip } = useTripMutationApi();
-  const { saveItinerary, saveGallery, removeGalleryImage, setCoverImage, saveMembers } = useTripDetailsApi();
+  const { saveItinerary, saveGallery, saveGalleryMetadata, removeGalleryImage, setCoverImage, saveMembers } = useTripDetailsApi();
 
     //Trip id
     const { id } = useParams();
@@ -60,6 +67,8 @@ function EditTrip(){
     const [coverImageIndex, setCoverImageIndex] = useState(null);
     const [originalCoverImageId, setOriginalCoverImageId] = useState(null);
     const [coverImageChanged, setCoverImageChanged] = useState(false);
+    const [galleryItems, setGalleryItems] = useState([]);
+    const [originalGallerySnapshot, setOriginalGallerySnapshot] = useState('[]');
 
     // trip info
     const [formTrip, setFormTrip] = useState({
@@ -81,6 +90,7 @@ function EditTrip(){
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitSuccess, setSubmitSuccess] = useState(false);
     const [messageSnack, setMessageSnack] = useState('');
+
     //update request
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -97,74 +107,81 @@ function EditTrip(){
     setSubmitSuccess(false);
 
     try {
-      // Validate for field Trip Name
-      if (!formTrip.name.trim()) {
-        throw new Error('Trip name is required');
-      }
-      // Validate for field Description
-      if (!formTrip.description.trim()) {
-        throw new Error('Trip description is required');
+      const tripInfoChanged = hasTripInfoChanged(formTrip, originalTrip);
+
+      const itineraryChanged =
+        Boolean(originalTrip)
+        && hasCollectionChanged(originalTrip.itinerary, formTrip.itinerary);
+
+      const membersChanged =
+        Boolean(originalTrip)
+        && hasCollectionChanged(originalTrip.members, formTrip.members);
+
+      const latestGallerySnapshot = buildGalleryMetadataSnapshot(galleryItems);
+      const galleryMetadataChanged = latestGallerySnapshot !== originalGallerySnapshot;
+      const hasPendingImages = addedImages.length > 0;
+      const hasCoverChange = Boolean(coverImageChanged && coverImageId);
+
+      const hasChanges =
+        tripInfoChanged
+        || itineraryChanged
+        || membersChanged
+        || galleryMetadataChanged
+        || hasPendingImages
+        || hasCoverChange;
+
+      if (!hasChanges) {
+        setMessageSnack('No changes to save.');
+        setSubmitSuccess(true);
+        return;
       }
 
-      // Validate for field initialDate
-      if (formTrip.initialdate === "") {
-        throw new Error('set initial date');
+      if (tripInfoChanged) {
+        validateTripInfo(formTrip);
+
+        const response = await updateTrip(id, {
+          name : formTrip.name.trim(),
+          description : formTrip.description,
+          initialdate : formTrip.initialdate,
+          finaldate : formTrip.finaldate,
+        });
+
+        if(response.status == 201 || response.status == 200){
+          setMessageSnack("Trip info was updated.");
+        }
       }
 
-      // Validate for field finalDate
-      if (formTrip.finaldate === "") {
-        throw new Error('set final date');
-      }
-      
-      // API call to create trip
-      const response = await updateTrip(id, {
-        name : formTrip.name.trim(),
-        description : formTrip.description,
-        initialdate : formTrip.initialdate,
-        finaldate : formTrip.finaldate,
-      });
-
-      if(response.status == 201 
-        || response.status == 200){
-        setMessageSnack("Trip info was updated.");
-      } 
-
-      if (
-        originalTrip &&
-        JSON.stringify(originalTrip.itinerary) !== JSON.stringify(formTrip.itinerary)
-      ) {
+      if (itineraryChanged) {
         setMessageSnack("Saving itinerary...");
         await saveTripItinerary();
       }
 
-      if (
-        originalTrip &&
-        JSON.stringify(originalTrip.members) !== JSON.stringify(formTrip.members)
-      ) {
+      if (membersChanged) {
         setMessageSnack("Saving member list...");
         await saveMemberlist();
       }
 
-      if (addedImages.length > 0) {
+      if (galleryMetadataChanged && galleryItems.length > 0) {
+        setMessageSnack("Saving gallery details...");
+        await saveGalleryMetadata(id, {
+          images: normalizeGalleryMetadataForUpdate(galleryItems)
+        });
+        setOriginalGallerySnapshot(latestGallerySnapshot);
+      }
+
+      if (hasPendingImages) {
         setMessageSnack("Uploading images...");
         await uploadImages({
           images: addedImages,
           context: {},
           coverImageIndex: coverImageIndex,
           buildPayload: (normalizedImages, uploadContext, coverIdx) => ({
-            images: normalizedImages.map((image, index) => ({
-              data: image.data,
-              mimetype: image.mimetype,
-              extension: image.extension,
-              iscover: coverIdx !== null && index === coverIdx,
-              placeid: addedImages[index]?.placeid || null,
-              descripcion: addedImages[index]?.descripcion?.trim() || ''
-            }))
+            ...buildGalleryUploadPayload(addedImages, normalizedImages, coverIdx)
           }),
           uploadRequest: (payload) => saveGallery(id, payload)
         });
         setMessageSnack("Photos were added to gallery.");
-      } else if (coverImageChanged && coverImageId) {
+      } else if (hasCoverChange) {
         // If only cover image changed (no new images added)
         setMessageSnack("Updating cover image...");
         try {
@@ -194,14 +211,7 @@ function EditTrip(){
 
     //saveMemberlist
     const saveMemberlist = async( ) =>{
-        const lst = formTrip.members.map(member => ({
-          userid : member.user.id,
-          hide : false
-        }));
-
-        const rq = {
-          "Members" : lst
-        };
+        const rq = buildMembersPayload(formTrip.members);
         try {
           await saveMembers(id, rq, 'put');
           setMessageSnack("Member list was saved.");
@@ -212,15 +222,7 @@ function EditTrip(){
 
     //save itinerary
     const saveTripItinerary = async( ) =>{
-        const lst = formTrip.itinerary.map(itinerary => ({
-          "placeid" : itinerary.place.id ,
-          "initialdate" : itinerary.initialdate,
-          "finaldate" : itinerary.finaldate
-        }));
-
-        const rq = {
-          "Itinerary" : lst
-        };
+        const rq = buildItineraryPayload(formTrip.itinerary);
 
         try {
           await saveItinerary(id, rq, 'put');
@@ -293,6 +295,12 @@ function EditTrip(){
           setCoverImageChanged(false);
         }
         
+        setGalleryItems(prev => {
+          const updated = prev.filter(img => img.id !== item.id);
+          setOriginalGallerySnapshot(buildGalleryMetadataSnapshot(updated));
+          return updated;
+        });
+
         // Update originalTrip state to reflect removal
         setOriginalTrip(prev => ({
           ...prev,
@@ -384,6 +392,8 @@ const handleRemoveUser = (event) => {
             const response = await getTrip(id);
             setFormTrip(response.data.info);
             setOriginalTrip(response.data.info);
+            setGalleryItems(response.data.info.gallery || []);
+            setOriginalGallerySnapshot(buildGalleryMetadataSnapshot(response.data.info.gallery || []));
             
             // Initialize cover image state
             if (response.data.info.gallery && response.data.info.gallery.length > 0) {
@@ -413,7 +423,6 @@ const handleRemoveUser = (event) => {
         } 
       }
       fetchTrip();
-      setIsUser( localStorage.getItem('userid') != null );
   },[id]);
     if ( loading ) {
         return (
@@ -585,7 +594,7 @@ const handleRemoveUser = (event) => {
               onClick={() => toggleSection('gallery')}
             >
               <Typography variant="body1">
-                Manage Gallery {originalTrip && originalTrip.gallery && originalTrip.gallery.length > 0 && `(${originalTrip.gallery.length})`}
+                Manage Gallery {galleryItems.length > 0 && `(${galleryItems.length})`}
               </Typography>
               <IconButton size="small">
                 {showManager.gallery ? <ExpandLess /> : <ExpandMore />}
@@ -593,26 +602,24 @@ const handleRemoveUser = (event) => {
             </Box>
             <Collapse in={showManager.gallery}>
               <Box sx={{ mt: 2 }}>
-                <GalleryListManager
-                  items={originalTrip && originalTrip.gallery ? originalTrip.gallery : []}
+                <TripGallerySection
+                  items={galleryItems}
+                  onItemsChange={setGalleryItems}
                   onRemove={removePhoto}
                   pendingImages={addedImages || []}
                   onPendingImagesChange={setAddedImages}
+                  itinerary={formTrip.itinerary}
                   showUploader
                   enableImageMetadata
-                  metadataPlaceOptions={(formTrip.itinerary || []).map((item) => ({
-                    id: item.place.id,
-                    name: item.place.name
-                  }))}
                   maxPendingImages={10}
                   coverImageId={coverImageId}
                   coverImageIndex={coverImageIndex}
                   onSetCover={async (idOrIndex, autoSet) => {
                     // For pending images, it's always an index (number 0-n)
                     // For existing gallery items, it's always an ID (could be number or string from DB)
-                    const hasExistingGallery = originalTrip?.gallery && originalTrip.gallery.length > 0;
+                    const hasExistingGallery = galleryItems.length > 0;
                     
-                    if (hasExistingGallery && originalTrip.gallery.some(img => img.id === idOrIndex)) {
+                    if (hasExistingGallery && galleryItems.some(img => img.id === idOrIndex)) {
                       // It's an existing gallery item ID - mark as changed, will be saved on submit
                       setCoverImageId(idOrIndex);
                       setCoverImageIndex(null);
