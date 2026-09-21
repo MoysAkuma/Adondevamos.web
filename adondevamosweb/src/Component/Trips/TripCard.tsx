@@ -51,7 +51,7 @@ function TripCard({ tripinfo, showRankingBadge = false, rankingPosition = null }
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { voteTrip } = useVoteApi();
+  const { voteTrip, voteItineraryPlace } = useVoteApi();
   const [expanded, setExpanded] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [isVoting, setIsVoting] = useState(false);
@@ -342,6 +342,19 @@ function TripCard({ tripinfo, showRankingBadge = false, rankingPosition = null }
             <>
               <Itinerary tripinfo={tripinfo}
               callBackView={goToViewPlace}
+              callBackFavorite={async (placeId, tripId) => {
+                if (!user) {
+                  showSnackbar('You must be logged in to vote.', 'warning');
+                  return;
+                }
+
+                try {
+                  await voteItineraryPlace(placeId, tripId, user);
+                } catch (error) {
+                  showSnackbar('Could not update vote. Please try again.', 'error');
+                  console.error('There was an error voting for the itinerary place!', error);
+                }
+              }}
                />
             </>
           )}

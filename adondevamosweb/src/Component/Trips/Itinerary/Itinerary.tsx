@@ -107,6 +107,8 @@ function Itinerary ({
     const [page, setPage] = useState(1);
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
+    const [voteConfirmOpen, setVoteConfirmOpen] = useState(false);
+    const [pendingVotePlaceId, setPendingVotePlaceId] = useState<number | null>(null);
     const [favoriteItems, setFavoriteItems] = useState(new Map()); // Changed to Map to store vote state from API
     const [voteCounts, setVoteCounts] = useState(new Map()); // Track total vote counts separately
     const [memberVoteCounts, setMemberVoteCounts] = useState(new Map()); // Track member vote counts separately
@@ -114,6 +116,17 @@ function Itinerary ({
     const [showOnlyWithVotes, setShowOnlyWithVotes] = useState(false);
     const [sortByVotes, setSortByVotes] = useState(false);
     const itemsPerPage = 5;
+
+    const currentUserId = localStorage.getItem('userid');
+    const isCurrentUserOwner =
+        currentUserId != null &&
+        tripinfo?.owner?.id != null &&
+        String(tripinfo.owner.id) === String(currentUserId);
+    const isCurrentUserMember =
+        currentUserId != null &&
+        Array.isArray(tripinfo?.members) &&
+        tripinfo.members.some(member => String(member?.user?.id) === String(currentUserId));
+    const shouldUpdateMemberVotes = isOwnerOrMember || isCurrentUserOwner || isCurrentUserMember;
 
     const callBackEdite = (e) => {
         
@@ -141,6 +154,23 @@ function Itinerary ({
         handleEditClose();
     };
 
+    const handleVoteConfirmOpen = (placeId) => {
+        setPendingVotePlaceId(placeId);
+        setVoteConfirmOpen(true);
+    };
+
+    const handleVoteConfirmClose = () => {
+        setVoteConfirmOpen(false);
+        setPendingVotePlaceId(null);
+    };
+
+    const handleVoteConfirmAccept = () => {
+        if (pendingVotePlaceId != null) {
+            toggleFavorite(pendingVotePlaceId);
+        }
+        handleVoteConfirmClose();
+    };
+
     // Handle favorites
     const toggleFavorite = (placeId) => {
         const newFavorites = new Map(favoriteItems);
@@ -159,8 +189,8 @@ function Itinerary ({
         const newCount = Math.max(0, currentCount + (newState ? 1 : -1));
         newVoteCounts.set(placeId, newCount);
         
-        // Update member vote count if user is member/owner
-        if (isOwnerOrMember) {
+        // Keep member votes in sync for owner/member interactions.
+        if (shouldUpdateMemberVotes) {
             const newMemberCount = Math.max(0, currentMemberCount + (newState ? 1 : -1));
             newMemberVoteCounts.set(placeId, newMemberCount);
         }
@@ -384,11 +414,9 @@ function Itinerary ({
                 const totalVoteCount = item.votes?.total_votes || 0;
                 initialVoteCounts.set(item.place.id, totalVoteCount);
                 
-                // Set member vote count (only if user is owner/member)
-                if (isOwnerOrMember) {
-                    const memberVoteCount = item.votes?.members || 0;
-                    initialMemberVoteCounts.set(item.place.id, memberVoteCount);
-                }
+                // Always show member vote totals from API (permissions only affect actions).
+                const memberVoteCount = item.votes?.members || 0;
+                initialMemberVoteCounts.set(item.place.id, memberVoteCount);
             });
             
             setFavoriteItems(initialFavorites);
@@ -589,28 +617,29 @@ function Itinerary ({
                                 }}
                                 secondaryAction={
                                     <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-                                        {callBackFavorite && (
-                                            <StyledActionButton
-                                                aria-label="favorite"
-                                                size="small"
-                                                onClick={() => toggleFavorite(visit.place.id)}
-                                                sx={{
-                                                    ...((favoriteItems.get(visit.place.id) === true) && {
-                                                        backgroundColor: '#E63946',
-                                                        color: '#FFFFFF',
-                                                        '&:hover': {
-                                                            backgroundColor: '#C53030',
-                                                        },
-                                                    })
-                                                }}
-                                            >
-                                                {favoriteItems.get(visit.place.id) === true ? (
-                                                    <Favorite sx={{ color: '#FFFFFF' }} />
-                                                ) : (
-                                                    <FavoriteBorder sx={{ color: '#2C2C2C' }} />
-                                                )}
-                                            </StyledActionButton>
-                                        )}
+                                        <StyledActionButton
+                                            aria-label="favorite"
+                                            size="small"
+                                            disabled={!callBackFavorite}
+                                            onClick={() => {
+                                                if (!callBackFavorite) return;
+                                                handleVoteConfirmOpen(visit.place.id);
+                                            }}
+                                            sx={{
+                                                ...((favoriteItems.get(visit.place.id) === true) && {
+                                                    color: '#E63946',
+                                                    '&:hover': {
+                                                        backgroundColor: 'rgba(230, 57, 70, 0.12)',
+                                                    },
+                                                })
+                                            }}
+                                        >
+                                            {favoriteItems.get(visit.place.id) === true ? (
+                                                <Favorite sx={{ color: '#E63946' }} />
+                                            ) : (
+                                                <FavoriteBorder sx={{ color: '#2C2C2C' }} />
+                                            )}
+                                        </StyledActionButton>
 
                                         {isTripOwner && callBackEdit && (
                                             <StyledActionButton
@@ -669,10 +698,12 @@ function Itinerary ({
                                             </Box>
 
                                             <Box sx={{
-                                                display: 'flex',
+                                                display: 'inline-flex',
                                                 flexWrap: 'wrap',
                                                 alignItems: 'center',
                                                 gap: 1,
+                                                width: 'fit-content',
+                                                maxWidth: '100%',
                                                 color: '#2C2C2C',
                                                 backgroundColor: 'rgba(255, 255, 255, 0.15)',
                                                 padding: '6px 10px',
@@ -689,13 +720,13 @@ function Itinerary ({
                                                     <CalendarToday sx={{ fontSize: '0.85rem' }} />
                                                     <span>{generateShortDateText(visit.initialdate, visit.finaldate)}</span>
                                                 </Box>
-                                                <Tooltip title="Votes from site" arrow>
+                                                <Tooltip title="Total votes" arrow>
                                                     <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
-                                                        <Public sx={{ fontSize: '0.85rem' }} />
+                                                        <Favorite sx={{ fontSize: '0.85rem' }} />
                                                         <span>{totalVotes}</span>
                                                     </Box>
                                                 </Tooltip>
-                                                <Tooltip title="Votes by members of this trip" arrow>
+                                                <Tooltip title="Votes by members" arrow>
                                                     <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
                                                         <Person sx={{ fontSize: '0.85rem' }} />
                                                         <span>{memberVotes}</span>
@@ -776,6 +807,27 @@ function Itinerary ({
                     <Button onClick={handleEditClose}>Cancel</Button>
                     <Button onClick={handleEditSave} variant="contained">
                         Save Changes
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Vote Confirmation Modal */}
+            <Dialog
+                open={voteConfirmOpen}
+                onClose={handleVoteConfirmClose}
+                maxWidth="xs"
+                fullWidth
+            >
+                <DialogTitle>Confirm Vote</DialogTitle>
+                <DialogContent>
+                    <Typography variant="body2" sx={{ mt: 1 }}>
+                        Are you sure you want to update your vote for this place?
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleVoteConfirmClose}>Cancel</Button>
+                    <Button onClick={handleVoteConfirmAccept} variant="contained" color="error">
+                        Confirm
                     </Button>
                 </DialogActions>
             </Dialog>

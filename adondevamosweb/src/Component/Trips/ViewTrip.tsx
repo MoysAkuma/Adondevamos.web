@@ -458,7 +458,7 @@ function ViewTrip(){
                             if (!placeId) return;
                             navigate('/View/Place/' + placeId);
                         }}
-                        callBackFavorite={isOwnerOrMember() ? async (placeId, tripId) => {
+                        callBackFavorite={async (placeId, tripId) => {
                             if (!user) {
                                 showSnackbar('You must be logged in to vote.', 'warning');
                                 return;
@@ -479,7 +479,7 @@ function ViewTrip(){
                             } finally {
                                 setIsVotingPlace(false);
                             }
-                        } : null}
+                        }}
                     />
                 </StyledSectionContent>
             </StyledSectionCard>
