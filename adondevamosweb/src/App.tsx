@@ -14,6 +14,7 @@ import FAQ from "./Pages/FAQ";
 import RankingPage from "./Pages/Ranking";
 import ConfirmEmail from "./Pages/ConfirmEmail";
 import ResetPassword from "./Pages/ResetPassword";
+import Locations from "./Pages/Locations";
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from "./Component/Commons/ProtectedRoute";
 import SessionWarning from "./Component/Commons/SessionWarning";
@@ -53,6 +54,7 @@ function AppContent() {
           <Route path="/reset-password" element={ <ResetPassword/>}/>
           <Route path="/Trips" element={ <MainTrips/>}/>
           <Route path="/Places" element={ <MainPlaces/>}/>
+          <Route path="/Locations/:type/:id" element={ <Locations/>}/>
           <Route path="/ManageSite" element={<ProtectedRoute 
           requiredRole="admin"><ManageSite/></ProtectedRoute>}/>
           <Route path="/Create/:opt" element={<ProtectedRoute requiredRole="user"><Create /></ProtectedRoute>}/>

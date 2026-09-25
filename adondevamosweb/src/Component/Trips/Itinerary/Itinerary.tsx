@@ -712,10 +712,15 @@ function Itinerary ({
                                                 fontSize: '0.72rem',
                                                 fontWeight: 700,
                                             }}>
-                                                <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
-                                                    <Flag sx={{ fontSize: '0.85rem' }} />
-                                                    <span>{visit.place.Country.acronym}</span>
-                                                </Box>
+                                                <Tooltip
+                                                    title={`${visit.place?.City?.name || 'Unknown city'}, ${visit.place?.State?.name || 'Unknown state'}, ${visit.place?.Country?.name || 'Unknown country'}`}
+                                                    arrow
+                                                >
+                                                    <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                                                        <Flag sx={{ fontSize: '0.85rem' }} />
+                                                        <span>{visit.place?.Country?.acronym || 'N/A'}</span>
+                                                    </Box>
+                                                </Tooltip>
                                                 <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
                                                     <CalendarToday sx={{ fontSize: '0.85rem' }} />
                                                     <span>{generateShortDateText(visit.initialdate, visit.finaldate)}</span>
