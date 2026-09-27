@@ -8,6 +8,7 @@ import
         Badge,
         List,
         ListItem,
+        ListItemButton,
         ListItemText,
         Alert,
         Tooltip,
@@ -68,6 +69,12 @@ import {
 } from '../../Css/Trips/trips.styles';
 
 function ViewTrip(){
+    type CountryVisitStat = {
+        id: number;
+        name: string;
+        placeIds: Set<number>;
+    };
+
     //Get id
     const { id } = useParams();
     const navigate = useNavigate();
@@ -342,6 +349,69 @@ function ViewTrip(){
             </StyledContainer>
         );
     }
+
+    const itineraryItems = Array.isArray(tripInfo?.itinerary) ? tripInfo.itinerary : [];
+
+    const countriesVisitedMap = itineraryItems.reduce<Map<number, CountryVisitStat>>((acc, item) => {
+        const country = item?.place?.Country;
+        const placeId = Number(item?.place?.id);
+        const countryId = Number(country?.id);
+
+        if (!countryId || !country?.name || !placeId) {
+            return acc;
+        }
+
+        const existing = acc.get(countryId) || {
+            id: countryId,
+            name: country.name,
+            placeIds: new Set<number>()
+        };
+
+        existing.placeIds.add(placeId);
+        acc.set(countryId, existing);
+
+        return acc;
+    }, new Map<number, CountryVisitStat>());
+
+    const countriesVisitedStats = [...countriesVisitedMap.values()].map((country) => ({
+        id: country.id,
+        name: country.name,
+        placesCount: country.placeIds.size
+    }));
+
+    const citiesVisited = [...new Set(
+        itineraryItems
+            .map((item) => item?.place?.City?.name)
+            .filter(Boolean)
+    )];
+
+    const placeVotesMap = itineraryItems.reduce((acc, item) => {
+        const placeId = item?.place?.id;
+        const placeName = item?.place?.name;
+        if (!placeId || !placeName) {
+            return acc;
+        }
+
+        const totalVotes = Number(item?.votes?.total_votes ?? 0);
+        const existing = acc.get(placeId);
+
+        if (!existing || totalVotes > existing.totalVotes) {
+            acc.set(placeId, {
+                id: placeId,
+                name: placeName,
+                totalVotes,
+                cityName: item?.place?.City?.name || 'Unknown city',
+                countryName: item?.place?.Country?.name || 'Unknown country'
+            });
+        }
+
+        return acc;
+    }, new Map());
+
+    const mostVotedPlaces = [...placeVotesMap.values()]
+        .sort((a, b) => b.totalVotes - a.totalVotes)
+        .slice(0, 5);
+
     return (
         <StyledContainer>
             
@@ -486,6 +556,82 @@ function ViewTrip(){
             
             {/* Itinerary Map */}
             <ItineraryMap itinerary={tripInfo?.itinerary || []} />
+
+            {/* Countries visited */}
+            <StyledSectionCard>
+                <StyledSectionHeader>
+                    <PixelTypography 
+                        variant="h5" 
+                        sx={sectionTitleSx}
+                    >
+                        Countries Visited
+                    </PixelTypography>
+                </StyledSectionHeader>
+                <StyledSectionContent>
+                    {countriesVisitedStats.length === 0 ? (
+                        <Alert severity="info">
+                            No countries available from itinerary yet.
+                        </Alert>
+                    ) : (
+                        <List>
+                            {countriesVisitedStats.map((country) => (
+                                <ListItem key={country.id} disablePadding>
+                                    <ListItemButton onClick={() => navigate(`/locations/country/${country.id}`)}>
+                                        <ListItemText
+                                            primary={country.name}
+                                            secondary={`${country.placesCount} place${country.placesCount === 1 ? '' : 's'} visited`}
+                                        />
+                                    </ListItemButton>
+                                </ListItem>
+                            ))}
+                        </List>
+                    )}
+                </StyledSectionContent>
+            </StyledSectionCard>
+
+            {/* Trip summary */}
+            <StyledSectionCard>
+                <StyledSectionHeader>
+                    <PixelTypography 
+                        variant="h5" 
+                        sx={sectionTitleSx}
+                    >
+                        Trip Summary
+                    </PixelTypography>
+                </StyledSectionHeader>
+                <StyledSectionContent>
+                    <Stack spacing={2}>
+                        <Typography variant="body1">
+                            Cities visited: {citiesVisited.length}
+                        </Typography>
+                        <Typography variant="body1">
+                            Countries visited: {countriesVisitedStats.length}
+                        </Typography>
+
+                        <Box>
+                            <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                                Most voted places
+                            </Typography>
+                            {mostVotedPlaces.length === 0 ? (
+                                <Alert severity="info">
+                                    No votes recorded for itinerary places yet.
+                                </Alert>
+                            ) : (
+                                <List>
+                                    {mostVotedPlaces.map((place, index) => (
+                                        <ListItem key={place.id}>
+                                            <ListItemText
+                                                primary={`${index + 1}. ${place.name}`}
+                                                secondary={`${place.cityName}, ${place.countryName} - ${place.totalVotes} votes`}
+                                            />
+                                        </ListItem>
+                                    ))}
+                                </List>
+                            )}
+                        </Box>
+                    </Stack>
+                </StyledSectionContent>
+            </StyledSectionCard>
              
             {/* Gallery Section */}
             <StyledSectionCard>

@@ -1,27 +1,65 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import "./Locations.css";
 import { useSeoMeta } from "@unhead/react";
+import CenteredTemplate from '../Component/Commons/CenteredTemplate';
+import {
+  Alert,
+  Box,
+  CircularProgress,
+} from "@mui/material";
+import PlaceCard from "../Component/Places/PlaceCard";
+import TripCard from "../Component/Trips/TripCard";
+import {
+  PixelTypography,
+  StyledBanner,
+  StyledHeaderCard,
+  StyledHeaderContent,
+  StyledSectionCard,
+  StyledSectionContent,
+  StyledSectionHeader,
+  emptyMembersAlertSx,
+  errorAlertSx,
+  pageLoadingSx,
+  sectionHeaderRowSx,
+  sectionTitleSx,
+  tripDescriptionSx,
+  tripTitleSx,
+  warningAlertSx
+} from "../Css/Trips/trips.styles";
 
 type LocationType = "country" | "state" | "city";
 
 interface LocationInfo {
-  id: string;
+  id: number;
   name: string;
   description?: string;
   cover?: string;
 }
 
+interface Place {
+  id: number;
+  name: string;
+  address?: string;
+  latitude?: string;
+  longitude?: string;
+  cover?: string;
+  cover_url?: string;
+}
+
 interface Trip {
-  id: string;
+  id: number;
   name: string;
   cover?: string;
+  cover_url?: string;
+  description?: string;
   initialdate?: string;
   finaldate?: string;
+  ownerid?: number;
 }
 
 interface UseLocationDataResult {
   location: LocationInfo | null;
+  places: Place[];
   trips: Trip[];
   loading: boolean;
   error: string | null;
@@ -29,9 +67,20 @@ interface UseLocationDataResult {
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "https://api.adondevamos.net";
 
+const cardsGridSx = {
+  display: "grid",
+  gridTemplateColumns: {
+    xs: "1fr",
+    sm: "repeat(2, minmax(0, 1fr))",
+    md: "repeat(3, minmax(0, 1fr))"
+  },
+  gap: 2
+};
+
 function useLocationData(type: LocationType, id: string): UseLocationDataResult {
     
   const [location, setLocation] = useState<LocationInfo | null>(null);
+  const [places, setPlaces] = useState<Place[]>([]);
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,23 +94,50 @@ function useLocationData(type: LocationType, id: string): UseLocationDataResult 
 
     const fetchData = async () => {
       try {
-        const [locationRes, tripsRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/locations/${type}/${id}`),
-          fetch(`${API_BASE_URL}/locations/${type}/${id}/trips`),
-        ]);
+        const locationRes = await fetch(`${API_BASE_URL}/locations/${type}/${id}`);
 
         if (!locationRes.ok) {
           throw new Error(`Failed to fetch location: ${locationRes.status}`);
         }
-        if (!tripsRes.ok) {
-          throw new Error(`Failed to fetch trips: ${tripsRes.status}`);
-        }
 
-        const locationData: LocationInfo = await locationRes.json();
-        const tripsData: Trip[] = await tripsRes.json();
+        const response = await locationRes.json();
+        const info = response?.info || response;
+
+        const locationData: LocationInfo = {
+          id: Number(info?.id || 0),
+          name: info?.name || "Unknown location",
+          description: info?.originalname || "",
+          cover: info?.cover || ""
+        };
+
+        const placesData: Place[] = Array.isArray(info?.places)
+          ? info.places.map((place: any) => ({
+              id: Number(place?.id || 0),
+              name: place?.name || "Unknown place",
+              address: place?.address || "",
+              latitude: place?.latitude || "",
+              longitude: place?.longitude || "",
+              cover: place?.cover || place?.cover_url || "",
+              cover_url: place?.cover_url || place?.cover || ""
+            }))
+          : [];
+
+        const tripsData: Trip[] = Array.isArray(info?.trips)
+          ? info.trips.map((trip: any) => ({
+              id: Number(trip?.id || 0),
+              name: trip?.name || "Unknown trip",
+              cover: trip?.cover || trip?.cover_url || "",
+              cover_url: trip?.cover_url || trip?.cover || "",
+              description: trip?.description || "",
+              initialdate: trip?.initialdate || "",
+              finaldate: trip?.finaldate || "",
+              ownerid: Number(trip?.ownerid || 0)
+            }))
+          : [];
 
         if (isMounted) {
           setLocation(locationData);
+          setPlaces(placesData);
           setTrips(tripsData);
         }
       } catch (err) {
@@ -82,7 +158,7 @@ function useLocationData(type: LocationType, id: string): UseLocationDataResult 
     };
   }, [type, id]);
 
-  return { location, trips, loading, error };
+  return { location, places, trips, loading, error };
 }
 
 const Locations: React.FC = () => {
@@ -95,86 +171,143 @@ const Locations: React.FC = () => {
       ogDescription: 'Discover, create, and share travel itineraries and places with AdondeVamos.',
       ogType: 'website',
     });
-  const { location, trips, loading, error } = useLocationData(
+  const { location, places, trips, loading, error } = useLocationData(
     (type as LocationType) || "city",
     id || ""
   );
 
   if (loading) {
     return (
-      <div className="page-container">
-        <div className="loading-spinner">Cargando...</div>
-      </div>
+      <CenteredTemplate>
+        <Box sx={pageLoadingSx}>
+          <CircularProgress />
+        </Box>
+      </CenteredTemplate>
     );
   }
 
   if (error) {
     return (
-      <div className="page-container">
-        <div className="error-message">Error: {error}</div>
-      </div>
+      <CenteredTemplate>
+        <Alert severity="error" sx={errorAlertSx}>
+          Error: {error}
+        </Alert>
+      </CenteredTemplate>
     );
   }
 
   if (!location) {
     return (
-      <div className="page-container">
-        <div className="error-message">Ubicación no encontrada.</div>
-      </div>
+      <CenteredTemplate>
+        <Alert severity="warning" sx={warningAlertSx}>
+          Ubicación no encontrada.
+        </Alert>
+      </CenteredTemplate>
     );
   }
 
   return (
-    <div className="page-container">
-      <div className="location-header">
-        {location.cover && (
-          <img
-            src={location.cover}
-            alt={location.name}
-            className="location-hero-image"
-          />
-        )}
-        <div className="location-header-overlay">
-          <h1 className="location-title">{location.name}</h1>
-          {location.description && (
-            <p className="location-description">{location.description}</p>
+    <CenteredTemplate>
+      <StyledHeaderCard>
+        <StyledHeaderContent>
+          <PixelTypography variant="h3" sx={tripTitleSx}>
+            {location.name}
+          </PixelTypography>
+          <PixelTypography variant="body1" sx={tripDescriptionSx}>
+            {location.description || `Explora lugares y viajes en este ${type || "destino"}.`}
+          </PixelTypography>
+        </StyledHeaderContent>
+      </StyledHeaderCard>
+
+      {location.cover && (
+        <StyledBanner image={location.cover} title={location.name} />
+      )}
+
+      <StyledSectionCard>
+        <StyledSectionHeader>
+          <Box sx={sectionHeaderRowSx}>
+            <PixelTypography variant="h5" sx={sectionTitleSx}>
+              Lugares en {location.name}
+            </PixelTypography>
+          </Box>
+        </StyledSectionHeader>
+        <StyledSectionContent>
+          {places.length === 0 ? (
+            <Alert severity="warning" sx={emptyMembersAlertSx}>
+              No hay lugares disponibles en esta ubicación.
+            </Alert>
+          ) : (
+            <Box sx={cardsGridSx}>
+              {places.map((place) => (
+                <PlaceCard
+                  key={place.id}
+                  placeinfo={{
+                    id: place.id,
+                    name: place.name,
+                    description: place.address || "",
+                    address: place.address || "",
+                    latitude: place.latitude || "0",
+                    longitude: place.longitude || "0",
+                    Country: null,
+                    State: null,
+                    City: null,
+                    statics: { Votes: { Total: 0 } },
+                    facilities: [],
+                    gallery: place.cover || place.cover_url
+                      ? [{ completeurl: place.cover || place.cover_url }]
+                      : []
+                  }}
+                />
+              ))}
+            </Box>
           )}
-        </div>
-      </div>
+        </StyledSectionContent>
+      </StyledSectionCard>
 
-      <section className="trips-section">
-        <h2 className="section-title">Viajes en {location.name}</h2>
-
-        {trips.length === 0 ? (
-          <p className="no-trips-message">
-            No hay viajes disponibles en esta ubicación.
-          </p>
-        ) : (
-          <div className="trips-grid">
-            {trips.map((trip) => (
-              <div key={trip.id} className="trip-card">
-                {trip.cover && (
-                  <img
-                    src={trip.cover}
-                    alt={trip.name}
-                    className="trip-card-image"
-                  />
-                )}
-                <div className="trip-card-content">
-                  <h3 className="trip-card-title">{trip.name}</h3>
-                  {trip.initialdate && (
-                    <p className="trip-card-date">{trip.initialdate}</p>
-                  )}
-                  {trip.finaldate && (
-                    <p className="trip-card-date">{trip.finaldate}</p>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-    </div>
+      <StyledSectionCard>
+        <StyledSectionHeader>
+          <Box sx={sectionHeaderRowSx}>
+            <PixelTypography variant="h5" sx={sectionTitleSx}>
+              Viajes en {location.name}
+            </PixelTypography>
+          </Box>
+        </StyledSectionHeader>
+        <StyledSectionContent>
+          {trips.length === 0 ? (
+            <Alert severity="warning" sx={emptyMembersAlertSx}>
+              No hay viajes disponibles en esta ubicación.
+            </Alert>
+          ) : (
+            <Box sx={cardsGridSx}>
+              {trips.map((trip) => (
+                <TripCard
+                  key={trip.id}
+                  tripinfo={{
+                    id: trip.id,
+                    name: trip.name,
+                    description: trip.description || "",
+                    initialdate: trip.initialdate || "2000-01-01",
+                    finaldate: trip.finaldate || trip.initialdate || "2000-01-01",
+                    cover_url: trip.cover || trip.cover_url || "",
+                    owner: {
+                      id: trip.ownerid || 0,
+                      name: "Owner",
+                      lastname: "",
+                      tag: `@user${trip.ownerid || 0}`
+                    },
+                    statics: { Votes: { Total: 0 } },
+                    itinerary: [],
+                    members: [],
+                    userVoted: false,
+                    gallery: []
+                  }}
+                />
+              ))}
+            </Box>
+          )}
+        </StyledSectionContent>
+      </StyledSectionCard>
+    </CenteredTemplate>
   );
 };
 

@@ -68,6 +68,12 @@
   padding: 1.25rem 1rem 2.5rem;
 }
 
+.places-section {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 1rem;
+}
+
 .section-title {
   margin: 0 0 1rem;
   font-size: clamp(1.15rem, 2.4vw, 1.7rem);
@@ -87,6 +93,17 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1rem;
+}
+
+.places-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.trip-card-link {
+  text-decoration: none;
+  color: inherit;
 }
 
 .trip-card {
