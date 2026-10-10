@@ -21,10 +21,14 @@ export const usePlaceQueryApi = () => {
   );
 
   const searchPlaces = useCallback(
-    async (filters = []) => {
+    async (filters = {}) => {
+      const normalizedFilters = Object.fromEntries(
+        Object.entries(filters || {}).filter(([, value]) => value !== '' && value !== null && value !== undefined)
+      );
+
       return axios.post(
         `${placesUrl}/Search`,
-        { filters },
+        { filters: normalizedFilters },
         {
           headers: buildAuthHeaders({ 'Content-Type': 'application/json' })
         }

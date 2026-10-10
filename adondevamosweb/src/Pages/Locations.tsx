@@ -72,7 +72,7 @@ const cardsGridSx = {
   gridTemplateColumns: {
     xs: "1fr",
     sm: "repeat(2, minmax(0, 1fr))",
-    md: "repeat(3, minmax(0, 1fr))"
+    md: "repeat(2, minmax(0, 1fr))"
   },
   gap: 2
 };
@@ -253,8 +253,8 @@ const Locations: React.FC = () => {
                     City: null,
                     statics: { Votes: { Total: 0 } },
                     facilities: [],
-                    gallery: place.cover || place.cover_url
-                      ? [{ completeurl: place.cover || place.cover_url }]
+                    gallery: place.cover_url
+                      ? [{ completeurl: place.cover_url }]
                       : []
                   }}
                 />
@@ -288,7 +288,7 @@ const Locations: React.FC = () => {
                     description: trip.description || "",
                     initialdate: trip.initialdate || "2000-01-01",
                     finaldate: trip.finaldate || trip.initialdate || "2000-01-01",
-                    cover_url: trip.cover || trip.cover_url || "",
+                    cover_url: trip.cover_url || "",
                     owner: {
                       id: trip.ownerid || 0,
                       name: "Owner",
@@ -299,7 +299,9 @@ const Locations: React.FC = () => {
                     itinerary: [],
                     members: [],
                     userVoted: false,
-                    gallery: []
+                    gallery: trip.cover_url
+                      ? [{ completeurl: trip.cover_url }]
+                      : []
                   }}
                 />
               ))}
