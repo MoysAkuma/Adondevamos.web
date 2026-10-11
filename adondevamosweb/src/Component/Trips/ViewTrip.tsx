@@ -123,6 +123,8 @@ function ViewTrip(){
         Number(tripInfo.owner.id) === Number(user)
     );
 
+    
+
     // Check if user is owner or member
     const isOwnerOrMember = () => {
         if (!user || !tripInfo) return false;
@@ -133,6 +135,8 @@ function ViewTrip(){
         // Check if user is in member list
         return tripInfo.members.some(member => member.user.id === parseInt(user));
     };
+
+    const canManageTripContent = isOwnerOrMember();
 
     const showSnackbar = (message, severity = 'info') => {
         setSnackbar({ open: true, message, severity });
@@ -189,8 +193,12 @@ function ViewTrip(){
         navigate(`/Edit/Members/${id}`);
     };
 
+    const handleEditGallery = () => {
+        navigate(`/Edit/Trip/${id}`);
+    };
+
     const handleAddPlace = () => {
-        if (isOwner) {
+        if (canManageTripContent) {
             setPendingPlaces([]);
             setAddPlaceModalOpen(true);
             return;
@@ -235,8 +243,8 @@ function ViewTrip(){
     };
 
     const handleSaveQueuedPlaces = async () => {
-        if (!isOwner) {
-            showSnackbar('Only the trip owner can use quick add.', 'warning');
+        if (!canManageTripContent) {
+            showSnackbar('Only trip owner or members can use quick add.', 'warning');
             return;
         }
 
@@ -507,7 +515,7 @@ function ViewTrip(){
                         >
                             Itinerary
                         </PixelTypography>
-                        {isOwner && (
+                        {canManageTripContent && (
                             <Tooltip title="Add place">
                                 <StyledActionButton
                                     onClick={handleAddPlace}
@@ -636,12 +644,25 @@ function ViewTrip(){
             {/* Gallery Section */}
             <StyledSectionCard>
                 <StyledSectionHeader>
-                    <PixelTypography 
-                        variant="h5" 
-                        sx={sectionTitleSx}
-                    >
-                        Gallery
-                    </PixelTypography>
+                    <Box sx={sectionHeaderRowSx}>
+                        <PixelTypography 
+                            variant="h5" 
+                            sx={sectionTitleSx}
+                        >
+                            Gallery
+                        </PixelTypography>
+                        {canManageTripContent && (
+                            <Tooltip title="Manage gallery">
+                                <StyledActionButton
+                                    onClick={handleEditGallery}
+                                    size="small"
+                                    sx={compactActionButtonSx}
+                                >
+                                    <Edit sx={iconSmallSx} />
+                                </StyledActionButton>
+                            </Tooltip>
+                        )}
+                    </Box>
                 </StyledSectionHeader>
                 <StyledSectionContent>
                     <ImageCarousel

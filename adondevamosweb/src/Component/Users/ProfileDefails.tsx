@@ -4,6 +4,7 @@ import ChangePassword from "./ChangePassword";
 import CreatedTripsList from '../Trips/CreatedTripsList';
 
 export default function ProfileDetails({ user, createdTrips = [], 
+    memberTrips = [],
     votedTrips = [], 
     voteCounts = { trips: 0, places: 0 } }) {
     const userid = localStorage.getItem("userid");
@@ -82,6 +83,14 @@ export default function ProfileDetails({ user, createdTrips = [],
                 showPagination={true}
                 title="Created Trips"
                 emptyMessage="You haven't created any trips yet."
+            />
+
+            {/* Member Trips Section - Shows ALL with pagination */}
+            <CreatedTripsList
+                trips={memberTrips}
+                showPagination={true}
+                title="Member Trips"
+                emptyMessage="You're not a member of any trips yet."
             />
 
             {/* Voted Trips Section - Shows ALL with pagination */}

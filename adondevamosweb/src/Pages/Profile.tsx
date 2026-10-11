@@ -128,6 +128,7 @@ export default function Profile() {
                         <ProfileDetails 
                             user={userInfo} 
                             createdTrips={profileData?.createdTrips || []}
+                            memberTrips={profileData?.memberTrips || []}
                             votedTrips={profileData?.votedTrips || []}
                             voteCounts={profileData?.voteCounts || { trips: 0, places: 0 }}
                         />

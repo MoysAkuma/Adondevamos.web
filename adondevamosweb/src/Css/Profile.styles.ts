@@ -57,6 +57,7 @@ export interface VoteCounts {
 /** Shape of the profile data returned by GET /Users/:id/Profile */
 export interface ProfileData {
   createdTrips: unknown[];
+  memberTrips: unknown[];
   votedTrips: unknown[];
   voteCounts: VoteCounts;
 }

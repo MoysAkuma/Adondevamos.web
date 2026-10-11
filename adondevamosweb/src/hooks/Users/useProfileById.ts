@@ -33,6 +33,7 @@ const useProfileById = (userId) => {
         setProfileData({
           user: data.user || {},
           createdTrips: data.createdTrips || [],
+          memberTrips: data.memberTrips || [],
           votedTrips: data.votedTrips || [],
           voteCounts: data.voteCounts || { trips: 0, places: 0 }
         });
