@@ -20,6 +20,7 @@ import NewTrips from '../Component/Trips/NewTrips';
 import Ranking from '../Component/Ranking/Ranking';
 import CenteredTemplate from '../Component/Commons/CenteredTemplate';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 import useRankingApi from '../hooks/Ranking/useRankingApi';
 import {
   PixelTypography,
@@ -35,10 +36,11 @@ import {
 } from '../Css/MainTrips.styles';
 
  const MainTrips = () => {
+    const { t } = useTranslation();
     useSeoMeta({
-        title: 'Trips - AdondeVamos',
-        description: 'Browse, filter and discover travel trips shared by the AdondeVamos community.',
-        ogTitle: 'Trips - AdondeVamos',
+        title: t('trips.pageTitle'),
+        description: t('trips.pageDescription'),
+        ogTitle: t('trips.pageTitle'),
     });
     const theme = useTheme();
     const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
@@ -60,7 +62,7 @@ import {
                                 color: '#FFFFFF'
                             }}
                         >
-                            Create a New Trip
+                            {t('trips.createNew')}
                         </PixelTypography>
                     </StyledSectionHeader>
                     <StyledSectionContent>
@@ -69,7 +71,7 @@ import {
                                 endIcon={<Flight sx={{ fontSize: '1rem' }} />}
                                 href="/Create/Trip"
                             >
-                                New Trip
+                                {t('trips.new')}
                             </StyledButton>   
                         </Box>
                     </StyledSectionContent>
@@ -114,7 +116,7 @@ import {
                                 lineHeight: 1.4
                             }}
                         >
-                            Trips
+                            {t('navigation.trips')}
                         </PixelTypography>
                     </StyledHeaderContent>
                 </StyledHeaderCard>
@@ -129,7 +131,7 @@ import {
                                 color: '#FFFFFF'
                             }}
                         >
-                            What is a Trip in AdondeVamos?
+                            {t('trips.whatIs')}
                         </PixelTypography>
                     </StyledSectionHeader>
                     <StyledSectionContent>
@@ -141,7 +143,7 @@ import {
                                 lineHeight: 1.6
                             }}
                         >
-                            A trip is a list of places you want to visit with your friends.
+                            {t('trips.description')}
                         </PixelTypography>
                     </StyledSectionContent>
                 </StyledSectionCard>
@@ -156,7 +158,7 @@ import {
                                 color: '#FFFFFF'
                             }}
                         >
-                            Discover Trips
+                            {t('trips.discover')}
                         </PixelTypography>
                     </StyledSectionHeader>
                     <StyledSectionContent>
@@ -169,14 +171,14 @@ import {
                                 lineHeight: 1.6
                             }}
                         >
-                            Explore trips created by other users and get inspired for your next adventure!
+                            {t('trips.discoverDescription')}
                         </PixelTypography>
                         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                             <StyledButton 
                                 endIcon={<Search sx={{ fontSize: '1rem' }} />}
                                 href="/Search/Trips"
                             >
-                                Search for trips
+                                {t('trips.search')}
                             </StyledButton>
                         </Box>
                     </StyledSectionContent>
@@ -195,13 +197,13 @@ import {
                                 color: '#FFFFFF'
                             }}
                         >
-                            New Trips
+                            {t('trips.newTrips')}
                         </PixelTypography>
                         <ToggleButton 
                             onClick={() => setShowNewTrips(!showNewTrips)}
                             endIcon={showNewTrips ? <ExpandLess sx={{ fontSize: '0.8rem' }} /> : <ExpandMore sx={{ fontSize: '0.8rem' }} />}
                         >
-                            {showNewTrips ? 'Hide' : 'Show'}
+                            {showNewTrips ? t('trips.hide') : t('trips.show')}
                         </ToggleButton>
                     </StyledSectionHeader>
                     <Collapse in={showNewTrips}>
@@ -221,13 +223,13 @@ import {
                                 color: '#FFFFFF'
                             }}
                         >
-                            Most Voted Trips
+                            {t('trips.mostVoted')}
                         </PixelTypography>
                         <ToggleButton 
                             onClick={() => setShowRanking(!showRanking)}
                             endIcon={showRanking ? <ExpandLess sx={{ fontSize: '0.8rem' }} /> : <ExpandMore sx={{ fontSize: '0.8rem' }} />}
                         >
-                            {showRanking ? 'Hide' : 'Show'}
+                            {showRanking ? t('trips.hide') : t('trips.show')}
                         </ToggleButton>
                     </StyledSectionHeader>
                     <Collapse in={showRanking}>

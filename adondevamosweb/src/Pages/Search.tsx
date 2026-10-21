@@ -16,6 +16,7 @@ import usePlaceQueryApi from '../hooks/Places/usePlaceQueryApi';
 import useTripQueryApi from '../hooks/Trips/useTripQueryApi';
 import useSearch from '../hooks/useSearch';
 import usePagination from '../hooks/usePagination';
+import { useTranslation } from 'react-i18next';
 
 // 8-bit Styled Components
 const StyledContainer = styled(Box)(({ theme }) => ({
@@ -82,13 +83,15 @@ const PixelTypography = styled(Typography)(({ theme }) => ({
 
 
 export default function Search() {
+    const { t } = useTranslation();
     //Module to show the search page
     const { opt } = useParams();
 
-    const pageTitle = `Search ${opt ?? ''} - AdondeVamos`;
+    const searchType = opt === 'Trips' ? t('navigation.trips').toLocaleLowerCase() : t('navigation.places').toLocaleLowerCase();
+    const pageTitle = t('search.pageTitle', { type: searchType });
     useSeoMeta({
         title: pageTitle,
-        description: `Search for ${opt === 'Trips' ? 'travel trips' : 'places'} on AdondeVamos.`,
+        description: t('search.pageDescription', { type: searchType }),
         ogTitle: pageTitle,
     });
 
@@ -147,7 +150,7 @@ export default function Search() {
                                     color: '#FFFFFF'
                                 }}
                             >
-                                Trip Filters
+                                {t('search.tripFilters')}
                             </PixelTypography>
                         </StyledFiltersHeader>
                         <StyledFiltersContent>
@@ -170,7 +173,7 @@ export default function Search() {
                                     color: '#FFFFFF'
                                 }}
                             >
-                                Place Filters
+                                {t('search.placeFilters')}
                             </PixelTypography>
                         </StyledFiltersHeader>
                         <StyledFiltersContent>
@@ -262,10 +265,10 @@ export default function Search() {
         
         if (!result.success) {
             if (result.error.status === 404) {
-                setSnackbar({ open: true, message: 'No trips found', severity: 'info' });
+                setSnackbar({ open: true, message: t('search.noTripsFound'), severity: 'info' });
             } else {
                 console.error("Error searching trips:", result.error);
-                setSnackbar({ open: true, message: 'Error searching trips', severity: 'error' });
+                setSnackbar({ open: true, message: t('search.tripSearchError'), severity: 'error' });
             }
         }
     }
@@ -275,10 +278,10 @@ export default function Search() {
         
         if (!result.success) {
             if (result.error.status === 404) {
-                setSnackbar({ open: true, message: 'No places found', severity: 'info' });
+                setSnackbar({ open: true, message: t('search.noPlacesFound'), severity: 'info' });
             } else {
                 console.error("Error searching places:", result.error);
-                setSnackbar({ open: true, message: 'Error searching places', severity: 'error' });
+                setSnackbar({ open: true, message: t('search.placeSearchError'), severity: 'error' });
             }
         }
     }
@@ -303,7 +306,7 @@ export default function Search() {
                                     lineHeight: 1.4
                                 }}
                             >
-                                Discover {opt}
+                                {t('search.discover', { type: opt === 'Trips' ? t('navigation.trips') : t('navigation.places') })}
                             </PixelTypography>
                         </StyledHeaderContent>
                     </StyledHeaderCard>

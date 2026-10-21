@@ -4,7 +4,7 @@ import { Box, IconButton, Menu, MenuItem,
     Tooltip, Avatar, Typography } from '@mui/material';
 import { Person } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 export default function UserProfileAvatar({ settings }) {
     const { t } = useTranslation();

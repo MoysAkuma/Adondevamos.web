@@ -5,6 +5,7 @@ import { useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useTranslation } from 'react-i18next';
 
 interface RetroProps {
   $retro?: boolean;
@@ -130,6 +131,7 @@ function MapView({
   showControls = true,
   retroStyle = false
 }) {
+  const { t } = useTranslation();
   const [currentZoom, setCurrentZoom] = useState(zoom);
   const mapRef = useRef(null);
 
@@ -179,7 +181,7 @@ function MapView({
         }}
       >
         <Typography variant="body2" color="text.secondary">
-          No valid coordinates available
+          {t('common.noCoordinates')}
         </Typography>
       </Box>
     );
@@ -251,7 +253,7 @@ function MapView({
               flexDirection: 'column',
             }}
           >
-            <Tooltip title="Zoom In" arrow placement="left">
+            <Tooltip title={t('common.zoomIn')} arrow placement="left">
               <StyledIconButton 
                 size="small" 
                 onClick={handleZoomIn}
@@ -260,7 +262,7 @@ function MapView({
                 <ZoomIn fontSize="small" />
               </StyledIconButton>
             </Tooltip>
-            <Tooltip title="Zoom Out" arrow placement="left">
+            <Tooltip title={t('common.zoomOut')} arrow placement="left">
               <StyledIconButton 
                 size="small" 
                 onClick={handleZoomOut}
@@ -269,7 +271,7 @@ function MapView({
                 <ZoomOut fontSize="small" />
               </StyledIconButton>
             </Tooltip>
-            <Tooltip title="Recenter" arrow placement="left">
+            <Tooltip title={t('common.recenter')} arrow placement="left">
               <StyledIconButton 
                 size="small" 
                 onClick={handleRecenter}

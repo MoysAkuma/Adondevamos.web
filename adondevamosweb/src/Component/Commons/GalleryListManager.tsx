@@ -20,6 +20,7 @@ import {
 } from '@mui/material';
 import { Delete, Visibility, Close, Star, Edit } from '@mui/icons-material';
 import ImageUploader from './ImageUploader';
+import { useTranslation } from 'react-i18next';
 
 const GalleryListManager = ({
     items = [],
@@ -35,6 +36,7 @@ const GalleryListManager = ({
     enableImageMetadata = false,
     metadataPlaceOptions = []
 }) => {
+    const { t } = useTranslation();
     const [previewOpen, setPreviewOpen] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
     const [confirmOpen, setConfirmOpen] = useState(false);
@@ -114,7 +116,7 @@ const GalleryListManager = ({
         if (onSetCover) {
             onSetCover(itemIdOrIndex, autoSet);
             if (!autoSet) {
-                setSnackbarMessage('Cover image set successfully!');
+                setSnackbarMessage(t('common.coverSet'));
                 setSnackbarOpen(true);
             }
         }
@@ -252,7 +254,7 @@ const GalleryListManager = ({
     const getPlaceName = (placeId) => {
         const normalizedPlaceId = Number(placeId);
         const match = metadataPlaceOptions.find((option) => Number(option.id) === normalizedPlaceId);
-        return match?.name || `Place ${placeId}`;
+        return match?.name || t('common.placeNumber', { id: placeId });
     };
 
     const handleOpenMetadataModal = (image, index, isPending) => {
@@ -262,7 +264,7 @@ const GalleryListManager = ({
             placeid: image.placeid ?? '',
             captureddate: normalizeCapturedDate(image.captureddate),
             descripcion: image.descripcion || '',
-            title: isPending ? `Pending IMG ${items.length + index + 1}` : `IMG ${index + 1}`
+            title: isPending ? t('common.pendingImage', { index: items.length + index + 1 }) : `IMG ${index + 1}`
         });
         setMetadataDialogOpen(true);
     };
@@ -342,7 +344,7 @@ const GalleryListManager = ({
         const isCover = isPending ? coverImageIndex === index : coverImageId === item.id;
         const imageSource = item.completeurl || item.url || item.preview || item.data;
         const imageTitle = (item.descripcion && String(item.descripcion).trim())
-            || (isPending ? `Pending image ${totalExistingCount + index + 1}` : 'Without description');
+            || (isPending ? t('common.pendingImage', { index: totalExistingCount + index + 1 }) : t('common.withoutDescription'));
 
         return (
             <Paper
@@ -391,12 +393,12 @@ const GalleryListManager = ({
                             px: 0.5
                         }}
                     >
-                        <IconButton aria-label="view" onClick={() => handlePreview(item)} size="small" sx={{ color: '#fff' }}>
+                        <IconButton aria-label={t('common.view')} onClick={() => handlePreview(item)} size="small" sx={{ color: '#fff' }}>
                             <Visibility fontSize="small" />
                         </IconButton>
                         {enableImageMetadata && (
                             <IconButton
-                                aria-label="edit"
+                                aria-label={t('common.edit')}
                                 onClick={() => handleOpenMetadataModal(item, index, isPending)}
                                 size="small"
                                 sx={{ color: '#ffd27d' }}
@@ -405,7 +407,7 @@ const GalleryListManager = ({
                             </IconButton>
                         )}
                         {!isPending && (
-                            <IconButton aria-label="delete" onClick={() => handleRemove(item)} size="small" sx={{ color: '#ffb4b4' }}>
+                            <IconButton aria-label={t('common.delete')} onClick={() => handleRemove(item)} size="small" sx={{ color: '#ffb4b4' }}>
                                 <Delete fontSize="small" />
                             </IconButton>
                         )}
@@ -416,19 +418,19 @@ const GalleryListManager = ({
                     <Typography variant="subtitle2">{imageTitle}</Typography>
                     {isPending && (
                         <Typography variant="caption" color="text.secondary">
-                            Not uploaded yet
+                            {t('common.notUploaded')}
                         </Typography>
                     )}
                     {!isPending && (item.descripcion || item.placeid !== null && item.placeid !== undefined && item.placeid !== '') && (
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                            {item.placeid !== null && item.placeid !== undefined && item.placeid !== '' ? `Place: ${getPlaceName(item.placeid)}. ` : ''}
-                            {item.captureddate ? `Date: ${item.captureddate}` : ''}
+                            {item.placeid !== null && item.placeid !== undefined && item.placeid !== '' ? `${t('common.placeInfo', { place: getPlaceName(item.placeid) })}. ` : ''}
+                            {item.captureddate ? t('common.dateInfo', { date: item.captureddate }) : ''}
                         </Typography>
                     )}
                     {isCover && (
                         <Chip
                             icon={<Star />}
-                            label="Cover"
+                            label={t('common.cover')}
                             color="warning"
                             size="small"
                             sx={{ mt: 1 }}
@@ -443,7 +445,7 @@ const GalleryListManager = ({
     return (
         <>
             <Typography variant="h6" gutterBottom>
-                Gallery
+                {t('common.gallery')}
             </Typography>
             <Box
                 sx={{
@@ -465,14 +467,14 @@ const GalleryListManager = ({
             {showUploader && (
                 <>
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-                        Double-click any image to set as cover
+                        {t('common.doubleClickCover')}
                     </Typography>
                     <Button
                         variant="outlined"
                         onClick={() => setUploaderOpen((prev) => !prev)}
                         sx={{ mb: 1 }}
                     >
-                        {uploaderOpen ? 'Hide uploader' : 'Add image'}
+                        {uploaderOpen ? t('common.hideUploader') : t('common.addImage')}
                     </Button>
                     {uploaderOpen && (
                         <ImageUploader
@@ -497,7 +499,7 @@ const GalleryListManager = ({
             >
                 <DialogContent sx={{ p: 0, position: 'relative' }}>
                     <IconButton
-                        aria-label="close"
+                    aria-label={t('common.close')}
                         onClick={handleClosePreview}
                         sx={{
                             position: 'absolute',
@@ -531,16 +533,16 @@ const GalleryListManager = ({
                         <Typography variant="body2">{selectedImage?.filename}</Typography>
                         {selectedImage?.placeid !== null && selectedImage?.placeid !== undefined && selectedImage?.placeid !== '' && (
                             <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                                Place: {getPlaceName(selectedImage.placeid)}
+                                {t('common.placeInfo', { place: getPlaceName(selectedImage.placeid) })}
                             </Typography>
                         )}
                         {normalizeCapturedDate(selectedImage?.captureddate) && (
                             <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                                Captured: {normalizeCapturedDate(selectedImage?.captureddate)}
+                                {t('common.capturedInfo', { date: normalizeCapturedDate(selectedImage?.captureddate) })}
                             </Typography>
                         )}
                     </Box>
-                    <Button onClick={handleClosePreview}>Close</Button>
+                    <Button onClick={handleClosePreview}>{t('common.close')}</Button>
                 </DialogActions>
             </Dialog>
 
@@ -553,18 +555,18 @@ const GalleryListManager = ({
             >
                 <DialogContent>
                     <Typography variant="h6" gutterBottom>
-                        Remove Image
+                        {t('common.removeImage')}
                     </Typography>
                     <Typography variant="body1">
-                        Want to remove {itemToRemove?.filename}?
+                        {t('common.removeImageConfirm', { filename: itemToRemove?.filename })}
                     </Typography>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCancelRemove} color="inherit">
-                        Cancel
+                        {t('common.cancel')}
                     </Button>
                     <Button onClick={handleConfirmRemove} color="error" variant="contained">
-                        Remove
+                        {t('common.remove')}
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -575,7 +577,7 @@ const GalleryListManager = ({
                 maxWidth="sm"
                 fullWidth
             >
-                <DialogTitle>Edit image info</DialogTitle>
+                <DialogTitle>{t('common.editImageInfo')}</DialogTitle>
                 <DialogContent>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                         {metadataDraft.title}
@@ -584,11 +586,11 @@ const GalleryListManager = ({
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                         {shouldShowPlaceSelector && (
                             <FormControl fullWidth size="small">
-                                <InputLabel id="metadata-place-label">Place</InputLabel>
+                                <InputLabel id="metadata-place-label">{t('common.place')}</InputLabel>
                                 <Select
                                     labelId="metadata-place-label"
                                     value={metadataDraft.placeid}
-                                    label="Place"
+                                    label={t('common.place')}
                                     onChange={(event) => {
                                         const selectedPlace = metadataPlaceOptions.find(
                                             (option) => String(option.id) === String(event.target.value)
@@ -602,7 +604,7 @@ const GalleryListManager = ({
                                     }}
                                 >
                                     <MenuItem value="">
-                                        <em>Without place</em>
+                                        <em>{t('common.withoutPlace')}</em>
                                     </MenuItem>
                                     {metadataPlaceOptions.map((option) => (
                                         <MenuItem key={option.id} value={option.id}>
@@ -615,7 +617,7 @@ const GalleryListManager = ({
 
                         <TextField
                             size="small"
-                            label="Captured date"
+                            label={t('common.capturedDate')}
                             type="date"
                             value={metadataDraft.captureddate}
                             onChange={(event) => {
@@ -629,7 +631,7 @@ const GalleryListManager = ({
 
                         <TextField
                             size="small"
-                            label="Description"
+                            label={t('common.description')}
                             value={metadataDraft.descripcion}
                             onChange={(event) => {
                                 setMetadataDraft((prev) => ({
@@ -637,7 +639,7 @@ const GalleryListManager = ({
                                     descripcion: event.target.value
                                 }));
                             }}
-                            placeholder="Add a short description"
+                            placeholder={t('common.shortDescription')}
                             multiline
                             minRows={2}
                         />
@@ -645,10 +647,10 @@ const GalleryListManager = ({
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseMetadataModal} color="inherit">
-                        Cancel
+                        {t('common.cancel')}
                     </Button>
                     <Button onClick={handleSaveMetadataModal} variant="contained">
-                        Save
+                        {t('common.save')}
                     </Button>
                 </DialogActions>
             </Dialog>

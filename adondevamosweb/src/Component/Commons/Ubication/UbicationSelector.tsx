@@ -9,6 +9,7 @@ import {
     FormHelperText
 } from '@mui/material';
 import { LocationOn } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 
 /**
  * UbicationSelector - A reusable component for selecting Country, State, and City
@@ -33,6 +34,7 @@ function UbicationSelector({
     showIcon = true,
     error = null
 }) {
+    const { t } = useTranslation();
     const [catCountries, setCatCountries] = useState([]);
     const [catStates, setCatStates] = useState([]);
     const [catCities, setCatCities] = useState([]);
@@ -100,7 +102,7 @@ function UbicationSelector({
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     {showIcon && <LocationOn color="action" />}
                     <Typography variant="h6" component="h6">
-                        Location
+                        {t('common.location')}
                     </Typography>
                 </Box>
             )}
@@ -113,17 +115,17 @@ function UbicationSelector({
                 variant={variant}
                 error={error?.country}
             >
-                <InputLabel id="country-label">Country</InputLabel>
+                <InputLabel id="country-label">{t('common.country')}</InputLabel>
                 <Select
                     labelId="country-label"
                     id="countryid"
                     name="countryid"
                     value={selectedValues.countryid || ''}
                     onChange={handleCountryChange}
-                    label="Country"
+                    label={t('common.country')}
                 >
                     <MenuItem value="">
-                        <em>Select a country</em>
+                        <em>{t('common.selectCountry')}</em>
                     </MenuItem>
                     {catCountries.map((country) => (
                         <MenuItem key={country.id} value={country.id}>
@@ -145,17 +147,17 @@ function UbicationSelector({
                     variant={variant}
                     error={error?.state}
                 >
-                    <InputLabel id="state-label">State</InputLabel>
+                    <InputLabel id="state-label">{t('common.state')}</InputLabel>
                     <Select
                         labelId="state-label"
                         id="stateid"
                         name="stateid"
                         value={selectedValues.stateid || ''}
                         onChange={handleStateChange}
-                        label="State"
+                        label={t('common.state')}
                     >
                         <MenuItem value="">
-                            <em>Select a state</em>
+                            <em>{t('common.selectState')}</em>
                         </MenuItem>
                         {catStates.map((state) => (
                             <MenuItem key={state.id} value={state.id}>
@@ -169,7 +171,7 @@ function UbicationSelector({
                 </FormControl>
             ) : selectedValues.countryid ? (
                 <Typography variant="body2" color="text.secondary" sx={{ pl: 2 }}>
-                    No states available for selected country
+                    {t('common.noStates')}
                 </Typography>
             ) : null}
 
@@ -182,17 +184,17 @@ function UbicationSelector({
                     variant={variant}
                     error={error?.city}
                 >
-                    <InputLabel id="city-label">City</InputLabel>
+                    <InputLabel id="city-label">{t('common.city')}</InputLabel>
                     <Select
                         labelId="city-label"
                         id="cityid"
                         name="cityid"
                         value={selectedValues.cityid || ''}
                         onChange={handleCityChange}
-                        label="City"
+                        label={t('common.city')}
                     >
                         <MenuItem value="">
-                            <em>Select a city</em>
+                            <em>{t('common.selectCity')}</em>
                         </MenuItem>
                         {catCities.map((city) => (
                             <MenuItem key={city.id} value={city.id}>
@@ -206,7 +208,7 @@ function UbicationSelector({
                 </FormControl>
             ) : selectedValues.stateid ? (
                 <Typography variant="body2" color="text.secondary" sx={{ pl: 2 }}>
-                    No cities available for selected state
+                    {t('common.noCities')}
                 </Typography>
             ) : null}
         </Box>
