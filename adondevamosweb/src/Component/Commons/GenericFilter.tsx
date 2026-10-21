@@ -26,6 +26,7 @@ import {
     Divider,
     Tooltip
 } from "@mui/material";
+import { useTranslation } from 'react-i18next';
 
 /**
  * Generic reusable filter component
@@ -48,10 +49,12 @@ import {
 function GenericFilter({
     onSearch,
     filterConfig = [],
-    title = "Filters",
+    title,
     defaultExpanded = false,
     showAuthFilters = false
 }) {
+    const { t } = useTranslation();
+    const filterTitle = title ?? t('common.filters');
     // Initialize filters and state from config
     const initializeState = () => {
         const state = {};
@@ -224,7 +227,7 @@ function GenericFilter({
                         }
                     >
                         <MenuItem value="">
-                            <em>Select {label}</em>
+                            <em>{t('common.selectOption', { label })}</em>
                         </MenuItem>
                         {selectOptions.map((option) => (
                             <MenuItem key={option.id || option.value} value={option.id || option.value}>
@@ -314,7 +317,7 @@ function GenericFilter({
                             field.includes("date") ? 
                                 formatDate(selectedFilters[field]) :
                             type === "checkbox" && !options?.length ?
-                                (selectedFilters[field] ? "Yes" : "No") :
+                                (selectedFilters[field] ? t('common.yes') : t('common.no')) :
                             Array.isArray(selectedFilters[field]) && selectedFilters[field].length > 0 ?
                                 selectedFilters[field].map((val) => {
                                     const opt = selectOptions.find(o => (o.id || o.value) === val);
@@ -328,7 +331,7 @@ function GenericFilter({
                                 selectedFilters[field]
                         ) : (
                             <span> 
-                                None 
+                                {t('common.none')}
                             </span>
                         )}
                         <IconButton 
@@ -355,14 +358,14 @@ function GenericFilter({
     return (
         <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Typography variant="h6">{title}</Typography>
+                <Typography variant="h6">{filterTitle}</Typography>
                 <IconButton 
                     onClick={() => setShowFilters(!showFilters)}
                     size="small"
                 >
                     {showFilters ? 
                         <ExpandLess /> : 
-                        <Tooltip title="Show Filters"><ExpandMore /></Tooltip>
+                        <Tooltip title={t('common.showFilters')}><ExpandMore /></Tooltip>
                     }
                 </IconButton>
             </Box>
@@ -399,7 +402,7 @@ function GenericFilter({
                         onSearch(filters);
                     }} 
                 >
-                    {filtered ? "Search with Filters" : "Search"}
+                    {filtered ? t('common.searchWithFilters') : t('common.search')}
                 </Button>
                 <Button 
                     variant="outlined"  
@@ -409,7 +412,7 @@ function GenericFilter({
                         clearFilters(); 
                     }}
                 >
-                    Clear
+                    {t('common.clear')}
                 </Button>
             </ButtonGroup>
         </Paper>

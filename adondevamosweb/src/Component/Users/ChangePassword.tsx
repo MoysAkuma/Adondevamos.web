@@ -12,8 +12,10 @@ import {
 import { Close } from '@mui/icons-material';
 import config from '../../Resources/config';
 import SnackbarNotification from '../Commons/SnackbarNotification';
+import { useTranslation } from 'react-i18next';
 
 const ChangePassword = ({ userId }) => {
+    const { t } = useTranslation();
     const [openModal, setOpenModal] = useState(false);
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
@@ -41,12 +43,12 @@ const ChangePassword = ({ userId }) => {
     const handleSubmit = async () => {
         // Validate that new password and confirm password match
         if (newPassword !== confirmPassword) {
-            setError('New password and confirmation password do not match');
+            setError(t('users.passwordsDontMatch'));
             return;
         }
 
         if (!currentPassword || !newPassword || !confirmPassword) {
-            setError('All fields are required');
+            setError(t('users.allFieldsRequired'));
             return;
         }
 
@@ -69,7 +71,7 @@ const ChangePassword = ({ userId }) => {
                 setSubmitSuccess(true);
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Failed to change password');
+            setError(err.response?.data?.message || t('users.changePasswordFailed'));
         } finally {
             setIsSubmitting(false);
         }
@@ -94,13 +96,13 @@ const ChangePassword = ({ userId }) => {
                 onClick={handleOpenModal}
                 color="primary"
             >
-                Change Password
+                {t('users.changePassword')}
             </Button>
 
             <SnackbarNotification
             open={submitSuccess}
             onClose={() => setSubmitSuccess(false)}
-            message={"Password changed successfully!"}
+            message={t('users.passwordChanged')}
             severity="success"
             />
 
@@ -113,7 +115,7 @@ const ChangePassword = ({ userId }) => {
                 <Box sx={modalStyle}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                         <Typography id="change-password-modal-title" variant="h6" component="h2">
-                            Change Password
+                            {t('users.changePassword')}
                         </Typography>
                         <IconButton onClick={handleCloseModal} size="small">
                             <Close />
@@ -129,7 +131,7 @@ const ChangePassword = ({ userId }) => {
                     <TextField
                         fullWidth
                         type="password"
-                        label="Current Password"
+                        label={t('users.currentPassword')}
                         value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
                         margin="normal"
@@ -139,7 +141,7 @@ const ChangePassword = ({ userId }) => {
                     <TextField
                         fullWidth
                         type="password"
-                        label="New Password"
+                        label={t('users.newPassword')}
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
                         margin="normal"
@@ -149,7 +151,7 @@ const ChangePassword = ({ userId }) => {
                     <TextField
                         fullWidth
                         type="password"
-                        label="Confirm New Password"
+                        label={t('users.confirmNewPassword')}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         margin="normal"
@@ -157,7 +159,7 @@ const ChangePassword = ({ userId }) => {
                         error={confirmPassword && newPassword !== confirmPassword}
                         helperText={
                             confirmPassword && newPassword !== confirmPassword 
-                                ? 'Passwords do not match' 
+                                ? t('users.passwordsDoNotMatch')
                                 : ''
                         }
                     />
@@ -168,7 +170,7 @@ const ChangePassword = ({ userId }) => {
                             variant="outlined"
                             disabled={isSubmitting}
                         >
-                            Cancel
+                            {t('common.cancel')}
                         </Button>
                         <Button 
                             onClick={handleSubmit} 
@@ -176,7 +178,7 @@ const ChangePassword = ({ userId }) => {
                             color="primary"
                             disabled={isSubmitting || !currentPassword || !newPassword || !confirmPassword}
                         >
-                            {isSubmitting ? 'Changing...' : 'Change Password'}
+                            {isSubmitting ? t('users.changingPassword') : t('users.changePassword')}
                         </Button>
                     </Box>
                 </Box>

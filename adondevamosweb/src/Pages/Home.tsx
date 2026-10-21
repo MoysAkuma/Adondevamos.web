@@ -17,13 +17,15 @@ import {
   PixelButton,
 } from '../Css/pixel.styles';
 import { StyledStepCard, StyledAvatar } from '../Css/Home.styles';
+import { useTranslation } from 'react-i18next';
 
 function Home() {
+  const { t } = useTranslation();
   useSeoMeta({
-    title: 'AdondeVamos - Plan and Share Travel Itineraries',
-    description: 'Discover, create, and share travel itineraries and places with AdondeVamos.',
-    ogTitle: 'AdondeVamos - Plan and Share Travel Itineraries',
-    ogDescription: 'Discover, create, and share travel itineraries and places with AdondeVamos.',
+    title: t('home.pageTitle', 'AdondeVamos - Plan and Share Travel Itineraries'),
+    description: t('home.pageDescription', 'Discover, create, and share travel itineraries and places with AdondeVamos.'),
+    ogTitle: t('home.pageTitle', 'AdondeVamos - Plan and Share Travel Itineraries'),
+    ogDescription: t('home.pageDescription', 'Discover, create, and share travel itineraries and places with AdondeVamos.'),
     ogType: 'website',
   });
   const theme = useTheme();
@@ -54,7 +56,7 @@ function Home() {
                   mt: 1,
               }}
           >
-             Share your travel plans and discover new places with friends.
+             {t('home.description')}
           </PixelTypography>
           </StyledHeaderContent>
 
@@ -69,7 +71,7 @@ function Home() {
                     color: '#FFFFFF'
                 }}
             >
-                What is Adondevamos?
+                {t('home.whatIs')}
             </PixelTypography>
           </StyledSectionHeader>
           <StyledSectionContent>
@@ -81,7 +83,7 @@ function Home() {
                     lineHeight: 1.6
                 }}
             >
-                AdondeVamos is a platform designed to help you plan trips with your friends by allowing everyone to suggest and vote on places to visit.
+                {t('home.about')}
             </PixelTypography>
           </StyledSectionContent>
         </StyledSectionCard>
@@ -94,7 +96,7 @@ function Home() {
                     color: '#FFFFFF'
                 }}
             >
-                Where do you want to go today?
+                {t('home.whereToGo')}
             </PixelTypography>
           </StyledSectionHeader>
           <StyledSectionContent>
@@ -105,7 +107,7 @@ function Home() {
                 to="/Trips"
                 fullWidth
               >
-                Explore Trips
+                {t('home.exploreTrips')}
               </PixelButton>
 
               <PixelButton
@@ -114,7 +116,7 @@ function Home() {
                 to="/Places"
                 fullWidth
               >
-                Explore Places
+                {t('home.explorePlaces')}
               </PixelButton>
             </Box>
           </StyledSectionContent>
@@ -129,7 +131,7 @@ function Home() {
                     color: '#FFFFFF'
                 }}
             >
-                How to use it?
+                {t('home.howToUse')}
             </PixelTypography>
           </StyledSectionHeader>
           <StyledSectionContent>
@@ -137,8 +139,8 @@ function Home() {
               <Grid size={{ xs: 12, sm: 6 }}>
                 <StepCard
                   icon={FlightTakeoff}
-                  title="Add your trip"
-                  subtitle="You just need a cool name"
+                  title={t('home.addTrip')}
+                  subtitle={t('home.tripHint')}
                   cardColor="#F5F5F5"
                   avatarColor="#4A4A4A"
                 />
@@ -146,8 +148,8 @@ function Home() {
               <Grid size={{ xs: 12, sm: 6 }}>
                 <StepCard
                   icon={AccountCircle}
-                  title="Add your friends"
-                  subtitle="Invite others to join the plan"
+                  title={t('home.addFriends')}
+                  subtitle={t('home.friendsHint')}
                   cardColor="#E8E8E8"
                   avatarColor="#6B6B6B"
                 />
@@ -155,8 +157,8 @@ function Home() {
               <Grid size={{ xs: 12, sm: 6 }}>
                 <StepCard
                   icon={AddLocation}
-                  title="Add places"
-                  subtitle="Add places you want to visit"
+                  title={t('home.addPlaces')}
+                  subtitle={t('home.placesHint')}
                   cardColor="#DCDCDC"
                   avatarColor="#808080"
                 />
@@ -164,8 +166,8 @@ function Home() {
               <Grid size={{ xs: 12, sm: 6 }}>
                 <StepCard
                   icon={Favorite}
-                  title="Vote"
-                  subtitle="Vote and decide where to go"
+                  title={t('home.vote')}
+                  subtitle={t('home.voteHint')}
                   cardColor="#D3D3D3"
                   avatarColor="#2F2F2F"
                 />
@@ -183,7 +185,7 @@ function Home() {
                     color: '#FFFFFF'
                 }}
             >
-              The trip that changed my life
+              {t('home.featuredTitle')}
             </PixelTypography>
           </StyledSectionHeader>
           <StyledSectionContent>
@@ -196,7 +198,7 @@ function Home() {
                     lineHeight: 1.6
                 }}
             >
-              Main reason to create AdondeVamos
+              {t('home.featuredSubtitle')}
             </PixelTypography>
             <MushaShugyo />
           </StyledSectionContent>

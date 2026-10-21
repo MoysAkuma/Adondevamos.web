@@ -2,8 +2,10 @@ import React from 'react';
 import { Box, CircularProgress, Alert, AlertTitle } from '@mui/material';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from "../../context/AuthContext";
+import { useTranslation } from 'react-i18next';
 
 const ProtectedRoute = ({ children, requiredRole = undefined, requiredPermission = undefined }) => {
+  const { t } = useTranslation();
   const { isLogged, loading, hasRole, hasPermission, authError } = useAuth();
   const location = useLocation();
 
@@ -41,8 +43,8 @@ const ProtectedRoute = ({ children, requiredRole = undefined, requiredPermission
         }}
       >
         <Alert severity="error">
-          <AlertTitle>Access Denied</AlertTitle>
-          You don't have permission to access this page. Required role: {requiredRole}
+          <AlertTitle>{t('common.accessDenied')}</AlertTitle>
+          {t('common.requiredRole', { role: requiredRole })}
         </Alert>
       </Box>
     );
@@ -61,8 +63,8 @@ const ProtectedRoute = ({ children, requiredRole = undefined, requiredPermission
         }}
       >
         <Alert severity="error">
-          <AlertTitle>Access Denied</AlertTitle>
-          You don't have the required permission to access this page.
+          <AlertTitle>{t('common.accessDenied')}</AlertTitle>
+          {t('common.requiredPermission')}
         </Alert>
       </Box>
     );
@@ -81,7 +83,7 @@ const ProtectedRoute = ({ children, requiredRole = undefined, requiredPermission
         }}
       >
         <Alert severity="warning">
-          <AlertTitle>Authentication Warning</AlertTitle>
+          <AlertTitle>{t('common.authenticationWarning')}</AlertTitle>
           {authError}
         </Alert>
       </Box>

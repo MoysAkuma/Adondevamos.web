@@ -29,12 +29,14 @@ import {
   LoginButton,
   PixelTextField,
 } from '../Css/Login.styles';
+import { useTranslation } from 'react-i18next';
 
 function Login(){
+    const { t } = useTranslation();
     useSeoMeta({
-        title: 'Login - AdondeVamos',
-        description: 'Sign in to your AdondeVamos account to manage trips and places.',
-        ogTitle: 'Login - AdondeVamos',
+        title: t('auth.loginTitle'),
+        description: t('auth.loginDescription'),
+        ogTitle: t('auth.loginTitle'),
     });
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -99,14 +101,14 @@ function Login(){
             //Validate email or tag
             if (!formLogIn.email.trim()) {
                 setErrors(prev => ({ ...prev, login: true }));
-                setSubmitError('User email or tag is required');
-                showSnackbar('User email or tag is required', 'warning');
+                setSubmitError(t('auth.emailRequired'));
+                showSnackbar(t('auth.emailRequired'), 'warning');
                 return;
             }
             if (!formLogIn.password.trim()) {
                 setErrors(prev => ({ ...prev, login: true }));
-                setSubmitError('Password is required');
-                showSnackbar('Password is required', 'warning');
+                setSubmitError(t('auth.passwordRequired'));
+                showSnackbar(t('auth.passwordRequired'), 'warning');
                 return;
             }
             
@@ -118,19 +120,19 @@ function Login(){
             
             if(response.success){
                 setSubmitSuccess(true);
-                showSnackbar('Login successful', 'success');
+                showSnackbar(t('auth.loginSuccess'), 'success');
                 // Redirect to the page they tried to visit or home
                 navigate(from, { replace: true });
             } else {
                 setErrors(prev => ({ ...prev, login: true }));
-                const message = response.message || 'Login failed. Please check your credentials.';
+                const message = response.message || t('auth.loginFailed');
                 setSubmitError(message);
                 showSnackbar(message, 'error');
             }
         }
         catch(err){
             setErrors(prev => ({ ...prev, login: true }));
-            const message = err?.response?.data?.message || err?.message || 'Unexpected error during login';
+            const message = err?.response?.data?.message || err?.message || t('auth.unexpectedLoginError');
             setSubmitError(message);
             showSnackbar(message, 'error');
         } 
@@ -185,7 +187,7 @@ function Login(){
                                 lineHeight: 1.6
                             }}
                         >
-                            Log in to your account
+                            {t('auth.loginHeading')}
                         </PixelTypography>
                     </StyledHeaderContent>
                 </StyledHeaderCard>
@@ -205,8 +207,8 @@ function Login(){
                             <PixelTextField
                                 id="email"
                                 name="email"
-                                label="Email or Tag"
-                                placeholder="Enter your email or tag"
+                                label={t('auth.emailOrTag')}
+                                placeholder={t('auth.enterEmailOrTag')}
                                 variant="outlined"
                                 onChange={handleChange}
                                 size={isMobile ? 'small' : 'medium'}
@@ -227,9 +229,9 @@ function Login(){
                             <PixelTextField
                                 id="password"
                                 name="password"
-                                label="Password"
+                                label={t('auth.password')}
                                 type={showPassword ? 'text' : 'password'}
-                                placeholder="Enter your password"
+                                placeholder={t('auth.enterPassword')}
                                 variant="outlined"
                                 onChange={handleChange}
                                 size={isMobile ? 'small' : 'medium'}
@@ -242,7 +244,7 @@ function Login(){
                                             <InputAdornment position="end">
                                                 <IconButton
                                                     aria-label={
-                                                        showPassword ? 'hide the password' : 'display the password'
+                                                        showPassword ? t('auth.hidePassword') : t('auth.showPassword')
                                                     }
                                                     onClick={handleClickShowPassword}
                                                     edge="end"
@@ -271,7 +273,7 @@ function Login(){
                                     '&:disabled': { backgroundColor: '#95a5a6', color: '#FFFFFF' },
                                 }}
                             >
-                                {isSubmitting ? 'Loading...' : 'Log In'}
+                                {isSubmitting ? t('auth.loading') : t('auth.logIn')}
                             </Button>
                         </Box>
                         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
@@ -292,7 +294,7 @@ function Login(){
                                         px: 2
                                     }}
                                 >
-                                    Don't have an account?
+                                    {t('auth.noAccount')}
                                 </Typography>
                             </Divider>
                             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
@@ -312,7 +314,7 @@ function Login(){
                                         '&:hover': { backgroundColor: '#40916C' },
                                     }}
                                 >
-                                    Create Account
+                                    {t('auth.createAccount')}
                                 </Button>
                             </Box>
                             

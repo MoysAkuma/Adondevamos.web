@@ -21,12 +21,14 @@ import CitiesManager from '../Component/ManagmentSite/CitiesManager';
 import CenteredTemplate from '../Component/Commons/CenteredTemplate'
 import { useAuth } from '../context/AuthContext';
 import useCatalogues from '../hooks/useCatalogues';
+import { useTranslation } from 'react-i18next';
 
  function ManageSite(){
+    const { t } = useTranslation();
     useSeoMeta({
-        title: 'Manage Site - AdondeVamos',
-        description: 'Admin panel to manage countries, states, cities and facilities.',
-        ogTitle: 'Manage Site - AdondeVamos',
+        title: t('admin.pageTitle'),
+        description: t('admin.pageDescription'),
+        ogTitle: t('admin.pageTitle'),
     });
     const auth = useAuth();
     const theme = useTheme();
@@ -77,14 +79,14 @@ import useCatalogues from '../hooks/useCatalogues';
     return (
         <CenteredTemplate>
             <Typography variant="h4" component="h1" gutterBottom align="center">
-                Site Management
+                {t('admin.siteManagement')}
             </Typography>
             <Typography variant="body1" component="p" gutterBottom align="center" sx={{ mb: 4 }}>
-                Welcome, {auth.usertag} 
+                {t('admin.welcome', { name: auth.usertag })}
             </Typography>
 
             <Typography variant="h6" component="h1" gutterBottom align="center">
-                Catalogues
+                {t('admin.catalogues')}
             </Typography>
             <Box sx={{ width: '100%', mt: 2, align: 'center', mb: 4 }}>
                 <Tabs
@@ -92,12 +94,12 @@ import useCatalogues from '../hooks/useCatalogues';
                     variant={isMobile ? "scrollable" : "standard"}
                     onChange={handleTabChange}
                     centered={true}
-                    aria-label="Catalogue management tabs"
+                    aria-label={t('admin.catalogueTabs')}
                 >
-                    <Tab label="Countries" value={0} />
-                    <Tab label="States" value={1} />
-                    <Tab label="Cities" value={2} />
-                    <Tab label="Facilities" value={3} />
+                    <Tab label={t('admin.countries')} value={0} />
+                    <Tab label={t('admin.states')} value={1} />
+                    <Tab label={t('admin.cities')} value={2} />
+                    <Tab label={t('admin.facilities')} value={3} />
                 </Tabs>
                 {
                     tabValue === 0 && <CountryManager 

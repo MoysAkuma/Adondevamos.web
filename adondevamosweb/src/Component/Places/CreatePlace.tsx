@@ -25,6 +25,7 @@ import { useAuth } from "../../context/AuthContext";
 import useGalleryUpload from '../../hooks/useGalleryUpload';
 import usePlaceMutationApi from '../../hooks/Places/usePlaceMutationApi';
 import usePlaceDetailsApi from '../../hooks/Places/usePlaceDetailsApi';
+import { useTranslation } from 'react-i18next';
 
 function CreatePlace({
   catCountries,
@@ -32,6 +33,7 @@ function CreatePlace({
     catCities,
     catFacilities
 }) {
+  const { t } = useTranslation();
   const { isLogged, loading: authLoading, hasPermission } = useAuth();
   const { uploadImages, isUploading } = useGalleryUpload();
   const { createPlace } = usePlaceMutationApi();
@@ -96,32 +98,32 @@ function CreatePlace({
     try {
       // Validate for field PlaceName
       if (!formCreatePlace.name.trim()) {
-        throw new Error('Place name is required');
+        throw new Error(t('places.nameRequired'));
       }
 
       // Validate for field Description
       if (!formCreatePlace.description.trim()) {
-        throw new Error('Place description is required');
+        throw new Error(t('places.descriptionRequired'));
       }
 
       // Validate for field Address
       if (!formCreatePlace.address.trim()) {
-        throw new Error('Place address is required');
+        throw new Error(t('places.addressRequired'));
       }
 
       // Validate for field Country
       if (!formCreatePlace.countryid ) {
-        throw new Error('CountryID is required');
+        throw new Error(t('places.countryRequired'));
       }
 
       // Validate for field State
       if (!formCreatePlace.stateid) {
-        throw new Error('StateID is required');
+        throw new Error(t('places.stateRequired'));
       }
 
       // Validate for field City
       if (!formCreatePlace.cityid) {
-        throw new Error('cityID is required');
+        throw new Error(t('places.cityRequired'));
       }
       
       // API call to create place
@@ -137,7 +139,7 @@ function CreatePlace({
         longitude: formCreatePlace.longitude
       });
       if (response.status === 200 || response.status === 201) {
-        setMessageSnack("Place was created successfully!");
+        setMessageSnack(t('places.wasCreatedSuccessfully'));
         setSubmitSuccess(true);
         
         const placeId = response.data.info?.id;
@@ -171,17 +173,17 @@ function CreatePlace({
               console.log("Upload result:", uploadResult);
               
               if (uploadResult?.uploaded) {
-                setMessageSnack(`Place created! ${uploadResult.count} photo(s) uploaded successfully!`);
+                setMessageSnack(t('places.createdWithPhotos', { count: uploadResult.count }));
               } else {
-                setMessageSnack("Place created but no photos were uploaded.");
+                setMessageSnack(t('places.createdNoPhotos'));
               }
             } catch (uploadError) {
               console.error("Error uploading images:", uploadError);
               console.error("Upload error details:", uploadError.response?.data);
-              setMessageSnack("Place created but image upload failed: " + (uploadError.response?.data?.message || uploadError.message));
+              setMessageSnack(t('places.imageUploadFailed', { message: uploadError.response?.data?.message || uploadError.message }));
             }
           } else {
-            setMessageSnack("Place created successfully!");
+            setMessageSnack(t('places.createdSuccessfully'));
           }
           
           // Navigate to the new place after a short delay
@@ -194,7 +196,7 @@ function CreatePlace({
       
     } catch (error) {
       setSubmitError(error.response?.data?.message || error.message);
-      setMessageSnack(`Error creating place: ${error.message}`);
+      setMessageSnack(t('places.createError', { message: error.message }));
     } finally {
       setIsSubmitting(false);
     }
@@ -254,10 +256,10 @@ function CreatePlace({
 
     try {
       await saveFacilities(placeId, formSaveFacilities, 'post');
-      setMessageSnack("Facilities were saved successfully.");
+      setMessageSnack(t('places.facilitiesSaved'));
     } catch (error) {
       console.error("Error saving facilities", error);
-      setMessageSnack("Error saving facilities.");
+      setMessageSnack(t('places.facilitiesSaveError'));
     }
   };
 
@@ -283,7 +285,7 @@ function CreatePlace({
     return (
       <Box sx={{ p: 3 }}>
         <Typography variant="h6" color="error" align="center">
-          You must be logged in to create a place.
+          {t('places.mustLogin')}
         </Typography>
       </Box>
     );
@@ -293,7 +295,7 @@ function CreatePlace({
     return (
       <Box sx={{ p: 3 }}>
         <Typography variant="h6" color="error" align="center">
-          You don't have permission to create places.
+          {t('places.noPermission')}
         </Typography>
       </Box>
     );
@@ -302,7 +304,7 @@ function CreatePlace({
     <>
       <Typography variant="h6" component="h6" 
       gutterBottom align="center">
-          Create Place
+          {t('places.createTitle')}
       </Typography>
       <Box
         component="form"
@@ -316,14 +318,14 @@ function CreatePlace({
       >
         <Typography variant="h6" component="h6" 
         gutterBottom align="left">
-          Place Info
+          {t('places.info')}
         </Typography>
 
         <TextField
             id="name"
             name="name"
-            label="Name"
-            placeholder="Name of place"
+            label={t('users.name')}
+            placeholder={t('places.namePlaceholder')}
             variant="standard"
             onChange={handleChange}
             size={isMobile ? 'small' : 'medium'}
@@ -336,11 +338,11 @@ function CreatePlace({
           fullWidth
           name="description"
           id="description"
-          label="Description"
+          label={t('users.description')}
           variant="standard"
           multiline
           minRows={3}
-          placeholder="About this place"
+          placeholder={t('places.descriptionPlaceholder')}
           align="left"
           onChange={handleChange}
           value={formCreatePlace.description}
@@ -357,20 +359,20 @@ function CreatePlace({
               }))}
             />
           }
-          label="Is a Public place?"
+          label={t('places.isPublic')}
         />
 
         <Typography variant="h6" component="h6" gutterBottom align="left">
-          Ubication
+          {t('places.locationHeading')}
         </Typography>
 
         <TextField
           fullWidth
           name="address"
           id="address"
-          label="Address"
+          label={t('places.address')}
           variant="standard"
-          placeholder="Address of place"
+          placeholder={t('places.addressPlaceholder')}
           onChange={handleChange}
           value={formCreatePlace.address}
         />
@@ -390,7 +392,7 @@ function CreatePlace({
             /> 
           ) : (
             <Typography variant="caption" color="text.secondary">
-              Please select a country first.
+              {t('places.selectCountryFirst')}
             </Typography>
           )
         }
@@ -404,14 +406,14 @@ function CreatePlace({
             />
           ) : (
             <Typography variant="caption" color="text.secondary">
-              Please select a state first.
+              {t('places.selectStateFirst')}
             </Typography>
           )
         }
                 
         <Typography variant="h6" component="h6" 
           gutterBottom align="left">
-          Location Coordinates
+          {t('places.coordinates')}
         </Typography>
 
         <LocationPicker
@@ -443,7 +445,7 @@ function CreatePlace({
 
         <Typography variant="h6" component="h6" 
           gutterBottom align="left" sx={{ mt: 3 }}>
-          Facilities
+          {t('places.facilities')}
         </Typography>
 
         <Box
@@ -503,7 +505,7 @@ function CreatePlace({
         <SnackbarNotification
           open={submitSuccess}
           onClose={handleSnackbarClose}
-          message={messageSnack || "Place created successfully!"}
+          message={messageSnack || t('places.createdSuccessfully')}
           severity="success"
         />
         
@@ -522,7 +524,7 @@ function CreatePlace({
           fullWidth
           sx={{ mt: 3 }}
         >
-          {(isSubmitting || isUploading) ? 'Creating Place...' : 'Create Place'}
+          {(isSubmitting || isUploading) ? t('places.creating') : t('places.createTitle')}
         </Button>
       </Box>
     </>

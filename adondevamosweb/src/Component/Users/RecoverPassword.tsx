@@ -4,6 +4,7 @@ import { Typography, Box, TextField, Alert, Snackbar } from "@mui/material";
 import { Button, Modal } from "@mui/material";
 import { Help } from "@mui/icons-material";
 import useRecoverPasswordApi from "../../hooks/Session/useRecoverPasswordApi";
+import { useTranslation } from 'react-i18next';
 
 const style = {
   position: 'absolute',
@@ -20,6 +21,7 @@ const style = {
 };
 
 export default function RecoverPassword() {
+    const { t } = useTranslation();
     const [open, setOpen] = useState(false);
     const [anonEmail, setAnonEmail] = useState("");
     const [emailError, setEmailError] = useState("");
@@ -67,12 +69,12 @@ export default function RecoverPassword() {
         
         // Validate email
         if (!anonEmail) {
-            setEmailError("Email is required");
+            setEmailError(t('users.emailRequired'));
             return;
         }
         
         if (!isValidEmail(anonEmail)) {
-            setEmailError("Please enter a valid email address");
+            setEmailError(t('users.validEmailRequired'));
             return;
         }
 
@@ -80,7 +82,7 @@ export default function RecoverPassword() {
         const result = await recoverPassword(anonEmail);
         
         if (result.success) {
-            setSuccessMessage('Password recovery link sent to your email. Please check your inbox.');
+            setSuccessMessage(t('users.recoveryLinkSent'));
             setShowMessage(true);
             // Close modal and reset form without clearing success message
             setOpen(false);
@@ -88,7 +90,7 @@ export default function RecoverPassword() {
             setAnonEmail("");
             resetState();
         } else {
-            setEmailError(result.error || 'Error sending instructions. Please try again.');
+            setEmailError(result.error || t('users.sendInstructionsError'));
         }
     };
 
@@ -110,7 +112,7 @@ export default function RecoverPassword() {
                 sx={{ color:"#000"}}
                 onClick={handleOpen}
             >
-                Recover Password
+                {t('users.recoverPassword')}
             </Button>
             
             <Modal
@@ -121,7 +123,7 @@ export default function RecoverPassword() {
             >
                 <Box sx={{ ...style, width: 400 }}>
                     <Typography id="parent-modal-title" variant="h6" component="h2">
-                        Insert Email
+                        {t('users.insertEmail')}
                     </Typography>
                     
                     <Box component="form" onSubmit={handleSubmit}>
@@ -130,7 +132,7 @@ export default function RecoverPassword() {
                             required
                             fullWidth
                             id="email"
-                            label="Email Address"
+                            label={t('users.emailAddress')}
                             name="email"
                             type="email"
                             autoComplete="email"
@@ -142,7 +144,7 @@ export default function RecoverPassword() {
                         />
                         
                         <Typography id="parent-modal-description" sx={{ mt: 2 }}>
-                            We will send you an email with instructions to recover your password.
+                            {t('users.recoveryInstructions')}
                         </Typography>
 
                         {apiError && (
@@ -163,14 +165,14 @@ export default function RecoverPassword() {
                                 onClick={handleClose}
                                 disabled={isLoading}
                             >
-                                Cancel
+                                {t('common.cancel')}
                             </Button>
                             <Button 
                                 type="submit" 
                                 disabled={isLoading || !anonEmail}
                                 variant="contained"
                             >
-                                {isLoading ? "Sending..." : "Send Instructions"}
+                                {isLoading ? t('users.sending') : t('users.sendInstructions')}
                             </Button>
                         </Box>
                     </Box>

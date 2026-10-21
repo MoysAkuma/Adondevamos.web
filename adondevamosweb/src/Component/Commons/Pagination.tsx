@@ -18,6 +18,7 @@ import {
   NavigateNext,
   NavigateBefore
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 
 // 8-bit styled components
 const PaginationContainer = styled(Box)(({ theme }) => ({
@@ -131,6 +132,7 @@ const Pagination = ({
   showInfo = true,
   compact = false
 }) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const pageNumbers = getPageNumbers();
@@ -145,7 +147,7 @@ const Pagination = ({
       {showInfo && (
         <PaginationRow sx={{ justifyContent: 'center' }}>
           <InfoTypography>
-            Showing {startItem}-{endItem} of {totalItems}
+            {t('common.showingItems', { start: startItem, end: endItem, total: totalItems })}
           </InfoTypography>
         </PaginationRow>
       )}
@@ -159,7 +161,7 @@ const Pagination = ({
               onClick={goToFirstPage}
               disabled={!hasPrevPage}
               size="small"
-              title="First Page"
+              title={t('common.firstPage')}
             >
               <FirstPage />
             </PixelIconButton>
@@ -170,7 +172,7 @@ const Pagination = ({
             onClick={prevPage}
             disabled={!hasPrevPage}
             size="small"
-            title="Previous Page"
+            title={t('common.previousPage')}
           >
             <NavigateBefore />
           </PixelIconButton>
@@ -199,7 +201,7 @@ const Pagination = ({
             onClick={nextPage}
             disabled={!hasNextPage}
             size="small"
-            title="Next Page"
+            title={t('common.nextPage')}
           >
             <NavigateNext />
           </PixelIconButton>
@@ -210,7 +212,7 @@ const Pagination = ({
               onClick={goToLastPage}
               disabled={!hasNextPage}
               size="small"
-              title="Last Page"
+              title={t('common.lastPage')}
             >
               <LastPage />
             </PixelIconButton>
@@ -229,7 +231,7 @@ const Pagination = ({
             >
               {pageSizeOptions.map((size) => (
                 <MenuItem key={size} value={size} sx={{ fontFamily: "'Press Start 2P', cursive", fontSize: '0.6rem' }}>
-                  {size} per page
+                  {t('common.itemsPerPage', { size })}
                 </MenuItem>
               ))}
             </PixelSelect>

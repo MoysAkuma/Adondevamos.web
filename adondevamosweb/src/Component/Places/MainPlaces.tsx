@@ -14,6 +14,7 @@ import NewPlaces from "./NewPlaces";
 import Ranking from "../Ranking/Ranking";
 import CenteredTemplate from "../Commons/CenteredTemplate";
 import { useAuth } from "../../context/AuthContext";
+import { useTranslation } from 'react-i18next';
 
 // 8-bit Styled Components
 const StyledContainer = styled(Box)(({ theme }) => ({
@@ -99,6 +100,7 @@ const StyledToggleButton = styled(Button)(({ theme }) => ({
 }));
 
 export default function MainPlaces() {
+    const { t } = useTranslation();
     const [UserSection, setUserSection] = useState(null);
     const { isLogged, loading, hasRole, role } = useAuth();
     const [showNewPlaces, setShowNewPlaces] = useState(true);
@@ -118,7 +120,7 @@ export default function MainPlaces() {
                                 color: '#FFFFFF'
                             }}
                         >
-                            Create a New Place
+                            {t('places.createNew')}
                         </PixelTypography>
                     </StyledSectionHeader>
                     <StyledSectionContent>
@@ -127,7 +129,7 @@ export default function MainPlaces() {
                                 endIcon={<LocationCity sx={{ fontSize: '1rem' }} />}
                                 href="/Create/Place"
                             >
-                                New Place
+                                {t('places.new')}
                             </StyledButton>   
                         </Box>
                     </StyledSectionContent>
@@ -158,7 +160,7 @@ export default function MainPlaces() {
                                 lineHeight: 1.4
                             }}
                         >
-                            Places
+                            {t('navigation.places')}
                         </PixelTypography>
                     </StyledHeaderContent>
                 </StyledHeaderCard>
@@ -173,7 +175,7 @@ export default function MainPlaces() {
                                 color: '#FFFFFF'
                             }}
                         >
-                            What is a Place in AdondeVamos?
+                            {t('places.whatIs')}
                         </PixelTypography>
                     </StyledSectionHeader>
                     <StyledSectionContent>
@@ -185,7 +187,7 @@ export default function MainPlaces() {
                                 lineHeight: 1.6
                             }}
                         >
-                            A place is a location that you want to visit with your friends
+                            {t('places.description')}
                         </PixelTypography>
                     </StyledSectionContent>
                 </StyledSectionCard>
@@ -200,7 +202,7 @@ export default function MainPlaces() {
                                 color: '#FFFFFF'
                             }}
                         >
-                            Discover Places
+                            {t('places.discover')}
                         </PixelTypography>
                     </StyledSectionHeader>
                     <StyledSectionContent>
@@ -213,14 +215,14 @@ export default function MainPlaces() {
                                 lineHeight: 1.6
                             }}
                         >
-                            Explore places created by other users, locations, and attractions to add to your trips!
+                            {t('places.discoverDescription')}
                         </PixelTypography>
                         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                             <StyledButton 
                                 endIcon={<Search sx={{ fontSize: '1rem' }} />}
                                 href="/Search/Places"
                             >
-                                Search Places
+                                {t('places.search')}
                             </StyledButton>
                         </Box>
                     </StyledSectionContent>
@@ -239,13 +241,13 @@ export default function MainPlaces() {
                                 color: '#FFFFFF'
                             }}
                         >
-                            New Places
+                            {t('places.newPlaces')}
                         </PixelTypography>
                         <StyledToggleButton 
                             onClick={() => setShowNewPlaces(!showNewPlaces)}
                             endIcon={showNewPlaces ? <ExpandLess sx={{ fontSize: '0.8rem' }} /> : <ExpandMore sx={{ fontSize: '0.8rem' }} />}
                         >
-                            {showNewPlaces ? 'Hide' : 'Show'}
+                            {showNewPlaces ? t('trips.hide') : t('trips.show')}
                         </StyledToggleButton>
                     </StyledSectionHeader>
                     <Collapse in={showNewPlaces}>
@@ -265,13 +267,13 @@ export default function MainPlaces() {
                                 color: '#FFFFFF'
                             }}
                         >
-                            Most Voted Places
+                            {t('places.mostVoted')}
                         </PixelTypography>
                         <StyledToggleButton 
                             onClick={() => setShowRanking(!showRanking)}
                             endIcon={showRanking ? <ExpandLess sx={{ fontSize: '0.8rem' }} /> : <ExpandMore sx={{ fontSize: '0.8rem' }} />}
                         >
-                            {showRanking ? 'Hide' : 'Show'}
+                            {showRanking ? t('trips.hide') : t('trips.show')}
                         </StyledToggleButton>
                     </StyledSectionHeader>
                     <Collapse in={showRanking}>

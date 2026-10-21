@@ -9,6 +9,7 @@ import {
     Box
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { useTranslation } from 'react-i18next';
 
 import UbicationSelector from "../Commons/Ubication/UbicationSelector";
 import config from "../../Resources/config";
@@ -79,6 +80,7 @@ const FormUser = ({
     onConfirmPasswordChange,
     size = 'medium'
 }) => {
+    const { t } = useTranslation();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const fieldSize = size || (isMobile ? 'small' : 'medium');
@@ -151,7 +153,7 @@ const FormUser = ({
                     lineHeight: 1.6
                 }}
             >
-                Unique as You
+                {t('users.uniqueAsYou')}
             </PixelTypography>
             { 
                 (id && id > 0) ? 
@@ -164,7 +166,7 @@ const FormUser = ({
                             color: '#2C2C2C'
                         }}
                     >
-                        <strong>Tag:</strong> {formUser.tag}
+                        <strong>{t('users.tag')}:</strong> {formUser.tag}
                     </PixelTypography>
                     <PixelTypography
                         variant="body1"
@@ -174,7 +176,7 @@ const FormUser = ({
                             color: '#2C2C2C'
                         }}
                     >
-                        <strong>Email:</strong> {formUser.email}
+                        <strong>{t('users.email')}:</strong> {formUser.email}
                     </PixelTypography>
                 </> 
             :
@@ -182,10 +184,10 @@ const FormUser = ({
                 <StyledTextField
                     id="tag"
                     name="tag"
-                    label="Tag"
-                    placeholder="Tag"
+                    label={t('users.tag')}
+                    placeholder={t('users.tag')}
                     variant="outlined"
-                    helperText="Your tag must be unique"
+                    helperText={t('users.tagUnique')}
                     onChange={handleChange}
                     size={fieldSize}
                     value={formUser.tag}
@@ -203,7 +205,7 @@ const FormUser = ({
                                 severity={tagistaken ? "error" : "success"}
                                 sx={{ mb: 2 }}
                             >
-                                {tagistaken ? "Tag is already taken" : "Tag is available"}
+                                {tagistaken ? t('users.tagTaken') : t('users.tagAvailable')}
                             </StyledAlert>
                         )
                     : null
@@ -211,10 +213,10 @@ const FormUser = ({
                 <StyledTextField
                     id="email"
                     name="email"
-                    label="Email"
-                    placeholder="Email account"
+                    label={t('users.email')}
+                    placeholder={t('users.emailAccount')}
                     variant="outlined"
-                    helperText="Your email must be unique"
+                    helperText={t('users.emailUnique')}
                     onChange={handleChange}
                     onBlur={() => verifyEmail(formUser.email)}
                     size={fieldSize}
@@ -230,7 +232,7 @@ const FormUser = ({
                             severity={emailIsUsed ? "error" : "success"}
                             sx={{ mb: 2 }}
                         >
-                            {emailIsUsed ? "Email is already registered" : "Email is available"}
+                            {emailIsUsed ? t('users.emailTaken') : t('users.emailAvailable')}
                         </StyledAlert>) :
                         null
                 }
@@ -247,15 +249,15 @@ const FormUser = ({
                         lineHeight: 1.6
                     }}
                 >
-                    Security
+                    {t('users.security')}
                 </PixelTypography>
 
                 <StyledTextField
                     type="password"
                     id="password"
                     name="password"
-                    label="Password"
-                    placeholder="Password"
+                    label={t('users.password')}
+                    placeholder={t('users.password')}
                     variant="outlined"
                     onChange={handleChange}
                     size={fieldSize}
@@ -269,8 +271,8 @@ const FormUser = ({
                     type="password"
                     id="confirmpassword"
                     name="confirmpassword"
-                    label="Confirm your Password"
-                    placeholder="Type again your password"
+                    label={t('users.confirmPassword')}
+                    placeholder={t('users.typePasswordAgain')}
                     variant="outlined"
                     size={fieldSize}
                     value={confirmPassword}
@@ -287,7 +289,7 @@ const FormUser = ({
                             severity={passwordWasVerify ? "success" : "error"}
                             sx={{ mb: 2 }}
                         >
-                            {passwordWasVerify ? "Passwords match" : "Passwords do not match"}
+                            {passwordWasVerify ? t('users.passwordsMatch') : t('users.passwordsDoNotMatch')}
                         </StyledAlert>
                     ) :
                         null
@@ -307,14 +309,14 @@ const FormUser = ({
                     lineHeight: 1.6
                 }}
             >
-                Your Name
+                {t('users.yourName')}
             </PixelTypography>
             
             <StyledTextField
                 id="name"
                 name="name"
-                label="Name"
-                placeholder="First Name"
+                label={t('users.name')}
+                placeholder={t('users.firstName')}
                 onChange={handleChange}
                 size={fieldSize}
                 variant="outlined"
@@ -326,8 +328,8 @@ const FormUser = ({
             <StyledTextField
                 id="secondname"
                 name="secondname"
-                label="Second Name"
-                placeholder="Second Name"
+                label={t('users.secondName')}
+                placeholder={t('users.secondName')}
                 onChange={handleChange}
                 size={fieldSize}
                 variant="outlined"
@@ -339,8 +341,8 @@ const FormUser = ({
                 required
                 id="lastname"
                 name="lastname"
-                label="Last Name"
-                placeholder="User Last Name"
+                label={t('users.lastName')}
+                placeholder={t('users.userLastName')}
                 onChange={handleChange}
                 size={fieldSize}
                 variant="outlined"
@@ -352,9 +354,9 @@ const FormUser = ({
                 fullWidth
                 name="description"
                 id="description"
-                label="Description"
+                label={t('users.description')}
                 value={formUser.description}
-                placeholder="About you"
+                placeholder={t('users.aboutYou')}
                 onChange={handleChange}
                 size={fieldSize}
                 variant="outlined"
@@ -374,7 +376,7 @@ const FormUser = ({
                     lineHeight: 1.6
                 }}
             >
-                Location
+                {t('common.location')}
             </PixelTypography>
 
             <UbicationSelector

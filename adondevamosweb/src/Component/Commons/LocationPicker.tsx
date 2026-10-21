@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useTranslation } from 'react-i18next';
 
 interface RetroProps {
   $retro?: boolean;
@@ -156,6 +157,7 @@ function LocationPicker({
   height = 400,
   retroStyle = false
 }) {
+  const { t } = useTranslation();
   const [lat, setLat] = useState(latitude);
   const [lng, setLng] = useState(longitude);
   const [currentZoom, setCurrentZoom] = useState(zoom);
@@ -248,16 +250,16 @@ function LocationPicker({
           let errorMessage = '';
           switch (error.code) {
             case error.PERMISSION_DENIED:
-              errorMessage = 'Location access denied. Please enable location permissions in your browser.';
+              errorMessage = t('common.locationDenied');
               break;
             case error.POSITION_UNAVAILABLE:
-              errorMessage = 'Location information unavailable. Please try again.';
+              errorMessage = t('common.locationUnavailable');
               break;
             case error.TIMEOUT:
-              errorMessage = 'Location request timed out. Please try again.';
+              errorMessage = t('common.locationTimeout');
               break;
             default:
-              errorMessage = 'Unable to get your location. Please click on the map to set location.';
+              errorMessage = t('common.locationFailed');
               break;
           }
           setGeoError(errorMessage);
@@ -269,7 +271,7 @@ function LocationPicker({
         }
       );
     } else {
-      setGeoError('Geolocation is not supported by your browser.');
+      setGeoError(t('common.geolocationUnsupported'));
     }
   };
 
@@ -316,13 +318,13 @@ function LocationPicker({
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <LocationOn sx={{ color: '#10B981', fontSize: '1.5rem' }} />
             <PixelTypography variant="h6">
-              Select Location
+              {t('common.selectLocation')}
             </PixelTypography>
           </Box>
         ) : (
           <Typography variant="h6" component="div" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <LocationOn color="success" />
-            Select Location
+            {t('common.selectLocation')}
           </Typography>
         )}
 
@@ -343,7 +345,7 @@ function LocationPicker({
 
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
           <TextField
-            label="Latitude"
+            label={t('common.latitude')}
             type="number"
             value={lat}
             InputProps={{ 
@@ -356,7 +358,7 @@ function LocationPicker({
             }}
             size="small"
             fullWidth
-            helperText="Set by clicking map"
+            helperText={t('common.setByMap')}
             sx={{
               '& .MuiOutlinedInput-root': retroStyle ? {
                 borderRadius: 0,
@@ -369,7 +371,7 @@ function LocationPicker({
             }}
           />
           <TextField
-            label="Longitude"
+            label={t('common.longitude')}
             type="number"
             value={lng}
             InputProps={{ 
@@ -382,7 +384,7 @@ function LocationPicker({
             }}
             size="small"
             fullWidth
-            helperText="Set by clicking map"
+            helperText={t('common.setByMap')}
             sx={{
               '& .MuiOutlinedInput-root': retroStyle ? {
                 borderRadius: 0,
@@ -405,7 +407,7 @@ function LocationPicker({
             size="small"
             $retro={retroStyle}
           >
-            Use My Location
+            {t('common.useMyLocation')}
           </StyledButton>
         </Stack>
 
@@ -461,7 +463,7 @@ function LocationPicker({
                   flexDirection: 'column',
                 }}
               >
-                <Tooltip title="Zoom In" arrow placement="left">
+                <Tooltip title={t('common.zoomIn')} arrow placement="left">
                   <StyledIconButton 
                     size="small" 
                     onClick={handleZoomIn}
@@ -470,7 +472,7 @@ function LocationPicker({
                     <ZoomIn fontSize="small" />
                   </StyledIconButton>
                 </Tooltip>
-                <Tooltip title="Zoom Out" arrow placement="left">
+                <Tooltip title={t('common.zoomOut')} arrow placement="left">
                   <StyledIconButton 
                     size="small" 
                     onClick={handleZoomOut}
@@ -479,7 +481,7 @@ function LocationPicker({
                     <ZoomOut fontSize="small" />
                   </StyledIconButton>
                 </Tooltip>
-                <Tooltip title="Recenter" arrow placement="left">
+                <Tooltip title={t('common.recenter')} arrow placement="left">
                   <StyledIconButton 
                     size="small" 
                     onClick={handleRecenter}
@@ -488,7 +490,7 @@ function LocationPicker({
                     <CenterFocusStrong fontSize="small" />
                   </StyledIconButton>
                 </Tooltip>
-                <Tooltip title="Refresh Map" arrow placement="left">
+                <Tooltip title={t('common.refreshMap')} arrow placement="left">
                   <StyledIconButton 
                     size="small" 
                     onClick={handleRefreshMap}
@@ -513,7 +515,7 @@ function LocationPicker({
               }}
             >
               <Typography variant="body2" color="text.secondary">
-                Enter valid coordinates to display map
+                {t('common.enterCoordinates')}
               </Typography>
             </Box>
           )}
@@ -529,7 +531,7 @@ function LocationPicker({
             lineHeight: retroStyle ? 1.8 : undefined,
           }}
         >
-          💡 Click anywhere on the map or drag the marker to set location. Coordinates are automatically updated and read-only.
+          💡 {t('common.mapInstructions')}
         </Alert>
       </Stack>
     </StyledPaper>

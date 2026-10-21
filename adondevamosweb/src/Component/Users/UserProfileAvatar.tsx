@@ -4,8 +4,10 @@ import { Box, IconButton, Menu, MenuItem,
     Tooltip, Avatar, Typography } from '@mui/material';
 import { Person } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 export default function UserProfileAvatar({ settings }) {
+    const { t } = useTranslation();
     const [anchorElUser, setAnchorElUser] = useState(null);
     const navigate = useNavigate();
     const { logout, thumbnail } = useAuth();
@@ -24,7 +26,7 @@ export default function UserProfileAvatar({ settings }) {
     const handleMenuClick = async (setting) => {
         handleCloseUserMenu();
         
-        if (setting.text === 'Logout') {
+        if (setting.action === 'logout') {
             await logout();
             navigate('/');
         } else if (setting.path) {
@@ -34,7 +36,7 @@ export default function UserProfileAvatar({ settings }) {
 
     return (
         <Box sx={{ flexGrow: 0 }}>
-            <Tooltip title="Open settings">
+            <Tooltip title={t('common.openSettings')}>
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
                     <Avatar src={avatarSrc}>
                         {!avatarSrc && <Person />}

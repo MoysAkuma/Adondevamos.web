@@ -9,16 +9,22 @@ import { Container } from "@mui/system";
 import { NotListedLocation, Menu as MenuIcon } from "@mui/icons-material";
 import UserProfileAvatar from "../Users/UserProfileAvatar";
 import { useNavbarConfig } from "../../hooks/useNavbarConfig";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function AppBarComp() {
     const { isLogged, loading, role, logout } = useAuth();
+    const { t } = useTranslation();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     
     // Get navbar configuration based on user role
     const { brand, menuItems, authButton: _authButton, settings } = useNavbarConfig(role, isLogged);
     const authButton = _authButton as any;
 
-    const userSettings = [{text :'Profile', path: '/Profile'}, {text: 'Logout', path: '/Logout'}];
+    const userSettings = [
+        { text: t('navigation.profile'), path: '/Profile' },
+        { text: t('navigation.logout'), action: 'logout' },
+    ];
 
     const toggleMobileMenu = () => {
         setMobileMenuOpen(!mobileMenuOpen);
@@ -66,7 +72,7 @@ export default function AppBarComp() {
                                             {settings.showIcons && item.icon && (
                                                 <span style={{ marginRight: '4px' }}>{item.icon}</span>
                                             )}
-                                            {item.title}
+                                            {t(`navigation.${item.id === 'managesite' ? 'settings' : item.id}`)}
                                         </Button>
                                     )
                                 ))}
@@ -84,7 +90,7 @@ export default function AppBarComp() {
                                             {settings.showIcons && authButton.icon && (
                                                 <span style={{ marginRight: '4px' }}>{authButton.icon}</span>
                                             )}
-                                            {authButton.title}
+                                            {t(authButton.action === 'logout' ? 'navigation.logout' : 'navigation.login')}
                                         </Button>
                                     )
                                 )}
@@ -94,7 +100,7 @@ export default function AppBarComp() {
                             <Box sx={{ display: { xs: 'flex', md: 'none' } }}>
                                 <IconButton
                                     size="large"
-                                    aria-label="menu"
+                                    aria-label={t('common.menu')}
                                     onClick={toggleMobileMenu}
                                     color="inherit"
                                 >
@@ -103,7 +109,7 @@ export default function AppBarComp() {
                             </Box>
                         </>
                     )}
-                    
+                    <LanguageSwitcher />
                 </Toolbar>
             </Container>
         </AppBar>
@@ -130,7 +136,7 @@ export default function AppBarComp() {
                                             {settings.showIcons && item.icon && (
                                                 <span style={{ marginRight: '8px' }}>{item.icon}</span>
                                             )}
-                                            {item.title}
+                                            {t(`navigation.${item.id === 'managesite' ? 'settings' : item.id}`)}
                                         </Box>
                                     } 
                                 />
@@ -149,7 +155,7 @@ export default function AppBarComp() {
                                                 {settings.showIcons && authButton.icon && (
                                                     <span style={{ marginRight: '8px' }}>{authButton.icon}</span>
                                                 )}
-                                                {authButton.title}
+                                                {t(authButton.action === 'logout' ? 'navigation.logout' : 'navigation.login')}
                                             </Box>
                                         } 
                                     />
@@ -162,7 +168,7 @@ export default function AppBarComp() {
                                                 {settings.showIcons && authButton.icon && (
                                                     <span style={{ marginRight: '8px' }}>{authButton.icon}</span>
                                                 )}
-                                                {authButton.title}
+                                                {t(authButton.action === 'logout' ? 'navigation.logout' : 'navigation.login')}
                                             </Box>
                                         } 
                                     />

@@ -11,8 +11,10 @@ import {
 } from '@mui/material';
 import { Warning } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const SessionWarning = () => {
+  const { t } = useTranslation();
   const { sessionWarning, extendSession, logout } = useAuth();
   const [countdown, setCountdown] = useState(300); // 5 minutes in seconds
   const [progress, setProgress] = useState(100);
@@ -60,15 +62,15 @@ const SessionWarning = () => {
       <DialogTitle>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Warning color="warning" />
-          <Typography variant="h6">Session Expiring Soon</Typography>
+          <Typography variant="h6">{t('common.sessionExpiring')}</Typography>
         </Box>
       </DialogTitle>
       <DialogContent>
         <Typography variant="body1" gutterBottom>
-          Your session will expire in <strong>{formatTime(countdown)}</strong> due to inactivity.
+          {t('common.sessionExpires', { time: formatTime(countdown) })}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 2, mb: 2 }}>
-          Click "Stay Logged In" to continue your session, or you will be automatically logged out.
+          {t('common.stayLoggedInHint')}
         </Typography>
         <LinearProgress 
           variant="determinate" 
@@ -79,10 +81,10 @@ const SessionWarning = () => {
       </DialogContent>
       <DialogActions>
         <Button onClick={() => logout('User logged out')} color="error">
-          Logout Now
+          {t('common.logoutNow')}
         </Button>
         <Button onClick={handleExtend} variant="contained" color="primary" autoFocus>
-          Stay Logged In
+          {t('common.stayLoggedIn')}
         </Button>
       </DialogActions>
     </Dialog>

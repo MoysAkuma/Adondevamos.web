@@ -14,8 +14,10 @@ import {
     CloudUpload,
     Delete
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 
 function ImageUploader({ images = [], onChange, maxImages = 10 }) {
+    const { t } = useTranslation();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -23,7 +25,7 @@ function ImageUploader({ images = [], onChange, maxImages = 10 }) {
         const files = Array.from(event.target.files);
         
         if (files.length + images.length > maxImages) {
-            alert(`You can only upload up to ${maxImages} images`);
+            alert(t('common.imageUploadLimit', { maxImages }));
             return;
         }
 
@@ -54,7 +56,7 @@ function ImageUploader({ images = [], onChange, maxImages = 10 }) {
                 fullWidth
                 disabled={images.length >= maxImages}
             >
-                Upload Images ({images.length}/{maxImages})
+                {t('common.uploadImages', { count: images.length, maxImages })}
                 <input
                     type="file"
                     hidden
@@ -67,7 +69,7 @@ function ImageUploader({ images = [], onChange, maxImages = 10 }) {
             {images.length > 0 && (
                 <Box sx={{ mt: 2 }}>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                        Selected Images: {images.length}
+                        {t('common.selectedImages', { count: images.length })}
                     </Typography>
                     <ImageList 
                         cols={isMobile ? 2 : 3} 
@@ -81,7 +83,7 @@ function ImageUploader({ images = [], onChange, maxImages = 10 }) {
                             <ImageListItem key={index}>
                                 <img
                                     src={image.preview || image.url}
-                                    alt={image.name || `Image ${index + 1}`}
+                                    alt={image.name || t('common.imageNumber', { index: index + 1 })}
                                     loading="lazy"
                                     style={{
                                         height: '150px',
@@ -89,7 +91,7 @@ function ImageUploader({ images = [], onChange, maxImages = 10 }) {
                                     }}
                                 />
                                 <ImageListItemBar
-                                    title={image.name || `Image ${index + 1}`}
+                                    title={image.name || t('common.imageNumber', { index: index + 1 })}
                                     actionIcon={
                                         <IconButton
                                             sx={{ color: 'rgba(255, 255, 255, 0.9)' }}
