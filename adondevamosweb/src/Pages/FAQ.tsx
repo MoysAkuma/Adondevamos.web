@@ -19,6 +19,7 @@ import {
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import CenteredTemplate from '../Component/Commons/CenteredTemplate';
+import { Trans, useTranslation } from 'react-i18next';
 
 const StyledContainer = styled(Box)(({ theme }) => ({
   maxWidth: '800px',
@@ -99,92 +100,93 @@ const CategorySection = styled(Box)(({ theme }) => ({
 
 const faqs = [
   {
-    category: 'General',
+    category: 'faq.general',
     icon: <HelpOutline />,
     color: '#E63946',
     questions: [
       {
-        question: 'Is adondevamos a finished project?',
-        answer: 'No, this site is a work in progress and continuously being improved.'
+        question: 'faq.finishedQuestion',
+        answer: 'faq.finishedAnswer'
       },
         {
-        question: 'What is AdondeVamos?',
-        answer: 'AdondeVamos is a travel planning platform where you can discover places, create trips, and share your travel experiences with a community of explorers.'
+        question: 'faq.aboutQuestion',
+        answer: 'faq.aboutAnswer'
       },
       {
-        question: 'Is AdondeVamos free to use?',
-        answer: 'Yes! AdondeVamos is completely free. You can browse places, create trips, and share your adventures without any cost.'
+        question: 'faq.freeQuestion',
+        answer: 'faq.freeAnswer'
       },
       {
-        question: 'Do I need an account to use the site?',
-        answer: 'You can browse trips and places without an account, but to create your own content, vote on places, or save favorites, you\'ll need to register.'
+        question: 'faq.accountQuestion',
+        answer: 'faq.accountAnswer'
       }
     ]
   },
   {
-    category: 'Trips',
+    category: 'faq.trips',
     icon: <TravelExplore />,
     color: '#52B788',
     questions: [
       {
-        question: 'How do I create a trip?',
-        answer: 'Click on "Trips" in the navigation bar, then click the "Create Trip" button. Fill in your trip details including name, dates, description, and add places to your itinerary.'
+        question: 'faq.createTripQuestion',
+        answer: 'faq.createTripAnswer'
       },
       {
-        question: 'Can I edit my trip after creating it?',
-        answer: 'Yes! You can edit your trips at any time. Just go to your trip and click the edit button. You can modify dates, add or remove places, and update the description.'
+        question: 'faq.editTripQuestion',
+        answer: 'faq.editTripAnswer'
       },
       {
-        question: 'How do I add places to my trip itinerary?',
-        answer: 'When creating or editing a trip, you can search for places and add them to your itinerary. You can also set specific dates for each place visit.'
+        question: 'faq.itineraryQuestion',
+        answer: 'faq.itineraryAnswer'
       },
       {
-        question: 'Can I share my trip with others?',
-        answer: 'Absolutely! Each trip has a share button that lets you copy the link or share directly through social media. Your friends can view your trip even without an account.'
+        question: 'faq.shareTripQuestion',
+        answer: 'faq.shareTripAnswer'
       }
     ]
   },
   {
-    category: 'Places',
+    category: 'faq.places',
     icon: <Map />,
     color: '#F77F00',
     questions: [
       {
-        question: 'How do I add a new place?',
-        answer: 'Navigate to "Places" and click "Create Place". Fill in the details including name, location, description, facilities, and upload photos to help others discover this location.'
+        question: 'faq.addPlaceQuestion',
+        answer: 'faq.addPlaceAnswer'
       },
       {
-        question: 'Can I upload photos to places?',
-        answer: 'Yes! When creating or editing a place, you can upload multiple photos to showcase the location. High-quality images help other travelers get a better sense of the place.'
+        question: 'faq.photosQuestion',
+        answer: 'faq.photosAnswer'
       },
       {
-        question: 'What are place facilities?',
-        answer: 'Facilities are amenities or features available at a location, such as parking, WiFi, restaurants, accessibility features, etc. These help travelers know what to expect.'
+        question: 'faq.facilitiesQuestion',
+        answer: 'faq.facilitiesAnswer'
       },
       {
-        question: 'How does the voting system work?',
-        answer: 'Registered users can vote on places they like. The most voted places appear in the "Most Voted Places" section, helping others discover popular destinations.'
+        question: 'faq.votingQuestion',
+        answer: 'faq.votingAnswer'
       }
     ]
   },
   {
-    category: 'Account & Privacy',
+    category: 'faq.accountPrivacy',
     icon: <Security />,
     color: '#6B5B95',
     questions: [
       {
-        question: 'How do I create an account?',
-        answer: 'Click "Login" in the navigation bar, then select "Sign Up". Enter your email, create a username, and set a secure password to get started.'
+        question: 'faq.createAccountQuestion',
+        answer: 'faq.createAccountAnswer'
       }
     ]
   }
 ];
 
 export default function FAQ() {
+  const { t } = useTranslation();
   useSeoMeta({
-    title: 'FAQ - AdondeVamos',
-    description: 'Frequently asked questions about AdondeVamos — trips, places, accounts and more.',
-    ogTitle: 'FAQ - AdondeVamos',
+    title: t('faq.pageTitle'),
+    description: t('faq.pageDescription'),
+    ogTitle: t('faq.pageTitle'),
   });
   const [expanded, setExpanded] = useState(false);
 
@@ -219,7 +221,7 @@ export default function FAQ() {
               lineHeight: 2
             }}
           >
-            Frequently Asked Questions
+            {t('faq.title')}
           </Typography>
         </StyledHeaderCard>
 
@@ -241,7 +243,7 @@ export default function FAQ() {
                 {category.icon}
               </Box>
               <CategoryChip
-                label={category.category}
+                label={t(category.category)}
                 sx={{
                   backgroundColor: category.color,
                   color: '#FFFFFF',
@@ -269,7 +271,7 @@ export default function FAQ() {
                       lineHeight: 1.8
                     }}
                   >
-                    {faq.question}
+                    {t(faq.question)}
                   </Typography>
                 </StyledAccordionSummary>
                 <StyledAccordionDetails>
@@ -281,7 +283,7 @@ export default function FAQ() {
                       lineHeight: 2
                     }}
                   >
-                    {faq.answer}
+                    {t(faq.answer)}
                   </Typography>
                 </StyledAccordionDetails>
               </StyledAccordion>
@@ -308,7 +310,7 @@ export default function FAQ() {
               mb: 2
             }}
           >
-            Still have questions?
+            {t('faq.stillQuestions')}
           </Typography>
           <Typography
             variant="body2"
@@ -319,7 +321,14 @@ export default function FAQ() {
               lineHeight: 2
             }}
           >
-            Contact me at <a href="mailto:moises.moran.dev@gmail.com" style={{ color: '#2C2C2C', textDecoration: 'none' }}>moises.moran.dev@gmail.com</a>
+            <Trans
+              i18nKey="faq.contact"
+              components={[
+                <a key="contact" href="mailto:moises.moran.dev@gmail.com" style={{ color: '#2C2C2C', textDecoration: 'none' }}>
+                  moises.moran.dev@gmail.com
+                </a>,
+              ]}
+            />
           </Typography>
         </Box>
       </StyledContainer>

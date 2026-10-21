@@ -1,8 +1,11 @@
 import React from 'react';
 import { Box, Container } from '@mui/material';
 import AdSense from '../../components/AdSense';
+import { Trans, useTranslation } from 'react-i18next';
 
-const CenteredTemplate = ({ children }) => (
+const CenteredTemplate = ({ children }) => {
+  const { t } = useTranslation();
+  return (
   <>
     
     <Box
@@ -30,7 +33,7 @@ const CenteredTemplate = ({ children }) => (
             src="/Logo.png" 
             width="120" 
             height="120" 
-            alt="Logo" 
+            alt={t('common.logo')}
             style={
               { 
                 display: 'block', 
@@ -54,11 +57,15 @@ const CenteredTemplate = ({ children }) => (
           }
         }}
       >
-        Site made by <a href='https://github.com/MoysAkuma'>@MoysAkuma</a>
+        <Trans
+          i18nKey="common.siteCredit"
+          components={[<a key="credit" href="https://github.com/MoysAkuma">@MoysAkuma</a>]}
+        />
       </Box>
     </Box>
   </>
   
-);
+  );
+};
 
 export default CenteredTemplate;

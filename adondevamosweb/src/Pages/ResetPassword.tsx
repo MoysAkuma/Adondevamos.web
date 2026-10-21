@@ -19,12 +19,14 @@ import {
   StyledResetCard,
   ResetButton,
 } from '../Css/ResetPassword.styles';
+import { useTranslation } from 'react-i18next';
 
 const ResetPassword = () => {
+  const { t } = useTranslation();
   useSeoMeta({
-    title: 'Reset Password - AdondeVamos',
-    description: 'Set a new password for your AdondeVamos account.',
-    ogTitle: 'Reset Password - AdondeVamos',
+    title: `${t('auth.resetPasswordTitle')} - AdondeVamos`,
+    description: t('auth.resetPasswordDescription'),
+    ogTitle: `${t('auth.resetPasswordTitle')} - AdondeVamos`,
   });
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -42,23 +44,23 @@ const ResetPassword = () => {
   // Verify token on component mount
   useEffect(() => {
     if (!token) {
-      setValidationError('Invalid reset link. Please request a new password reset.');
+      setValidationError(t('auth.invalidResetLink'));
       return;
     }
     
     verifyToken(token);
-  }, [token, verifyToken]);
+  }, [token, verifyToken, t]);
 
   // Redirect to login on success
   useEffect(() => {
     if (success) {
       setTimeout(() => {
         navigate('/Login', { 
-          state: { message: 'Password reset successfully! Please login with your new password.' } 
+          state: { message: t('auth.resetCompleteMessage') }
         });
       }, 2000);
     }
-  }, [success, navigate]);
+  }, [success, navigate, t]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -66,17 +68,17 @@ const ResetPassword = () => {
 
     // Validation
     if (!newPassword || !confirmPassword) {
-      setValidationError('Both password fields are required');
+      setValidationError(t('auth.bothFieldsRequired'));
       return;
     }
 
     if (newPassword.length < 6) {
-      setValidationError('Password must be at least 6 characters long');
+      setValidationError(t('auth.passwordTooShort'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setValidationError('Passwords do not match');
+      setValidationError(t('auth.passwordMismatch'));
       return;
     }
 
@@ -99,7 +101,7 @@ const ResetPassword = () => {
         <Box display="flex" flexDirection="column" alignItems="center" mt={8}>
           <CircularProgress size={60} />
           <Typography variant="h6" sx={{ mt: 2 }}>
-            Verifying reset link...
+            {t('auth.verifyingReset')}
           </Typography>
         </Box>
       </StyledResetContainer>
@@ -113,14 +115,13 @@ const ResetPassword = () => {
         <StyledResetCard>
           <CardContent>
             <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', textAlign: 'center' }}>
-              Reset Link Invalid
+              {t('auth.invalidResetTitle')}
             </Typography>
             <Alert severity="error" sx={{ mb: 2 }}>
-              {verifyError || 'This password reset link is invalid or has expired.'}
+              {verifyError || t('auth.invalidResetMessage')}
             </Alert>
             <Typography variant="body2" sx={{ mb: 2 }}>
-              Password reset links expire after 1 hour for security reasons.
-              Please request a new password reset.
+              {t('auth.resetLinkExpiry')}
             </Typography>
             <ResetButton
               fullWidth
@@ -128,7 +129,7 @@ const ResetPassword = () => {
               onClick={() => navigate('/Login')}
               startIcon={<ArrowBack />}
             >
-              Back to Login
+              {t('auth.backToLogin')}
             </ResetButton>
           </CardContent>
         </StyledResetCard>
@@ -143,18 +144,18 @@ const ResetPassword = () => {
           <Box textAlign="center" mb={3}>
             <Lock sx={{ fontSize: 60, color: '#3D5A80' }} />
             <Typography variant="h4" sx={{ fontWeight: 'bold', mt: 1 }}>
-              Reset Password
+              {t('auth.resetPasswordTitle')}
             </Typography>
             {email && (
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                Resetting password for: <strong>{email}</strong>
+                {t('auth.resettingFor')} <strong>{email}</strong>
               </Typography>
             )}
           </Box>
 
           {success && (
             <Alert severity="success" sx={{ mb: 2 }}>
-              Password reset successfully! Redirecting to login...
+              {t('auth.resetSuccess')}
             </Alert>
           )}
 
@@ -170,7 +171,7 @@ const ResetPassword = () => {
               required
               fullWidth
               name="newPassword"
-              label="New Password"
+              label={t('auth.newPassword')}
               type={showPassword ? 'text' : 'password'}
               id="newPassword"
               autoComplete="new-password"
@@ -190,7 +191,7 @@ const ResetPassword = () => {
                   </InputAdornment>
                 )
               }}
-              helperText="At least 6 characters"
+              helperText={t('auth.atLeastSixCharacters')}
             />
 
             <TextField
@@ -198,7 +199,7 @@ const ResetPassword = () => {
               required
               fullWidth
               name="confirmPassword"
-              label="Confirm New Password"
+              label={t('auth.confirmNewPassword')}
               type={showConfirmPassword ? 'text' : 'password'}
               id="confirmPassword"
               autoComplete="new-password"
@@ -230,10 +231,10 @@ const ResetPassword = () => {
               {isResetting ? (
                 <>
                   <CircularProgress size={20} sx={{ mr: 1 }} color="inherit" />
-                  Resetting Password...
+                  {t('auth.resettingPassword')}
                 </>
               ) : (
-                'Reset Password'
+                t('auth.resetPasswordTitle')
               )}
             </ResetButton>
 
@@ -244,7 +245,7 @@ const ResetPassword = () => {
               disabled={isResetting}
               startIcon={<ArrowBack />}
             >
-              Back to Login
+              {t('auth.backToLogin')}
             </ResetButton>
           </Box>
         </CardContent>

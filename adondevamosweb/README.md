@@ -1,5 +1,13 @@
 # Getting Started with Create React App
 
+## Translations
+
+The application uses i18next and react-i18next. English (`en`) is the fallback language; the browser language is detected on first visit, and a language selected in the header is saved in local storage.
+
+Translation resources are in `src/locales/<language>/translation.json`, grouped by feature (for example, `navigation`, `home`, and `auth`). When adding a UI string, add a matching key and translation to both `src/locales/en/translation.json` and `src/locales/es/translation.json`, then use `useTranslation()` and `t('feature.key')` in the component. Use `Trans` for translated text that includes React elements.
+
+To add another language, create its `translation.json` file and register it in `src/i18n.ts` under `resources` and `supportedLngs`.
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
