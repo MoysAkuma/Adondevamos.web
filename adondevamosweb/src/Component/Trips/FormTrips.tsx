@@ -17,19 +17,21 @@ import
         Checkbox
         
     } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 const FormTrips = ({
     formTrip, 
     handleChange
 
 }) => {
+    const { t } = useTranslation();
     return (
     <>
         <TextField
             id="name"
             name="name"
-            label="Name"
-            placeholder="Name of this trip"
+            label={t('users.name')}
+            placeholder={t('trips.tripNamePlaceholder')}
             variant="standard"
             onChange={handleChange}
             size={ 'small' }
@@ -41,8 +43,8 @@ const FormTrips = ({
         <TextField
             id="description"
             name="description"
-            label="Description"
-            placeholder="A simple description of goal of this trip"
+            label={t('users.description')}
+            placeholder={t('trips.goalDescription')}
             variant="standard"
             onChange={handleChange}
             size={ 'small' }
@@ -60,7 +62,7 @@ const FormTrips = ({
             }}
             id="initialdate"
             name="initialdate"
-            label="Initial Date"
+            label={t('trips.initialDate')}
             variant="standard"
             onChange={handleChange}
             size={'small'}
@@ -76,7 +78,7 @@ const FormTrips = ({
             }}
             id="finaldate"
             name="finaldate"
-            label="Final Date"
+            label={t('trips.finalDate')}
             variant="standard"
             onChange={handleChange}
             size={'small'}
