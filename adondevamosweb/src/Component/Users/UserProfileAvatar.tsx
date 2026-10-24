@@ -1,0 +1,75 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Box, IconButton, Menu, MenuItem, 
+    Tooltip, Avatar, Typography } from '@mui/material';
+import { Person } from '@mui/icons-material';
+import { useAuth } from '../../context/AuthContext';
+import { useTranslation } from 'react-i18next';
+
+export default function UserProfileAvatar({ settings }) {
+    const { t } = useTranslation();
+    const [anchorElUser, setAnchorElUser] = useState(null);
+    const navigate = useNavigate();
+    const { logout, thumbnail } = useAuth();
+
+    // Use thumbnail from context or fallback to localStorage
+    const avatarSrc = thumbnail || localStorage.getItem('thumbnail') || undefined;
+
+    const handleOpenUserMenu = (event) => {
+        setAnchorElUser(event.currentTarget);
+    };
+
+    const handleCloseUserMenu = () => {
+        setAnchorElUser(null);
+    };
+
+    const handleMenuClick = async (setting) => {
+        handleCloseUserMenu();
+        
+        if (setting.action === 'logout') {
+            await logout();
+            navigate('/');
+        } else if (setting.path) {
+            navigate(setting.path);
+        }
+    };
+
+    return (
+        <Box sx={{ flexGrow: 0 }}>
+            <Tooltip title={t('common.openSettings')}>
+                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <Avatar src={avatarSrc}>
+                        {!avatarSrc && <Person />}
+                    </Avatar>
+                </IconButton>
+            </Tooltip>
+            <Menu
+                sx={{ mt: '45px' }}
+                id="menu-appbar"
+                anchorEl={anchorElUser}
+                anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                }}
+                open={Boolean(anchorElUser)}
+                onClose={handleCloseUserMenu}
+            >
+                {settings.map((setting) => (
+                    <MenuItem 
+                        key={setting.text} 
+                        onClick={() => handleMenuClick(setting)}
+                    >
+                        <Typography sx={{ textAlign: 'center' }}>
+                            {setting.text}
+                        </Typography>
+                    </MenuItem>
+                ))}
+            </Menu>
+        </Box>
+    );
+}

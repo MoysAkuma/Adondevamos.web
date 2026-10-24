@@ -1,0 +1,670 @@
+import { useState, useEffect } from 'react';
+import 
+    { 
+        Button,
+        Typography,
+        Box,
+        CircularProgress,
+        useMediaQuery,
+        useTheme,
+        Collapse,
+        IconButton,
+        Skeleton
+} from '@mui/material';
+
+import { Save, ExpandMore, ExpandLess
+} from '@mui/icons-material'
+import ManageItinerary from './Itinerary/ManageItinerary';
+import ManageMemberList from './MembersList/ManageMemberList';
+import SnackbarNotification from '../Commons/SnackbarNotification';
+import { useNavigate, useParams } from 'react-router-dom';
+import FormTrips from './FormTrips';
+import { useAuth } from "../../context/AuthContext";
+import TripGallerySection from './TripGallerySection';
+import useTripMutationApi from '../../hooks/Trips/useTripMutationApi';
+import useTripDetailsApi from '../../hooks/Trips/useTripDetailsApi';
+import useGalleryUpload from '../../hooks/useGalleryUpload';
+import {
+  buildGalleryMetadataSnapshot,
+  buildGalleryUploadPayload,
+  buildItineraryPayload,
+  buildMembersPayload,
+  hasCollectionChanged,
+  hasTripInfoChanged,
+  normalizeGalleryMetadataForUpdate,
+  validateTripInfo
+} from './tripGallery.utils';
+
+function EditTrip(){
+  const theme = useTheme();
+  const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
+  const { loading } = useAuth();
+  const { uploadImages, isUploading } = useGalleryUpload();
+    const [isFetchingTrip, setIsFetchingTrip] = useState(true);
+    const navigate = useNavigate();
+  const { getTrip, updateTrip } = useTripMutationApi();
+  const { saveItinerary, saveGallery, saveGalleryMetadata, removeGalleryImage, setCoverImage, saveMembers } = useTripDetailsApi();
+
+    //Trip id
+    const { id } = useParams();
+    
+    const [errors, setErrors] = useState({
+      duplicatedplace : false,
+      duplicateduser : false,
+      tripinfo : false
+    });
+
+    //Show managers of sections
+    const [showManager, setShowManager] = useState({
+      itinerary : false,
+      memberlist : false,
+      gallery: false
+    });
+
+    //addedImages
+    const [addedImages, setAddedImages] = useState([]);
+    const [coverImageId, setCoverImageId] = useState(null);
+    const [coverImageIndex, setCoverImageIndex] = useState(null);
+    const [originalCoverImageId, setOriginalCoverImageId] = useState(null);
+    const [coverImageChanged, setCoverImageChanged] = useState(false);
+    const [galleryItems, setGalleryItems] = useState([]);
+    const [originalGallerySnapshot, setOriginalGallerySnapshot] = useState('[]');
+
+    // trip info
+    const [formTrip, setFormTrip] = useState({
+        name : '',
+        description : '',
+        initialdate : '',
+        finaldate : '',
+        owner:{
+          id : null,
+          tag : ''
+        },
+        itinerary:[],
+        members:[]
+    });
+
+    //copy of original trip info for comparison
+    const [originalTrip, setOriginalTrip] = useState(null);
+    // UI state
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitSuccess, setSubmitSuccess] = useState(false);
+    const [messageSnack, setMessageSnack] = useState('');
+
+    //update request
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormTrip(prev => ({
+        ...prev,
+        [name]: value
+        }));
+    };
+
+    // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitSuccess(false);
+
+    try {
+      const tripInfoChanged = hasTripInfoChanged(formTrip, originalTrip);
+
+      const itineraryChanged =
+        Boolean(originalTrip)
+        && hasCollectionChanged(originalTrip.itinerary, formTrip.itinerary);
+
+      const membersChanged =
+        Boolean(originalTrip)
+        && hasCollectionChanged(originalTrip.members, formTrip.members);
+
+      const latestGallerySnapshot = buildGalleryMetadataSnapshot(galleryItems);
+      const galleryMetadataChanged = latestGallerySnapshot !== originalGallerySnapshot;
+      const hasPendingImages = addedImages.length > 0;
+      const hasCoverChange = Boolean(coverImageChanged && coverImageId);
+
+      const hasChanges =
+        tripInfoChanged
+        || itineraryChanged
+        || membersChanged
+        || galleryMetadataChanged
+        || hasPendingImages
+        || hasCoverChange;
+
+      if (!hasChanges) {
+        setMessageSnack('No changes to save.');
+        setSubmitSuccess(true);
+        return;
+      }
+
+      if (tripInfoChanged) {
+        validateTripInfo(formTrip);
+
+        const response = await updateTrip(id, {
+          name : formTrip.name.trim(),
+          description : formTrip.description,
+          initialdate : formTrip.initialdate,
+          finaldate : formTrip.finaldate,
+        });
+
+        if(response.status == 201 || response.status == 200){
+          setMessageSnack("Trip info was updated.");
+        }
+      }
+
+      if (itineraryChanged) {
+        setMessageSnack("Saving itinerary...");
+        await saveTripItinerary();
+      }
+
+      if (membersChanged) {
+        setMessageSnack("Saving member list...");
+        await saveMemberlist();
+      }
+
+      if (galleryMetadataChanged && galleryItems.length > 0) {
+        setMessageSnack("Saving gallery details...");
+        await saveGalleryMetadata(id, {
+          images: normalizeGalleryMetadataForUpdate(galleryItems)
+        });
+        setOriginalGallerySnapshot(latestGallerySnapshot);
+      }
+
+      if (hasPendingImages) {
+        setMessageSnack("Uploading images...");
+        await uploadImages({
+          images: addedImages,
+          context: {},
+          coverImageIndex: coverImageIndex,
+          buildPayload: (normalizedImages, uploadContext, coverIdx) => ({
+            ...buildGalleryUploadPayload(addedImages, normalizedImages, coverIdx)
+          }),
+          uploadRequest: (payload) => saveGallery(id, payload)
+        });
+        setMessageSnack("Photos were added to gallery.");
+      } else if (hasCoverChange) {
+        // If only cover image changed (no new images added)
+        setMessageSnack("Updating cover image...");
+        try {
+          await setCoverImage(id, coverImageId);
+          setMessageSnack("Cover image was updated.");
+          setCoverImageChanged(false);
+        } catch (error) {
+          throw new Error(`Failed to update cover image: ${error.message}`);
+        }
+      }
+
+      // Handle success
+      setSubmitSuccess(true);
+      setTimeout(() => {
+        navigate('/View/Trip/' + id );
+      }, 3000);
+    
+    } catch (error) {
+      setMessageSnack(`Error updating trip: ${error.message}`);
+      console.error('Error updating trip:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  
+
+    //saveMemberlist
+    const saveMemberlist = async( ) =>{
+        const rq = buildMembersPayload(formTrip.members);
+        try {
+          await saveMembers(id, rq, 'put');
+          setMessageSnack("Member list was saved.");
+        } catch (error) {
+          console.error("Error saving member list", error);
+        }
+    };
+
+    //save itinerary
+    const saveTripItinerary = async( ) =>{
+        const rq = buildItineraryPayload(formTrip.itinerary);
+
+        try {
+          await saveItinerary(id, rq, 'put');
+          setMessageSnack("Itinerary was saved.");
+        } catch (error) {
+          console.error("Error saving itinerary", error);
+        }
+    };
+
+  const handlePlaceAdd = (item) => {
+    //Search if exist in itinerary
+    const foundInList = formTrip.itinerary.filter( x => x.place.id == item.place.id );
+    
+    //if not found, add to itinerary
+    if ( foundInList.length == 0 ){
+        setFormTrip(
+            prev => (
+              {
+              ...prev,
+                itinerary :[...prev.itinerary, item]
+              }
+            ) 
+          );
+
+        // Keep itinerary section open after adding
+        // setShowManager( prev => ( { ...prev, itinerary : false } ) );
+    } else {
+        setErrors(prev => (
+          {
+            ...prev,
+            duplicatedplace : true
+          }
+        )
+      );
+    }
+        
+  };
+
+  const handleRemove = (event) => {
+    //Item exist in list
+    const foundInList = formTrip.itinerary.filter( x => x.place.id == event);
+    // if found, filter list and set to form itinerary
+    if ( foundInList.length == 1 ){
+        const filteredList = formTrip.itinerary.filter(item => item.place.id !== event )
+        setFormTrip( prev => ({...prev, itinerary : filteredList } ));
+    } 
+  }
+
+  const handleDateUpdate = (placeId, initialdate, finaldate) => {
+    setFormTrip(prev => ({
+      ...prev,
+      itinerary: prev.itinerary.map(item => 
+        item.place.id === placeId 
+          ? { ...item, initialdate, finaldate }
+          : item
+      )
+    }));
+  };
+
+  const removePhoto = async (item) => {
+    try {
+      const response = await removeGalleryImage(id, item.id);
+      if (response.status === 200 || response.status === 204) {
+        setMessageSnack("Photo was removed from gallery.");
+        
+        // If removed photo was the cover, reset cover image state
+        if (item.id === coverImageId) {
+          setCoverImageId(null);
+          setOriginalCoverImageId(null);
+          setCoverImageChanged(false);
+        }
+        
+        setGalleryItems(prev => {
+          const updated = prev.filter(img => img.id !== item.id);
+          setOriginalGallerySnapshot(buildGalleryMetadataSnapshot(updated));
+          return updated;
+        });
+
+        // Update originalTrip state to reflect removal
+        setOriginalTrip(prev => ({
+          ...prev,
+          gallery: prev.gallery.filter(img => img.id !== item.id)
+        }));
+      }
+    } catch (error) {
+      setMessageSnack(`Error removing photo: ${error.message}`);
+      console.error('Error removing photo from gallery:', error);
+    }
+  };
+
+  const handleUserAdd = (item) => {
+    const foundInList = formTrip.members.filter( x => x.user.id == item.id );
+    const memberToInsert = {
+      user : {
+        id : item.id,
+        tag : item.tag,  
+        name : item.name,
+        email : item.email
+      },
+      hide : false
+    };
+    if ( foundInList.length == 0 ){
+        setFormTrip(
+          prev => (
+            { ...prev, 
+                members : [...prev.members, memberToInsert] 
+            }
+          )
+        );
+        setErrors(prev => ({ ...prev, duplicateduser : false }));
+    } else {
+        setErrors(prev => (
+          {
+            ...prev,
+            duplicateduser : true
+          }
+        )
+      );
+    }
+  };
+
+const handleRemoveUser = (event) => {
+    //Item exist in list
+    const foundInList = formTrip.members.filter( x => x.user.id == event);
+
+    if ( foundInList.length == 1 ){
+        const filteredList = formTrip.members.filter(item => item.user.id !== event );
+        setFormTrip(prev => ({ ...prev, members: filteredList }));
+    } 
+  };
+
+  const resetMembers = () => {
+    setFormTrip(prev => ({ ...prev, members: [] }));
+    setErrors(prev => ({ ...prev, duplicateduser: false }));
+  };
+
+  const toggleSection = (section) => {
+    setShowManager(prev => ({ 
+      ...prev, 
+      [section]: !prev[section] 
+    }));
+  };
+
+   const clearItinerary = () => {
+
+    setFormTrip(
+          prev => (
+            { ...prev, 
+                itinerary : []
+            }
+          )
+        );
+  };
+
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setSubmitSuccess(false);
+  };
+
+  useEffect(()=> {
+      const fetchTrip = async () => {
+          if ( !id ) return;
+          setIsFetchingTrip(true);
+          try {
+            const response = await getTrip(id);
+            setFormTrip(response.data.info);
+            setOriginalTrip(response.data.info);
+            setGalleryItems(response.data.info.gallery || []);
+            setOriginalGallerySnapshot(buildGalleryMetadataSnapshot(response.data.info.gallery || []));
+            
+            // Initialize cover image state
+            if (response.data.info.gallery && response.data.info.gallery.length > 0) {
+              const coverImage = response.data.info.gallery.find(img => img.iscover);
+              if (coverImage) {
+                setCoverImageId(coverImage.id);
+                setOriginalCoverImageId(coverImage.id);
+              } else {
+                // If no cover is set, use the first image
+                const firstImage = response.data.info.gallery[0];
+                setCoverImageId(firstImage.id);
+                setOriginalCoverImageId(firstImage.id);
+              }
+            }
+        } catch (err) {
+          console.error("Error getting trip info", err);
+          setErrors(prev => (
+              {
+                ...prev,
+                tripinfo : true
+              }
+            )
+          );
+
+        } finally {
+          setIsFetchingTrip(false);
+        } 
+      }
+      fetchTrip();
+  },[id]);
+    if ( loading ) {
+        return (
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+              <CircularProgress />
+          </Box>
+        );
+    }
+
+    if (isFetchingTrip) {
+      return (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+            width: '100%',
+            px: 2
+          }}
+        >
+          {/* Title Skeleton */}
+          <Skeleton 
+            variant="text" 
+            width="60%" 
+            height={isSmUp ? 60 : 50}
+            sx={{ mx: 'auto' }}
+          />
+
+          {/* Section Header Skeleton */}
+          <Skeleton variant="text" width="30%" height={30} />
+
+          {/* Form Fields Skeletons */}
+          <Skeleton variant="rounded" width="100%" height={56} />
+          <Skeleton variant="rounded" width="100%" height={120} />
+          
+          <Box sx={{ display: 'flex', gap: 2, flexDirection: isSmUp ? 'row' : 'column' }}>
+            <Skeleton variant="rounded" width={isSmUp ? '50%' : '100%'} height={56} />
+            <Skeleton variant="rounded" width={isSmUp ? '50%' : '100%'} height={56} />
+          </Box>
+
+          {/* Itinerary Section Skeleton */}
+          <Box sx={{ mt: 2 }}>
+            <Skeleton variant="text" width="40%" height={40} />
+            <Skeleton variant="rounded" width="100%" height={100} sx={{ mt: 1 }} />
+          </Box>
+
+          {/* Members Section Skeleton */}
+          <Box sx={{ mt: 2 }}>
+            <Skeleton variant="text" width="40%" height={40} />
+            <Skeleton variant="rounded" width="100%" height={100} sx={{ mt: 1 }} />
+          </Box>
+
+          {/* Gallery Section Skeleton */}
+          <Box sx={{ mt: 2 }}>
+            <Skeleton variant="text" width="40%" height={40} />
+            <Skeleton variant="rounded" width="100%" height={150} sx={{ mt: 1 }} />
+          </Box>
+
+          {/* Submit Button Skeleton */}
+          <Skeleton variant="rounded" width={isSmUp ? '20%' : '100%'} height={40} sx={{ mt: 2 }} />
+        </Box>
+      );
+    }
+
+    return (
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 2,
+          width: '100%'
+        }}
+      >
+          <Typography 
+            variant={isSmUp ? "h3" : "h4"} 
+            align="center"
+            sx={{
+                fontFamily: "'Press Start 2P', cursive",
+                color: '#2c3e50',
+                fontSize: isSmUp ? '1.5rem' : '1.2rem',
+                lineHeight: 1.6,
+                mb: 1
+            }}
+          >
+            Edit Trip 
+          </Typography>
+          
+          <Typography variant="body1"  align="left">
+            About your trip
+          </Typography>
+
+          <FormTrips 
+            formTrip={formTrip}
+            handleChange={handleChange} />
+          
+          <Box sx={{ mt: 2 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                cursor: 'pointer',
+                '&:hover': { opacity: 0.8 }
+              }}
+              onClick={() => toggleSection('itinerary')}
+            >
+              <Typography variant="body1">
+                Manage Itinerary {formTrip.itinerary && formTrip.itinerary.length > 0 && `(${formTrip.itinerary.length})`}
+              </Typography>
+              <IconButton size="small">
+                {showManager.itinerary ? <ExpandLess /> : <ExpandMore />}
+              </IconButton>
+            </Box>
+            <Collapse in={showManager.itinerary}>
+              <Box sx={{ mt: 2 }}>
+                <ManageItinerary
+                  itinerary={formTrip.itinerary}
+                  onPlaceAdd={handlePlaceAdd}
+                  onPlaceRemove={handleRemove}
+                  onClearItinerary={clearItinerary}
+                  onDateUpdate={handleDateUpdate}
+                />
+              </Box>
+            </Collapse>
+          </Box>
+
+          <Box sx={{ mt: 2 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                cursor: 'pointer',
+                '&:hover': { opacity: 0.8 }
+              }}
+              onClick={() => toggleSection('memberlist')}
+            >
+              <Typography variant="body1">
+                Manage Members {formTrip.members && formTrip.members.length > 0 && `(${formTrip.members.length})`}
+              </Typography>
+              <IconButton size="small">
+                {showManager.memberlist ? <ExpandLess /> : <ExpandMore />}
+              </IconButton>
+            </Box>
+            <Collapse in={showManager.memberlist}>
+              <Box sx={{ mt: 2 }}>
+                <ManageMemberList
+                  memberlist={formTrip.members}
+                  onAddMember={handleUserAdd}
+                  onRemoveMember={handleRemoveUser}
+                  onResetMembers={resetMembers}
+                  showDuplicateError={errors.duplicateduser}
+                />
+              </Box>
+            </Collapse>
+          </Box>
+
+          <Box sx={{ mt: 2 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                cursor: 'pointer',
+                '&:hover': { opacity: 0.8 }
+              }}
+              onClick={() => toggleSection('gallery')}
+            >
+              <Typography variant="body1">
+                Manage Gallery {galleryItems.length > 0 && `(${galleryItems.length})`}
+              </Typography>
+              <IconButton size="small">
+                {showManager.gallery ? <ExpandLess /> : <ExpandMore />}
+              </IconButton>
+            </Box>
+            <Collapse in={showManager.gallery}>
+              <Box sx={{ mt: 2 }}>
+                <TripGallerySection
+                  items={galleryItems}
+                  onItemsChange={setGalleryItems}
+                  onRemove={removePhoto}
+                  pendingImages={addedImages || []}
+                  onPendingImagesChange={setAddedImages}
+                  itinerary={formTrip.itinerary}
+                  showUploader
+                  enableImageMetadata
+                  maxPendingImages={10}
+                  coverImageId={coverImageId}
+                  coverImageIndex={coverImageIndex}
+                  onSetCover={async (idOrIndex, autoSet) => {
+                    // For pending images, it's always an index (number 0-n)
+                    // For existing gallery items, it's always an ID (could be number or string from DB)
+                    const hasExistingGallery = galleryItems.length > 0;
+                    
+                    if (hasExistingGallery && galleryItems.some(img => img.id === idOrIndex)) {
+                      // It's an existing gallery item ID - mark as changed, will be saved on submit
+                      setCoverImageId(idOrIndex);
+                      setCoverImageIndex(null);
+                      setCoverImageChanged(originalCoverImageId !== idOrIndex);
+                      
+                      if (!autoSet) {
+                        console.log('Cover image marked for update:', idOrIndex);
+                      }
+                    } else {
+                      // It's a pending image index - will be set on save
+                      setCoverImageIndex(idOrIndex);
+                      setCoverImageId(null);
+                      setCoverImageChanged(false);
+                    }
+                    if (!autoSet) {
+                      console.log('Cover image set:', idOrIndex);
+                    }
+                  }}
+                />
+              </Box>
+            </Collapse>
+          </Box>
+
+          <Button 
+            type="submit" 
+            disabled={isSubmitting || isUploading}
+            variant="text"
+            startIcon={<Save/>}
+            sx={{ mt: 2 }}
+          >
+            Save changes
+          </Button>
+
+
+          <SnackbarNotification
+            open={submitSuccess}
+            onClose={handleSnackbarClose}
+            message={messageSnack}
+            severity="success"
+            autoHideDuration={3000}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          />
+
+      </Box>
+    );
+}
+
+export default EditTrip;
