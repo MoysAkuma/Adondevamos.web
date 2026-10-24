@@ -20,48 +20,36 @@ import { styled } from '@mui/material/styles';
 import useRankingApi from '../../hooks/Ranking/useRankingApi';
 import TripCardSkeleton from '../Trips/TripCardSkeleton';
 
-// Styled podium components
-const PodiumContainer = styled(Box)(({ theme }) => ({
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-    gap: theme.spacing(1),
-    marginTop: theme.spacing(3),
-    marginBottom: theme.spacing(2),
-    minHeight: 280,
-    [theme.breakpoints.down('sm')]: {
-        gap: theme.spacing(0.5),
-        minHeight: 240,
-    }
-}));
-
-const PodiumPlace = styled(Paper)(({ theme, position, color }) => ({
+const LeaderboardContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
     flexDirection: 'column',
+    gap: theme.spacing(1.5),
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(2),
+}));
+
+const LeaderboardRow = styled(Paper)<{ color: string }>(({ theme, color }) => ({
+    display: 'flex',
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    padding: theme.spacing(2),
+    gap: theme.spacing(1.5),
+    padding: theme.spacing(1.5),
     borderRadius: 0,
     border: '4px solid #000000',
-    boxShadow: '6px 6px 0px #000000',
+    boxShadow: '4px 4px 0px #000000',
     backgroundColor: color,
-    width: position === 1 ? 140 : 120,
-    minHeight: position === 1 ? 220 : position === 2 ? 180 : 150,
-    transition: 'transform 0.2s ease',
     cursor: 'pointer',
     imageRendering: 'pixelated',
     '&:hover': {
-        transform: 'translateY(-4px)',
-        boxShadow: '8px 8px 0px #000000',
+        transform: 'translateX(4px)',
+        boxShadow: '7px 4px 0px #000000',
     },
+    transition: 'all 0.2s ease',
     [theme.breakpoints.down('sm')]: {
-        width: position === 1 ? 110 : 95,
-        minHeight: position === 1 ? 180 : position === 2 ? 150 : 120,
         padding: theme.spacing(1),
     }
 }));
 
-const PositionBadge = styled(Avatar)(({ theme, position }) => ({
+const PositionBadge = styled(Avatar)<{ position: number }>(({ theme, position }) => ({
     width: 48,
     height: 48,
     backgroundColor: position === 1 ? '#FCFC00' : position === 2 ? '#A4A4A4' : '#FC7800',
@@ -107,7 +95,7 @@ const VoteCount = styled(Box)(({ theme }) => ({
     }
 }));
 
-const PODIUM_COLORS = {
+const LEADERBOARD_COLORS = {
     1: '#FCFC54', // 8-bit Gold/Yellow
     2: '#BCBCBC', // 8-bit Silver/Gray  
     3: '#FC9838'  // 8-bit Bronze/Orange
@@ -142,7 +130,7 @@ function Ranking({ defaultEntityType = 'places', showSelector = true }) {
         }
     };
 
-    const handlePodiumClick = (item) => {
+    const handleLeaderboardClick = (item) => {
         if (entityType === 'places') {
             navigate(`/View/Place/${item.id}`);
         } else if (entityType === 'trips' || entityType === 'itineraries') {
@@ -150,19 +138,7 @@ function Ranking({ defaultEntityType = 'places', showSelector = true }) {
         }
     };
 
-    // Reorder ranking for podium display: [2nd, 1st, 3rd]
-    const getPodiumOrder = (ranking) => {
-        if (!ranking || ranking.length === 0) return [];
-        const ordered = [...ranking];
-        // Ensure we have at least 3 items, fill with nulls if needed
-        while (ordered.length < 3) {
-            ordered.push(null);
-        }
-        // Return in podium order: 2nd, 1st, 3rd
-        return [ordered[1], ordered[0], ordered[2]];
-    };
-
-    const renderPodium = () => {
+    const renderLeaderboard = () => {
         if (!rankingData?.ranking || rankingData.ranking.length === 0) {
             return (
                 <Box sx={{ textAlign: 'center', py: 4 }}>
@@ -173,35 +149,30 @@ function Ranking({ defaultEntityType = 'places', showSelector = true }) {
             );
         }
 
-        const podiumOrder = getPodiumOrder(rankingData.ranking);
-        const positions = [2, 1, 3]; // Position labels for [2nd, 1st, 3rd]
-
         return (
-            <PodiumContainer>
-                {podiumOrder.map((item, index) => {
-                    if (!item) return null;
-                    const position = positions[index];
+            <LeaderboardContainer>
+                {rankingData.ranking.map((item, index) => {
+                    const position = index + 1;
                     return (
-                        <PodiumPlace
+                        <LeaderboardRow
                             key={item.id}
-                            position={position}
-                            color={PODIUM_COLORS[position]}
-                            onClick={() => handlePodiumClick(item)}
-                            elevation={position === 1 ? 8 : 4}
+                            color={LEADERBOARD_COLORS[position] || '#FFFFFF'}
+                            onClick={() => handleLeaderboardClick(item)}
+                            elevation={0}
                         >
                             <PositionBadge position={position}>
-                                {position === 1 ? <EmojiEvents /> : position}
+                                {position}
                             </PositionBadge>
-                            <EntityName>
+                            <EntityName sx={{ flex: 1, textAlign: 'left', mb: 0 }}>
                                 {item.name || `${ENTITY_LABELS[entityType]} #${item.id}`}
                             </EntityName>
                             <VoteCount>
                                 ❤️ {item.Votes?.Total || 0}
                             </VoteCount>
-                        </PodiumPlace>
+                        </LeaderboardRow>
                     );
                 })}
-            </PodiumContainer>
+            </LeaderboardContainer>
         );
     };
 
@@ -280,7 +251,7 @@ function Ranking({ defaultEntityType = 'places', showSelector = true }) {
                 </Alert>
             )}
 
-            {!loading && !error && renderPodium()}
+            {!loading && !error && renderLeaderboard()}
         </Box>
     );
 }

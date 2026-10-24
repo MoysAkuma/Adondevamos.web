@@ -10,55 +10,44 @@ import {
     Avatar
 } from '@mui/material';
 import {
-    EmojiEvents,
     Place,
     FlightTakeoff
 } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import { styled } from '@mui/material/styles';
 import useRankingApi from '../../hooks/Ranking/useRankingApi';
 
-// Styled podium components
-const PodiumContainer = styled(Box)(({ theme }) => ({
+const LeaderboardContainer = styled(Box)(({ theme }) => ({
     display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'flex-end',
+    flexDirection: 'column',
     gap: theme.spacing(1),
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
-    minHeight: 200,
-    [theme.breakpoints.down('sm')]: {
-        gap: theme.spacing(0.5),
-        minHeight: 160,
-    }
 }));
 
-const PodiumPlace = styled(Paper)(({ theme, position, color }) => ({
+const LeaderboardRow = styled(Paper)<{ color: string }>(({ theme, color }) => ({
     display: 'flex',
-    flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    padding: theme.spacing(1.5),
+    gap: theme.spacing(1),
+    padding: theme.spacing(1),
     borderRadius: 0,
     border: '3px solid #000000',
-    boxShadow: '4px 4px 0px #000000',
+    boxShadow: '3px 3px 0px #000000',
     backgroundColor: color,
-    width: position === 1 ? 100 : 85,
-    minHeight: position === 1 ? 160 : position === 2 ? 130 : 110,
-    transition: 'transform 0.2s ease',
     cursor: 'pointer',
     imageRendering: 'pixelated',
     '&:hover': {
-        transform: 'translateY(-3px)',
-        boxShadow: '6px 6px 0px #000000',
+        transform: 'translateX(3px)',
+        boxShadow: '5px 3px 0px #000000',
     },
+    transition: 'all 0.2s ease',
     [theme.breakpoints.down('sm')]: {
-        width: position === 1 ? 80 : 70,
-        minHeight: position === 1 ? 130 : position === 2 ? 105 : 85,
-        padding: theme.spacing(1),
+        gap: theme.spacing(0.5),
+        padding: theme.spacing(0.75),
     }
 }));
 
-const PositionBadge = styled(Avatar)(({ theme, position }) => ({
+const PositionBadge = styled(Avatar)<{ position: number }>(({ theme, position }) => ({
     width: 32,
     height: 32,
     backgroundColor: position === 1 ? '#FCFC00' : position === 2 ? '#A4A4A4' : '#FC7800',
@@ -118,7 +107,7 @@ const SectionTitle = styled(Typography)(({ theme }) => ({
     }
 }));
 
-const PODIUM_COLORS = {
+const LEADERBOARD_COLORS = {
     1: '#FCFC54', // 8-bit Gold/Yellow
     2: '#BCBCBC', // 8-bit Silver/Gray  
     3: '#FC9838'  // 8-bit Bronze/Orange
@@ -126,6 +115,7 @@ const PODIUM_COLORS = {
 
 function MultiRanking() {
     const navigate = useNavigate();
+    const { t } = useTranslation();
     const { loading, error, getRanking } = useRankingApi();
     const [placesRanking, setPlacesRanking] = useState(null);
     const [tripsRanking, setTripsRanking] = useState(null);
@@ -145,7 +135,7 @@ function MultiRanking() {
         fetchRankings();
     }, []);
 
-    const handlePodiumClick = (item, entityType) => {
+    const handleLeaderboardClick = (item, entityType) => {
         if (entityType === 'places') {
             navigate(`/View/Place/${item.id}`);
         } else {
@@ -153,46 +143,32 @@ function MultiRanking() {
         }
     };
 
-    const getPodiumOrder = (ranking) => {
-        if (!ranking || ranking.length === 0) return [];
-        const ordered = [...ranking];
-        while (ordered.length < 3) {
-            ordered.push(null);
-        }
-        return [ordered[1], ordered[0], ordered[2]];
-    };
-
-    const renderPodium = (rankingData, entityType, label) => {
+    const renderLeaderboard = (rankingData, entityType) => {
         const ranking = rankingData?.ranking || [];
         
         if (ranking.length === 0) {
             return (
                 <Box sx={{ textAlign: 'center', py: 2 }}>
                     <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.5rem' }}>
-                        No votes yet
+                        {t('ranking.noVotesYet')}
                     </Typography>
                 </Box>
             );
         }
 
-        const podiumOrder = getPodiumOrder(ranking);
-        const positions = [2, 1, 3];
-
         return (
-            <PodiumContainer>
-                {podiumOrder.map((item, index) => {
-                    if (!item) return null;
-                    const position = positions[index];
+            <LeaderboardContainer>
+                {ranking.map((item, index) => {
+                    const position = index + 1;
                     return (
-                        <PodiumPlace
+                        <LeaderboardRow
                             key={item.id}
-                            position={position}
-                            color={PODIUM_COLORS[position]}
-                            onClick={() => handlePodiumClick(item, entityType)}
-                            elevation={position === 1 ? 6 : 3}
+                            color={LEADERBOARD_COLORS[position] || '#FFFFFF'}
+                            onClick={() => handleLeaderboardClick(item, entityType)}
+                            elevation={0}
                         >
                             <PositionBadge position={position}>
-                                {position === 1 ? <EmojiEvents sx={{ fontSize: 16 }} /> : position}
+                                {position}
                             </PositionBadge>
                             <EntityName>
                                 {item.name || `#${item.id}`}
@@ -200,10 +176,10 @@ function MultiRanking() {
                             <VoteCount>
                                 ❤️ {item.Votes?.Total || 0}
                             </VoteCount>
-                        </PodiumPlace>
+                        </LeaderboardRow>
                     );
                 })}
-            </PodiumContainer>
+            </LeaderboardContainer>
         );
     };
 
@@ -239,9 +215,9 @@ function MultiRanking() {
                     >
                         <SectionTitle>
                             <Place sx={{ color: '#FC5454' }} />
-                            Top Places
+                            {t('ranking.topPlaces')}
                         </SectionTitle>
-                        {renderPodium(placesRanking, 'places', 'Places')}
+                        {renderLeaderboard(placesRanking, 'places')}
                     </Paper>
                 </Grid>
                 <Grid item xs={12} md={6}>
@@ -257,9 +233,9 @@ function MultiRanking() {
                     >
                         <SectionTitle>
                             <FlightTakeoff sx={{ color: '#5454FC' }} />
-                            Top Trips
+                            {t('ranking.topTrips')}
                         </SectionTitle>
-                        {renderPodium(tripsRanking, 'trips', 'Trips')}
+                        {renderLeaderboard(tripsRanking, 'trips')}
                     </Paper>
                 </Grid>
             </Grid>

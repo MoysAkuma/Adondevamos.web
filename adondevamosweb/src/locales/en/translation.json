@@ -99,9 +99,25 @@
     "logout": "Logout"
   },
   "language": {
-    "select": "Select language",
-    "english": "English",
-    "spanish": "Spanish"
+    "select": "Language",
+    "english": "ENG",
+    "spanish": "ESP"
+  },
+  "ranking": {
+    "pageTitle": "{{entity}} Leaderboard - AdondeVamos",
+    "allPageTitle": "Leaderboard - AdondeVamos",
+    "pageDescription": "See the top scores for {{entity}} on AdondeVamos.",
+    "allPageDescription": "See the top scores for trips, places and itineraries on AdondeVamos.",
+    "heading": "LEADERBOARD",
+    "description": "Top scores for the best places and trips",
+    "topPlaces": "Top Places",
+    "topTrips": "Top Trips",
+    "noVotesYet": "No votes yet",
+    "entities": {
+      "places": "Places",
+      "trips": "Trips",
+      "itineraries": "Itineraries"
+    }
   },
   "home": {
     "pageTitle": "AdondeVamos - Plan and Share Travel Itineraries",

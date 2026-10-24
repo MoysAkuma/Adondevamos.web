@@ -1,8 +1,8 @@
 {
   "common": {
-    "logo": "Logotipo de AdondeVamos",
+    "logo": "AdondeVamos",
     "menu": "Menú",
-    "openSettings": "Abrir configuración",
+    "openSettings": "Configuración",
     "siteCredit": "Sitio creado por <0>@MoysAkuma</0>",
     "sessionExpiring": "La sesión está por vencer",
     "sessionExpires": "Tu sesión vencerá en {{time}} por inactividad.",
@@ -93,15 +93,31 @@
     "places": "Lugares",
     "ranking": "Clasificación",
     "profile": "Perfil",
-    "faq": "Preguntas frecuentes",
+    "faq": "FAQ",
     "settings": "Configuración",
-    "login": "Iniciar sesión",
+    "login": "Login",
     "logout": "Cerrar sesión"
   },
   "language": {
-    "select": "Seleccionar idioma",
-    "english": "Inglés",
-    "spanish": "Español"
+    "select": "Idioma",
+    "english": "ENG",
+    "spanish": "ESP"
+  },
+  "ranking": {
+    "pageTitle": "Tabla de clasificación de {{entity}} - AdondeVamos",
+    "allPageTitle": "Tabla de clasificación - AdondeVamos",
+    "pageDescription": "Consulta las mejores puntuaciones de {{entity}} en AdondeVamos.",
+    "allPageDescription": "Consulta las mejores puntuaciones de viajes, lugares e itinerarios en AdondeVamos.",
+    "heading": "TABLA DE CLASIFICACIÓN",
+    "description": "Las mejores puntuaciones de lugares y viajes",
+    "topPlaces": "Mejores lugares",
+    "topTrips": "Mejores viajes",
+    "noVotesYet": "Aún no hay votos",
+    "entities": {
+      "places": "lugares",
+      "trips": "viajes",
+      "itineraries": "itinerarios"
+    }
   },
   "home": {
     "pageTitle": "AdondeVamos - Planea y comparte itinerarios de viaje",

@@ -2,7 +2,8 @@ import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useSeoMeta } from '@unhead/react';
 import { useMediaQuery, useTheme } from '@mui/material';
-import { EmojiEvents } from '@mui/icons-material';
+import { Leaderboard } from '@mui/icons-material';
+import { useTranslation } from 'react-i18next';
 import Ranking from '../Component/Ranking/Ranking';
 import MultiRanking from '../Component/Ranking/MultiRanking';
 import CenteredTemplate from '../Component/Commons/CenteredTemplate';
@@ -20,14 +21,22 @@ function RankingPage() {
     const theme = useTheme();
     const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
     const { entityType } = useParams<{ entityType?: string }>();
+    const { t } = useTranslation();
 
     const validTypes: RankingEntityType[] = ['places', 'trips', 'itineraries'];
 
-    const entityLabel = entityType ? entityType.charAt(0).toUpperCase() + entityType.slice(1) : undefined;
-    const pageTitle = entityLabel ? `${entityLabel} Ranking - AdondeVamos` : 'Rankings - AdondeVamos';
+    const entityLabel = entityType
+        ? t(`ranking.entities.${entityType}`, { defaultValue: entityType })
+        : undefined;
+    const pageTitle = entityLabel
+        ? t('ranking.pageTitle', { entity: entityLabel })
+        : t('ranking.allPageTitle');
+    const pageDescription = entityLabel
+        ? t('ranking.pageDescription', { entity: entityLabel.toLowerCase() })
+        : t('ranking.allPageDescription');
     useSeoMeta({
         title: pageTitle,
-        description: entityLabel ? `See the top-ranked ${entityType} on AdondeVamos.` : 'See the top-ranked trips, places and itineraries on AdondeVamos.',
+        description: pageDescription,
         ogTitle: pageTitle,
     });
     const showMulti = !entityType || !validTypes.includes(entityType as RankingEntityType);
@@ -47,8 +56,8 @@ function RankingPage() {
                                 lineHeight: 1.4
                             }}
                         >
-                            <EmojiEvents sx={{ fontSize: isSmUp ? 48 : 40 }} />
-                            Rankings
+                            <Leaderboard sx={{ fontSize: isSmUp ? 48 : 40 }} />
+                            {t('ranking.heading')}
                         </PixelTypography>
                         <PixelTypography
                             sx={{
@@ -58,7 +67,7 @@ function RankingPage() {
                                 mt: 1,
                             }}
                         >
-                            Discover the best places and trips
+                            {t('ranking.description')}
                         </PixelTypography>
                     </StyledRankingHeaderContent>
                 </StyledRankingHeaderCard>

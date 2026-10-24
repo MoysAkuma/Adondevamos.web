@@ -46,7 +46,7 @@ export default function AppBarComp() {
             <Container maxWidth="lg">
                 <Toolbar disableGutters>
                     <NotListedLocation sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                    <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontSize: '1rem' }}>
                         <Link to={brand.href} style={{ textDecoration: 'none', color: 'inherit' }}>
                             {brand.name}
                         </Link>
@@ -68,9 +68,10 @@ export default function AppBarComp() {
                                             color="inherit" 
                                             component={Link} 
                                             to={item.href}
+                                            sx={{ fontSize: '0.75rem' }}
                                         >
                                             {settings.showIcons && item.icon && (
-                                                <span style={{ marginRight: '4px' }}>{item.icon}</span>
+                                                <span style={{ marginRight: '3px' }}>{item.icon}</span>
                                             )}
                                             {t(`navigation.${item.id === 'managesite' ? 'settings' : item.id}`)}
                                         </Button>
@@ -86,9 +87,10 @@ export default function AppBarComp() {
                                             color="inherit" 
                                             component={Link} 
                                             to={authButton.href}
+                                            sx={{ fontSize: '0.75rem' }}
                                         >
                                             {settings.showIcons && authButton.icon && (
-                                                <span style={{ marginRight: '4px' }}>{authButton.icon}</span>
+                                                <span style={{ marginRight: '3px' }}>{authButton.icon}</span>
                                             )}
                                             {t(authButton.action === 'logout' ? 'navigation.logout' : 'navigation.login')}
                                         </Button>
@@ -131,6 +133,7 @@ export default function AppBarComp() {
                         <ListItem key={item.id} disablePadding>
                             <ListItemButton component={Link} to={item.href}>
                                 <ListItemText 
+                                    primaryTypographyProps={{ sx: { fontSize: '0.875rem' } }}
                                     primary={
                                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                             {settings.showIcons && item.icon && (
@@ -150,6 +153,7 @@ export default function AppBarComp() {
                             {authButton.action === 'logout' ? (
                                 <ListItemButton onClick={handleAuthAction}>
                                     <ListItemText 
+                                        primaryTypographyProps={{ sx: { fontSize: '0.875rem' } }}
                                         primary={
                                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                                 {settings.showIcons && authButton.icon && (
@@ -163,6 +167,7 @@ export default function AppBarComp() {
                             ) : (
                                 <ListItemButton component={Link} to={authButton.href}>
                                     <ListItemText 
+                                        primaryTypographyProps={{ sx: { fontSize: '0.875rem' } }}
                                         primary={
                                             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                                 {settings.showIcons && authButton.icon && (
